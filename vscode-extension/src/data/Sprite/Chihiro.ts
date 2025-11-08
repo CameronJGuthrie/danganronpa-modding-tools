@@ -1,0 +1,18 @@
+export const ChihiroSprite = {
+  0: "Neutral",
+  1: "Happy",
+  2: "Shy",
+  3: "SmilingBlushing",
+  4: "Hesitant",
+  5: "Upset",
+  6: "Awe",
+  7: "Apologetic",
+  8: "Crying",
+  9: "CryingScared",
+  10: "Crying2",
+  11: "Relieved",
+  12: "Thinking",
+  13: "Deliberating",
+  14: "Proclaim",
+  15: "Crying3",
+};

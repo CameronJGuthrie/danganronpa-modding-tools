@@ -1,0 +1,11 @@
+{
+  "name": "danganronpa-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "archiver": "^7.0.1",
+    "clipboardy": "^5.0.0"
+  }
+}

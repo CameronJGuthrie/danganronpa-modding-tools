@@ -1,0 +1,11 @@
+packages:
+  - vscode-extension
+  - mod-tool
+  - scripts
+
+onlyBuiltDependencies:
+  - '@vscode/vsce-sign'
+  - electron
+  - electron-winstaller
+  - esbuild
+  - keytar

@@ -1,0 +1,66 @@
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Rr]elease/obj/
+[Dd]ebug/obj/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache files
+.vs/
+
+# Visual Studio temporary files
+*.pdb
+*.idb
+*.ipch
+*.sdf
+*.opensdf
+*.suo
+*.sln.ide
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Logs
+*.log
+
+# Test data
+data/
+
+# Other
+*.ilk
+*.meta
+*.dll
+*.exe
+*.app
+*.appx
+*.appxbundle
+*.msi
+*.msp
+*.manifest
+*.xml
+*.json
+*.dSYM/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# Ignore environment settings
+.env

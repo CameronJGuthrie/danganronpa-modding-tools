@@ -1,0 +1,17 @@
+export const LeonSprite = {
+  0: "Neutral",
+  1: "Speaking",
+  2: "Relaxed",
+  3: "Charming",
+  4: "Threaten",
+  5: "Angry",
+  6: "Worried",
+  7: "Shocked",
+  8: "Scared",
+  9: "Terrified",
+  10: "Thinking",
+  11: "Determined",
+  12: "Venting",
+  13: "Frowning",
+  14: "Stupid",
+};

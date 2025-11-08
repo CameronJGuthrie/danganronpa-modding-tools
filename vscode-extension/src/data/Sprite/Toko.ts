@@ -1,0 +1,27 @@
+export const TokoSprite = {
+  0: "NeutralAvertEyes",
+  1: "Neutral",
+  2: "DeviousGrin",
+  3: "Frustrated",
+  4: "BitingThumbNervous",
+  5: "Horrified",
+  6: "Shocked",
+  7: "Terrified",
+  8: "Overwhelmed",
+  9: "DeviousSmile",
+  10: "DeviousMouthOpen",
+  11: "Annoyed",
+  12: "Proclaim",
+  13: "DeviousDaydream",
+  14: "TongueLoose",
+  15: "Sneeze",
+  16: "Furious",
+  // no 17 or 18
+  19: "JillNeutral",
+  20: "JillManicSmile",
+  21: "JillManicLaugh",
+  22: "JillBiteThumb",
+  23: "JillPuzzled",
+  24: "JillBlushing",
+  // More to do here
+};

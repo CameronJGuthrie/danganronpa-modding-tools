@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+
+# Workspace directory (working files)
+workspace/*
+!workspace/.danganronpa-working-root
+
+# Really messy debug scripts
+scripts/src/generator.js
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# OS files
+.DS_Store
+Thumbs.db

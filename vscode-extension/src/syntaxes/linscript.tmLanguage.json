@@ -1,0 +1,21 @@
+{
+  "scopeName": "source.linscript",
+  "patterns": [
+    {
+      "match": "\\b0x[0-9A-Fa-f]+\\b",
+      "name": "constant.numeric.hex.linscript"
+    },
+    {
+      "match": "\"(?:[^\"\\\\]|\\\\.)*\"",
+      "name": "string.quoted.double.linscript"
+    },
+    {
+      "match": "\\b(EvaluateRelationship|EvaluateFreeTimeEvent|ShowBackground|TruthBulletFlag|IfTrue|Evaluate|EvaluateFlag|ChangeUI|Type|LoadSprite|Text|TextStyle|PostProcessingEffect|Movie|Animation|Voice|Music|Sound|SoundB|AddTruthBullet|UnlockSkill|StudentTitleEntry|StudentRelationship|StudentReportInfo|TrialCamera|LoadMap|LoadScript|StopScript|RunScript|RestartScript|Sprite|ScreenFlash|SpriteFlash|Speaker|ScreenFade|ObjectState|ChangeUI|SetVar8|CheckCharacter|CheckObject|Label|SetOption|EndOfJump|CameraFlash|ShowBackground|SetVar16|Goto|WaitInput|WaitFrame|Present)\\b",
+      "name": "entity.name.function.linscript"
+    },
+    {
+      "match": "\\b(Textless|Text)\\b",
+      "name": "constant.language.linscript"
+    }
+  ]
+}

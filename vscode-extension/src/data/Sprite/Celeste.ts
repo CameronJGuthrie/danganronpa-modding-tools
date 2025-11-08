@@ -1,0 +1,18 @@
+export const CelesteSprite = {
+  0: "Neutral",
+  1: "NeutralAvertEyes",
+  2: "SmileCoverMouth",
+  3: "SmilingPetite",
+  4: "EyesLowered",
+  5: "Shocked",
+  6: "Analyzing",
+  7: "Speaking",
+  8: "HairTwirl",
+  9: "AngryYasuhiro",
+  10: "ManicYasuhiro",
+  11: "Beaten",
+  12: "Angry",
+  13: "Frustrated",
+  14: "Sad",
+  15: "Intense",
+};

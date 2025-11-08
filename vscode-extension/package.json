@@ -1,0 +1,129 @@
+{
+  "name": "lindecompilerhelper",
+  "displayName": "LinDecompilerHelper",
+  "description": "Syntax highlighting and live compilation for Danganronpa .linscript files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:linscript",
+    "workspaceContains:**/*.lin",
+    "workspaceContains:**/*.linscript"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "linscript",
+        "extensions": [
+          ".linscript"
+        ],
+        "aliases": [
+          "Lin Script Language"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "linscript",
+        "scopeName": "source.linscript",
+        "path": "./src/syntaxes/linscript.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "lindecompilerhelper.selectScript",
+        "title": "Select for Modding"
+      },
+      {
+        "command": "lindecompilerhelper.verifyFile",
+        "title": "Verify File"
+      },
+      {
+        "command": "lindecompilerhelper.toggleParameterDecorations",
+        "title": "LinScript: Toggle Parameter Decorations"
+      },
+      {
+        "command": "lindecompilerhelper.toggleFunctionDecorations",
+        "title": "LinScript: Toggle Function Decorations"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceExtname =~ /\\.(lin|linscript)$/",
+          "command": "lindecompilerhelper.selectScript",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceExtname == .lin",
+          "command": "lindecompilerhelper.verifyFile",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "LinScript",
+      "properties": {
+        "lindecompilerhelper.decorationAlignmentColumn": {
+          "type": "number",
+          "default": 40,
+          "minimum": 1,
+          "maximum": 200,
+          "description": "Column at which to align function decorations (e.g., voice line previews)"
+        },
+        "lindecompilerhelper.showParameterDecorations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show parameter name decorations (e.g., 'character=', 'flag=')"
+        },
+        "lindecompilerhelper.showFunctionDecorations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show function decorations (e.g., voice line previews, character names)"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "lindecompilerhelper.toggleParameterDecorations",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
+        "when": "editorLangId == linscript"
+      },
+      {
+        "command": "lindecompilerhelper.toggleFunctionDecorations",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f",
+        "when": "editorLangId == linscript"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "typecheck": "pnpm run compile",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "package": "vsce package --allow-missing-repository --",
+    "install-extension": "(code --uninstall-extension lindecompilerhelper || true) && pnpm package && code --install-extension lindecompilerhelper-0.0.1.vsix && rm lindecompilerhelper-0.0.1.vsix",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.8",
+    "@types/node": "~24.9.2",
+    "@types/vscode": "^1.94.0",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.7.0",
+    "eslint": "^9.11.1",
+    "typescript": "^5.6.2"
+  }
+}
