@@ -1,6 +1,6 @@
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
-import { sprites } from "../data/Sprite";
+import { sprites } from "../data/sprite";
 import { Character, isCharacter } from "../enum/character";
 import { characterConfiguration } from "../data/character-data";
 
