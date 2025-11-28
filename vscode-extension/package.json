@@ -111,7 +111,8 @@
     "pretest": "pnpm run compile && pnpm run lint",
     "package": "vsce package --allow-missing-repository --",
     "install-extension": "(code --uninstall-extension lindecompilerhelper || true) && pnpm package && code --install-extension lindecompilerhelper-0.0.1.vsix && rm lindecompilerhelper-0.0.1.vsix",
-    "lint": "biome check src",
+    "lint": "biome lint src",
+    "format": "biome check src",
     "test": "vscode-test"
   },
   "devDependencies": {
