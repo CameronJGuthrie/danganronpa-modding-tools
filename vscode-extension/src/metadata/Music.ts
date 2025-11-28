@@ -19,7 +19,7 @@ export const music: OpcodeMeta = {
       // When musicId is 255 (stop music), this parameter is typically 0
     },
   ] as const,
-  decorations([musicId, volume]) {
+  decorations([musicId, _volume]) {
     if (musicId === 255) {
       return `🎵 Music Off 🚫`;
     }

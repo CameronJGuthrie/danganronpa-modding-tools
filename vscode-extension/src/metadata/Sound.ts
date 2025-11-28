@@ -13,7 +13,7 @@ export const sound: OpcodeMeta = {
       name: "volume",
     },
   ] as const,
-  decorations([soundId, volume]) {
+  decorations([soundId, _volume]) {
     const soundName = sounds[soundId]?.name ?? `Unknown soundId: ${soundId}`;
 
     if (soundId === 65536) {

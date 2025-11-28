@@ -16,7 +16,7 @@ export const soundB: OpcodeMeta = {
       description: "volume is always 100",
     },
   ] as const,
-  decorations([soundId, volume]) {
+  decorations([soundId, _volume]) {
     const soundName = transitionSounds[soundId]?.name ?? `Unknown soundId: ${soundId}`;
     return `🔊 ${soundName}`;
   },

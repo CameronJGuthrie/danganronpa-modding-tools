@@ -16,7 +16,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
   provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken,
+    _token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.Definition | vscode.LocationLink[]> {
     const line = document.lineAt(position);
     const lineText = line.text.trim();
