@@ -8,8 +8,8 @@ import {
   isInsideQuotes,
 } from "../shared/string-util";
 
-// Import the functions array from decoration.ts to avoid drift
-import { functions } from "../features/decoration";
+// Import the metadata array from metadata/index.ts to avoid drift
+import { metadata } from "../metadata";
 
 suite("Extension Test Suite", () => {
   test("Sample test", () => {
@@ -168,32 +168,32 @@ suite("Extension Test Suite", () => {
   test("no duplicate function names or opcodes", () => {
     // Check for duplicate names
     const nameMap = new Map<string, string>();
-    for (const func of functions) {
-      if (nameMap.has(func.name)) {
+    for (const meta of metadata) {
+      if (nameMap.has(meta.name)) {
         assert.fail(
-          `Duplicate function name found: "${func.name}" (opcode: ${func.opcode}) ` +
-          `conflicts with existing function (opcode: ${nameMap.get(func.name)})`
+          `Duplicate function name found: "${meta.name}" (opcode: ${meta.opcode}) ` +
+          `conflicts with existing function (opcode: ${nameMap.get(meta.name)})`
         );
       }
-      nameMap.set(func.name, func.opcode);
+      nameMap.set(meta.name, meta.opcode);
     }
 
     // Check for duplicate opcodes (skip empty opcodes)
     const opcodeMap = new Map<string, string>();
-    for (const func of functions) {
-      if (func.opcode === "") {
+    for (const meta of metadata) {
+      if (meta.opcode === "") {
         assert.fail(
-          `Function "${func.name}" has an empty opcode. All functions must have a valid opcode.`
+          `Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`
         );
       }
 
-      if (opcodeMap.has(func.opcode)) {
+      if (opcodeMap.has(meta.opcode)) {
         assert.fail(
-          `Duplicate opcode found: "${func.opcode}" is used by both ` +
-          `"${func.name}" and "${opcodeMap.get(func.opcode)}"`
+          `Duplicate opcode found: "${meta.opcode}" is used by both ` +
+          `"${meta.name}" and "${opcodeMap.get(meta.opcode)}"`
         );
       }
-      opcodeMap.set(func.opcode, func.name);
+      opcodeMap.set(meta.opcode, meta.name);
     }
 
     // If we get here, no duplicates were found
