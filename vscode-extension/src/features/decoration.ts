@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 
-import { colorText } from "../shared/color-text";
 import { logError, logWarning, logDebug } from "../output";
 import {
   createCompleteFunctionRegex,
@@ -19,6 +18,7 @@ import {
 
 import { OpcodeMeta } from "../enum/opcode";
 import { metadata } from "../metadata";
+import { textStyleColor } from "../data/text-style-data";
 
 // Create a decoration type for the inline hints
 const hintDecorationType = vscode.window.createTextEditorDecorationType({
@@ -44,7 +44,7 @@ for (let i = 0; i < MAX_FUNCTION_DECORATION_PARTS; i++) {
   );
 }
 const highlightDecorationTypeMap: { [colorId: number]: vscode.TextEditorDecorationType } = Object.fromEntries(
-  Object.entries(colorText).map(([colorId, htmlColor]) => {
+  Object.entries(textStyleColor).map(([colorId, htmlColor]) => {
     return [
       Number(colorId),
       vscode.window.createTextEditorDecorationType({
@@ -109,7 +109,7 @@ export function registerDecoration() {
 
     // Add text enrichment
     const highlightDecorationsMap: { [colorId: number]: vscode.DecorationOptions[] } = Object.fromEntries(
-      Object.keys(colorText).map((colorId) => {
+      Object.keys(textStyleColor).map((colorId) => {
         return [Number(colorId), []];
       })
     );

@@ -1,5 +1,6 @@
+import { textStyleColor } from "../data/text-style-data";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
-import { colorText } from "../shared/color-text";
+import { isTextStyle } from "../enum/text-style";
 
 export const textStyle: OpcodeMeta = {
   name: OpcodeName.TextStyle,
@@ -24,20 +25,15 @@ export const textStyle: OpcodeMeta = {
     },
   ] as const,
   decorations([styleId]) {
-    if (styleId === 0) {
-      return "⟲";
+    if (!isTextStyle(styleId)) {
+      return `⚠️ Unknown style: ${styleId}`;
     }
-
-    const color = colorText[styleId];
-    if (color) {
-      return [
-        {
-          contentText: `● ${styleId}`,
-          color: color,
-        },
-      ];
-    }
-
-    return `? Style ${styleId}`;
+    const color = textStyleColor[styleId];
+    return [
+      {
+        contentText: `● ${styleId}`,
+        color: color,
+      },
+    ];
   },
 };
