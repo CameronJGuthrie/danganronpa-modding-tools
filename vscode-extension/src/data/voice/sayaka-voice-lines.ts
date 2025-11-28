@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from "./types";
+import { ChapterVoiceLines } from ".";
 
 export const sayakaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
