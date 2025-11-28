@@ -1,4 +1,4 @@
-import { truthBulletFlag } from "../functions/TruthBulletFlag"
+import { truthBulletFlag } from "../metadata/TruthBulletFlag"
 
 export enum TruthBullet {
   // Chapter 1

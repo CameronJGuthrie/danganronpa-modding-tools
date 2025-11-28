@@ -17,41 +17,41 @@ import {
   onConfigurationChange,
 } from "./configuration";
 
-import { animation } from "../functions/Animation";
-import { setVar8 } from "../functions/SetVar8";
-import { present } from "../functions/Present";
-import { screenFade } from "../functions/ScreenFade";
-import { interaction } from "../functions/Interaction";
-import { loadScript } from "../functions/LoadScript";
-import { runScript } from "../functions/RunScript";
-import { movie } from "../functions/Movie";
-import { music } from "../functions/Music";
-import { screenFlash } from "../functions/ScreenFlash";
-import { spriteFlash } from "../functions/SpriteFlash";
-import { setVar16 } from "../functions/SetVar16";
-import { sound } from "../functions/Sound";
-import { speaker } from "../functions/Speaker";
-import { sprite } from "../functions/Sprite";
-import { textStyle } from "../functions/TextStyle";
-import { voice } from "../functions/Voice";
-import { LinscriptFunction } from "../enum/function";
-import { truthBulletFlag } from "../functions/TruthBulletFlag";
-import { changeUi } from "../functions/ChangeUI";
-import { postProcessingEffect } from "../functions/PostProcessingEffect";
-import { studentRelationship } from "../functions/StudentRelationship";
-import { studentReportInfo } from "../functions/StudentReportInfo";
-import { studentTitleEntry } from "../functions/StudentTitleEntry";
-import { soundB } from "../functions/SoundB";
-import { unlockSkill } from "../functions/UnlockSkill";
-import { goto } from "../functions/Goto";
-import { label } from "../functions/Label";
-import { evaluate } from "../functions/Evaluate";
-import { evaluateFlag } from "../functions/EvaluateFlag";
-import { ifTrue } from "../functions/IfTrue";
-import { checkCharacter } from "../functions/CheckCharacter";
-import { checkObject } from "../functions/CheckObject";
-import { evaluateFreeTimeEvent } from "../functions/EvaluateFreeTimeEvent";
-import { evaluateRelationship } from "../functions/EvaluateRelationship";
+import { animation } from "../metadata/Animation";
+import { setVar8 } from "../metadata/SetVar8";
+import { present } from "../metadata/Present";
+import { screenFade } from "../metadata/ScreenFade";
+import { interaction } from "../metadata/Interaction";
+import { loadScript } from "../metadata/LoadScript";
+import { runScript } from "../metadata/RunScript";
+import { movie } from "../metadata/Movie";
+import { music } from "../metadata/Music";
+import { screenFlash } from "../metadata/ScreenFlash";
+import { spriteFlash } from "../metadata/SpriteFlash";
+import { setVar16 } from "../metadata/SetVar16";
+import { sound } from "../metadata/Sound";
+import { speaker } from "../metadata/Speaker";
+import { sprite } from "../metadata/Sprite";
+import { textStyle } from "../metadata/TextStyle";
+import { voice } from "../metadata/Voice";
+import { OpcodeMeta } from "../enum/opcode";
+import { truthBulletFlag } from "../metadata/TruthBulletFlag";
+import { changeUi } from "../metadata/ChangeUI";
+import { postProcessingEffect } from "../metadata/PostProcessingEffect";
+import { studentRelationship } from "../metadata/StudentRelationship";
+import { studentReportInfo } from "../metadata/StudentReportInfo";
+import { studentTitleEntry } from "../metadata/StudentTitleEntry";
+import { soundB } from "../metadata/SoundB";
+import { unlockSkill } from "../metadata/UnlockSkill";
+import { goto } from "../metadata/Goto";
+import { label } from "../metadata/Label";
+import { evaluate } from "../metadata/Evaluate";
+import { evaluateFlag } from "../metadata/EvaluateFlag";
+import { ifTrue } from "../metadata/IfTrue";
+import { checkCharacter } from "../metadata/CheckCharacter";
+import { checkObject } from "../metadata/CheckObject";
+import { evaluateFreeTimeEvent } from "../metadata/EvaluateFreeTimeEvent";
+import { evaluateRelationship } from "../metadata/EvaluateRelationship";
 
 export const functions = [
   animation,
@@ -253,7 +253,7 @@ export function registerDecoration() {
 }
 
 function addParameterDecoration(
-  param: LinscriptFunction["parameters"][number],
+  param: OpcodeMeta["parameters"][number],
   rangePos: vscode.Position,
   hintDecorations: vscode.DecorationOptions[]
 ): number {
@@ -287,7 +287,7 @@ function addParameterDecoration(
 function enrichParameters(
   regexp: RegExp,
   documentText: string,
-  functionDetails: LinscriptFunction,
+  functionDetails: OpcodeMeta,
   document: vscode.TextDocument,
   hintDecorations: vscode.DecorationOptions[],
   functionDecorationsByType: vscode.DecorationOptions[][],
@@ -343,7 +343,7 @@ function enrichParameters(
 }
 
 function addFunctionDecoration(
-  functionDetails: LinscriptFunction,
+  functionDetails: OpcodeMeta,
   argValues: number[],
   documentText: string,
   matchEndIndex: number,
