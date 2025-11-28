@@ -33,7 +33,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       const voiceId = parseInt(parts[parts.length - 2], 10);
       const volume = parseInt(parts[parts.length - 1], 10);
 
-      if (isNaN(characterId) || isNaN(chapter) || isNaN(voiceId) || isNaN(volume)) {
+      if (Number.isNaN(characterId) || Number.isNaN(chapter) || Number.isNaN(voiceId) || Number.isNaN(volume)) {
         return null;
       }
 
