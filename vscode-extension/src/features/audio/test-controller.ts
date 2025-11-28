@@ -160,7 +160,7 @@ function processMatches<TInfo>(
   config: AudioTestConfig<TInfo>,
   expectedParamCount: number,
 ): void {
-  let match;
+  let match: RegExpExecArray | null;
   while ((match = regex.exec(documentText)) !== null) {
     const matchIndex = match.index;
 

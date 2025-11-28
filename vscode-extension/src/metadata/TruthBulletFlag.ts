@@ -29,7 +29,7 @@ export const truthBulletFlag: OpcodeMeta = {
 
     const flagName = truthBulletFlags[flagId];
 
-    let operationName;
+    let operationName: string;
     if (operation === 0) {
       operationName = "Reset";
     } else if (operation === 1) {

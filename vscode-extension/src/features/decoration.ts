@@ -137,7 +137,7 @@ export function registerDecoration() {
     );
 
     const textFunctionRegex = getTextFunctionRegex();
-    let match;
+    let match: RegExpExecArray | null;
 
     while ((match = textFunctionRegex.exec(documentText)) !== null) {
       const matchContent = match[0];
@@ -209,10 +209,10 @@ function addParameterDecoration(
   rangePos: vscode.Position,
   hintDecorations: vscode.DecorationOptions[],
 ): number {
-  let contentText;
+  let contentText = "";
   let decorationWidth = 0;
 
-  let border;
+  const border = "";
   if (param.unknown) {
     contentText = "?=";
   } else if (param.name) {
@@ -245,7 +245,7 @@ function enrichParameters(
   showParameterDecorations: boolean,
   showFunctionDecorations: boolean,
 ) {
-  let match;
+  let match: RegExpExecArray | null;
   while ((match = regexp.exec(documentText)) !== null) {
     const matchIndex = match.index;
     const matchLength = match[0].length;

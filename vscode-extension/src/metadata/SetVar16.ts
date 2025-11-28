@@ -35,7 +35,7 @@ export const setVar16: OpcodeMeta = {
 
     const joiner = arithmetic === Arithmetic.Assign || arithmetic === Arithmetic.Add ? "to" : "from";
 
-    let valueColor;
+    let valueColor: string = "";
     switch (variableValue) {
       case "Daytime":
         valueColor = "#e3d211ff";
