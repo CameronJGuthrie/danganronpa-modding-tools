@@ -17,78 +17,8 @@ import {
   onConfigurationChange,
 } from "./configuration";
 
-import { animation } from "../metadata/Animation";
-import { setVar8 } from "../metadata/SetVar8";
-import { present } from "../metadata/Present";
-import { screenFade } from "../metadata/ScreenFade";
-import { interaction } from "../metadata/Interaction";
-import { loadScript } from "../metadata/LoadScript";
-import { runScript } from "../metadata/RunScript";
-import { movie } from "../metadata/Movie";
-import { music } from "../metadata/Music";
-import { screenFlash } from "../metadata/ScreenFlash";
-import { spriteFlash } from "../metadata/SpriteFlash";
-import { setVar16 } from "../metadata/SetVar16";
-import { sound } from "../metadata/Sound";
-import { speaker } from "../metadata/Speaker";
-import { sprite } from "../metadata/Sprite";
-import { textStyle } from "../metadata/TextStyle";
-import { voice } from "../metadata/Voice";
 import { OpcodeMeta } from "../enum/opcode";
-import { truthBulletFlag } from "../metadata/TruthBulletFlag";
-import { changeUi } from "../metadata/ChangeUI";
-import { postProcessingEffect } from "../metadata/PostProcessingEffect";
-import { studentRelationship } from "../metadata/StudentRelationship";
-import { studentReportInfo } from "../metadata/StudentReportInfo";
-import { studentTitleEntry } from "../metadata/StudentTitleEntry";
-import { soundB } from "../metadata/SoundB";
-import { unlockSkill } from "../metadata/UnlockSkill";
-import { goto } from "../metadata/Goto";
-import { label } from "../metadata/Label";
-import { evaluate } from "../metadata/Evaluate";
-import { evaluateFlag } from "../metadata/EvaluateFlag";
-import { ifTrue } from "../metadata/IfTrue";
-import { checkCharacter } from "../metadata/CheckCharacter";
-import { checkObject } from "../metadata/CheckObject";
-import { evaluateFreeTimeEvent } from "../metadata/EvaluateFreeTimeEvent";
-import { evaluateRelationship } from "../metadata/EvaluateRelationship";
-
-export const functions = [
-  animation,
-  changeUi,
-  checkCharacter,
-  checkObject,
-  evaluate,
-  evaluateFlag,
-  evaluateFreeTimeEvent,
-  evaluateRelationship,
-  goto,
-  ifTrue,
-  interaction,
-  loadScript,
-  runScript,
-  movie,
-  music,
-  postProcessingEffect,
-  present,
-  screenFade,
-  screenFlash,
-  label,
-  spriteFlash,
-  setVar16,
-  setVar8,
-  sound,
-  soundB,
-  speaker,
-  sprite,
-  studentRelationship,
-  studentReportInfo,
-  studentTitleEntry,
-  textStyle,
-  truthBulletFlag,
-  unlockSkill,
-  voice,
-] as const;
+import { metadata } from "../metadata";
 
 // Create a decoration type for the inline hints
 const hintDecorationType = vscode.window.createTextEditorDecorationType({
@@ -150,7 +80,7 @@ export function registerDecoration() {
       functionDecorationsByType.push([]);
     }
 
-    functions.forEach((functionDetails) => {
+    metadata.forEach((functionDetails) => {
       const completeFunctionRegex = functionDetails.varargs
         ? createVarargsRegex(functionDetails.name)
         : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length);
