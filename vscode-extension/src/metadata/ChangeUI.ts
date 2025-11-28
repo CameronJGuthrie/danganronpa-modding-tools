@@ -1,4 +1,6 @@
-import { isUserInterface, UserInterface, userInterfaceConfiguration } from "../features/user-interface";
+import { UserInterface } from "../enum/user-interface";
+import { isUserInterface } from "../data/user-interface-data";
+import { userInterfaceConfiguration } from "../data/user-interface-data";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
 export const changeUi: OpcodeMeta = {
