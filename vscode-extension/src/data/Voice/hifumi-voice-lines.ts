@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const HifumiVoice: ChapterVoiceLines = {
+export const hifumiVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 2297 },
     1: "Friendship... penetrates?",

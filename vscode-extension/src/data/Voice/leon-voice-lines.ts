@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const LeonVoice: ChapterVoiceLines = {
+export const leonVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 2165 },
     1: "Okay, so the murder weapon was a kitchen knife, but where does that get us?",

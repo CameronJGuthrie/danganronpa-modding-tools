@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const HiroVoice: ChapterVoiceLines = {
+export const hiroVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 2494 },
     1: "Yeah, we know that part already.",

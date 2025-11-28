@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const KyokoVoice: ChapterVoiceLines = {
+export const kyokoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 3069 },
     1: "Before we move on and start the trial, can I ask a question real quick?",

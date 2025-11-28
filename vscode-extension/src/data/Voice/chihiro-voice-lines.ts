@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const ChihiroVoice: ChapterVoiceLines = {
+export const chihiroVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 5128 },
     1: "So it seems most likely that...",
@@ -124,6 +124,7 @@ export const ChihiroVoice: ChapterVoiceLines = {
     70: "\"What? How did you know?\"",
     71: "Oh, you're right. Thanks.",
     72: "Well, I'd better get going. I'm kind of in a hurry.",
+    // These seem to be for Alter Ego
     73: "Yo.",
     74: "Stop fucking around.",
     75: "Thank you.",

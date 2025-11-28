@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const CelesteVoice: ChapterVoiceLines = {
+export const celesteVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 4770 },
     1: "Okay, but what about that other empty seat?",

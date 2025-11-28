@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const MakotoVoice: ChapterVoiceLines = {
+export const makotoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 0 },
     1: "And the killer really is one of us, right?",

@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const SakuraVoice: ChapterVoiceLines = {
+export const sakuraVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 4570 },
     1: "Next is the subject of the murder weapon.",

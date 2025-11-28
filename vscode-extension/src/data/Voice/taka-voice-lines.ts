@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const TakaVoice: ChapterVoiceLines = {
+export const takaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 1196 },
     1: "Okay, then. Everyone, close your eyes. And whoever did it, raise your hand.",

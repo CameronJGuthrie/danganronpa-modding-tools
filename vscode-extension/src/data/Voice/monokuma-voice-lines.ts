@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const MonokumaVoice: ChapterVoiceLines = {
+export const monokumaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 5269 },
     1: "Let's begin with a basic explanation of the class trial so your votes will determine the results.",

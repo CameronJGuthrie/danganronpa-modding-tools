@@ -1,45 +1,46 @@
 import { Character } from "../../enum/character";
-import { ByakuyaVoice } from "./Byakuya";
-import { CelesteVoice } from "./Celeste";
-import { ChihiroVoice } from "./Chihiro";
-import { GenocideJillVoice } from "./GenocideJill";
-import { HifumiVoice } from "./Hifumi";
-import { HinaVoice } from "./Hina";
-import { HiroVoice } from "./Hiro";
-import { JunkoVoice } from "./Junko";
-import { KyokoVoice } from "./Kyoko";
-import { LeonVoice } from "./Leon";
-import { MakotoVoice } from "./Makoto";
-import { MondoVoice } from "./Mondo";
-import { MonokumaVoice } from "./Monokuma";
-import { MukuroVoice } from "./Mukuro";
-import { SakuraVoice } from "./Sakura";
-import { SayakaVoice } from "./Sayaka";
-import { TakaVoice } from "./Taka";
-import { TokoVoice } from "./Toko";
 import { CharacterVoiceLinesByChapter } from "./types";
-import { UsamiVoice } from "./Usami";
+
+import { byakuyaVoiceLines } from "./byakuya-voice-lines";
+import { celesteVoiceLines } from "./celeste-voice-lines";
+import { chihiroVoiceLines } from "./chihiro-voice-lines";
+import { genocideJillVoiceLines } from "./genocide-jill-voice-lines";
+import { hifumiVoiceLines } from "./hifumi-voice-lines";
+import { hinaVoiceLines } from "./hina-voice-lines";
+import { hiroVoiceLines } from "./hiro-voice-lines";
+import { junkoVoiceLines } from "./junko-voice-lines";
+import { kyokoVoiceLines } from "./kyoko-voice-lines";
+import { leonVoiceLines } from "./leon-voice-lines";
+import { makotoVoiceLines } from "./makoto-voice-lines";
+import { mondoVoiceLines } from "./mondo-voice-lines";
+import { monokumaVoiceLines } from "./monokuma-voice-lines";
+import { mukuroVoiceLines } from "./mukuro-voice-lines";
+import { sakuraVoiceLines } from "./sakura-voice-lines";
+import { sayakaVoiceLines } from "./sayaka-voice-lines";
+import { takaVoiceLines } from "./taka-voice-lines";
+import { tokoVoiceLines } from "./toko-voice-lines";
+import { usamiVoiceLines } from "./usami-voice-lines";
 
 export const voiceLinesByCharacterByChapter: CharacterVoiceLinesByChapter = {
-  [Character.Makoto]: MakotoVoice,
-  [Character.Taka]: TakaVoice,
-  [Character.Byakuya]: ByakuyaVoice,
-  [Character.Mondo]: MondoVoice,
-  [Character.Leon]: LeonVoice,
-  [Character.Hifumi]: HifumiVoice,
-  [Character.Hiro]: HiroVoice,
-  [Character.Sayaka]: SayakaVoice,
-  [Character.Kyoko]: KyokoVoice,
-  [Character.Aoi]: HinaVoice,
-  [Character.Toko]: TokoVoice,
-  [Character.Sakura]: SakuraVoice,
-  [Character.Celeste]: CelesteVoice,
-  [Character.Mukuro]: MukuroVoice,
-  [Character.Chihiro]: ChihiroVoice,
-  [Character.Junko]: JunkoVoice,
-  [Character.Monokuma]: MonokumaVoice,
+  [Character.Makoto]: makotoVoiceLines,
+  [Character.Taka]: takaVoiceLines,
+  [Character.Byakuya]: byakuyaVoiceLines,
+  [Character.Mondo]: mondoVoiceLines,
+  [Character.Leon]: leonVoiceLines,
+  [Character.Hifumi]: hifumiVoiceLines,
+  [Character.Hiro]: hiroVoiceLines,
+  [Character.Sayaka]: sayakaVoiceLines,
+  [Character.Kyoko]: kyokoVoiceLines,
+  [Character.Aoi]: hinaVoiceLines,
+  [Character.Toko]: tokoVoiceLines,
+  [Character.Sakura]: sakuraVoiceLines,
+  [Character.Celeste]: celesteVoiceLines,
+  [Character.Mukuro]: mukuroVoiceLines,
+  [Character.Chihiro]: chihiroVoiceLines,
+  [Character.Junko]: junkoVoiceLines,
+  [Character.Monokuma]: monokumaVoiceLines,
   [Character.AlterEgo]: undefined,
-  [Character.GenocideJill]: GenocideJillVoice,
+  [Character.GenocideJill]: genocideJillVoiceLines,
   [Character.Headmaster]: undefined,
   [Character.MakotoMom]: undefined,
   [Character.MakotoDad]: undefined,
@@ -49,7 +50,7 @@ export const voiceLinesByCharacterByChapter: CharacterVoiceLinesByChapter = {
   [Character.DaiyaOwada]: undefined,
   [Character.Unknown]: undefined,
   [Character.Blank]: undefined,
-  [Character.Usami]: UsamiVoice,
+  [Character.Usami]: usamiVoiceLines,
   [Character.MonokumaBackup]: undefined,
   [Character.MonokumaBackupR]: undefined,
   [Character.MonokumaBackupL]: undefined,

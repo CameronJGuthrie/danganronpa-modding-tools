@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const ByakuyaVoice: ChapterVoiceLines = {
+export const byakuyaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 1365 },
     1: "and the murder took place in Makoto's room.",

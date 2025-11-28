@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const TokoVoice: ChapterVoiceLines = {
+export const tokoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 4257 },
     1: "That's right. Makoto's room was the scene of the crime. What more proof do you need?",

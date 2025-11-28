@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const GenocideJillVoice: ChapterVoiceLines = {
+export const genocideJillVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
   [Chapter.Chapter_2]: {
     metadata: { index: 6284 },

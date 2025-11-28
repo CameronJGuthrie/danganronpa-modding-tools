@@ -1,7 +1,7 @@
 import { Chapter } from "../../enum/chapter";
 import { ChapterVoiceLines } from "./types";
 
-export const MondoVoice: ChapterVoiceLines = {
+export const mondoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 2039 },
     1: "Don't be a goddamn idiot. Why the hell would they raise their hand?",
