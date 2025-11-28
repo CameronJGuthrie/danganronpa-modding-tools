@@ -8,7 +8,6 @@ import { evaluateFreeTimeEvent } from "./EvaluateFreeTimeEvent";
 import { evaluateRelationship } from "./EvaluateRelationship";
 import { goto } from "./Goto";
 import { ifTrue } from "./IfTrue";
-import { interaction } from "./Interaction";
 import { label } from "./Label";
 import { loadScript } from "./LoadScript";
 import { loadSprite } from "./LoadSprite";
@@ -47,7 +46,6 @@ export const metadata: Readonly<OpcodeMeta>[] = [
   evaluateRelationship,
   goto,
   ifTrue,
-  interaction,
   label,
   loadScript,
   loadSprite,
