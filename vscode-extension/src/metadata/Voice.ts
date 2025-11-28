@@ -1,4 +1,4 @@
-import { voiceLinesByCharacterByChapter } from "../data/Voice";
+import { voiceLinesByCharacterByChapter } from "../data/voice";
 import { isChapter } from "../enum/chapter";
 import { Character, isCharacter } from "../enum/character";
 import { characterConfiguration } from "../data/character-data";
