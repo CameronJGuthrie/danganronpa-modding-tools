@@ -29,17 +29,26 @@ export function playAudio(
   }, timeoutMs);
 }
 
-// ffplay: comes with ffmpeg, supports many formats, auto-closes when done
+/**
+ * ffplay: comes with ffmpeg
+ * @link https://ffmpeg.org/ffplay.html
+ */
 function ffmpeg(audioPath: string) {
   return `ffplay -nodisp -autoexit -volume 50 "${audioPath}" 2>/dev/null`;
 }
 
-// mpv: popular media player
+/**
+ * mpv: popular media player
+ * @link https://mpv.io/
+ */
 function mpv(audioPath: string) {
   return `mpv --really-quiet "${audioPath}" 2>/dev/null`;
 }
 
-// paplay: PulseAudio player (common on Linux)
+/**
+ * paplay: PulseAudio player (common on Linux)
+ * @link https://linux.die.net/man/1/paplay
+ */
 function paplay(audioPath: string) {
   return `paplay "${audioPath}" 2>/dev/null`;
 }

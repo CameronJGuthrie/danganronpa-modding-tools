@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController, AudioTestConfig } from "../audio";
+import { createAudioTestController } from "../audio";
 import { sounds } from "../../../data/sound-data";
 import { findRootDirectory } from "../../workspace";
 import { sound } from "../../../metadata/Sound";

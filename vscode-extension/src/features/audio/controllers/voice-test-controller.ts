@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController, AudioTestConfig } from "../audio";
+import { createAudioTestController } from "../audio";
 import { voiceLinesByCharacterByChapter } from "../../../data/Voice";
 import { Character, isCharacter } from "../../../enum/character";
 import { characterConfiguration } from "../../../data/character-data";
