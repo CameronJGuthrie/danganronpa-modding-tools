@@ -3,6 +3,7 @@ import * as path from "path";
 import { createAudioTestController, AudioTestConfig } from "./audio";
 import { transitionSounds } from "../../data/sound-data";
 import { findRootDirectory } from "../workspace";
+import { soundB } from "../../metadata/SoundB";
 
 type SoundBLineInfo = {
   soundId: number;
@@ -10,14 +11,17 @@ type SoundBLineInfo = {
 }
 
 export function registerSoundBTestController(context: vscode.ExtensionContext) {
+  const opcodeName = soundB.name;
+  const opcodeHex = soundB.opcode;
+
   const config: AudioTestConfig<SoundBLineInfo> = {
-    controllerId: "soundBPlayback",
-    controllerLabel: "SoundB Playback",
-    runProfileLabel: "Play SoundB",
-    playerName: "SoundB Player",
+    controllerId: `${opcodeName}-playback-controller`,
+    controllerLabel: `${opcodeName} Playback`,
+    runProfileLabel: `Play ${opcodeName}`,
+    playerName: `${opcodeName} Player`,
     functionPatterns: [
-      { name: "SoundB", paramCount: 2 },
-      { name: "0x0B", paramCount: 2 }
+      { name: opcodeName, paramCount: 2 },
+      { name: opcodeHex, paramCount: 2 }
     ],
     timeoutMs: 20_000,
 
@@ -64,7 +68,7 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
       if (soundMeta && soundMeta.name && soundMeta.name !== "?") {
         return `${soundMeta.name} (${info.soundId})`;
       } else {
-        return `SoundB ${info.soundId}`;
+        return `${opcodeName} ${info.soundId}`;
       }
     },
 
@@ -72,9 +76,9 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
       const soundName = transitionSounds[info.soundId]?.name;
 
       if (soundName && soundName !== "?") {
-        return `🎵 Playing BGM: "${soundName}" (${info.soundId})`;
+        return `🎵 Playing: "${soundName}" (${info.soundId})`;
       } else {
-        return `🎵 Playing BGM #${info.soundId}`;
+        return `🎵 Playing Effect #${info.soundId}`;
       }
     },
 

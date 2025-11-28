@@ -3,6 +3,7 @@ import * as path from "path";
 import { createAudioTestController, AudioTestConfig } from "./audio";
 import { sounds } from "../../data/sound-data";
 import { findRootDirectory } from "../workspace";
+import { sound } from "../../metadata/Sound";
 
 type SoundLineInfo = {
   soundId: number;
@@ -10,14 +11,17 @@ type SoundLineInfo = {
 }
 
 export function registerSoundTestController(context: vscode.ExtensionContext) {
+  const opcodeName = sound.name;
+  const opcodeHex = sound.opcode;
+
   const config: AudioTestConfig<SoundLineInfo> = {
-    controllerId: "soundPlayback",
-    controllerLabel: "Sound Playback",
-    runProfileLabel: "Play Sound",
-    playerName: "Sound Player",
+    controllerId: `${opcodeName}-playback-controller`,
+    controllerLabel: `${opcodeName} Playback`,
+    runProfileLabel: `Play ${opcodeName}`,
+    playerName: `${opcodeName} Player`,
     functionPatterns: [
-      { name: "Sound", paramCount: 2 },
-      { name: "0x0A", paramCount: 2 }
+      { name: opcodeName, paramCount: 2 },
+      { name: opcodeHex, paramCount: 2 }
     ],
     timeoutMs: 10_000,
 
@@ -74,7 +78,7 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
       if (soundName && soundName !== "?") {
         return `🔊 Playing: "${soundName}" (${info.soundId})`;
       } else {
-        return `🔊 Playing sound #${info.soundId}`;
+        return `🔊 Playing Effect #${info.soundId}`;
       }
     },
 

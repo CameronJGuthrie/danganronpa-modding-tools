@@ -1,6 +1,5 @@
+import { musics } from "../data/music-data";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
-
-import { music as musicMap } from "../data/music-data";
 
 export const music: OpcodeMeta = {
   name: OpcodeName.Music,
@@ -8,10 +7,11 @@ export const music: OpcodeMeta = {
   parameters: [
     {
       name: "musicId",
-      values: musicMap,
+      values: musics,
     },
     {
       name: "volume",
+      description: "Always 100"
     },
     {
       name: "fadeInTime",
@@ -26,7 +26,7 @@ export const music: OpcodeMeta = {
 
     return [
       {
-        contentText: `🎵 ${musicMap[musicId].name}`,
+        contentText: `🎵 ${musics[musicId].name}`,
       },
     ];
   },

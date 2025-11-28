@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { createAudioTestController, AudioTestConfig } from "./audio";
-import { music } from "../../data/music-data";
 import { findRootDirectory } from "../workspace";
+import { music } from "../../metadata/Music";
+import { musics } from "../../data/music-data";
 
 type MusicInfo = {
   musicId: number;
@@ -11,14 +12,17 @@ type MusicInfo = {
 }
 
 export function registerMusicTestController(context: vscode.ExtensionContext) {
+  const opcodeName = music.name;
+  const opcodeHex = music.opcode;
+
   const config: AudioTestConfig<MusicInfo> = {
-    controllerId: "musicPlayback",
-    controllerLabel: "Music Playback",
-    runProfileLabel: "Play Music",
-    playerName: "Music Player",
+    controllerId: `${opcodeName}-playback-controller`,
+    controllerLabel: `${opcodeName} Playback`,
+    runProfileLabel: `Play ${opcodeName}`,
+    playerName: `${opcodeName} Player`,
     functionPatterns: [
-      { name: "Music", paramCount: 3 },
-      { name: "0x09", paramCount: 3 }
+      { name: opcodeName, paramCount: 3 },
+      { name: opcodeHex, paramCount: 3 }
     ],
     timeoutMs: 15_000,
 
@@ -42,7 +46,7 @@ export function registerMusicTestController(context: vscode.ExtensionContext) {
 
     getAudioFilePath: (info: MusicInfo): string | null => {
       // Get music data for this ID
-      const musicData = music[info.musicId];
+      const musicData = musics[info.musicId];
       if (!musicData) {
         return null;
       }
@@ -62,12 +66,12 @@ export function registerMusicTestController(context: vscode.ExtensionContext) {
     },
 
     formatTestLabel: (info: MusicInfo): string => {
-      const musicData = music[info.musicId];
+      const musicData = musics[info.musicId];
       return musicData?.name ?? `Music ID: ${info.musicId}`;
     },
 
     formatDisplayName: (info: MusicInfo): string => {
-      const musicName = music[info.musicId]?.name;
+      const musicName = musics[info.musicId]?.name;
       if (musicName) {
         return `🎵 Playing: ${musicName}`;
       } else {

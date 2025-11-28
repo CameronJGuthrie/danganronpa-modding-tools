@@ -4,7 +4,7 @@ type MusicMeta = {
   sourcePath: string;
 };
 
-export const music: Readonly<{ [musicId: number]: MusicMeta }> = {
+export const musics: Readonly<{ [musicId: number]: MusicMeta }> = {
   0: { name: "DANGANRONPA (OST 1-01)", sourcePath: "dr1_bgm_hca.awb.00000.ogg" },
   1: { name: "Dangan Ronpa! (OST 1-02)", sourcePath: "dr1_bgm_hca.awb.00001.ogg" },
   2: { name: "Saisei -rebuild- (OST 2-19)", sourcePath: "dr1_bgm_hca.awb.00002.ogg" },

@@ -6,6 +6,7 @@ import { Character, isCharacter } from "../../enum/character";
 import { characterConfiguration } from "../../data/character-data";
 import { isChapter } from "../../enum/chapter";
 import { findRootDirectory } from "../workspace";
+import { voice } from "../../metadata/Voice";
 
 type VoiceLineInfo = {
   characterId: number;
@@ -15,14 +16,17 @@ type VoiceLineInfo = {
 }
 
 export function registerVoiceTestController(context: vscode.ExtensionContext) {
+  const opcodeName = voice.name;
+  const opcodeHex = voice.opcode;
+
   const config: AudioTestConfig<VoiceLineInfo> = {
-    controllerId: "voicePlayback",
-    controllerLabel: "Voice Playback",
-    runProfileLabel: "Play Voice",
-    playerName: "Voice Player",
+    controllerId: `${opcodeName}-playback-controller`,
+    controllerLabel: `${opcodeName} Playback`,
+    runProfileLabel: `Play ${opcodeName}`,
+    playerName: `${opcodeName} Player`,
     functionPatterns: [
-      { name: "Voice", paramCount: 4 },
-      { name: "0x08", paramCount: 4 }
+      { name: opcodeName, paramCount: 4 },
+      { name: opcodeHex, paramCount: 4 }
     ],
     timeoutMs: 20_000,
 
@@ -101,7 +105,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       if (voiceText) {
         return `🎵 Playing: "${voiceText}"`;
       } else {
-        return `🎵 Playing voice: Ch${info.chapter} #${info.voiceId} (Char:${info.characterId})`;
+        return `🎵 Playing Voice: Ch${info.chapter} #${info.voiceId} (Char:${info.characterId})`;
       }
     },
 
@@ -127,7 +131,11 @@ function getVoiceLineText(characterId: number, chapter: number, voiceId: number)
     return null;
   }
 
-  const voiceData = voiceLinesByCharacterByChapter[characterId as Character];
+  if (!isCharacter(characterId)) {
+    return null;
+  }
+
+  const voiceData = voiceLinesByCharacterByChapter[characterId];
   if (!voiceData) {
     return null;
   }
