@@ -19,7 +19,6 @@ suite("Extension Test Suite", () => {
     // Given
     const getMovieRegex = () => createCompleteFunctionRegex("Movie", 2);
     const getSpriteRegex = () => createCompleteFunctionRegex("Sprite", 5);
-    const getVoiceRegex = () => createCompleteFunctionRegex("Voice", 5);
 
     // When/ Then
     assert.match("Movie(1, 0)", getMovieRegex());
@@ -62,7 +61,7 @@ suite("Extension Test Suite", () => {
     // When
     const regex = getVoiceRegex();
     const matches = [];
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = regex.exec(text)) !== null) {
       if (!isInsideQuotes(text, match.index)) {
         matches.push(match[0]);
@@ -76,7 +75,7 @@ suite("Extension Test Suite", () => {
     const text2 = "Voice(0, 99, 0, 1, 100)";
     const regex2 = getVoiceRegex();
     const matches2 = [];
-    let match2;
+    let match2: RegExpExecArray | null;
     while ((match2 = regex2.exec(text2)) !== null) {
       if (!isInsideQuotes(text2, match2.index)) {
         matches2.push(match2[0]);

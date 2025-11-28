@@ -44,18 +44,18 @@ export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): Audi
   const { opcode, ...rest } = builder;
 
   return {
-    controllerId: `${builder.opcode.name}-playback-controller`,
-    controllerLabel: `${builder.opcode.name} Playback`,
-    runProfileLabel: `Play ${builder.opcode.name}`,
-    playerName: `${builder.opcode.name} Player`,
+    controllerId: `${opcode.name}-playback-controller`,
+    controllerLabel: `${opcode.name} Playback`,
+    runProfileLabel: `Play ${opcode.name}`,
+    playerName: `${opcode.name} Player`,
     functionPatterns: [
       {
-        name: builder.opcode.name,
-        paramCount: builder.opcode.parameters.length,
+        name: opcode.name,
+        paramCount: opcode.parameters.length,
       },
       {
-        name: builder.opcode.opcode,
-        paramCount: builder.opcode.parameters.length,
+        name: opcode.opcode,
+        paramCount: opcode.parameters.length,
       },
     ],
     ...rest,

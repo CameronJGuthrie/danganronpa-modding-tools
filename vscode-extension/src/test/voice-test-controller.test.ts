@@ -32,7 +32,7 @@ Text("This has Voice(3, 2, 300, 100) in it")`;
 
     const voiceRegex = createCompleteFunctionRegex("Voice", 4);
     const matches = [];
-    let match;
+    let match: RegExpExecArray | null;
 
     // Find all Voice matches
     while ((match = voiceRegex.exec(testContent)) !== null) {
@@ -74,7 +74,7 @@ Voice(4, 3, 400, 100)`;
     const matches = [];
 
     // Find Voice(...) matches
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = voiceRegex.exec(testContent)) !== null) {
       if (!isInsideQuotes(testContent, match.index)) {
         matches.push(match[0]);
