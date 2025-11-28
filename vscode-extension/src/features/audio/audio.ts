@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { getArgumentsFromFunctionLike, createCompleteFunctionRegex, isInsideQuotes } from "../../shared/string-util";
 import { log } from "../../output";
+import { playAudio } from "./play-audio";
 
 /**
  * Configuration for creating an audio test controller
@@ -30,32 +31,6 @@ export type AudioTestConfig<TInfo> = {
   createTestId: (uri: string, line: number, args: Array<{ value: number }>) => string;
   /** Parse info from arguments */
   parseInfoFromArgs: (args: Array<{ value: number }>) => TInfo | null;
-}
-
-/**
- * Play an audio file using a terminal command
- */
-export async function playAudio(
-  audioPath: string,
-  playerName: string,
-  timeoutMs: number
-): Promise<void> {
-  // Create a hidden terminal to play the audio
-  const terminal = vscode.window.createTerminal({
-    name: playerName,
-    hideFromUser: true
-  });
-
-  // Try different audio players in order of preference
-  // ffplay: comes with ffmpeg, supports many formats, auto-closes when done
-  // mpv: popular media player
-  // paplay: PulseAudio player (common on Linux)
-  terminal.sendText(`(ffplay -nodisp -autoexit -volume 50 "${audioPath}" 2>/dev/null || mpv --really-quiet "${audioPath}" 2>/dev/null || paplay "${audioPath}" 2>/dev/null) && exit`);
-
-  // Clean up the terminal after a delay
-  setTimeout(() => {
-    terminal.dispose();
-  }, timeoutMs);
 }
 
 /**
@@ -130,7 +105,7 @@ export function createAudioTestController<TInfo>(
 
           // Play the audio
           try {
-            await playAudio(audioPath, config.playerName, config.timeoutMs);
+            playAudio(audioPath, config.playerName, config.timeoutMs);
             run.passed(test);
             log(`Successfully played audio: ${audioPath}`);
           } catch (error) {

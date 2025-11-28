@@ -3,10 +3,10 @@ import * as vscode from "vscode";
 import { registerDecoration } from "./features/decoration";
 import { findRootDirectory, isRootWorkspace } from "./features/workspace";
 import { initializeOutputChannel, log, logWarning } from "./output";
-import { registerVoiceTestController } from "./features/audio/voice-test-controller";
-import { registerSoundTestController } from "./features/audio/sound-test-controller";
-import { registerSoundBTestController } from "./features/audio/soundb-test-controller";
-import { registerMusicTestController } from "./features/audio/music-test-controller";
+import { registerVoiceTestController } from "./features/audio/controllers/voice-test-controller";
+import { registerSoundTestController } from "./features/audio/controllers/sound-test-controller";
+import { registerSoundBTestController } from "./features/audio/controllers/soundb-test-controller";
+import { registerMusicTestController } from "./features/audio/controllers/music-test-controller";
 import { registerDefinitionProvider } from "./features/go-to-definition";
 import { toggleParameterDecorations, toggleFunctionDecorations } from "./features/configuration";
 

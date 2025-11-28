@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController, AudioTestConfig } from "./audio";
-import { sounds } from "../../data/sound-data";
-import { findRootDirectory } from "../workspace";
-import { sound } from "../../metadata/Sound";
+import { createAudioTestController, AudioTestConfig } from "../audio";
+import { sounds } from "../../../data/sound-data";
+import { findRootDirectory } from "../../workspace";
+import { sound } from "../../../metadata/Sound";
+import { AudioTestConfigBuilder, createConfiguration } from "../test-controller";
 
 type SoundLineInfo = {
   soundId: number;
@@ -11,18 +12,8 @@ type SoundLineInfo = {
 }
 
 export function registerSoundTestController(context: vscode.ExtensionContext) {
-  const opcodeName = sound.name;
-  const opcodeHex = sound.opcode;
-
-  const config: AudioTestConfig<SoundLineInfo> = {
-    controllerId: `${opcodeName}-playback-controller`,
-    controllerLabel: `${opcodeName} Playback`,
-    runProfileLabel: `Play ${opcodeName}`,
-    playerName: `${opcodeName} Player`,
-    functionPatterns: [
-      { name: opcodeName, paramCount: 2 },
-      { name: opcodeHex, paramCount: 2 }
-    ],
+  const testConfigBuilder: AudioTestConfigBuilder<SoundLineInfo> = {
+    opcode: sound,
     timeoutMs: 10_000,
 
     parseInfoFromTest: (test: vscode.TestItem): SoundLineInfo | null => {
@@ -93,5 +84,5 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
     }
   };
 
-  createAudioTestController(context, config);
+  createAudioTestController(context, createConfiguration(testConfigBuilder));
 }

@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController, AudioTestConfig } from "./audio";
-import { transitionSounds } from "../../data/sound-data";
-import { findRootDirectory } from "../workspace";
-import { soundB } from "../../metadata/SoundB";
+import { createAudioTestController } from "../audio";
+import { transitionSounds } from "../../../data/sound-data";
+import { findRootDirectory } from "../../workspace";
+import { soundB } from "../../../metadata/SoundB";
+import { AudioTestConfigBuilder, createConfiguration } from "../test-controller";
 
 type SoundBLineInfo = {
   soundId: number;
@@ -11,18 +12,8 @@ type SoundBLineInfo = {
 }
 
 export function registerSoundBTestController(context: vscode.ExtensionContext) {
-  const opcodeName = soundB.name;
-  const opcodeHex = soundB.opcode;
-
-  const config: AudioTestConfig<SoundBLineInfo> = {
-    controllerId: `${opcodeName}-playback-controller`,
-    controllerLabel: `${opcodeName} Playback`,
-    runProfileLabel: `Play ${opcodeName}`,
-    playerName: `${opcodeName} Player`,
-    functionPatterns: [
-      { name: opcodeName, paramCount: 2 },
-      { name: opcodeHex, paramCount: 2 }
-    ],
+  const testConfigBuilder: AudioTestConfigBuilder<SoundBLineInfo> = {
+    opcode: soundB,
     timeoutMs: 20_000,
 
     parseInfoFromTest: (test: vscode.TestItem): SoundBLineInfo | null => {
@@ -68,7 +59,7 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
       if (soundMeta && soundMeta.name && soundMeta.name !== "?") {
         return `${soundMeta.name} (${info.soundId})`;
       } else {
-        return `${opcodeName} ${info.soundId}`;
+        return `SoundB ${info.soundId}`;
       }
     },
 
@@ -93,5 +84,5 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
     }
   };
 
-  createAudioTestController(context, config);
+  createAudioTestController(context, createConfiguration(testConfigBuilder));
 }

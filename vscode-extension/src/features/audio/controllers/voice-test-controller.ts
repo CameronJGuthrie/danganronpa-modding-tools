@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController, AudioTestConfig } from "./audio";
-import { voiceLinesByCharacterByChapter } from "../../data/Voice";
-import { Character, isCharacter } from "../../enum/character";
-import { characterConfiguration } from "../../data/character-data";
-import { isChapter } from "../../enum/chapter";
-import { findRootDirectory } from "../workspace";
-import { voice } from "../../metadata/Voice";
+import { createAudioTestController, AudioTestConfig } from "../audio";
+import { voiceLinesByCharacterByChapter } from "../../../data/Voice";
+import { Character, isCharacter } from "../../../enum/character";
+import { characterConfiguration } from "../../../data/character-data";
+import { isChapter } from "../../../enum/chapter";
+import { findRootDirectory } from "../../workspace";
+import { voice } from "../../../metadata/Voice";
+import { AudioTestConfigBuilder, createConfiguration } from "../test-controller";
 
 type VoiceLineInfo = {
   characterId: number;
@@ -16,18 +17,8 @@ type VoiceLineInfo = {
 }
 
 export function registerVoiceTestController(context: vscode.ExtensionContext) {
-  const opcodeName = voice.name;
-  const opcodeHex = voice.opcode;
-
-  const config: AudioTestConfig<VoiceLineInfo> = {
-    controllerId: `${opcodeName}-playback-controller`,
-    controllerLabel: `${opcodeName} Playback`,
-    runProfileLabel: `Play ${opcodeName}`,
-    playerName: `${opcodeName} Player`,
-    functionPatterns: [
-      { name: opcodeName, paramCount: 4 },
-      { name: opcodeHex, paramCount: 4 }
-    ],
+  const testConfigBuilder: AudioTestConfigBuilder<VoiceLineInfo> = {
+    opcode: voice,
     timeoutMs: 20_000,
 
     parseInfoFromTest: (test: vscode.TestItem): VoiceLineInfo | null => {
@@ -120,7 +111,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
     }
   };
 
-  createAudioTestController(context, config);
+  createAudioTestController(context, createConfiguration(testConfigBuilder));
 }
 
 /**
