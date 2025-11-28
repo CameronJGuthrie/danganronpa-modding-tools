@@ -1,4 +1,4 @@
-import * as assert from "assert";
+import * as assert from "node:assert";
 import { createCompleteFunctionRegex, getArgumentsFromFunctionLike, isInsideQuotes } from "../util/string-util";
 
 suite("Voice Test Controller Test Suite", () => {

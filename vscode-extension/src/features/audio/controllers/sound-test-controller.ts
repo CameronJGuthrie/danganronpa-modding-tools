@@ -1,4 +1,4 @@
-import * as path from "path";
+import * as path from "node:path";
 import type * as vscode from "vscode";
 import { sounds } from "../../../data/sound-data";
 import { sound } from "../../../metadata/Sound";

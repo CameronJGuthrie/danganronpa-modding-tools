@@ -59,7 +59,7 @@ export function createAudioTestController<TInfo>(
           }
 
           // Check if the file exists
-          const fs = require("fs");
+          const fs = require("node:fs");
           if (!fs.existsSync(audioPath)) {
             run.errored(test, new vscode.TestMessage(`Audio file not found: ${audioPath}`));
             continue;

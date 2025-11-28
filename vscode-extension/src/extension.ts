@@ -39,8 +39,8 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    const path = require("path");
-    const fs = require("fs");
+    const path = require("node:path");
+    const fs = require("node:fs");
 
     // Determine output file path
     const ext = path.extname(uri.fsPath);
@@ -79,8 +79,8 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    const path = require("path");
-    const fs = require("fs");
+    const path = require("node:path");
+    const fs = require("node:fs");
 
     // Extract the base filename
     const basename = path.basename(uri.fsPath, ".lin");

@@ -1,4 +1,4 @@
-import * as assert from "assert";
+import * as assert from "node:assert";
 import { mapProperty } from "../util/data-util";
 
 suite("Data Util Test Suite", () => {

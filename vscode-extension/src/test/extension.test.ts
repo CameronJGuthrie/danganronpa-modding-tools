@@ -1,4 +1,4 @@
-import * as assert from "assert";
+import * as assert from "node:assert";
 // Import the metadata array from metadata/index.ts to avoid drift
 import { metadata } from "../metadata";
 import {
