@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getArgumentsFromFunctionLike, createCompleteFunctionRegex, isInsideQuotes } from "../../shared/string-util";
+import { getArgumentsFromFunctionLike, createCompleteFunctionRegex, isInsideQuotes } from "../../util/string-util";
 import { log } from "../../output";
 import { playAudio } from "./play-audio";
 import { AudioTestConfig } from "./test-controller-config";

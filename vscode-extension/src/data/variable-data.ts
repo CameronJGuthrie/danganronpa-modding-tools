@@ -1,6 +1,6 @@
 import { Character } from "../enum/character";
 import { Variable } from "../enum/variable";
-import { flatMapProperty } from "../shared/data-util";
+import { flatMapProperty } from "../util/data-util";
 import { characterConfiguration } from "./character-data";
 
 type VariableValueDetail = {

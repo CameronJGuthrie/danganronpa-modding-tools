@@ -8,7 +8,7 @@ import {
   getColorTextRegex,
   getTextFunctionRegex,
   isInsideQuotes,
-} from "../shared/string-util";
+} from "../util/string-util";
 import {
   getDecorationAlignmentColumn,
   getShowParameterDecorations,

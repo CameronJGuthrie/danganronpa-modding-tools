@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { mapProperty } from "../shared/data-util";
+import { mapProperty } from "../util/data-util";
 
 suite("Data Util Test Suite", () => {
   test("mapProperty extracts color property to name", () => {

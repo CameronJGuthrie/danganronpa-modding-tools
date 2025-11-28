@@ -6,7 +6,7 @@ import {
   getColorTextRegex,
   getTextFunctionRegex,
   isInsideQuotes,
-} from "../shared/string-util";
+} from "../util/string-util";
 
 // Import the metadata array from metadata/index.ts to avoid drift
 import { metadata } from "../metadata";

@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { createCompleteFunctionRegex, isInsideQuotes, getArgumentsFromFunctionLike } from "../shared/string-util";
+import { createCompleteFunctionRegex, isInsideQuotes, getArgumentsFromFunctionLike } from "../util/string-util";
 
 suite("Voice Test Controller Test Suite", () => {
   test("Voice function regex matches correctly", () => {
