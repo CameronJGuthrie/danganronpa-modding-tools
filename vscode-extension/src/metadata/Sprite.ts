@@ -36,7 +36,7 @@ export const sprite: OpcodeMeta = {
   ] as const,
   decorations([_, character, spriteId, _p4, _p5]) {
     if (!isCharacter(character)) {
-      return [{ contentText: `Unknown character`, color: "gray" }]
+      return [{ contentText: `Unknown character`, color: "gray" }];
     }
 
     const { name, color } = characterConfiguration[character];

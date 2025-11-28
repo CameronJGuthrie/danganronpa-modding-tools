@@ -572,10 +572,10 @@ export const presentConfiguration: Record<Present, { name: string; description: 
     name: "Chihiro's Undergarments",
     description: "Chihiro's favorite bloomers. Even if you got a peek under his skirt, you wouldn't be able to tell at a glance that he was a boy. His choice of underwear clearly underlines how strong his fear of weakness really is."
   }
-}
+};
 
 const validPresentSet = new Set(Object.values(Present).filter(x => typeof x === "number"));
 
 export function isPresent(present: number): present is Present {
-  return validPresentSet.has(present)
+  return validPresentSet.has(present);
 }

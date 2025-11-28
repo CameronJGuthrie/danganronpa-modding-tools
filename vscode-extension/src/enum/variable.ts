@@ -58,4 +58,4 @@ export const variables: Readonly<Record<Variable, string>> = {
   [Variable._59]: "",
   [Variable._60]: "",
   [Variable._61]: ""
-}
+};

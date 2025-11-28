@@ -29,4 +29,4 @@ export const studentReportInfo: OpcodeMeta = {
     }
     return `${characterConfiguration[character].name} report ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${value}`;
   },
-}
+};

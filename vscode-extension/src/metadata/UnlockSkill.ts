@@ -20,6 +20,6 @@ export const unlockSkill: OpcodeMeta = {
       return `Unknown skill: ${skill}`;
     }
 
-    return `Unlock ${skills[skill]}`
+    return `Unlock ${skills[skill]}`;
   }
-}
+};

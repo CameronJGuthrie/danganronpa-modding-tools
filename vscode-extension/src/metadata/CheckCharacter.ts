@@ -10,13 +10,13 @@ export const checkCharacter: OpcodeMeta = {
   ] as const,
   decorations([objectId]) {
     if (objectId === 254) {
-      return "---> on Exit"
+      return "---> on Exit";
     }
 
     if (objectId === 255) {
-      return "<---"
+      return "<---";
     }
 
-    return `---> on ${objectId}`
+    return `---> on ${objectId}`;
   },
 };

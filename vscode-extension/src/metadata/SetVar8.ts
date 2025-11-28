@@ -31,7 +31,7 @@ export const setVar8: OpcodeMeta = {
     if (offset === RESET_FLAGS) {
       return [
         { contentText: `Reset ${flagGroups[group]}`, color: color }
-      ]
+      ];
     }
 
     if ((group === FlagGroup.CharacterDead || group === FlagGroup.CharacterInvestigated) && isCharacter(offset)) {
@@ -39,8 +39,8 @@ export const setVar8: OpcodeMeta = {
     }
 
     let flagEmoji = '🏳️';
-    if (group == FlagGroup.CharacterDead) {
-      flagEmoji = '🏴'
+    if (group === FlagGroup.CharacterDead) {
+      flagEmoji = '🏴';
     }
 
     const tfColor = value ? "#188233" : "#a52626";
@@ -50,6 +50,6 @@ export const setVar8: OpcodeMeta = {
       { contentText: `${flagEmoji} ${flagGroups[group]} `, color: tfColor },
       { contentText: `→ ${addressValue}`, color: color },
       { contentText: tfText, color: tfColor }
-    ]
+    ];
   },
 };

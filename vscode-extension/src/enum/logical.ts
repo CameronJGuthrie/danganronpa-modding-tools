@@ -25,7 +25,7 @@ export function isLogicalJoin(logicalJoin: number): logicalJoin is LogicalJoin {
 export const joins: Readonly<Record<LogicalJoin, string>> = {
   [LogicalJoin.And]: "And",
   [LogicalJoin.Or]: "Or",
-}
+};
 
 export const comparisonOperatorNames: Readonly<Record<LogicalCompare, string>> = {
   [LogicalCompare.NotEqual]: "NotEqual",
@@ -34,7 +34,7 @@ export const comparisonOperatorNames: Readonly<Record<LogicalCompare, string>> =
   [LogicalCompare.GreaterOrEqual]: "GreaterOrEqual",
   [LogicalCompare.LessThan]: "LessThan",
   [LogicalCompare.GreaterThan]: "GreaterThan",
-}
+};
 
 export const comparisonOperatorSymbols: Readonly<Record<LogicalCompare, string>> = {
   [LogicalCompare.NotEqual]: "!=",
@@ -43,4 +43,4 @@ export const comparisonOperatorSymbols: Readonly<Record<LogicalCompare, string>>
   [LogicalCompare.GreaterOrEqual]: ">=",
   [LogicalCompare.LessThan]: "<",
   [LogicalCompare.GreaterThan]: ">",
-}
+};

@@ -231,4 +231,4 @@ export const transitionSounds: Readonly<{ [soundId: number]: SoundMeta }> = {
   29: { name: "Present Get", sourcePath: "dr1_bgm_hca.awb.00070.ogg" },
   30: { name: "Present Get", sourcePath: "dr1_bgm_hca.awb.00071.ogg" },
   31: { name: "Present Get", sourcePath: "dr1_bgm_hca.awb.00072.ogg" },
-}
+};

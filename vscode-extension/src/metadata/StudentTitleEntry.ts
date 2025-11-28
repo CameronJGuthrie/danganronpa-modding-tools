@@ -35,6 +35,6 @@ export const studentTitleEntry: OpcodeMeta = {
       { contentText: `${arithmaticConfiguraiton[op].name} ${value} ${joiner} ` },
       { contentText: characterConfiguration[character].name, color: characterConfiguration[character].color },
       { contentText: ` student title entry` },
-    ]
+    ];
   },
-}
+};

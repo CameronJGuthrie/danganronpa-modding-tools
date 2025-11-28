@@ -63,4 +63,4 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
   [Variable._59]: undefined, // Something to do with the minigame
   [Variable._60]: undefined, // Something to do with the minigame
   [Variable._61]: undefined  // Something to do with the minigame. Value is always 7.
-}
+};

@@ -28,4 +28,4 @@ export const UsamiVoice: ChapterVoiceLines = {
     68: "dr1_voice_hca_us.awb.06543.ogg | YEAH!",
     69: "dr1_voice_hca_us.awb.06544.ogg | Disappear!",
   }
-}
+};

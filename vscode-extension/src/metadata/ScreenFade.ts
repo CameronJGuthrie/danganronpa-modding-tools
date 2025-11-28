@@ -11,7 +11,7 @@ const types: { [type: number]: string } = {
   0: "Hide",
   1: "Show",
   101: "Block with", // Special? This seems to stop you from interacting with the game until the loading screen is cleared
-}
+};
 
 export const screenFade: OpcodeMeta = {
   name: OpcodeName.ScreenFade,

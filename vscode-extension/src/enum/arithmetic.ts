@@ -11,7 +11,7 @@ export const arithmaticConfiguraiton: Record<Arithmetic, { name: string }> = {
   [Arithmetic.Assign]: { name: "Assign" },
   [Arithmetic.Add]: { name: "Add" },
   [Arithmetic.Subtract]: { name: "Remove" },
-}
+};
 
 export function isArithmetic(arithmetic: number): arithmetic is Arithmetic {
   return set.has(arithmetic);

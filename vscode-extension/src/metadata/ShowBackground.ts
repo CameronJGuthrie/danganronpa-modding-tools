@@ -12,6 +12,6 @@ export const showBackground: OpcodeMeta = {
     },
   ] as const,
   decorations: ([backgroundId, state]) => {
-    return `BG ${backgroundId} @ ${state}`
+    return `BG ${backgroundId} @ ${state}`;
   }
-}
+};

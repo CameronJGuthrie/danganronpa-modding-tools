@@ -73,4 +73,4 @@ export const metadata: Readonly<OpcodeMeta>[] = [
   truthBulletFlag,
   unlockSkill,
   voice,
-]
+];

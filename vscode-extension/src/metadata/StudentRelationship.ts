@@ -33,5 +33,5 @@ export const studentRelationship: OpcodeMeta = {
     }
     return `${characterConfiguration[character].name} relationship ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${amount}`;
   },
-}
+};
 

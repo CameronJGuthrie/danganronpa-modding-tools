@@ -24,14 +24,14 @@ export const truthBulletFlag: OpcodeMeta = {
       return `Unknown truth bullet: ${flagId}`;
     }
     if (flagId === TruthBullet.Reset) {
-      return `Reset All Truth Bullets`
+      return `Reset All Truth Bullets`;
     }
 
     const flagName = truthBulletFlags[flagId];
 
     let operationName;
     if (operation === 0) {
-      operationName = "Reset"
+      operationName = "Reset";
     } else if (operation === 1) {
       operationName = "Unlock";
     } else {

@@ -26,5 +26,5 @@ export const changeUi: OpcodeMeta = {
     }
     return [{ contentText: `${visibility} UI: ${userInterfaceConfiguration[interfaceId]}` }];
   },
-}
+};
 

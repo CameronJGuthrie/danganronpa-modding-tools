@@ -21,15 +21,15 @@ export const present: OpcodeMeta = {
   ] as const,
   decorations: ([present, mode, quantity]) => {
     if (!isPresent(present)) {
-      return [{ contentText: `Invalid present: ${present}` }]
+      return [{ contentText: `Invalid present: ${present}` }];
     }
     if (!isArithmetic(mode)) {
-      return [{ contentText: `Invalid mode: ${mode}` }]
+      return [{ contentText: `Invalid mode: ${mode}` }];
     }
 
     const { name: operation } = arithmaticConfiguraiton[mode];
     const { name: itemName } = presentConfiguration[present];
 
-    return [{ contentText: `📦 ${operation} ${quantity}x ${itemName}` }]
+    return [{ contentText: `📦 ${operation} ${quantity}x ${itemName}` }];
   }
 };

@@ -20,5 +20,5 @@ export const soundB: OpcodeMeta = {
     const soundName = transitionSounds[soundId]?.name ?? `Unknown soundId: ${soundId}`;
     return `🔊 ${soundName}`;
   },
-}
+};
 

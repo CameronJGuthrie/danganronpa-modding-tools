@@ -23,8 +23,8 @@ export const postProcessingEffect: OpcodeMeta = {
   ] as const,
   decorations: ([_1, filter, _3, _4]) => {
     if (!isFilter(filter)) {
-      return [{ contentText: `Unknown filter: ${filter}` }]
+      return [{ contentText: `Unknown filter: ${filter}` }];
     }
-    return [{ contentText: `${filterConfiguration[filter]} filter` }]
+    return [{ contentText: `${filterConfiguration[filter]} filter` }];
   }
-}
+};

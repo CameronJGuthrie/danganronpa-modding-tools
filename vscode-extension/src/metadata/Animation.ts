@@ -40,6 +40,6 @@ export const animation: OpcodeMeta = {
     },
   ] as const,
   decorations([id, _2, _3, _4, _5, _6, _state]) {
-    return [{ contentText: `🏔️ ${backgrounds?.[id] ?? id}` }]
+    return [{ contentText: `🏔️ ${backgrounds?.[id] ?? id}` }];
   },
 };

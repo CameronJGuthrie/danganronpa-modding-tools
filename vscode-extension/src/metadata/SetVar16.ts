@@ -40,19 +40,19 @@ export const setVar16: OpcodeMeta = {
     let valueColor = undefined;
     switch (variableValue) {
       case "Daytime":
-        valueColor = "#e3d211ff"
+        valueColor = "#e3d211ff";
         break;
       case "Nighttime":
-        valueColor = "#4b8fd7ff"
+        valueColor = "#4b8fd7ff";
         break;
       case "Morning":
-        valueColor = "#dfe87aff"
+        valueColor = "#dfe87aff";
         break;
       case "Midnight":
-        valueColor = "#4b65d7ff"
+        valueColor = "#4b65d7ff";
         break;
       case "Time Unknown":
-        valueColor = "#14a166ff"
+        valueColor = "#14a166ff";
         break;
     }
 
@@ -61,6 +61,6 @@ export const setVar16: OpcodeMeta = {
       { contentText: ` ${variableValue}`, color: valueColor },
       { contentText: ` ${joiner}` },
       { contentText: ` ${variableName}` }
-    ]
+    ];
   },
 };

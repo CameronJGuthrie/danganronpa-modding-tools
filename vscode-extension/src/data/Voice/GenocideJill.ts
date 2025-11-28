@@ -1,5 +1,5 @@
-import { Chapter } from "../../enum/chapter"
-import { ChapterVoiceLines } from "./types"
+import { Chapter } from "../../enum/chapter";
+import { ChapterVoiceLines } from "./types";
 
 export const GenocideJillVoice: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
@@ -208,4 +208,4 @@ export const GenocideJillVoice: ChapterVoiceLines = {
     37: "I can keep on living as long as I have my master's love!"
   },
   [Chapter.Chapter_99]: undefined
-}
+};

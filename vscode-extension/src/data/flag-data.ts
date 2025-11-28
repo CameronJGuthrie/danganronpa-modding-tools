@@ -32,4 +32,4 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.CharacterDead]: characterConfiguration
-}
+};

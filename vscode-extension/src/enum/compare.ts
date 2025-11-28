@@ -17,7 +17,7 @@ export const compareConfiguration: Record<Compare, { name: string; symbol: strin
   [Compare.GreaterOrEqual]: { name: "Greater Or Equal", symbol: ">=" },
   [Compare.LessThan]: { name: "Less Than", symbol: "<" },
   [Compare.GreaterThan]: { name: "Greater Than", symbol: ">" },
-}
+};
 
 export function isCompare(compare: number): compare is Compare {
   return set.has(compare);
