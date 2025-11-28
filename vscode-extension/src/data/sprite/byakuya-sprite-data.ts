@@ -1,4 +1,4 @@
-export const ByakuyaSprite = {
+export const byakuyaSprite = {
   0: "Neutral",
   1: "NeutralStare",
   2: "Smug",

@@ -1,4 +1,4 @@
-export const LeonSprite = {
+export const leonSprite = {
   0: "Neutral",
   1: "Speaking",
   2: "Relaxed",

@@ -1,4 +1,4 @@
-export const SayakaSprite = {
+export const sayakaSprite = {
   0: "Neutral",
   1: "Shy",
   2: "ShyAvertEyes",

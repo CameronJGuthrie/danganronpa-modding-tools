@@ -1,4 +1,4 @@
-export const CelesteSprite = {
+export const celesteSprite = {
   0: "Neutral",
   1: "NeutralAvertEyes",
   2: "SmileCoverMouth",

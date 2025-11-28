@@ -1,4 +1,4 @@
-export const JunkoSprite = {
+export const junkoSprite = {
   0: "NeutralQueen",
   1: "HandCoverFaceAgent",
   2: "WildRockstar",

@@ -1,4 +1,4 @@
-export const MukuroSprite = {
+export const mukuroSprite = {
   0: "Neutral",
   1: "Frown",
   2: "Disgusted",

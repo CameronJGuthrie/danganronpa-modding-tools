@@ -1,4 +1,4 @@
-export const KiyotakaSprite = {
+export const kiyotakaSprite = {
   0: "Neutral",
   1: "Worried",
   2: "Laughing",

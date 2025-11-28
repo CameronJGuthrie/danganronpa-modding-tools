@@ -1,4 +1,4 @@
-export const HifumiSprite = {
+export const hifumiSprite = {
   0: "Neutral",
   1: "Sweating",
   2: "AdjustGlasses",

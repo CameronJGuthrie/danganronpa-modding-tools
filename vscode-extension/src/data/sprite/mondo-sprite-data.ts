@@ -1,4 +1,4 @@
-export const MondoSprite = {
+export const mondoSprite = {
   0: "Neutral",
   1: "Frowning",
   2: "GlanceLeft",

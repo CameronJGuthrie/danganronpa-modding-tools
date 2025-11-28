@@ -1,4 +1,4 @@
-export const KyokoSprite = {
+export const kyokoSprite = {
   0: "Neutral",
   1: "Neutral-2",
   2: "Contemplating",

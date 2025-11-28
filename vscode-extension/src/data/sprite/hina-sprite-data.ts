@@ -1,4 +1,4 @@
-export const AoiSprite = {
+export const hinaSprite = {
   0: "Neutral",
   1: "Speaking",
   2: "Shocked",

@@ -1,4 +1,4 @@
-export const MonokumaSprite = {
+export const monokumaSprite = {
   0: "Neutral",
   1: "Annoyed",
   2: "AnnoyedClaws",

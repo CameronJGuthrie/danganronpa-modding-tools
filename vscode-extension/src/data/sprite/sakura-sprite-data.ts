@@ -1,4 +1,4 @@
-export const SakuraSprite = {
+export const sakuraSprite = {
   0: "Neutral",
   1: "Angry",
   2: "Listening",

@@ -1,4 +1,4 @@
-export const TokoSprite = {
+export const tokoSprite = {
   0: "NeutralAvertEyes",
   1: "Neutral",
   2: "DeviousGrin",

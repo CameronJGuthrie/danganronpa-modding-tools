@@ -1,4 +1,4 @@
-export const HiroSprite = {
+export const hiroSprite = {
   0: "Neutral",
   1: "NeutralHandOnHeart",
   2: "Laughing",
