@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController } from "../audio";
+import { createAudioTestController } from "../test-controller";
 import { findRootDirectory } from "../../workspace";
 import { music } from "../../../metadata/Music";
 import { musics } from "../../../data/music-data";
-import { AudioTestConfigBuilder, createConfiguration } from "../test-controller";
+import { AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
 type MusicInfo = {
   musicId: number;

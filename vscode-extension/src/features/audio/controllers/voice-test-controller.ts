@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController } from "../audio";
+import { createAudioTestController } from "../test-controller";
 import { voiceLinesByCharacterByChapter } from "../../../data/Voice";
 import { Character, isCharacter } from "../../../enum/character";
 import { characterConfiguration } from "../../../data/character-data";
 import { isChapter } from "../../../enum/chapter";
 import { findRootDirectory } from "../../workspace";
 import { voice } from "../../../metadata/Voice";
-import { AudioTestConfigBuilder, createConfiguration } from "../test-controller";
+import { AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
 type VoiceLineInfo = {
   characterId: number;
