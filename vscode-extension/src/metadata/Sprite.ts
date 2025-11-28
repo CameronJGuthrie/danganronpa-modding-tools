@@ -2,7 +2,7 @@ import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
 import { sprites } from "../data/sprite";
 import { Character, isCharacter } from "../enum/character";
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 
 export const sprite: OpcodeMeta = {
   name: OpcodeName.Sprite,
@@ -39,7 +39,7 @@ export const sprite: OpcodeMeta = {
       return [{ contentText: `Unknown character`, color: "gray" }];
     }
 
-    const { name, color } = characterConfiguration[character];
+    const { name, color } = characterData[character];
 
     const expression = sprites?.[character]?.[spriteId] ?? "Unknown Sprite";
 

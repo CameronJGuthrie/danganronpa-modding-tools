@@ -1,6 +1,6 @@
 import { Character } from "../enum/character";
 import { FlagGroup } from "../enum/flag-group";
-import { characterConfiguration } from "./character-data";
+import { characterData } from "./character-data";
 
 export const RESET_FLAGS = 32;
 
@@ -28,8 +28,8 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.CharacterInvestigated]: {
-    ...characterConfiguration,
+    ...characterData,
     [RESET_FLAGS]: { name: "Reset" },
   },
-  [FlagGroup.CharacterDead]: characterConfiguration
+  [FlagGroup.CharacterDead]: characterData
 };

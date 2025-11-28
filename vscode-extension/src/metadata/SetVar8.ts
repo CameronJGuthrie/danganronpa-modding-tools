@@ -1,4 +1,4 @@
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 import { flagDataByFlagGroup, RESET_FLAGS } from "../data/flag-data";
 import { isCharacter } from "../enum/character";
 import { FlagGroup, flagGroups, isFlagGroup } from "../enum/flag-group";
@@ -35,7 +35,7 @@ export const setVar8: OpcodeMeta = {
     }
 
     if ((group === FlagGroup.CharacterDead || group === FlagGroup.CharacterInvestigated) && isCharacter(offset)) {
-      color = characterConfiguration[offset].color;
+      color = characterData[offset].color;
     }
 
     let flagEmoji = '🏳️';

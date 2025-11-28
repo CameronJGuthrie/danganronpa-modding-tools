@@ -1,6 +1,6 @@
 import { Character } from "../enum/character";
 
-export type CharacterConfiguration = {
+export type CharacterMeta = {
   /* A short way of printing this character's name in the editor */
   name: string;
   /* The name that shows in the game's user interface when that character speaks */
@@ -9,7 +9,7 @@ export type CharacterConfiguration = {
   color: string;
 };
 
-export const characterConfiguration: Readonly<Record<Character, CharacterConfiguration>> = {
+export const characterData: Readonly<Record<Character, CharacterMeta>> = {
   [Character.Makoto]: {
     name: "Makoto",
     speakerText: "Makoto Naegi",

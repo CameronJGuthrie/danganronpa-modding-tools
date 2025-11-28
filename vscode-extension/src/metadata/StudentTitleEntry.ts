@@ -1,6 +1,6 @@
 import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
 import { Character, isCharacter } from "../enum/character";
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
 export const studentTitleEntry: OpcodeMeta = {
@@ -33,7 +33,7 @@ export const studentTitleEntry: OpcodeMeta = {
 
     return [
       { contentText: `${arithmaticConfiguraiton[op].name} ${value} ${joiner} ` },
-      { contentText: characterConfiguration[character].name, color: characterConfiguration[character].color },
+      { contentText: characterData[character].name, color: characterData[character].color },
       { contentText: ` student title entry` },
     ];
   },

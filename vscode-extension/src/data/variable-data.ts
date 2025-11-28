@@ -1,7 +1,7 @@
 import { Character } from "../enum/character";
 import { Variable } from "../enum/variable";
 import { flatMapProperty } from "../util/data-util";
-import { characterConfiguration } from "./character-data";
+import { characterData } from "./character-data";
 
 type VariableValueDetail = {
   [value: number]: string;
@@ -58,7 +58,7 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
   [Variable.Monocoin]: undefined, // Monocoin? It's always succeeded by RunScript(8, 30, 0)
   [Variable._48]: undefined, // Only seems to be used in japanese game files
   [Variable._50]: undefined, // Something to do with the minigame. Value is always 1.
-  [Variable._56]: { ...flatMapProperty(characterConfiguration, "name") }, // Something to do with the minigame. Value is characterId.
+  [Variable._56]: { ...flatMapProperty(characterData, "name") }, // Something to do with the minigame. Value is characterId.
   [Variable._58]: undefined, // Something to do with the minigame. Value is always 50.
   [Variable._59]: undefined, // Something to do with the minigame
   [Variable._60]: undefined, // Something to do with the minigame

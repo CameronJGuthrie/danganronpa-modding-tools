@@ -1,6 +1,6 @@
 import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
 import { Character, isCharacter } from "../enum/character";
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
 export const studentReportInfo: OpcodeMeta = {
@@ -27,6 +27,6 @@ export const studentReportInfo: OpcodeMeta = {
     if (!isArithmetic(op)) {
       return `Unknown arithmetic: ${op}`;
     }
-    return `${characterConfiguration[character].name} report ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${value}`;
+    return `${characterData[character].name} report ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${value}`;
   },
 };

@@ -1,7 +1,7 @@
 import { voiceLinesByCharacterByChapter } from "../data/voice";
 import { isChapter } from "../enum/chapter";
 import { Character, isCharacter } from "../enum/character";
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
 export const voice: OpcodeMeta = {
@@ -34,7 +34,7 @@ export const voice: OpcodeMeta = {
       return "Unknown Chapter";
     }
 
-    const { name, color } = characterConfiguration[character];
+    const { name, color } = characterData[character];
     const voice = voiceLinesByCharacterByChapter?.[character]?.[chapter]?.[voiceId];
 
     let text = `${name}: `;

@@ -1,6 +1,6 @@
 import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
 import { Character, isCharacter } from "../enum/character";
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
 export const studentRelationship: OpcodeMeta = {
@@ -31,7 +31,7 @@ export const studentRelationship: OpcodeMeta = {
     if (!isArithmetic(op)) {
       return `Unknown arithmetic: ${op}`;
     }
-    return `${characterConfiguration[character].name} relationship ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${amount}`;
+    return `${characterData[character].name} relationship ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${amount}`;
   },
 };
 

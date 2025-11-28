@@ -1,4 +1,4 @@
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 import { isCharacter } from "../enum/character";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical";
@@ -26,7 +26,7 @@ export const evaluateFreeTimeEvent: OpcodeMeta = {
     if (!isCharacter(characterId)) {
       return `⚠️ Unknown character ${operand}`;
     }
-    const characterName = characterConfiguration[characterId].name;
+    const characterName = characterData[characterId].name;
 
     return `If ${characterName}'s free time event counter is ${operandSymbol} ${value}`;
   },

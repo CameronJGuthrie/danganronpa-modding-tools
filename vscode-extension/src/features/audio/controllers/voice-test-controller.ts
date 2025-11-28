@@ -3,7 +3,7 @@ import * as path from "path";
 import { createAudioTestController } from "../test-controller";
 import { voiceLinesByCharacterByChapter } from "../../../data/voice";
 import { Character, isCharacter } from "../../../enum/character";
-import { characterConfiguration } from "../../../data/character-data";
+import { characterData } from "../../../data/character-data";
 import { isChapter } from "../../../enum/chapter";
 import { findRootDirectory } from "../../workspace";
 import { voice } from "../../../metadata/Voice";
@@ -82,9 +82,9 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       if (isCharacter(info.characterId)) {
         if (isChapter(info.chapter)) {
           const voiceText = voiceLinesByCharacterByChapter[info.characterId]?.[info.chapter]?.[info.voiceId];
-          return `${characterConfiguration[info.characterId].name}: ${voiceText ?? `(${info.voiceId})`}`;
+          return `${characterData[info.characterId].name}: ${voiceText ?? `(${info.voiceId})`}`;
         } else {
-          return `${characterConfiguration[info.characterId].name}: (${info.voiceId})`;
+          return `${characterData[info.characterId].name}: (${info.voiceId})`;
         }
       } else {
         return `(${info.characterId}):`;

@@ -1,4 +1,4 @@
-import { characterConfiguration } from "../data/character-data";
+import { characterData } from "../data/character-data";
 import { isCharacter } from "../enum/character";
 import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 
@@ -22,7 +22,7 @@ export const loadSprite: OpcodeMeta = {
   decorations([object, character, visibility]) {
     let characterText = `${character}`;
     if (isCharacter(character)) {
-      characterText = characterConfiguration[character].name;
+      characterText = characterData[character].name;
     }
 
     return `${object} ${characterText} ${visibility}`;
