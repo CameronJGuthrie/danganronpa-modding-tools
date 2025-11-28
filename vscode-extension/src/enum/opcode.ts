@@ -1,4 +1,4 @@
-import { ThemableDecorationAttachmentRenderOptions } from "vscode";
+import type { ThemableDecorationAttachmentRenderOptions } from "vscode";
 
 export type OpcodeMeta<Parameters extends readonly Parameter[] = Parameter[]> = {
   name: OpcodeName;
@@ -7,7 +7,7 @@ export type OpcodeMeta<Parameters extends readonly Parameter[] = Parameter[]> = 
   parameters: Parameters;
   decorations?: (
     args: { [K in keyof Parameters]: number },
-    documentText: string
+    documentText: string,
   ) => string | ThemableDecorationAttachmentRenderOptions[];
 };
 
@@ -56,9 +56,9 @@ export enum OpcodeName {
 export type ParameterValueMeta =
   | string
   | {
-    name: string;
-    description?: string;
-  };
+      name: string;
+      description?: string;
+    };
 
 export type Parameter = {
   /**

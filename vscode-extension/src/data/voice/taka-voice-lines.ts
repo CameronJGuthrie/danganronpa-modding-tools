@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const takaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -31,7 +31,7 @@ export const takaVoiceLines: ChapterVoiceLines = {
     25: "But hold on! If that's right, then the one who damaged the sheath with the kitchen knife was-",
     26: "Very well. Then let's review all the clues we've found up to this point one more time.",
     27: "I see. She broke her right wrist during the fight, so she'd have to use her left hand to right.",
-    28: "That's because the culprit didn't know it was your room! They thought they were in Sayaka's room!"
+    28: "That's because the culprit didn't know it was your room! They thought they were in Sayaka's room!",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 1224 },
@@ -89,14 +89,14 @@ export const takaVoiceLines: ChapterVoiceLines = {
     52: "You are wrong! You have to be wrong!",
     53: "Everything you just said is wrong! You made it all up!",
     54: "Wait! No, this can't be right!",
-    55: "\"Where's your evidence?\" \"Yeah, where's your evidence?\"",
+    55: '"Where\'s your evidence?" "Yeah, where\'s your evidence?"',
     56: "You need evidence! You need proof!",
     57: "Without any proof, you can't pin any of this on him!",
     58: "Bro? Bro? What are you saying?",
     59: "Wait! Hold on!",
     60: "Thank you.",
     61: "Thank you.",
-    62: "Thank you."
+    62: "Thank you.",
   },
   [Chapter.Chapter_3]: undefined,
   [Chapter.Chapter_4]: undefined,
@@ -124,7 +124,7 @@ export const takaVoiceLines: ChapterVoiceLines = {
     18: "W-what is this?!",
     19: "*Sigh*",
     20: "It can't be.",
-    21: "\"Ridiculous!\"",
+    21: '"Ridiculous!"',
     22: "What are you talking about?",
     23: "THIS IS RIDICULOUS!",
     24: "In other words,",
@@ -182,6 +182,6 @@ export const takaVoiceLines: ChapterVoiceLines = {
     76: "In a true competition, there's no such thing as a tie.",
     77: "You win, or you lose. That's the only thing that matters.",
     78: "SHUT UP!",
-    79: "SHUT UP!"
-  }
+    79: "SHUT UP!",
+  },
 };

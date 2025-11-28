@@ -1,20 +1,20 @@
-import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController } from "../test-controller";
-import { voiceLinesByCharacterByChapter } from "../../../data/voice";
-import { Character, isCharacter } from "../../../enum/character";
+import type * as vscode from "vscode";
 import { characterData } from "../../../data/character-data";
+import { voiceLinesByCharacterByChapter } from "../../../data/voice";
 import { isChapter } from "../../../enum/chapter";
-import { findRootDirectory } from "../../workspace";
+import { type Character, isCharacter } from "../../../enum/character";
 import { voice } from "../../../metadata/Voice";
-import { AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
+import { findRootDirectory } from "../../workspace";
+import { createAudioTestController } from "../test-controller";
+import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
 type VoiceLineInfo = {
   characterId: number;
   chapter: number;
   voiceId: number;
   volume: number;
-}
+};
 
 export function registerVoiceTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<VoiceLineInfo> = {
@@ -62,7 +62,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       const audioIndex = baseIndex + (info.voiceId - 1);
 
       // Format as 5-digit zero-padded number
-      const indexStr = audioIndex.toString().padStart(5, '0');
+      const indexStr = audioIndex.toString().padStart(5, "0");
 
       // Find the root directory
       const rootDir = findRootDirectory();
@@ -71,11 +71,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(
-        rootDir,
-        'modded/dr1_data/Dr1/data/us/voice',
-        `dr1_voice_hca_us.awb.${indexStr}.ogg`
-      );
+      return path.join(rootDir, "modded/dr1_data/Dr1/data/us/voice", `dr1_voice_hca_us.awb.${indexStr}.ogg`);
     },
 
     formatTestLabel: (info: VoiceLineInfo): string => {
@@ -101,14 +97,14 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
     },
 
     createTestId: (uri: string, line: number, args: Array<{ value: number }>): string => {
-      const [characterId, chapter, voiceId, volume] = args.map(arg => arg.value);
+      const [characterId, chapter, voiceId, volume] = args.map((arg) => arg.value);
       return `${uri}:${line}:${characterId}:${chapter}:${voiceId}:${volume}`;
     },
 
     parseInfoFromArgs: (args: Array<{ value: number }>): VoiceLineInfo | null => {
-      const [characterId, chapter, voiceId, volume] = args.map(arg => arg.value);
+      const [characterId, chapter, voiceId, volume] = args.map((arg) => arg.value);
       return { characterId, chapter, voiceId, volume };
-    }
+    },
   };
 
   createAudioTestController(context, createConfiguration(testConfigBuilder));

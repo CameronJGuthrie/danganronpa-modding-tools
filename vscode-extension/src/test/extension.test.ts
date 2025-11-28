@@ -1,5 +1,6 @@
 import * as assert from "assert";
-
+// Import the metadata array from metadata/index.ts to avoid drift
+import { metadata } from "../metadata";
 import {
   createCompleteFunctionRegex,
   getArgumentsFromFunctionLike,
@@ -7,9 +8,6 @@ import {
   getTextFunctionRegex,
   isInsideQuotes,
 } from "../util/string-util";
-
-// Import the metadata array from metadata/index.ts to avoid drift
-import { metadata } from "../metadata";
 
 suite("Extension Test Suite", () => {
   test("Sample test", () => {
@@ -40,7 +38,7 @@ suite("Extension Test Suite", () => {
 
   test("isInsideQuotes helper function", () => {
     const text1 = 'Text("Voice(0, 99, 0, 1, 100)")';
-    const text2 = 'Voice(0, 99, 0, 1, 100)';
+    const text2 = "Voice(0, 99, 0, 1, 100)";
     const text3 = 'Text("hello") Voice(0, 99, 0, 1, 100)';
 
     // Position of "Voice" in text1 (inside quotes)
@@ -75,7 +73,7 @@ suite("Extension Test Suite", () => {
     assert.equal(matches.length, 0, "Voice inside quotes should not match after filtering");
 
     // But should match when not in quotes
-    const text2 = 'Voice(0, 99, 0, 1, 100)';
+    const text2 = "Voice(0, 99, 0, 1, 100)";
     const regex2 = getVoiceRegex();
     const matches2 = [];
     let match2;
@@ -98,7 +96,7 @@ suite("Extension Test Suite", () => {
     assert.doesNotMatch(`Text ("A B C")`, getRegex());
 
     assert.equal(getRegex().exec(`Text("A B C")`), `Text("A B C")`);
-    assert.equal(getRegex().exec(`Text("\"A B C\"")`), `Text("\"A B C\"")`);
+    assert.equal(getRegex().exec(`Text(""A B C"")`), `Text(""A B C"")`);
   });
 
   test("color text regex", () => {
@@ -147,14 +145,10 @@ suite("Extension Test Suite", () => {
   });
 
   test("argument extractor with single argument", () => {
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetVar8(12)"), [
-      { stringIndex: 8, value: 12 },
-    ]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetVar8(12)"), [{ stringIndex: 8, value: 12 }]);
 
     // With whitespace
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetVar8( 12 )"), [
-      { stringIndex: 9, value: 12 },
-    ]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetVar8( 12 )"), [{ stringIndex: 9, value: 12 }]);
   });
 
   test("argument extractor handles zero values", () => {
@@ -172,7 +166,7 @@ suite("Extension Test Suite", () => {
       if (nameMap.has(meta.name)) {
         assert.fail(
           `Duplicate function name found: "${meta.name}" (opcode: ${meta.opcode}) ` +
-          `conflicts with existing function (opcode: ${nameMap.get(meta.name)})`
+            `conflicts with existing function (opcode: ${nameMap.get(meta.name)})`,
         );
       }
       nameMap.set(meta.name, meta.opcode);
@@ -182,15 +176,13 @@ suite("Extension Test Suite", () => {
     const opcodeMap = new Map<string, string>();
     for (const meta of metadata) {
       if (meta.opcode === "") {
-        assert.fail(
-          `Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`
-        );
+        assert.fail(`Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`);
       }
 
       if (opcodeMap.has(meta.opcode)) {
         assert.fail(
           `Duplicate opcode found: "${meta.opcode}" is used by both ` +
-          `"${meta.name}" and "${opcodeMap.get(meta.opcode)}"`
+            `"${meta.name}" and "${opcodeMap.get(meta.opcode)}"`,
         );
       }
       opcodeMap.set(meta.opcode, meta.name);

@@ -1,8 +1,8 @@
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { characterData } from "../data/character-data";
 
 import { sprites } from "../data/sprite";
 import { Character, isCharacter } from "../enum/character";
-import { characterData } from "../data/character-data";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const sprite: OpcodeMeta = {
   name: OpcodeName.Sprite,

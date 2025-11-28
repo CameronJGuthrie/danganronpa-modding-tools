@@ -1,16 +1,16 @@
-import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController } from "../test-controller";
-import { findRootDirectory } from "../../workspace";
-import { music } from "../../../metadata/Music";
+import type * as vscode from "vscode";
 import { musics } from "../../../data/music-data";
-import { AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
+import { music } from "../../../metadata/Music";
+import { findRootDirectory } from "../../workspace";
+import { createAudioTestController } from "../test-controller";
+import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
 type MusicInfo = {
   musicId: number;
   volume: number;
   fadeInTime: number;
-}
+};
 
 export function registerMusicTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<MusicInfo> = {
@@ -49,11 +49,7 @@ export function registerMusicTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path using the base path dr1_data/Dr1/data/all/bgm
-      return path.join(
-        rootDir,
-        'modded/dr1_data/Dr1/data/all/bgm',
-        musicData.sourcePath
-      );
+      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/bgm", musicData.sourcePath);
     },
 
     formatTestLabel: (info: MusicInfo): string => {
@@ -71,14 +67,14 @@ export function registerMusicTestController(context: vscode.ExtensionContext) {
     },
 
     createTestId: (uri: string, line: number, args: Array<{ value: number }>): string => {
-      const [musicId, volume, fadeInTime] = args.map(arg => arg.value);
+      const [musicId, volume, fadeInTime] = args.map((arg) => arg.value);
       return `${uri}:${line}:${musicId}:${volume}:${fadeInTime}`;
     },
 
     parseInfoFromArgs: (args: Array<{ value: number }>): MusicInfo | null => {
-      const [musicId, volume, fadeInTime] = args.map(arg => arg.value);
+      const [musicId, volume, fadeInTime] = args.map((arg) => arg.value);
       return { musicId, volume, fadeInTime };
-    }
+    },
   };
 
   createAudioTestController(context, createConfiguration(testConfigBuilder));

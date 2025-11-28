@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const usamiVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
@@ -27,5 +27,5 @@ export const usamiVoiceLines: ChapterVoiceLines = {
     51: "dr1_voice_hca_us.awb.06526.ogg | Love, love.",
     68: "dr1_voice_hca_us.awb.06543.ogg | YEAH!",
     69: "dr1_voice_hca_us.awb.06544.ogg | Disappear!",
-  }
+  },
 };

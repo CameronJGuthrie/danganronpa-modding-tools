@@ -31,5 +31,5 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
     ...characterData,
     [RESET_FLAGS]: { name: "Reset" },
   },
-  [FlagGroup.CharacterDead]: characterData
+  [FlagGroup.CharacterDead]: characterData,
 };

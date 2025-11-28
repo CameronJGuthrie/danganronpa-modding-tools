@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { getArgumentsFromFunctionLike, createCompleteFunctionRegex, isInsideQuotes } from "../../util/string-util";
 import { log } from "../../output";
+import { createCompleteFunctionRegex, getArgumentsFromFunctionLike, isInsideQuotes } from "../../util/string-util";
 import { playAudio } from "./play-audio";
-import { AudioTestConfig } from "./test-controller-config";
+import type { AudioTestConfig } from "./test-controller-config";
 
 /**
  * Gather all tests from a test controller
@@ -21,13 +21,10 @@ export function gatherAllTests(testController: vscode.TestController): vscode.Te
  */
 export function createAudioTestController<TInfo>(
   context: vscode.ExtensionContext,
-  config: AudioTestConfig<TInfo>
+  config: AudioTestConfig<TInfo>,
 ): vscode.TestController {
   // Create the test controller
-  const testController = vscode.tests.createTestController(
-    config.controllerId,
-    config.controllerLabel
-  );
+  const testController = vscode.tests.createTestController(config.controllerId, config.controllerLabel);
 
   context.subscriptions.push(testController);
 
@@ -62,7 +59,7 @@ export function createAudioTestController<TInfo>(
           }
 
           // Check if the file exists
-          const fs = require('fs');
+          const fs = require("fs");
           if (!fs.existsSync(audioPath)) {
             run.errored(test, new vscode.TestMessage(`Audio file not found: ${audioPath}`));
             continue;
@@ -89,7 +86,7 @@ export function createAudioTestController<TInfo>(
       }
 
       run.end();
-    }
+    },
   );
 
   context.subscriptions.push(runProfile);
@@ -111,7 +108,7 @@ export function createAudioTestController<TInfo>(
       fileTestItem = testController.createTestItem(
         document.uri.toString(),
         document.uri.fsPath.split("/").pop() || "Unknown",
-        document.uri
+        document.uri,
       );
       testController.items.add(fileTestItem);
     }
@@ -122,15 +119,7 @@ export function createAudioTestController<TInfo>(
     // Process each function pattern
     for (const pattern of config.functionPatterns) {
       const regex = createCompleteFunctionRegex(pattern.name, pattern.paramCount);
-      processMatches(
-        regex,
-        documentText,
-        document,
-        fileTestItem,
-        testController,
-        config,
-        pattern.paramCount
-      );
+      processMatches(regex, documentText, document, fileTestItem, testController, config, pattern.paramCount);
     }
 
     log(`Found ${fileTestItem.children.size} ${config.controllerLabel} tests in ${document.fileName}`);
@@ -139,7 +128,7 @@ export function createAudioTestController<TInfo>(
   // Watch for document changes to update tests
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument(parseTestsInDocument),
-    vscode.workspace.onDidChangeTextDocument((e) => parseTestsInDocument(e.document))
+    vscode.workspace.onDidChangeTextDocument((e) => parseTestsInDocument(e.document)),
   );
 
   // Parse tests in all open documents
@@ -151,7 +140,7 @@ export function createAudioTestController<TInfo>(
       if (editor) {
         parseTestsInDocument(editor.document);
       }
-    })
+    }),
   );
 
   log(`${config.controllerLabel} Test Controller registered`);
@@ -169,7 +158,7 @@ function processMatches<TInfo>(
   fileTestItem: vscode.TestItem,
   testController: vscode.TestController,
   config: AudioTestConfig<TInfo>,
-  expectedParamCount: number
+  expectedParamCount: number,
 ): void {
   let match;
   while ((match = regex.exec(documentText)) !== null) {
@@ -204,11 +193,7 @@ function processMatches<TInfo>(
     const testId = config.createTestId(document.uri.toString(), line, args);
 
     // Create a test item
-    const testItem = testController.createTestItem(
-      testId,
-      label,
-      document.uri
-    );
+    const testItem = testController.createTestItem(testId, label, document.uri);
 
     testItem.range = range;
 

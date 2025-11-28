@@ -33,5 +33,5 @@ export const skills: Readonly<Record<Skill, string>> = {
   [Skill.SpMaxPlus1]: "SpMaxPlus1",
   [Skill.SpMaxPlus2]: "SpMaxPlus2",
   [Skill.SpMaxPlus3]: "SpMaxPlus3",
-  [Skill.SpMax99]: "SpMax99"
+  [Skill.SpMax99]: "SpMax99",
 };

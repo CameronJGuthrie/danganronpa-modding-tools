@@ -1,3 +1,4 @@
+import type { OpcodeMeta } from "../enum/opcode";
 import { animation } from "./Animation";
 import { changeUi } from "./ChangeUI";
 import { checkCharacter } from "./CheckCharacter";
@@ -33,7 +34,6 @@ import { textStyle } from "./TextStyle";
 import { truthBulletFlag } from "./TruthBulletFlag";
 import { unlockSkill } from "./UnlockSkill";
 import { voice } from "./Voice";
-import { OpcodeMeta } from "../enum/opcode";
 
 export const metadata: Readonly<OpcodeMeta>[] = [
   animation,

@@ -1,6 +1,5 @@
 import { UserInterface } from "../enum/user-interface";
 
-
 export const userInterfaceConfiguration: Record<UserInterface, string> = {
   [UserInterface.Textbox]: "Textbox",
   [UserInterface.Name]: "Name",
@@ -33,7 +32,7 @@ export const userInterfaceConfiguration: Record<UserInterface, string> = {
   [UserInterface.SplitScreen]: "Split Screen",
 };
 
-const set = new Set(Object.values(UserInterface).filter(v => typeof v === "number"));
+const set = new Set(Object.values(UserInterface).filter((v) => typeof v === "number"));
 
 export function isUserInterface(interfaceId: number): interfaceId is UserInterface {
   return set.has(interfaceId);

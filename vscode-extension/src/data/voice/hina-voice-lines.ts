@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const hinaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -14,9 +14,9 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     8: "No, no way! I swear it wasn't me!",
     9: "That's right. Sakura was with me the entire time I was drinking my tea.",
     10: "Actually, no. Because, um, well...",
-    11: "\"I got so scared thanks to those creepy videos. I wasn't really thinking, I just asked her to stay over.\"",
+    11: '"I got so scared thanks to those creepy videos. I wasn\'t really thinking, I just asked her to stay over."',
     12: "Which means we have airtight alibis.",
-    13: "\"Oh yeah, that's true! One other person did come to the dining hall while we were there.\"",
+    13: '"Oh yeah, that\'s true! One other person did come to the dining hall while we were there."',
     14: "Well, because... they're not here anymore.",
     15: "Sayaka. She's the one who came to the dining hall. And then later, she wound up dead.",
     16: "Oh, as a matter of fact, I do have one question.",
@@ -29,9 +29,9 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     23: "Inviting someone to your room, but not telling them you'd switched rooms. Why would anyone do that?",
     24: "Then... we just have to figure out what happened during the fight, right?",
     25: "How can you know that just by looking at her palms?",
-    26: "\"Sure, I think we can all agree Sayaka wrote it. But still...\"",
+    26: '"Sure, I think we can all agree Sayaka wrote it. But still..."',
     27: "What the heck do those numbers mean? One, one, zero, three, seven?",
-    28: "Huh? You just shot past the clue part and right on to who did it."
+    28: "Huh? You just shot past the clue part and right on to who did it.",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 3774 },
@@ -43,7 +43,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     6: "What?",
     7: "Ah, no. It's actually bloodlust.",
     8: "Hey, okay, wait, hold on a sec.",
-    9: "\"Toko has like, bloodophobia or whatever, remember? What kind of serial killer is afraid of blood?\"",
+    9: '"Toko has like, bloodophobia or whatever, remember? What kind of serial killer is afraid of blood?"',
     10: "Huh?",
     11: "So when Toko trapped herself in her room, it's because she was scared of Genocide Jack?",
     12: "What?",
@@ -74,7 +74,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     37: "Then it must hold some clue about the culprit, right?",
     38: "Just tell us already. Why would we want to break our own handbooks?",
     39: "But how'd they find out? Monokuma said he didn't tell anyone, right?",
-    40: "But doesn't that violate the school regulation that says loaning out your handbook is prohibited?"
+    40: "But doesn't that violate the school regulation that says loaning out your handbook is prohibited?",
   },
   [Chapter.Chapter_3]: {
     metadata: { index: 3814 },
@@ -83,7 +83,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     3: "Hiro, why? Why did you kill them?",
     4: "So, Makoto. Are you saying you don't think Hiro's the culprit?",
     5: "Then who was in that robo-justice suit?",
-    6: "\"Is it like Hiro said? Was there really someone running around in a second suit?\"",
+    6: '"Is it like Hiro said? Was there really someone running around in a second suit?"',
     7: "So? Who was in the robo-justice suit?",
     8: "That doesn't make any sense! You just said Hiro didn't do it!",
     9: "What?",
@@ -121,7 +121,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     41: "His body disappeared!",
     42: "The character was Princess Piggles, from Demon Angel Pretty Pudgy Princess, I think.",
     43: "But then, if he was just pretending to be dead.",
-    44: "\"What was with all that blood? Was it paint or something?\"",
+    44: '"What was with all that blood? Was it paint or something?"',
     45: "Well, after the bodies disappeared, we all went looking for them, right?",
     46: "So me and Sakura headed for the repository.",
     47: "But when we got there, the door was locked.",
@@ -138,7 +138,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     58: "So which hammer was used to attack Celeste? Number one or number two?",
     59: "Um, then, uh...",
     60: "Huh?",
-    61: "\"And whoever did that is the true killer. The one Hifumi was working with. And the one who betrayed him!\"",
+    61: '"And whoever did that is the true killer. The one Hifumi was working with. And the one who betrayed him!"',
     62: "Th-that's just... awful! How could anyone be so cruel?!",
     63: "Are you saying everything they told us was a lie?",
     64: "It was to get us to divide into two groups. So that we would discover both bodies at the same time?",
@@ -147,7 +147,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     67: "Wait! Then that was...",
     68: "\"That's right! They totally made a mistake when they made it, so it couldn't bend at the waist!\"",
     69: "Se-Celeste?",
-    70: "If there's one person here who might have that last name..."
+    70: "If there's one person here who might have that last name...",
   },
   [Chapter.Chapter_4]: {
     metadata: { index: 3884 },
@@ -188,7 +188,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     35: "But why would they have to try and get rid of it like that anyway?",
     36: "Then YOU killed Sakura!",
     37: "Wait, what do you mean probably?",
-    38: "\"Forget all that! Why did you attack Sakura?\"",
+    38: '"Forget all that! Why did you attack Sakura?"',
     39: "Sakura was just worried about you, and you... You're terrible!",
     40: "Well then, that's that. Let's start the vote.",
     41: "What's wrong? Come on, everyone, we're ready to vote, right? Let's do this!",
@@ -204,16 +204,16 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     51: "What killed Sakura?",
     52: "I can't think of anything other than the shot to her head!",
     53: "Well, I mean, maybe when she got hit with the bottles, she cut the inside of her mouth.",
-    54: "\"She was poisoned? It isn't possible!\"",
+    54: '"She was poisoned? It isn\'t possible!"',
     55: "You can... explain it?",
     56: "W-what do you mean?",
-    57: "\"What?!\"",
+    57: '"What?!"',
     58: "It was me.",
     59: "The footprints, they're mine.",
     60: "If you're all gonna find out anyway...",
     61: "I'd rather you hear it straight from me, you know?",
     62: "Yup.",
-    63: "\"I did it. I killed Sakura.\"",
+    63: '"I did it. I killed Sakura."',
     64: "I found her. There in the rec room. She was hurt.",
     65: "She asked me to bring her that protein drink.",
     66: "But when I went to get the powder from the chem lab, it just occurred to me all of a sudden.",
@@ -267,7 +267,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     114: "No! No, no, no, no, no!",
     115: "I killed her! I did it!",
     116: "It's not! Nothing's over!",
-    117: "*crying*"
+    117: "*crying*",
   },
   [Chapter.Chapter_5]: {
     metadata: { index: 4001 },
@@ -292,7 +292,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     19: "Huh?",
     20: "Then I guess we can say the timeframe for the murder was between then and when we found the body?",
     21: "Oh, but what time did we find the body?",
-    22: "\"We ran into each other in the dining hall, right? That was around...\"",
+    22: '"We ran into each other in the dining hall, right? That was around..."',
     23: "Oh, yeah. Right around 7.30. I remember checking right before I went in, so I'm totally sure about it.",
     24: "Yeah, from 10 o'clock.",
     25: "To 7.30.",
@@ -334,7 +334,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     61: "Huh? Why not?",
     62: "But who else could it have been?",
     63: "It... it had to be Makoto, right?",
-    64: "Monokuma's secret tool?"
+    64: "Monokuma's secret tool?",
   },
   [Chapter.Chapter_6]: {
     metadata: { index: 4065 },
@@ -356,7 +356,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     16: "ever since I got to this school.",
     17: "I remember everything that's happened.",
     18: "When you say all of us, you mean...",
-    19: "\"You lie! I never did any kind of interview!\"",
+    19: '"You lie! I never did any kind of interview!"',
     20: "It's not about whether or not I remember!",
     21: "You expect me to believe all this? That I... I lost my memory somehow?",
     22: "This is all... making my head hurt.",
@@ -368,7 +368,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     28: "Huh? But I thought we figured that out. She died when she got hit in the back of the head.",
     29: "Huh? How do you know that?",
     30: "Your hands!",
-    31: "\"That's true. All we know right now is she was killed a good while before this morning.\"",
+    31: '"That\'s true. All we know right now is she was killed a good while before this morning."',
     32: "But, to hide a body here, to just store it somewhere?",
     33: "Oh, it says Biolab.",
     34: "Hmm... So ten people in all?",
@@ -410,11 +410,11 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     70: "We've lost two years' worth of memories?",
     71: "Two years worth of memories.",
     72: "I could never lose something like that.",
-    73: "\"You only let us live? So we could go around killing each other? Is that what you're saying?\"",
+    73: '"You only let us live? So we could go around killing each other? Is that what you\'re saying?"',
     74: "Are you serious?",
     75: "You... expelled them?",
-    76: "\"Meaningless? Then we-\"",
-    77: "\"We've been murdering each other... for nothing?\"",
+    76: '"Meaningless? Then we-"',
+    77: '"We\'ve been murdering each other... for nothing?"',
     78: "Even if it's just one person?",
     79: "We'd have to just live here?",
     80: "What? Y-you can't just-",
@@ -428,7 +428,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     88: "*Sigh*...",
     89: "Say whatever you want. I've made my decision.",
     90: "Good! I'm ready to go!",
-    91: "Thank you."
+    91: "Thank you.",
   },
   [Chapter.Chapter_99]: {
     metadata: { index: 4156 },
@@ -459,7 +459,7 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     25: "Sorry.",
     26: "Aww...",
     27: "Just a second!",
-    28: "\"That's terrible!\"",
+    28: '"That\'s terrible!"',
     29: "Just the worst!",
     30: "WHAT THE HECK?",
     31: "What is this?",
@@ -532,6 +532,6 @@ export const hinaVoiceLines: ChapterVoiceLines = {
     98: "Huh!?",
     99: "What are you saying?",
     100: "Thank you.",
-    101: "Thank you."
-  }
+    101: "Thank you.",
+  },
 };

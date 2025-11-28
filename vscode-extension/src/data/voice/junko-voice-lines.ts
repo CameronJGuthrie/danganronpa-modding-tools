@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const junkoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
@@ -122,7 +122,7 @@ export const junkoVoiceLines: ChapterVoiceLines = {
     111: "Once I revealed Sakura's betrayal, that led to everything that came afterwards.",
     112: "Anyway, it looks like you answered all of my questions correctly. How painfully delightful.",
     113: "Relationships? Secrets? Money? Betrayal?",
-    114: "\"These are all pretty standard motives, right? The most normal of normal? Totally middle of the road!\"",
+    114: '"These are all pretty standard motives, right? The most normal of normal? Totally middle of the road!"',
     115: "But of course, those aren't the only motives that exist in this world.",
     116: "In fact, there are as many reasons to kill as there are people on Earth.",
     117: "They compel humans to kill each other, bringing despair to the world!",
@@ -184,7 +184,7 @@ export const junkoVoiceLines: ChapterVoiceLines = {
     173: "I can confirm that his entire family has died. Even the distant relatives. The Tagami name has perished.",
     174: "Stop? And said with such authority, a peasant would dare challenge us, the avatar of divine punishment?",
     175: "You must learn your place, peasant. You are no longer the ultimate affluent progeny.",
-    176: "\"Hell, there IS no world anymore, remember? It got fucked a full year ago!\"",
+    176: '"Hell, there IS no world anymore, remember? It got fucked a full year ago!"',
     177: "Huh? I don't make sense?",
     178: "Hoo-hoo-hoo-hoo-hoo! Have you considered the possibility that you're mistaken about that?",
     179: "Well, if I'm understanding you right...",
@@ -211,7 +211,7 @@ export const junkoVoiceLines: ChapterVoiceLines = {
     200: "Right before everyone's eyes, the world came crashing down.",
     201: "You absorbed all that despair, but then you forgot it all.",
     202: "And once you'd forgotten, you made the choice to subject yourselves to this killing game.",
-    203: "\"Oh, and there's one other thing. To be even more precise, the memories you all lost were...\"",
+    203: '"Oh, and there\'s one other thing. To be even more precise, the memories you all lost were..."',
     204: "Actually, never mind. I'm bored. Explaining stuff is boring.",
     205: "We are bored of this world.",
     206: "Everyone always talks big, declaring all the great things they'll do, but then they always fizzle out.",
@@ -290,7 +290,7 @@ export const junkoVoiceLines: ChapterVoiceLines = {
     279: "Hoo-hoo-hoo-hoo-hoo! Well, why don't you tell me?",
     280: "Uh-huh. That's exactly what I'm talking about.",
     281: "To show the world the murders taking place at this school, which was meant to be a symbol of hope.",
-    282: "That was the whole point of the Ultimate Despair! When I said \"climax\", THAT was what I was talking about!",
+    282: 'That was the whole point of the Ultimate Despair! When I said "climax", THAT was what I was talking about!',
     283: "The world watched as you fell into despair and began to kill each other one after another.",
     284: "Despair is as contagious as any disease. Any hope left turns to despair.",
     285: "Hoo-hoo-hoo-hoo! Isn't the power of television just amazing?",
@@ -347,7 +347,7 @@ export const junkoVoiceLines: ChapterVoiceLines = {
     336: "If you're not happy with that, then go ahead and punish me, and make your way to the outside world.",
     337: "Enter a world fallen from grace, where only despair exists, where you'd likely be dead within a day.",
     338: "Wait a sec, I just got hit with an inspiration bomb!",
-    339: "\"Dying of old age is boring as shit, right? The audience at home isn't gonna dig that at all!\"",
+    339: '"Dying of old age is boring as shit, right? The audience at home isn\'t gonna dig that at all!"',
     340: "So, here's what'll happen! One of you will get to experience an instant, super impressive punishment!",
     341: "And I get to decide who's gonna have to suck it down!",
     342: "Makoto, you're up!",

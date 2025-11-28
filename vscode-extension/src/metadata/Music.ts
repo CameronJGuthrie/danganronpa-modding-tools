@@ -1,5 +1,5 @@
 import { musics } from "../data/music-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const music: OpcodeMeta = {
   name: OpcodeName.Music,
@@ -11,7 +11,7 @@ export const music: OpcodeMeta = {
     },
     {
       name: "volume",
-      description: "Always 100"
+      description: "Always 100",
     },
     {
       name: "fadeInTime",

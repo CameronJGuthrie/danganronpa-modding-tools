@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const byakuyaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -22,7 +22,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     16: "I don't know. I'm not sure our soft-hearted Makoto is capable of that kind of cutthroat behavior.",
     17: "I'm sure Sayaka realized the same thing, which is why out of all of us, she asked him to switch rooms.",
     18: "And if you say you used it for something else, you'll have to explain exactly when, where, and why.",
-    19: "So, you have no rebuttal?"
+    19: "So, you have no rebuttal?",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 1384 },
@@ -143,7 +143,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     115: "Focus on the tracksuit and it'll be obvious who he met with? What a bunch of nonsense.",
     116: "That's odd. I didn't think the handbooks were quite so fragile.",
     117: "I won't say it's not possible, but who would have done something like that?",
-    118: "I don't know of anyone who took their handbook into the sauna."
+    118: "I don't know of anyone who took their handbook into the sauna.",
   },
   [Chapter.Chapter_3]: {
     metadata: { index: 1502 },
@@ -253,7 +253,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     104: "Don't talk.",
     105: "How long do you plan to go on pretending?",
     106: "So, you've finally accepted it.",
-    107: "Interesting."
+    107: "Interesting.",
   },
   [Chapter.Chapter_4]: {
     metadata: { index: 1609 },
@@ -398,7 +398,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     139: "But, Makoto, how did you...",
     140: "How did you manage to-",
     141: "How were you able to uncover the truth that even I couldn't discern?",
-    142: "Yeah."
+    142: "Yeah.",
   },
   [Chapter.Chapter_5]: {
     metadata: { index: 1751 },
@@ -527,7 +527,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     123: "A lie?",
     124: "You are correct.",
     125: "You're giving up just like that? You admit to killing-",
-    126: "Makoto, why are you staring off into space? Don't you have a rebuttal for Kyoko's claim?"
+    126: "Makoto, why are you staring off into space? Don't you have a rebuttal for Kyoko's claim?",
   },
   [Chapter.Chapter_6]: {
     metadata: { index: 1877 },
@@ -596,7 +596,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     63: "So, how long do you plan on dragging this out?",
     64: "But what's the point? What meaning is there in asking those questions now?",
     65: "How much longer is this stupid speech of yours?",
-    66: "\"Weren't we discussing our missing memories? Why are you trying to change the subject?\"",
+    66: '"Weren\'t we discussing our missing memories? Why are you trying to change the subject?"',
     67: "What are you talking about?",
     68: "Which means, if we did have our memories, then we wouldn't want to leave. Do I understand that right?",
     69: "What am I looking at?",
@@ -606,7 +606,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     73: "I'm going to ask you a question, and I want to have it answered immediately.",
     74: "Do you know anything about this video?",
     75: "More importantly, if you really do remember, what is it?",
-    76: "\"The tragedy?\"",
+    76: '"The tragedy?"',
     77: "Just answer the question. What happened out there?",
     78: "Why is that phrase coming up now?",
     79: "Explain yourself! Tell us everything you know!",
@@ -630,7 +630,7 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     97: "So until I can restore the Togami family and bring it greater glory than it's ever known...",
     98: "*laughs*",
     99: "I already said I would claim the mastermind's life, by whatever means necessary.",
-    100: "It looks like we've reached the end. I think it may be time to vote."
+    100: "It looks like we've reached the end. I think it may be time to vote.",
   },
   [Chapter.Chapter_99]: {
     metadata: { index: 1977 },
@@ -695,6 +695,6 @@ export const byakuyaVoiceLines: ChapterVoiceLines = {
     59: "Geez, you're like a stubborn little cockroach, you know that?",
     60: "What the hell?",
     61: "You know how much I hate being annoyed, but if something does come up, you may as well let me know.",
-    62: "I can't guarantee I'll actually bother listening, but, you know."
-  }
+    62: "I can't guarantee I'll actually bother listening, but, you know.",
+  },
 };

@@ -1,10 +1,10 @@
 import { Character } from "../../enum/character";
 import { alterEgoSprite } from "./alter-ego-sprite-data";
-import { hinaSprite } from "./hina-sprite-data";
 import { byakuyaSprite } from "./byakuya-sprite-data";
 import { celesteSprite } from "./celeste-sprite-data";
 import { chihiroSprite } from "./chihiro-sprite-data";
 import { hifumiSprite } from "./hifumi-sprite-data";
+import { hinaSprite } from "./hina-sprite-data";
 import { hiroSprite } from "./hiro-sprite-data";
 import { junkoSprite } from "./junko-sprite-data";
 import { kiyotakaSprite } from "./kiyotaka-sprite-data";

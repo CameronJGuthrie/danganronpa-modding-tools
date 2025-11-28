@@ -1,4 +1,3 @@
-
 export enum Compare {
   NotEqual = 0,
   Equal = 1,
@@ -8,7 +7,7 @@ export enum Compare {
   GreaterThan = 5,
 }
 
-const set = new Set(Object.values(Compare).filter(x => typeof x === "number"));
+const set = new Set(Object.values(Compare).filter((x) => typeof x === "number"));
 
 export const compareConfiguration: Record<Compare, { name: string; symbol: string }> = {
   [Compare.NotEqual]: { name: "Not Equal", symbol: "!=" },

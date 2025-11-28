@@ -1,7 +1,7 @@
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
-import { comparisonOperatorSymbols, isLogicalCompare, isLogicalJoin, joins } from "../enum/logical";
-import { flagGroups, isFlagGroup } from "../enum/flag-group";
 import { flagDataByFlagGroup } from "../data/flag-data";
+import { flagGroups, isFlagGroup } from "../enum/flag-group";
+import { comparisonOperatorSymbols, isLogicalCompare, isLogicalJoin, joins } from "../enum/logical";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const evaluateFlag: OpcodeMeta = {
   name: OpcodeName.EvaluateFlag,
@@ -18,7 +18,7 @@ export const evaluateFlag: OpcodeMeta = {
 
     let description = "If ";
 
-    for (let i = 0; i < args.length;) {
+    for (let i = 0; i < args.length; ) {
       // First iteration: 4 args (flagGroup, flagName, operand, value)
       // Subsequent iterations: skip joiner + 4 args
       const isFirstExpression = i === 0;
@@ -52,5 +52,5 @@ export const evaluateFlag: OpcodeMeta = {
     }
 
     return description;
-  }
+  },
 };

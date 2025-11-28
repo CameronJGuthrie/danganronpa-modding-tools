@@ -1,5 +1,5 @@
 import { textStyleColor } from "../data/text-style-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 import { isTextStyle } from "../enum/text-style";
 
 export const textStyle: OpcodeMeta = {
@@ -14,13 +14,19 @@ export const textStyle: OpcodeMeta = {
         StyleId 0 resets to default, other values apply different colors/fonts/sizes.
         `,
       values: {
-        0: { name: "Default/Reset", description: "Reset to default text style" },
+        0: {
+          name: "Default/Reset",
+          description: "Reset to default text style",
+        },
         1: { name: "Pink", description: "Pink text color" },
         3: { name: "Yellow", description: "Yellow text color" },
         4: { name: "Cyan", description: "Cyan text color" },
         10: { name: "Light Green", description: "Light green text color" },
         11: { name: "Orange", description: "Orange/coral text color" },
-        23: { name: "Green (SFX)", description: "Green text for sound effects" },
+        23: {
+          name: "Green (SFX)",
+          description: "Green text for sound effects",
+        },
       },
     },
   ] as const,

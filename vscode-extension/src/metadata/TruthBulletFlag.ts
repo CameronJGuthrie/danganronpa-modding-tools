@@ -1,5 +1,5 @@
 import { truthBulletFlags } from "../data/truth-bullet-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 import { isTruthBullet, TruthBullet } from "../enum/truth-bullet";
 
 export const truthBulletFlag: OpcodeMeta = {
@@ -15,8 +15,8 @@ export const truthBulletFlag: OpcodeMeta = {
       values: {
         0: "Reset",
         1: "Unlock",
-        2: "Update"
-      }
+        2: "Update",
+      },
     },
   ] as const,
   decorations([flagId, operation]) {

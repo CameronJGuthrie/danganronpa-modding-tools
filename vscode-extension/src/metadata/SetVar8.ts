@@ -2,7 +2,7 @@ import { characterData } from "../data/character-data";
 import { flagDataByFlagGroup, RESET_FLAGS } from "../data/flag-data";
 import { isCharacter } from "../enum/character";
 import { FlagGroup, flagGroups, isFlagGroup } from "../enum/flag-group";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 // A better name for this would be setFlag
 export const setVar8: OpcodeMeta = {
@@ -10,7 +10,7 @@ export const setVar8: OpcodeMeta = {
   opcode: "0x26",
   parameters: [
     {
-      name: "flagGroup"
+      name: "flagGroup",
     },
     {
       name: "offset",
@@ -26,21 +26,19 @@ export const setVar8: OpcodeMeta = {
     }
     const addressValue = flagDataByFlagGroup[group]?.[offset]?.name ?? `${offset}`;
 
-    let color = '#796d00ff';
+    let color = "#796d00ff";
 
     if (offset === RESET_FLAGS) {
-      return [
-        { contentText: `Reset ${flagGroups[group]}`, color: color }
-      ];
+      return [{ contentText: `Reset ${flagGroups[group]}`, color: color }];
     }
 
     if ((group === FlagGroup.CharacterDead || group === FlagGroup.CharacterInvestigated) && isCharacter(offset)) {
       color = characterData[offset].color;
     }
 
-    let flagEmoji = '🏳️';
+    let flagEmoji = "🏳️";
     if (group === FlagGroup.CharacterDead) {
-      flagEmoji = '🏴';
+      flagEmoji = "🏴";
     }
 
     const tfColor = value ? "#188233" : "#a52626";
@@ -49,7 +47,7 @@ export const setVar8: OpcodeMeta = {
     return [
       { contentText: `${flagEmoji} ${flagGroups[group]} `, color: tfColor },
       { contentText: `→ ${addressValue}`, color: color },
-      { contentText: tfText, color: tfColor }
+      { contentText: tfText, color: tfColor },
     ];
   },
 };

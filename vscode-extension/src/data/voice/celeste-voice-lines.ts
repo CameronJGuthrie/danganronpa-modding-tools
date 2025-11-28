@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const celesteVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -46,7 +46,7 @@ export const celesteVoiceLines: ChapterVoiceLines = {
     40: "Can we really be sure that Sayaka is the one who wrote it?",
     41: "But one piece burned off and got left behind.",
     42: "A target 30 feet away would surely be little challenge for the ultimate baseball star.",
-    43: "Then it would seem we are finished here."
+    43: "Then it would seem we are finished here.",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 4813 },
@@ -104,7 +104,7 @@ export const celesteVoiceLines: ChapterVoiceLines = {
     52: "In other words, if Mundo's handbook is actually broken,",
     53: "then that proves that what Makoto said is right.",
     54: "So then, the broken handbook in the main hall is actually Mondo's.",
-    55: "Which would mean that the handbook Mondo has right now is actually Leon's, yes?"
+    55: "Which would mean that the handbook Mondo has right now is actually Leon's, yes?",
   },
   [Chapter.Chapter_3]: {
     metadata: { index: 4868 },
@@ -206,7 +206,7 @@ export const celesteVoiceLines: ChapterVoiceLines = {
     96: "What could you possibly mean by that?",
     97: "No. There is no other explanation.",
     98: "Eh?",
-    99: "\"Hmph! Hahahaha!\"",
+    99: '"Hmph! Hahahaha!"',
     100: "Such a thing.",
     101: "is utterly impossible.",
     102: "Hifumi was dragging him away? Ridiculous.",
@@ -286,7 +286,7 @@ export const celesteVoiceLines: ChapterVoiceLines = {
     19: "*grunt*",
     20: "Ugh!",
     21: "*Makes a weird noise*",
-    22: "\"Honk!\"",
+    22: '"Honk!"',
     23: "Wh-wh-what the...",
     24: "*Sigh*",
     25: "Honestly.",
@@ -332,6 +332,6 @@ export const celesteVoiceLines: ChapterVoiceLines = {
     65: "Because I can see a blue track jacket sticking out of that duffle bag you're carrying.",
     66: "Hmm?",
     67: "Thank you.",
-    68: "Thank you."
-  }
+    68: "Thank you.",
+  },
 };

@@ -1,5 +1,5 @@
+import type { Chapter } from "../../enum/chapter";
 import { Character } from "../../enum/character";
-import { Chapter } from "../../enum/chapter";
 
 import { byakuyaVoiceLines } from "./byakuya-voice-lines";
 import { celesteVoiceLines } from "./celeste-voice-lines";
@@ -54,12 +54,11 @@ export const voiceLinesByCharacterByChapter: CharacterVoiceLinesByChapter = {
   [Character.MonokumaBackup]: undefined,
   [Character.MonokumaBackupR]: undefined,
   [Character.MonokumaBackupL]: undefined,
-  [Character.MonokumaBackupM]: undefined
+  [Character.MonokumaBackupM]: undefined,
 };
 
 export type VoiceMeta = {
   index: number;
 };
-export type ChapterVoiceLines = Record<Chapter, { [voiceLineId: number]: string; metadata: VoiceMeta; } | undefined>;
+export type ChapterVoiceLines = Record<Chapter, { [voiceLineId: number]: string; metadata: VoiceMeta } | undefined>;
 export type CharacterVoiceLinesByChapter = Record<Character, ChapterVoiceLines | undefined>;
-

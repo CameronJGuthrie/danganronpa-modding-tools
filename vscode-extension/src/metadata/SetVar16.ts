@@ -1,6 +1,6 @@
 import { variableData } from "../data/variable-data";
-import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 import { isVariable, Variable, variables } from "../enum/variable";
 
 export const setVar16: OpcodeMeta = {
@@ -9,7 +9,7 @@ export const setVar16: OpcodeMeta = {
   parameters: [
     {
       name: "address",
-      values: Variable
+      values: Variable,
     },
     {
       name: "arithmetic",
@@ -33,11 +33,9 @@ export const setVar16: OpcodeMeta = {
     // Try the formatter, then the values, then just 'var 123' if neither of those found
     const variableValue = variableDetail?.formatter?.(value) ?? variableDetail?.[value] ?? value;
 
-    const joiner = (arithmetic === Arithmetic.Assign || arithmetic === Arithmetic.Add)
-      ? "to"
-      : "from";
+    const joiner = arithmetic === Arithmetic.Assign || arithmetic === Arithmetic.Add ? "to" : "from";
 
-    let valueColor = undefined;
+    let valueColor;
     switch (variableValue) {
       case "Daytime":
         valueColor = "#e3d211ff";
@@ -60,7 +58,7 @@ export const setVar16: OpcodeMeta = {
       { contentText: `${arithmaticConfiguraiton[arithmetic].name}` },
       { contentText: ` ${variableValue}`, color: valueColor },
       { contentText: ` ${joiner}` },
-      { contentText: ` ${variableName}` }
+      { contentText: ` ${variableName}` },
     ];
   },
 };

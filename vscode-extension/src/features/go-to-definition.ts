@@ -1,8 +1,8 @@
-import * as vscode from "vscode";
-import * as path from "path";
 import * as fs from "fs";
-import { findRootDirectory } from "./workspace";
+import * as path from "path";
+import * as vscode from "vscode";
 import { log } from "../output";
+import { findRootDirectory } from "./workspace";
 
 /**
  * Provides "Go to Definition" (Ctrl+Click) functionality for .linscript files
@@ -16,7 +16,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
   provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.Definition | vscode.LocationLink[]> {
     const line = document.lineAt(position);
     const lineText = line.text.trim();
@@ -58,19 +58,13 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
   /**
    * Find the Label that corresponds to a Goto
    */
-  private findLabel(
-    document: vscode.TextDocument,
-    label: string
-  ): vscode.Location | null {
+  private findLabel(document: vscode.TextDocument, label: string): vscode.Location | null {
     const pattern = new RegExp(`^Label\\(${label}\\)`);
 
     for (let i = 0; i < document.lineCount; i++) {
       const line = document.lineAt(i);
       if (pattern.test(line.text)) {
-        return new vscode.Location(
-          document.uri,
-          new vscode.Position(i, 0)
-        );
+        return new vscode.Location(document.uri, new vscode.Position(i, 0));
       }
     }
 
@@ -81,11 +75,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
    * Find the script file based on chapter, episode, and scene numbers
    * Format: e{chapter:02d}_{episode:03d}_{scene:03d}.linscript
    */
-  private findScriptFile(
-    chapter: number,
-    episode: number,
-    scene: number
-  ): vscode.Location | null {
+  private findScriptFile(chapter: number, episode: number, scene: number): vscode.Location | null {
     const rootDir = findRootDirectory();
     if (!rootDir) {
       log("Root directory not found");
@@ -101,35 +91,21 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     log(`Root dir: ${rootDir}`);
 
     // Search in the mod directory
-    const modPath = path.join(
-      rootDir,
-      "mod/dr1_data_us/Dr1/data/us/script",
-      filename
-    );
+    const modPath = path.join(rootDir, "mod/dr1_data_us/Dr1/data/us/script", filename);
 
     log(`Checking mod path: ${modPath}`);
     if (fs.existsSync(modPath)) {
       log(`Found in mod!`);
-      return new vscode.Location(
-        vscode.Uri.file(modPath),
-        new vscode.Position(0, 0)
-      );
+      return new vscode.Location(vscode.Uri.file(modPath), new vscode.Position(0, 0));
     }
 
     // If not found in mod, search in linscript-exploration
-    const explorationPath = path.join(
-      rootDir,
-      "linscript-exploration",
-      filename
-    );
+    const explorationPath = path.join(rootDir, "linscript-exploration", filename);
 
     log(`Checking exploration path: ${explorationPath}`);
     if (fs.existsSync(explorationPath)) {
       log(`Found in exploration!`);
-      return new vscode.Location(
-        vscode.Uri.file(explorationPath),
-        new vscode.Position(0, 0)
-      );
+      return new vscode.Location(vscode.Uri.file(explorationPath), new vscode.Position(0, 0));
     }
 
     log(`File not found`);
@@ -143,10 +119,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
 export function registerDefinitionProvider(context: vscode.ExtensionContext) {
   const provider = new LinscriptDefinitionProvider();
 
-  const disposable = vscode.languages.registerDefinitionProvider(
-    { scheme: "file", language: "linscript" },
-    provider
-  );
+  const disposable = vscode.languages.registerDefinitionProvider({ scheme: "file", language: "linscript" }, provider);
 
   context.subscriptions.push(disposable);
 }

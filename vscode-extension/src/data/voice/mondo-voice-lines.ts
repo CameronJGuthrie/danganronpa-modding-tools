@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const mondoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -28,7 +28,7 @@ export const mondoVoiceLines: ChapterVoiceLines = {
     22: "Huh? What? What?",
     23: "Whoa, you might have finally just said something worth a shit.",
     24: "What is it, some kind of glass ball? It's busted to hell.",
-    25: "I mean, it had to be a screwdriver, right?"
+    25: "I mean, it had to be a screwdriver, right?",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 2064 },
@@ -75,7 +75,7 @@ export const mondoVoiceLines: ChapterVoiceLines = {
     41: "Thank you.",
     42: "Thank you.",
     43: "Thank you.",
-    44: "Thank you."
+    44: "Thank you.",
   },
   [Chapter.Chapter_3]: undefined,
   [Chapter.Chapter_4]: undefined,
@@ -139,6 +139,6 @@ export const mondoVoiceLines: ChapterVoiceLines = {
     54: "Listen to you, you son of a bitch.",
     55: "Then bring it on. I'll... I'll... Push you right up to the gates of hell!",
     56: "SHUT UP!",
-    57: "*cough*"
-  }
+    57: "*cough*",
+  },
 };

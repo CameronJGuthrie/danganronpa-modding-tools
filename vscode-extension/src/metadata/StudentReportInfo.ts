@@ -1,7 +1,7 @@
-import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
-import { Character, isCharacter } from "../enum/character";
 import { characterData } from "../data/character-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
+import { Character, isCharacter } from "../enum/character";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const studentReportInfo: OpcodeMeta = {
   name: OpcodeName.StudentReportInfo,
@@ -9,11 +9,11 @@ export const studentReportInfo: OpcodeMeta = {
   parameters: [
     {
       name: "characterId",
-      values: Character
+      values: Character,
     },
     {
       name: "operation",
-      values: Arithmetic
+      values: Arithmetic,
     },
     {
       name: "value",

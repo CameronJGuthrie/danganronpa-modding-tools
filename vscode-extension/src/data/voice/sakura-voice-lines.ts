@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const sakuraVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -28,7 +28,7 @@ export const sakuraVoiceLines: ChapterVoiceLines = {
     22: "The tables were suddenly turned on her, and she died at the hands of the one she'd planned to murder.",
     23: "But even if that really is an N, N037, doesn't make any more sense than before.",
     24: "But is one scrap of fabric enough to conclude that Leon is guilty?",
-    25: "But if you can't get past the gate, you couldn't possibly turn on the incinerator, could you?"
+    25: "But if you can't get past the gate, you couldn't possibly turn on the incinerator, could you?",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 4595 },
@@ -67,13 +67,13 @@ export const sakuraVoiceLines: ChapterVoiceLines = {
     33: "Then, Mondo, how did you know what color Chihiro's tracksuit was?",
     34: "But if the handbook is supposed to never break, and two of them broke in quick succession, then...",
     35: "Meaning the culprit somehow knew its weakness.",
-    36: "What do you mean, by accident?"
+    36: "What do you mean, by accident?",
   },
   [Chapter.Chapter_3]: {
     metadata: { index: 4631 },
     1: "No, the differences are bigger than that, I think.",
     2: "So what you're saying is...",
-    3: "\"So what is it? What needs to be clarified?\"",
+    3: '"So what is it? What needs to be clarified?"',
     4: "Okay, that explains the tarp. And the dolly?",
     5: "I'm not sure that really matters.",
     6: "It seems like it'd be awfully hard to push that dolly if you couldn't bend over.",
@@ -141,7 +141,7 @@ export const sakuraVoiceLines: ChapterVoiceLines = {
     68: "But the name, he said, doesn't apply to anyone here.",
     69: "It would have to be you, Celeste. You haven't told anyone what your real name is.",
     70: "Thank you.",
-    71: "Thank you."
+    71: "Thank you.",
   },
   [Chapter.Chapter_4]: undefined,
   [Chapter.Chapter_5]: undefined,
@@ -204,7 +204,7 @@ export const sakuraVoiceLines: ChapterVoiceLines = {
     54: "My resolve began to weaken.",
     55: "I cannot betray those who would call me their friend.",
     56: "Of course, I understand if you all hate me. All of this is because of my own weakness.",
-    57: "\"So this is my atonement for betraying you. That's what I had in mind.\"",
+    57: '"So this is my atonement for betraying you. That\'s what I had in mind."',
     58: "My own situation has started having an effect on more people than just me.",
     59: "Which is exactly what the Mastermind wanted when they revealed my betrayal.",
     60: "Of course, I'm still responsible for that as well.",
@@ -215,6 +215,6 @@ export const sakuraVoiceLines: ChapterVoiceLines = {
     65: "Finally. Hina, I want to apologize to you especially.",
     66: "I never saw you as my enemy. You were only ever my friend, who I wanted to help as much as possible.",
     67: "Hina. Whatever it takes. Survive. Survive along with everyone else.",
-    68: "No matter what, just survive."
-  }
+    68: "No matter what, just survive.",
+  },
 };

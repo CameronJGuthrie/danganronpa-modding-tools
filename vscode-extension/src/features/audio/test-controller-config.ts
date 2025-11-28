@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
-import { OpcodeMeta } from "../../enum/opcode";
+import type * as vscode from "vscode";
+import type { OpcodeMeta } from "../../enum/opcode";
 
 /**
  * Configuration for creating an audio test controller
@@ -29,13 +29,16 @@ export type AudioTestConfig<TInfo> = {
   createTestId: (uri: string, line: number, args: Array<{ value: number }>) => string;
   /** Parse info from arguments */
   parseInfoFromArgs: (args: Array<{ value: number }>) => TInfo | null;
-}
+};
 
 export type AudioTestConfigBuilder<TInfo> = {
   /** The opcode relating to this test configuration */
   opcode: OpcodeMeta;
   /** And all other properties not derived from the opcode */
-} & Omit<AudioTestConfig<TInfo>, "controllerId" | "controllerLabel" | "runProfileLabel" | "playerName" | "functionPatterns">
+} & Omit<
+  AudioTestConfig<TInfo>,
+  "controllerId" | "controllerLabel" | "runProfileLabel" | "playerName" | "functionPatterns"
+>;
 
 export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): AudioTestConfig<T> {
   const { opcode, ...rest } = builder;
@@ -46,9 +49,15 @@ export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): Audi
     runProfileLabel: `Play ${builder.opcode.name}`,
     playerName: `${builder.opcode.name} Player`,
     functionPatterns: [
-      { name: builder.opcode.name, paramCount: builder.opcode.parameters.length },
-      { name: builder.opcode.opcode, paramCount: builder.opcode.parameters.length }
+      {
+        name: builder.opcode.name,
+        paramCount: builder.opcode.parameters.length,
+      },
+      {
+        name: builder.opcode.opcode,
+        paramCount: builder.opcode.parameters.length,
+      },
     ],
-    ...rest
+    ...rest,
   };
 }

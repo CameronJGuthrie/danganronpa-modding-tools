@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { createCompleteFunctionRegex, isInsideQuotes, getArgumentsFromFunctionLike } from "../util/string-util";
+import { createCompleteFunctionRegex, getArgumentsFromFunctionLike, isInsideQuotes } from "../util/string-util";
 
 suite("Voice Test Controller Test Suite", () => {
   test("Voice function regex matches correctly", () => {
@@ -101,7 +101,7 @@ Voice(2, 1, 200, 100)`;
 
     const voiceRegex = createCompleteFunctionRegex("Voice", 4);
     const positions = [];
-    let match;
+    let match: RegExpExecArray | null;
 
     while ((match = voiceRegex.exec(testContent)) !== null) {
       if (!isInsideQuotes(testContent, match.index)) {

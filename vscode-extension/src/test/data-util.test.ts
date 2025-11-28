@@ -5,7 +5,7 @@ suite("Data Util Test Suite", () => {
   test("mapProperty extracts color property to name", () => {
     const input = {
       1: { color: "red", size: "large" },
-      2: { color: "blue", size: "small" }
+      2: { color: "blue", size: "small" },
     };
 
     const result = mapProperty(input, "color");
@@ -18,7 +18,7 @@ suite("Data Util Test Suite", () => {
     const input = {
       apple: { color: "red", taste: "sweet" },
       banana: { color: "yellow", taste: "sweet" },
-      lemon: { color: "yellow", taste: "sour" }
+      lemon: { color: "yellow", taste: "sour" },
     };
 
     const result = mapProperty(input, "color");
@@ -31,7 +31,7 @@ suite("Data Util Test Suite", () => {
   test("mapProperty works with different property keys", () => {
     const input = {
       1: { title: "First", description: "The first item" },
-      2: { title: "Second", description: "The second item" }
+      2: { title: "Second", description: "The second item" },
     };
 
     const resultTitle = mapProperty(input, "title");
@@ -47,7 +47,7 @@ suite("Data Util Test Suite", () => {
     const input = {
       10: { value: "ten" },
       20: { value: "twenty" },
-      30: { value: "thirty" }
+      30: { value: "thirty" },
     };
 
     const result = mapProperty(input, "value");
@@ -60,7 +60,7 @@ suite("Data Util Test Suite", () => {
 
   test("mapProperty works with single entry", () => {
     const input = {
-      1: { name: "solo" }
+      1: { name: "solo" },
     };
 
     const result = mapProperty(input, "name");
@@ -71,7 +71,7 @@ suite("Data Util Test Suite", () => {
   test("mapProperty handles empty strings", () => {
     const input = {
       1: { label: "" },
-      2: { label: "not empty" }
+      2: { label: "not empty" },
     };
 
     const result = mapProperty(input, "label");
@@ -82,7 +82,7 @@ suite("Data Util Test Suite", () => {
 
   test("mapProperty output has correct structure", () => {
     const input = {
-      a: { prop: "value" }
+      a: { prop: "value" },
     };
 
     const result = mapProperty(input, "prop");

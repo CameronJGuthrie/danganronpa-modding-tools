@@ -123,7 +123,7 @@ export enum TruthBullet {
   Reset = 255,
 }
 
-const truthBulletSet = new Set(Object.values(TruthBullet).filter(x => typeof x === "number"));
+const truthBulletSet = new Set(Object.values(TruthBullet).filter((x) => typeof x === "number"));
 
 export function isTruthBullet(truthBullet: number): truthBullet is TruthBullet {
   return truthBulletSet.has(truthBullet);

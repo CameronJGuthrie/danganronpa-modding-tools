@@ -1,6 +1,6 @@
 import { isPresent, Present, presentConfiguration } from "../data/present-data";
-import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const present: OpcodeMeta = {
   name: OpcodeName.Present,
@@ -12,11 +12,11 @@ export const present: OpcodeMeta = {
     },
     {
       name: "operation",
-      values: Arithmetic
+      values: Arithmetic,
     },
     {
       name: "quantity",
-      description: "this may not be used, it is always 1"
+      description: "this may not be used, it is always 1",
     },
   ] as const,
   decorations: ([present, mode, quantity]) => {
@@ -31,5 +31,5 @@ export const present: OpcodeMeta = {
     const { name: itemName } = presentConfiguration[present];
 
     return [{ contentText: `📦 ${operation} ${quantity}x ${itemName}` }];
-  }
+  },
 };

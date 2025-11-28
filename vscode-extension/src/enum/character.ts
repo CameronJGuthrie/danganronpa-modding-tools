@@ -32,9 +32,9 @@ export enum Character {
   MonokumaBackupR = 35,
   MonokumaBackupL = 36,
   MonokumaBackupM = 37,
-};
+}
 
-const validCharacterSet = new Set(Object.values(Character).filter(x => typeof x === "number"));
+const validCharacterSet = new Set(Object.values(Character).filter((x) => typeof x === "number"));
 
 export function isCharacter(characterId: number): characterId is Character {
   return validCharacterSet.has(characterId);

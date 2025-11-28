@@ -1,5 +1,5 @@
 import { skills } from "../data/skill-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 import { isSkill, Skill } from "../enum/skill";
 
 export const unlockSkill: OpcodeMeta = {
@@ -8,12 +8,12 @@ export const unlockSkill: OpcodeMeta = {
   parameters: [
     {
       name: "skillId",
-      values: Skill
+      values: Skill,
     },
     {
       name: "value",
-      description: "always 1"
-    }
+      description: "always 1",
+    },
   ],
   decorations: ([skill, _value]) => {
     if (!isSkill(skill)) {
@@ -21,5 +21,5 @@ export const unlockSkill: OpcodeMeta = {
     }
 
     return `Unlock ${skills[skill]}`;
-  }
+  },
 };

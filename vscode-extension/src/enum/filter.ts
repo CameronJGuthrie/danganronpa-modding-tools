@@ -3,11 +3,11 @@ export enum Filter {
   Sepia = 1,
 }
 
-const set = new Set(Object.values(Filter).filter(v => typeof v === "number"));
+const set = new Set(Object.values(Filter).filter((v) => typeof v === "number"));
 
 export const filterConfiguration: Record<Filter, string> = {
   [Filter.None]: "None",
-  [Filter.Sepia]: "Sepia"
+  [Filter.Sepia]: "Sepia",
 };
 
 export function isFilter(filter: number): filter is Filter {

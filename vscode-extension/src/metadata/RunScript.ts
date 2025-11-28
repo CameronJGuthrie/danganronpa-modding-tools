@@ -1,4 +1,4 @@
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 // This can point to scripts that don't seem to exist?
 // E.g. getting a Monocoin RunScript(8, 30, 0) for which there is no e08_030_000.lin
@@ -20,9 +20,9 @@ export const runScript: OpcodeMeta = {
     },
   ] as const,
   decorations([episode, scene, script]) {
-    const episodePadded = `${episode}`.padStart(2, '0');
-    const scenePadded = `${scene}`.padStart(3, '0');
-    const scriptPadded = `${script}`.padStart(3, '0');
+    const episodePadded = `${episode}`.padStart(2, "0");
+    const scenePadded = `${scene}`.padStart(3, "0");
+    const scriptPadded = `${script}`.padStart(3, "0");
     return `script e${episodePadded}_${scenePadded}_${scriptPadded}`;
   },
 };

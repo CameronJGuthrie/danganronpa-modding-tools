@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
-
-import { logError, logWarning, logDebug } from "../output";
+import { textStyleColor } from "../data/text-style-data";
+import type { OpcodeMeta } from "../enum/opcode";
+import { metadata } from "../metadata";
+import { logDebug, logError, logWarning } from "../output";
 import {
   createCompleteFunctionRegex,
   createVarargsRegex,
@@ -11,14 +13,10 @@ import {
 } from "../util/string-util";
 import {
   getDecorationAlignmentColumn,
-  getShowParameterDecorations,
   getShowFunctionDecorations,
+  getShowParameterDecorations,
   onConfigurationChange,
 } from "./configuration";
-
-import { OpcodeMeta } from "../enum/opcode";
-import { metadata } from "../metadata";
-import { textStyleColor } from "../data/text-style-data";
 
 // Create a decoration type for the inline hints
 const hintDecorationType = vscode.window.createTextEditorDecorationType({
@@ -40,10 +38,12 @@ for (let i = 0; i < MAX_FUNCTION_DECORATION_PARTS; i++) {
         fontStyle: "italic",
         color: "gray",
       },
-    })
+    }),
   );
 }
-const highlightDecorationTypeMap: { [colorId: number]: vscode.TextEditorDecorationType } = Object.fromEntries(
+const highlightDecorationTypeMap: {
+  [colorId: number]: vscode.TextEditorDecorationType;
+} = Object.fromEntries(
   Object.entries(textStyleColor).map(([colorId, htmlColor]) => {
     return [
       Number(colorId),
@@ -53,7 +53,7 @@ const highlightDecorationTypeMap: { [colorId: number]: vscode.TextEditorDecorati
         borderStyle: "solid",
       }),
     ];
-  })
+  }),
 );
 
 export function registerDecoration() {
@@ -61,7 +61,7 @@ export function registerDecoration() {
     const document = editor.document;
 
     // Only apply decorations to .linscript files
-    if (document.languageId !== 'linscript') {
+    if (document.languageId !== "linscript") {
       return;
     }
 
@@ -100,18 +100,40 @@ export function registerDecoration() {
       }
 
       try {
-        enrichParameters(completeFunctionRegex, documentText, functionDetails, document, hintDecorations, functionDecorationsByType, showParameterDecorations, showFunctionDecorations);
-        enrichParameters(opcodeFunctionRegex, documentText, functionDetails, document, hintDecorations, functionDecorationsByType, showParameterDecorations, showFunctionDecorations);
+        enrichParameters(
+          completeFunctionRegex,
+          documentText,
+          functionDetails,
+          document,
+          hintDecorations,
+          functionDecorationsByType,
+          showParameterDecorations,
+          showFunctionDecorations,
+        );
+        enrichParameters(
+          opcodeFunctionRegex,
+          documentText,
+          functionDetails,
+          document,
+          hintDecorations,
+          functionDecorationsByType,
+          showParameterDecorations,
+          showFunctionDecorations,
+        );
       } catch (e) {
-        logError(`Failed to enrich params for function ${functionDetails.name} (${functionDetails.opcode}), regex: /${opcodeFunctionRegex.source}/, detail: ${(e as Error).message}`);
+        logError(
+          `Failed to enrich params for function ${functionDetails.name} (${functionDetails.opcode}), regex: /${opcodeFunctionRegex.source}/, detail: ${(e as Error).message}`,
+        );
       }
     });
 
     // Add text enrichment
-    const highlightDecorationsMap: { [colorId: number]: vscode.DecorationOptions[] } = Object.fromEntries(
+    const highlightDecorationsMap: {
+      [colorId: number]: vscode.DecorationOptions[];
+    } = Object.fromEntries(
       Object.keys(textStyleColor).map((colorId) => {
         return [Number(colorId), []];
-      })
+      }),
     );
 
     const textFunctionRegex = getTextFunctionRegex();
@@ -185,12 +207,12 @@ export function registerDecoration() {
 function addParameterDecoration(
   param: OpcodeMeta["parameters"][number],
   rangePos: vscode.Position,
-  hintDecorations: vscode.DecorationOptions[]
+  hintDecorations: vscode.DecorationOptions[],
 ): number {
   let contentText;
   let decorationWidth = 0;
 
-  let border = undefined;
+  let border;
   if (param.unknown) {
     contentText = "?=";
   } else if (param.name) {
@@ -213,7 +235,6 @@ function addParameterDecoration(
   return decorationWidth;
 }
 
-
 function enrichParameters(
   regexp: RegExp,
   documentText: string,
@@ -222,7 +243,7 @@ function enrichParameters(
   hintDecorations: vscode.DecorationOptions[],
   functionDecorationsByType: vscode.DecorationOptions[][],
   showParameterDecorations: boolean,
-  showFunctionDecorations: boolean
+  showFunctionDecorations: boolean,
 ) {
   let match;
   while ((match = regexp.exec(documentText)) !== null) {
@@ -241,8 +262,12 @@ function enrichParameters(
     if (!functionDetails.varargs && args.length !== functionDetails.parameters.length) {
       const lineNumber = document.positionAt(matchIndex).line + 1;
       const matchedText = match[0];
-      logError(`Line ${lineNumber}: "${matchedText}" - Expected ${functionDetails.parameters.length} args but found ${args.length}`);
-      throw new Error(`FATAL: function parameters (${functionDetails.parameters.length}) and expected args (${args.length}) differ in length`);
+      logError(
+        `Line ${lineNumber}: "${matchedText}" - Expected ${functionDetails.parameters.length} args but found ${args.length}`,
+      );
+      throw new Error(
+        `FATAL: function parameters (${functionDetails.parameters.length}) and expected args (${args.length}) differ in length`,
+      );
     }
 
     let totalDecorationWidth = 0;
@@ -266,7 +291,7 @@ function enrichParameters(
         totalDecorationWidth,
         document,
         hintDecorations,
-        functionDecorationsByType
+        functionDecorationsByType,
       );
     }
   }
@@ -280,7 +305,7 @@ function addFunctionDecoration(
   totalParameterDecorationWidth: number,
   document: vscode.TextDocument,
   hintDecorations: vscode.DecorationOptions[],
-  functionDecorationsByType: vscode.DecorationOptions[][]
+  functionDecorationsByType: vscode.DecorationOptions[][],
 ) {
   if (!functionDetails.decorations) {
     return;
@@ -299,7 +324,7 @@ function addFunctionDecoration(
   // Calculate padding needed (ensure at least 1 space)
   // Use non-breaking space (\u00A0) to prevent VSCode from collapsing spaces
   const paddingChars = Math.max(1, targetColumn - currentColumn);
-  const padding = '\u00A0'.repeat(paddingChars);
+  const padding = "\u00A0".repeat(paddingChars);
 
   if (typeof functionDecorations === "string") {
     hintDecorations.push({
@@ -314,7 +339,7 @@ function addFunctionDecoration(
     // Use separate decoration types for each part to support multiple colors at same position
     // This relies on VSCode preserving the order when using different decoration types
     functionDecorations.forEach((renderOptions, index) => {
-      const content = index === 0 ? padding + (renderOptions.contentText || '') : renderOptions.contentText || '';
+      const content = index === 0 ? padding + (renderOptions.contentText || "") : renderOptions.contentText || "";
 
       if (index < MAX_FUNCTION_DECORATION_PARTS) {
         functionDecorationsByType[index].push({

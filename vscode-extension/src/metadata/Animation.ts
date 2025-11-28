@@ -1,5 +1,5 @@
 import { backgrounds } from "../data/background-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const animation: OpcodeMeta = {
   name: OpcodeName.Animation,
@@ -11,19 +11,19 @@ export const animation: OpcodeMeta = {
     },
     {
       unknown: true,
-      description: "Always 0"
+      description: "Always 0",
     },
     {
       unknown: true,
-      description: "Always 0"
+      description: "Always 0",
     },
     {
       unknown: true,
-      description: "Always 0"
+      description: "Always 0",
     },
     {
       unknown: true,
-      description: "Always 0"
+      description: "Always 0",
     },
     {
       unknown: true,
@@ -33,7 +33,7 @@ export const animation: OpcodeMeta = {
     {
       name: "state",
       unknown: true,
-      description: "The state of the animation"
+      description: "The state of the animation",
       // animations can have different states (0, 1, 2 etc).
       // 255 might be RESET, STOP or N/A or it might depend on the animation file itself, I have yet to unpick that.
       // For backgroundId 411, this can have value 20 and 22, seen only once each, and with no 6...19 or 21, this suggests animations can define their own custom states.

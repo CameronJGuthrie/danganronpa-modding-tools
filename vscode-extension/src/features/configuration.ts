@@ -47,11 +47,9 @@ export async function toggleParameterDecorations(): Promise<void> {
   await getConfig().update(
     ConfigurationKeys.SHOW_PARAMETER_DECORATIONS,
     !currentValue,
-    vscode.ConfigurationTarget.Global
+    vscode.ConfigurationTarget.Global,
   );
-  vscode.window.showInformationMessage(
-    `Parameter decorations ${!currentValue ? "enabled" : "disabled"}`
-  );
+  vscode.window.showInformationMessage(`Parameter decorations ${!currentValue ? "enabled" : "disabled"}`);
 }
 
 /**
@@ -62,11 +60,9 @@ export async function toggleFunctionDecorations(): Promise<void> {
   await getConfig().update(
     ConfigurationKeys.SHOW_FUNCTION_DECORATIONS,
     !currentValue,
-    vscode.ConfigurationTarget.Global
+    vscode.ConfigurationTarget.Global,
   );
-  vscode.window.showInformationMessage(
-    `Function decorations ${!currentValue ? "enabled" : "disabled"}`
-  );
+  vscode.window.showInformationMessage(`Function decorations ${!currentValue ? "enabled" : "disabled"}`);
 }
 
 /**
@@ -74,9 +70,7 @@ export async function toggleFunctionDecorations(): Promise<void> {
  * @param callback Called when configuration changes
  * @returns Disposable to unregister the listener
  */
-export function onConfigurationChange(
-  callback: (event: vscode.ConfigurationChangeEvent) => void
-): vscode.Disposable {
+export function onConfigurationChange(callback: (event: vscode.ConfigurationChangeEvent) => void): vscode.Disposable {
   return vscode.workspace.onDidChangeConfiguration((event) => {
     if (
       event.affectsConfiguration(`${EXTENSION_ID}.${ConfigurationKeys.SHOW_PARAMETER_DECORATIONS}`) ||

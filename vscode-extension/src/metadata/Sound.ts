@@ -1,5 +1,5 @@
 import { sounds } from "../data/sound-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const sound: OpcodeMeta = {
   name: OpcodeName.Sound,

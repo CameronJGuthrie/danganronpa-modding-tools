@@ -1,7 +1,7 @@
 // TODO: this needs a better name
 
 import { transitionSounds } from "../data/sound-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const soundB: OpcodeMeta = {
   name: OpcodeName.SoundB,
@@ -9,16 +9,15 @@ export const soundB: OpcodeMeta = {
   parameters: [
     {
       name: "soundId",
-      values: transitionSounds
+      values: transitionSounds,
     },
     {
       name: "volume",
-      description: "volume is always 100"
-    }
+      description: "volume is always 100",
+    },
   ] as const,
   decorations([soundId, volume]) {
     const soundName = transitionSounds[soundId]?.name ?? `Unknown soundId: ${soundId}`;
     return `🔊 ${soundName}`;
   },
 };
-

@@ -1,21 +1,21 @@
 import { characterData } from "../data/character-data";
 import { isCharacter } from "../enum/character";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const evaluateFreeTimeEvent: OpcodeMeta = {
   name: OpcodeName.EvaluateFreeTimeEvent,
   opcode: "0x38",
   parameters: [
     {
-      name: "characterId"
+      name: "characterId",
     },
     {
-      name: "operand"
+      name: "operand",
     },
     {
-      name: "value"
-    }
+      name: "value",
+    },
   ] as const,
   decorations([characterId, operand, value]) {
     if (!isLogicalCompare(operand)) {

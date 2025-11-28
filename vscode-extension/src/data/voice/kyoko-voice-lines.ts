@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const kyokoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -93,7 +93,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     87: "And with that, we can end this.",
     88: "So, Leon, do you object to anything that's been said?",
     89: "Well then, I guess this is as good a time as any to present the evidence that proves you did it.",
-    90: "\"Makoto. I believe you're in possession of that evidence?\"",
+    90: '"Makoto. I believe you\'re in possession of that evidence?"',
     91: "When the killer broke the bathroom doorknob, they didn't use anything from your room to do it.",
     92: "So what did the killer use?",
     93: "When the killer removed the screws from the doorknob, they didn't use anything from your room to do it.",
@@ -101,7 +101,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     95: "And let me say this right now.",
     96: "I lost it isn't an excuse at this point.",
     97: "The killer must have been considerably confused, with no idea how they actually got the door opened.",
-    98: "Rotate the image 180 degrees."
+    98: "Rotate the image 180 degrees.",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 3167 },
@@ -125,7 +125,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     18: "So then, there should be no issue with Makoto's initial assertion.",
     19: "The victim was killed in the boys' locker room, and was then later moved to the girls' locker room.",
     20: "And the killer could have easily used Sayaka or Junko's handbook to get into the girls' locker room.",
-    21: "\"I still don't understand the motive for moving the body, but... yes, that does seem plausible.\"",
+    21: '"I still don\'t understand the motive for moving the body, but... yes, that does seem plausible."',
     22: "What about you, Makoto? After everything we've learned, do you still think Byakuya's the killer?",
     23: "No, I'm with Makoto. If there's any doubt whatsoever, we need to explore every possibility.",
     24: "Because if we're wrong, we all die here.",
@@ -150,7 +150,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     43: "That's a good question.",
     44: "There was a certain turning point that tipped me off.",
     45: "Maybe you didn't notice it, Mondo, but you tend to refer to men and women differently.",
-    46: "You only call guys \"dude.\" For girls, it's \"chick.\"",
+    46: 'You only call guys "dude." For girls, it\'s "chick."',
     47: "And after he was killed, you happen to refer to him as dude.",
     48: "Once I picked up on that, it occurred to me that Mondo knew something we didn't.",
     49: "No. I'm not the frightful one.",
@@ -166,7 +166,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     59: "And once they had Chihiro's handbook, they knew they had an easy way to dispose of it.",
     60: "Let's test Makoto's assertion.",
     61: "If what he says is correct, then Mondo...",
-    62: "You broke your own handbook."
+    62: "You broke your own handbook.",
   },
   [Chapter.Chapter_3]: {
     metadata: { index: 3229 },
@@ -246,7 +246,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     74: "No. There's no reason to think he would have said the name any different than normal.",
     75: "But he must have run out of energy before he could say any more.",
     76: "Hifumi was trying to tell us something.",
-    77: "He wanted us to know the killer's last name. Yasuhiro."
+    77: "He wanted us to know the killer's last name. Yasuhiro.",
   },
   [Chapter.Chapter_4]: {
     metadata: { index: 3306 },
@@ -328,7 +328,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     76: "Listen, Hina. Could you go into a bit more detail?",
     77: "Tell us more about when you switched the poison and the protein.",
     78: "Go ahead, Hina. Start from the moment you arrived at the chem lab.",
-    79: "\"And is that when you spilled the powder in front of that part of the shelf?\"",
+    79: '"And is that when you spilled the powder in front of that part of the shelf?"',
     80: "I see. Okay then, go on.",
     81: "And you spilled some of the powder on the ground in front of the shelf.",
     82: "Okay, and then?",
@@ -402,7 +402,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     150: "That's what you don't understand, and that's why you couldn't solve this case.",
     151: "See? Didn't I tell you?",
     152: "When you dismiss other people's feelings, it'll always come back to bite you in the end.",
-    153: "Oh yeah, that's right."
+    153: "Oh yeah, that's right.",
   },
   [Chapter.Chapter_5]: {
     metadata: { index: 3459 },
@@ -458,7 +458,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     50: "Hina. After you met up with Makoto in the dining hall, did you two stay together from that point on?",
     51: "Then he had plenty of time to spare, wouldn't you say?",
     52: "Don't bother saying it's not possible.",
-    53: "\"I've never been to the dojo!\"",
+    53: '"I\'ve never been to the dojo!"',
     54: "And how does that prove anything?",
     55: "It was... in my room?",
     56: "I was just... protecting you.",
@@ -489,7 +489,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     81: "No, I'm simply recognizing that I lost.",
     82: "Like I said, this was a trap, and I wasn't able to escape it.",
     83: "So I lost.",
-    84: "That's all this means."
+    84: "That's all this means.",
   },
   [Chapter.Chapter_6]: {
     metadata: { index: 3543 },
@@ -526,7 +526,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     31: "It happened when I was first learning to be a detective. I was inexperienced.",
     32: "If it means we get another step closer to unmasking the mastermind, it doesn't really bother me.",
     33: "My scars should suffice as proof.",
-    34: "\"Makoto. Did the person who attacked you have scars like mine?\"",
+    34: '"Makoto. Did the person who attacked you have scars like mine?"',
     35: "then this much has been made clear.",
     36: "There can be no doubt that the one who attacked Makoto is the true mastermind.",
     37: "Not at all. You can say whatever you want.",
@@ -573,7 +573,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     78: "In other words, Mukuro's death was a one-sided, premeditated act of betrayal.",
     79: "Just as I suspected.",
     80: "When Mukuro was killed, she must have been as surprised as anybody else.",
-    81: "\"Turning your own despair into some kind of fetish. Abnormality doesn't even begin to describe it.\"",
+    81: '"Turning your own despair into some kind of fetish. Abnormality doesn\'t even begin to describe it."',
     82: "Are you talking about our memories?",
     83: "Seed of despair?",
     84: "The only reason we want to leave is because you took our memories, is that what you're saying?",
@@ -581,7 +581,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     86: "I see. If their memories are separate,",
     87: "Then even if one personality's forgotten, there's a chance the other may still have those memories.",
     88: "Well, does it look familiar?",
-    89: "\"Destroyed?\"",
+    89: '"Destroyed?"',
     90: "Mistaken?",
     91: "I don't want to believe it either.",
     92: "But there's also no explanation for this pocketbook.",
@@ -615,7 +615,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     120: "You came here to confront despair without ever giving up.",
     121: "And if that's true, I think we could call you... The Ultimate Hope. What do you think?",
     122: "Let's put an end to these trials. Put an end to the killing.",
-    123: "With our own hands."
+    123: "With our own hands.",
   },
   [Chapter.Chapter_99]: {
     metadata: { index: 3666 },
@@ -698,6 +698,6 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     77: "The 16th student, lying hidden somewhere in this school.",
     78: "The one they call the ultimate despair.",
     79: "Watch out for her.",
-    80: "I can't say I'm sorry about what happened, but still, it does feel kind of strange."
-  }
+    80: "I can't say I'm sorry about what happened, but still, it does feel kind of strange.",
+  },
 };

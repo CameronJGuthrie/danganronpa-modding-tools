@@ -1,7 +1,7 @@
-import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
-import { Character, isCharacter } from "../enum/character";
 import { characterData } from "../data/character-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
+import { Character, isCharacter } from "../enum/character";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const studentRelationship: OpcodeMeta = {
   name: OpcodeName.StudentRelationship,
@@ -9,15 +9,15 @@ export const studentRelationship: OpcodeMeta = {
   parameters: [
     {
       name: "characterId",
-      values: Character
+      values: Character,
     },
     {
       name: "operation",
-      values: Arithmetic
+      values: Arithmetic,
     },
     {
       unknown: true,
-      description: "Always zero, possibly this combines with amount to form a two byte value"
+      description: "Always zero, possibly this combines with amount to form a two byte value",
     },
     {
       name: "amount",
@@ -34,4 +34,3 @@ export const studentRelationship: OpcodeMeta = {
     return `${characterData[character].name} relationship ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${amount}`;
   },
 };
-

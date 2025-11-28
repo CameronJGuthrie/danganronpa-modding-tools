@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const makotoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -12,7 +12,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     6: "After the murder, we discovered that one of the knives from the kitchen was missing.",
     7: "Hold on a second, I'm-",
     8: "Okay, wait, hold on. I didn't take the knife from the kitchen.",
-    9: "\"Well, what if I have a witness?\"",
+    9: '"Well, what if I have a witness?"',
     10: "What do you think, Hina?",
     11: "Remember what you were telling me earlier?",
     12: "Just to be perfectly clear, the knife disappeared while you were in the dining hall, correct?",
@@ -21,7 +21,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     15: "In other words, there's no way I could have taken the knife.",
     16: "Anyway, I didn't go to the dining hall, and I didn't take the knife.",
     17: "So I'm not the killer!",
-    18: "\"Then Sayaka is the one who took the knife?\"",
+    18: '"Then Sayaka is the one who took the knife?"',
     19: "I'm sure... I'm sure she just took it for self-defense.",
     20: "What?",
     21: "No! You're wrong!",
@@ -29,7 +29,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     23: "Yes, and if I were the culprit,",
     24: "Why would I need to get rid of all the hair in my own room?",
     25: "It wouldn't be unusual at all to find my hair at the crime scene if the crime scene is in my room.",
-    26: "\"Evidence that the killer had trouble getting into the bathroom.\" \"You're talking about the doorknob, right?\"",
+    26: '"Evidence that the killer had trouble getting into the bathroom." "You\'re talking about the doorknob, right?"',
     27: "The doorknob from my bathroom. It was completely broken.",
     28: "See how the top part was unscrewed, and the doorknob's about ready to fall off?",
     29: "The reason my bathroom didn't open wasn't because it was locked.",
@@ -148,8 +148,8 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     142: "But the toolkit in my room had clearly never been used.",
     143: "Okay, then whose toolkit did the killer use?",
     144: "It had to be their very own toolkit.",
-    145: "\"Leon, would you mind showing us your toolkit? If I'm right about this, then-\"",
-    146: "The screwdriver will show some evidence of being used."
+    145: '"Leon, would you mind showing us your toolkit? If I\'m right about this, then-"',
+    146: "The screwdriver will show some evidence of being used.",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 146 },
@@ -227,7 +227,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     72: "The bloodstained poster and carpet were moved along with the dead body.",
     73: "By doing this, the killer was able to change the entire room where the murder took place.",
     74: "Huh?",
-    75: "\"Ah!\"",
+    75: '"Ah!"',
     76: "No, I don't think Chihiro used Leon's handbook.",
     77: "Because Leon's handbook was broken.",
     78: "The girl's locker room?",
@@ -327,7 +327,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     172: "Mondo must have replaced his broken handbook with Leon's.",
     173: "In which case, we can just check each of our handbooks right now.",
     174: "Once we do that, we'll...",
-    175: "Huh?"
+    175: "Huh?",
   },
   [Chapter.Chapter_3]: {
     metadata: { index: 321 },
@@ -364,7 +364,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     31: "When you're in that suit, not only can you not see your feet, but you can't even bend at the waist.",
     32: "Am I right about that?",
     33: "When you can't even see your feet, you really think someone could kick the dolly all that way?",
-    34: "\"I don't think taking off the suit was an option. If you remember-\"",
+    34: '"I don\'t think taking off the suit was an option. If you remember-"',
     35: "If he could have gotten it off by himself, I don't think he would have let us see him wearing it.",
     36: "Showing up in the suit was basically an invitation for everyone to suspect him.",
     37: "When Celeste told us that, we decided to split up and search the second floor.",
@@ -472,10 +472,10 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     139: "It was Celeste!",
     140: "The behavior they had in common has to do with the suspicious individual in the suit, doesn't it?",
     141: "The only ones who ever actually saw Robo-Justice firsthand were Celeste and Hifumi.",
-    142: "\"S-sorry.\"",
+    142: '"S-sorry."',
     143: "I just realized another strange thing.",
     144: "When we found Hifumi in the nurse's office, who we now know was only pretending to be dead,",
-    145: "\"Celeste, you were the first one to say he'd been murdered.\"",
+    145: '"Celeste, you were the first one to say he\'d been murdered."',
     146: "You wanted to make sure we wouldn't have any doubt in our minds.",
     147: "Hina, you were with Celeste when Hifumi's body disappeared, right?",
     148: "She wasn't worried about you. She just saw a chance to help Hifumi sneak out of the nurse's office.",
@@ -494,7 +494,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     161: "Kyoko, what do you mean by that?",
     162: "That's right. Our last names. He called us all by our last names.",
     163: "So, Hifumi was trying to tell us the last name of whoever killed him?",
-    164: "\"Well, no. Hold on. There's one person it could apply to.\"",
+    164: '"Well, no. Hold on. There\'s one person it could apply to."',
     165: "And that's Celeste. She never actually told us what her real name is.",
     166: "Okay, then fill us in. What's your real name?",
     167: "That's it! The handbook!",
@@ -552,7 +552,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     219: "That should cover everything that happened in this case. And the villain behind it all is...",
     220: "Celeste! Sorry, you lose.",
     221: "Then you admit it? You're the killer?",
-    222: "Taiko?"
+    222: "Taiko?",
   },
   [Chapter.Chapter_4]: {
     metadata: { index: 543 },
@@ -624,12 +624,12 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     66: "the footprints left behind in front of the shelf.",
     67: "That's the evidence you're talking about, isn't it?",
     68: "Ah, Hina?",
-    69: "\"Me and Hina are the only ones. Oh, so Byakuya. That explains why you-\"",
+    69: '"Me and Hina are the only ones. Oh, so Byakuya. That explains why you-"',
     70: "Definitely not.",
     71: "I... I can't believe it!",
     72: "Well, it's just, the two of them were so close.",
     73: "Hina, is it true?",
-    74: "\"Did you really... kill Sakura? And if you did...\"",
+    74: '"Did you really... kill Sakura? And if you did..."',
     75: "Why? Why would you do that?",
     76: "Are you talking about the locked room problem?",
     77: "Are you sure about that?",
@@ -739,7 +739,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     181: "That's the full truth of the case.",
     182: "Sakura took her own life.",
     183: "and you claim to be the killer to hide that fact. Isn't that right?",
-    184: "Huh? Oh, well, I mean..."
+    184: "Huh? Oh, well, I mean...",
   },
   [Chapter.Chapter_5]: {
     metadata: { index: 727 },
@@ -875,7 +875,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     130: "Aren't the killer?",
     131: "Huh?",
     132: "But that's ridiculous! Since when is there any-",
-    133: "No! This isn't right!"
+    133: "No! This isn't right!",
   },
   [Chapter.Chapter_6]: {
     metadata: { index: 860 },
@@ -1021,7 +1021,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     140: "The girl we saw before us was actually the 16th student who had taken Junko's place.",
     141: "And that girl's name was Mukoro Ikusaba.",
     142: "But it wasn't long before she died at the hands of Monokuma. In other words, the Mastermind?",
-    143: "\"Junko and Oshima!\"",
+    143: '"Junko and Oshima!"',
     144: "Her body was kept in a biolab, which had been converted into a morgue.",
     145: "until Junko decided to put her body to use.",
     146: "Junko dragged the body out of the biolab, using the tarp to carry her to the garden.",
@@ -1039,7 +1039,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     158: "And the one who carried it all out is the true mastermind. The one controlling Monokuma.",
     159: "The real Junko Enoshima!",
     160: "That's the whole story behind this incident. Well, what do you have to say to that?",
-    161: "\"That's right! It was before I ever came to this school. I remember seeing a magazine cover.\"",
+    161: '"That\'s right! It was before I ever came to this school. I remember seeing a magazine cover."',
     162: "And you were on it!",
     163: "So I was right.",
     164: "Than what you told me in the main hall when this all began.",
@@ -1073,7 +1073,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     192: "If you don't mind, could you take a look inside?",
     193: "It looks like you actually did attend class here at Hope's Peak.",
     194: "But somehow, he forgot all about it.",
-    195: "\"Figure out... what?\"",
+    195: '"Figure out... what?"',
     196: "The moment I lost my memories, I can't think of any time other than that day.",
     197: "When I first came to the gates of this school and stepped foot in the main hall,",
     198: "When I passed out, I was overcome with a strange sensation.",
@@ -1091,7 +1091,7 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     210: "Why? Why would you do that?",
     211: "What are you saying?",
     212: "You're talking about you hijacking the airwaves, aren't you?",
-    213: "\"So you just used us? To bring despair to everyone in the outside world?\"",
+    213: '"So you just used us? To bring despair to everyone in the outside world?"',
     214: "Give and take? You're so full of SHIT!",
     215: "Wait, hold on! You've just been going on about whatever you feel like, but-",
     216: "But there's no real reason for us to believe anything you have to say!",
@@ -1125,11 +1125,11 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     244: "Thank you.",
     245: "Thank you.",
     246: "Thank you.",
-    247: "Thank you."
+    247: "Thank you.",
   },
   [Chapter.Chapter_99]: {
     metadata: { index: 1107 },
-    1: "\"Before we go any farther, I guess I should introduce myself. My name's Makoto Naegi.\"",
+    1: '"Before we go any farther, I guess I should introduce myself. My name\'s Makoto Naegi."',
     2: "Oh! Saeca?",
     3: "Sorry, are you okay?",
     4: "*Gasp*",
@@ -1217,6 +1217,6 @@ export const makotoVoiceLines: ChapterVoiceLines = {
     86: "I refuse to give up yet!",
     87: "I got it.",
     88: "Thank you.",
-    89: "My name's Makoto Naegi."
-  }
+    89: "My name's Makoto Naegi.",
+  },
 };

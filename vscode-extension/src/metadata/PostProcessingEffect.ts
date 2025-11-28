@@ -1,16 +1,16 @@
 import { Filter, filterConfiguration, isFilter } from "../enum/filter";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const postProcessingEffect: OpcodeMeta = {
   name: OpcodeName.PostProcessingEffect,
   opcode: "0x04",
   parameters: [
     {
-      unknown: true
+      unknown: true,
     },
     {
       name: "filter",
-      values: Filter
+      values: Filter,
     },
     {
       unknown: true,
@@ -26,5 +26,5 @@ export const postProcessingEffect: OpcodeMeta = {
       return [{ contentText: `Unknown filter: ${filter}` }];
     }
     return [{ contentText: `${filterConfiguration[filter]} filter` }];
-  }
+  },
 };

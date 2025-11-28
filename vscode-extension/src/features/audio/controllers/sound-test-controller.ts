@@ -1,15 +1,15 @@
-import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController } from "../test-controller";
+import type * as vscode from "vscode";
 import { sounds } from "../../../data/sound-data";
-import { findRootDirectory } from "../../workspace";
 import { sound } from "../../../metadata/Sound";
-import { AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
+import { findRootDirectory } from "../../workspace";
+import { createAudioTestController } from "../test-controller";
+import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
 type SoundLineInfo = {
   soundId: number;
   volume: number;
-}
+};
 
 export function registerSoundTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<SoundLineInfo> = {
@@ -46,11 +46,7 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(
-        rootDir,
-        'modded/dr1_data/Dr1/data/all/se',
-        soundMeta.sourcePath
-      );
+      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/se", soundMeta.sourcePath);
     },
 
     formatTestLabel: (info: SoundLineInfo): string => {
@@ -74,14 +70,14 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
     },
 
     createTestId: (uri: string, line: number, args: Array<{ value: number }>): string => {
-      const [soundId, volume] = args.map(arg => arg.value);
+      const [soundId, volume] = args.map((arg) => arg.value);
       return `${uri}:${line}:${soundId}:${volume}`;
     },
 
     parseInfoFromArgs: (args: Array<{ value: number }>): SoundLineInfo | null => {
-      const [soundId, volume] = args.map(arg => arg.value);
+      const [soundId, volume] = args.map((arg) => arg.value);
       return { soundId, volume };
-    }
+    },
   };
 
   createAudioTestController(context, createConfiguration(testConfigBuilder));

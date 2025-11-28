@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const mukuroVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
@@ -30,7 +30,7 @@ export const mukuroVoiceLines: ChapterVoiceLines = {
     18: "The hell are you talking about?",
     19: "WAP!",
     20: "And...",
-    21: "\"Seriously?\"",
+    21: '"Seriously?"',
     22: "What?",
     23: "Eh?",
     24: "Huh?",
@@ -50,6 +50,6 @@ export const mukuroVoiceLines: ChapterVoiceLines = {
     38: "M-M-M-M-M-M-M-M...",
     39: "*Gasp*... *Gasp*...",
     40: "This wasn't supposed to...",
-    41: "Why, me?"
+    41: "Why, me?",
   },
 };

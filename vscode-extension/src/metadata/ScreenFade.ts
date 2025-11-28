@@ -1,4 +1,4 @@
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 const overlays: { [color: number]: string } = {
   0: "loading",

@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const chihiroVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -43,7 +43,7 @@ export const chihiroVoiceLines: ChapterVoiceLines = {
     37: "Thank you.",
     38: "Thank you.",
     39: "Thank you.",
-    40: "Thank you."
+    40: "Thank you.",
   },
   [Chapter.Chapter_2]: undefined,
   [Chapter.Chapter_3]: undefined,
@@ -90,7 +90,7 @@ export const chihiroVoiceLines: ChapterVoiceLines = {
     36: "Weak, weak, weak, weak, weak, weak, weak, weak.",
     37: "I want to change.",
     38: "N-no!",
-    39: "\"W-what's wrong?\"",
+    39: '"W-what\'s wrong?"',
     40: "Hello, nice to meet you. I'm Chihiro Fujisaki.",
     41: "Master...",
     42: "Heh heh heh heh.",
@@ -121,7 +121,7 @@ export const chihiroVoiceLines: ChapterVoiceLines = {
     67: "Yeah. We're all new here. Today's supposed to be our first day of class.",
     68: "Huh? Uh, teddy bear?",
     69: "Oh, um, I was just...",
-    70: "\"What? How did you know?\"",
+    70: '"What? How did you know?"',
     71: "Oh, you're right. Thanks.",
     72: "Well, I'd better get going. I'm kind of in a hurry.",
     // These seem to be for Alter Ego
@@ -153,6 +153,6 @@ export const chihiroVoiceLines: ChapterVoiceLines = {
     98: "Thank you.",
     99: "Thank you.",
     100: "Thank you.",
-    101: "Thank you."
-  }
+    101: "Thank you.",
+  },
 };

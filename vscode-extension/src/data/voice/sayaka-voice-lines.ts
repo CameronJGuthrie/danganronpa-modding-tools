@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const sayakaVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
@@ -34,7 +34,7 @@ export const sayakaVoiceLines: ChapterVoiceLines = {
     22: "Ah, ah!",
     23: "Why? Why?",
     24: "Makoto!",
-    25: "\"No matter what happens, please always be there for me. I need you on my side.\"",
+    25: '"No matter what happens, please always be there for me. I need you on my side."',
     26: "*Giggle*",
     27: "...Makoto...",
     28: "I was so scared.",
@@ -57,6 +57,6 @@ export const sayakaVoiceLines: ChapterVoiceLines = {
     45: "To kill or be killed? I just can't take this anymore!",
     46: "A-ah! A-ah!",
     47: "Um...",
-    48: "I..."
-  }
+    48: "I...",
+  },
 };

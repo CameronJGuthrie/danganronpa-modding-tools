@@ -9,11 +9,11 @@ export enum LogicalCompare {
 
 export enum LogicalJoin {
   And = 6,
-  Or = 7
+  Or = 7,
 }
 
-const logicalCompareSet = new Set(Object.values(LogicalCompare).filter(v => typeof v === "number"));
-const logicalJoinSet = new Set(Object.values(LogicalJoin).filter(v => typeof v === "number"));
+const logicalCompareSet = new Set(Object.values(LogicalCompare).filter((v) => typeof v === "number"));
+const logicalJoinSet = new Set(Object.values(LogicalJoin).filter((v) => typeof v === "number"));
 
 export function isLogicalCompare(logicalCompare: number): logicalCompare is LogicalCompare {
   return logicalCompareSet.has(logicalCompare);

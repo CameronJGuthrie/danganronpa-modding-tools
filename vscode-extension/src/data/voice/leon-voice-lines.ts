@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const leonVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -70,7 +70,7 @@ export const leonVoiceLines: ChapterVoiceLines = {
     64: "Thank you.",
     65: "Thank you.",
     66: "Thank you.",
-    67: "Thank you."
+    67: "Thank you.",
   },
   [Chapter.Chapter_2]: undefined,
   [Chapter.Chapter_3]: undefined,
@@ -143,6 +143,6 @@ export const leonVoiceLines: ChapterVoiceLines = {
     62: "YOU LIE!",
     63: "STOP TALKING!",
     64: "Shut up!",
-    65: "*Sigh*"
-  }
+    65: "*Sigh*",
+  },
 };

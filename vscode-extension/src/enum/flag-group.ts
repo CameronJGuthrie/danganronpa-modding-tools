@@ -9,7 +9,7 @@ export enum FlagGroup {
   CharacterDead = 16,
 }
 
-const flagGroupSet = new Set(Object.values(FlagGroup).filter(v => typeof v === "number"));
+const flagGroupSet = new Set(Object.values(FlagGroup).filter((v) => typeof v === "number"));
 
 export function isFlagGroup(flagGroup: number): flagGroup is FlagGroup {
   return flagGroupSet.has(flagGroup);
@@ -23,5 +23,5 @@ export const flagGroups: Readonly<Record<FlagGroup, string>> = {
   [FlagGroup.ObjectInvestigated]: "ObjectInvestigated",
   [FlagGroup.MapInvestigated]: "MapInvestigated",
   [FlagGroup.CharacterInvestigated]: "CharacterInvestigated",
-  [FlagGroup.CharacterDead]: "CharacterDeath"
+  [FlagGroup.CharacterDead]: "CharacterDeath",
 };

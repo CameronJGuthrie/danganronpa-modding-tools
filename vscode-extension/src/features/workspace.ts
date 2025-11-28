@@ -1,6 +1,6 @@
-import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
+import * as vscode from "vscode";
 import { log, logError } from "../output";
 
 const MARKER_FILE = ".danganronpa-working-root";

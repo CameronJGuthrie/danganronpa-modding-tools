@@ -1,15 +1,15 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const tokoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
     metadata: { index: 4257 },
     1: "That's right. Makoto's room was the scene of the crime. What more proof do you need?",
-    2: "\"Makoto must have taken it from the kitchen, right?\"",
+    2: '"Makoto must have taken it from the kitchen, right?"',
     3: "He did it in secret, when nobody was in the dining hall.",
     4: "And then he went and stabbed Sayaka with it!",
     5: "Next, you're going to say you're not the killer, right? Go ahead and say it all you want.",
-    6: "\"Okay, then what about this?\"",
+    6: '"Okay, then what about this?"',
     7: "What if the idiot Slimmer Girl and Makoto are in on it together, and lying to protect each other?",
     8: "You stayed over? Doesn't that violate one of the school regulations?",
     9: "See? He did do it after all.",
@@ -43,7 +43,7 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     37: "I tried! I swear I tried to control it, but...",
     38: "I hate you.",
     39: "The... person?",
-    40: "Y-you don't m-m-mean..."
+    40: "Y-you don't m-m-mean...",
   },
   [Chapter.Chapter_2]: undefined,
   [Chapter.Chapter_3]: undefined,
@@ -105,9 +105,9 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     54: "After I put the magazine back, I heard a sound behind me like a monster growling.",
     55: "And when I turned around...",
     56: "There was Sakura, covered in blood, and staring right at me!",
-    57: "\"When I saw that blood, I fainted right there in front of the magazines.\"",
+    57: '"When I saw that blood, I fainted right there in front of the magazines."',
     58: "I don't remember what happened after that. If you want to know more, you'll have to ask her.",
-    59: "Ah-choo!"
+    59: "Ah-choo!",
   },
   [Chapter.Chapter_5]: {
     metadata: { index: 4356 },
@@ -117,7 +117,7 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     4: "I don't think so. The face was scorched beyond recognition.",
     5: "And there wasn't any description in the Monokuma file.",
     6: "If you're lying, you'll die a cruel and unusual death.",
-    7: "Her master must have made her get it, to be like, \"You're my bitch!\"",
+    7: 'Her master must have made her get it, to be like, "You\'re my bitch!"',
     8: "Fenrir, the wolf of Ragnarok. It's from Norse mythology. A huge, world-ending wolf-beast.",
     9: "He's the child of the trickster god Loki, and a female giant!",
     10: "What? Are you saying the mastermind is dead? And now we have to have a cool-ass trial?",
@@ -135,7 +135,7 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     22: "Y-You'd better tell us why!",
     23: "So they only got the top wet? The bottom was completely dry? What a brutal maniac!",
     24: "Oh, then I guess the sprinklers really didn't do it.",
-    25: "\"So that was her motive?\"",
+    25: '"So that was her motive?"',
     26: "You mean, someone else's blood? Where would they get something like that?",
     27: "It's... the knife we gave to Makoto?",
     28: "It's the same one we gave to Makoto!",
@@ -207,7 +207,7 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     94: "Then you're withdrawing your previous statement?",
     95: "S-switched places?",
     96: "Yeah, you're saying they switched? When could they even have done that?",
-    97: "\"Right when she was, uh, about to die? Like she used some kind of ninja replacement technique?\"",
+    97: '"Right when she was, uh, about to die? Like she used some kind of ninja replacement technique?"',
     98: "Then we'd already met her?",
     99: "\"It's not like you're an endangered species or something. How long do you plan to keep hiding?\"",
     100: "Y-Y-Your face!",
@@ -228,7 +228,7 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     115: "No! Absolutely not! That'd be like forfeiting my entire identity!",
     116: "Achoo!",
     117: "But if she really did use foundation...",
-    118: "Thank you."
+    118: "Thank you.",
   },
   [Chapter.Chapter_6]: undefined,
   [Chapter.Chapter_99]: {
@@ -298,7 +298,7 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     63: "Leave me alone.",
     64: "Won't... allow it.",
     65: "I won't let Genocide Jack have control!",
-    66: "\"Huh? You s-survived?\"",
+    66: '"Huh? You s-survived?"',
     67: "It's a lie!",
     68: "I admit nothing.",
     69: "I hate you.",
@@ -328,6 +328,6 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     93: "*Sigh*",
     94: "Gah... *giggle*...",
     95: "*sobbing*",
-    96: "NYAAAAAAAGH!"
-  }
+    96: "NYAAAAAAAGH!",
+  },
 };

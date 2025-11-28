@@ -31,10 +31,10 @@ export enum Skill {
   SpMaxPlus1 = 41,
   SpMaxPlus2 = 42,
   SpMaxPlus3 = 43,
-  SpMax99 = 44
+  SpMax99 = 44,
 }
 
-const skillSet = new Set(Object.values(Skill).filter(v => typeof v === "number"));
+const skillSet = new Set(Object.values(Skill).filter((v) => typeof v === "number"));
 
 export function isSkill(skill: number): skill is Skill {
   return skillSet.has(skill);

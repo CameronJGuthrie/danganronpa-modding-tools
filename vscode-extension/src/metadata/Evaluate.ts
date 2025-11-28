@@ -1,5 +1,5 @@
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
 import { comparisonOperatorSymbols, isLogicalCompare, isLogicalJoin, joins } from "../enum/logical";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 import { isVariable, variables } from "../enum/variable";
 
 export const evaluate: OpcodeMeta = {
@@ -17,7 +17,7 @@ export const evaluate: OpcodeMeta = {
 
     let description = "If ";
 
-    for (let i = 0; i < args.length;) {
+    for (let i = 0; i < args.length; ) {
       // First iteration: 3 args (variable, operand, value)
       // Subsequent iterations: skip joiner + 3 args
       const isFirstExpression = i === 0;
@@ -46,5 +46,5 @@ export const evaluate: OpcodeMeta = {
     }
 
     return description;
-  }
+  },
 };

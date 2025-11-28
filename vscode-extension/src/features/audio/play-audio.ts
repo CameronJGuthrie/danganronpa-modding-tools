@@ -3,23 +3,15 @@ import * as vscode from "vscode";
 /**
  * Play an audio file using a terminal command
  */
-export function playAudio(
-  audioPath: string,
-  playerName: string,
-  timeoutMs: number
-) {
+export function playAudio(audioPath: string, playerName: string, timeoutMs: number) {
   // Create a hidden terminal to play the audio
   const terminal = vscode.window.createTerminal({
     name: playerName,
-    hideFromUser: true
+    hideFromUser: true,
   });
 
   // Try different audio players in order of preference
-  const players = [
-    ffmpeg(audioPath),
-    mpv(audioPath),
-    paplay(audioPath)
-  ];
+  const players = [ffmpeg(audioPath), mpv(audioPath), paplay(audioPath)];
 
   terminal.sendText(`(${players.join(" || ")}) && exit`);
 

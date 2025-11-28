@@ -1,4 +1,4 @@
-import { TextStyle } from "../enum/text-style";
+import type { TextStyle } from "../enum/text-style";
 
 export const textStyleColor: Readonly<Record<TextStyle, string>> = {
   0: "#ffffff",

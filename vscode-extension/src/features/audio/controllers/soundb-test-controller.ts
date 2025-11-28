@@ -1,15 +1,15 @@
-import * as vscode from "vscode";
 import * as path from "path";
-import { createAudioTestController } from "../test-controller";
+import type * as vscode from "vscode";
 import { transitionSounds } from "../../../data/sound-data";
-import { findRootDirectory } from "../../workspace";
 import { soundB } from "../../../metadata/SoundB";
-import { AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
+import { findRootDirectory } from "../../workspace";
+import { createAudioTestController } from "../test-controller";
+import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
 type SoundBLineInfo = {
   soundId: number;
   volume: number;
-}
+};
 
 export function registerSoundBTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<SoundBLineInfo> = {
@@ -46,11 +46,7 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(
-        rootDir,
-        'modded/dr1_data/Dr1/data/all/bgm',
-        soundMeta.sourcePath
-      );
+      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/bgm", soundMeta.sourcePath);
     },
 
     formatTestLabel: (info: SoundBLineInfo): string => {
@@ -74,14 +70,14 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
     },
 
     createTestId: (uri: string, line: number, args: Array<{ value: number }>): string => {
-      const [soundId, volume] = args.map(arg => arg.value);
+      const [soundId, volume] = args.map((arg) => arg.value);
       return `${uri}:${line}:${soundId}:${volume}`;
     },
 
     parseInfoFromArgs: (args: Array<{ value: number }>): SoundBLineInfo | null => {
-      const [soundId, volume] = args.map(arg => arg.value);
+      const [soundId, volume] = args.map((arg) => arg.value);
       return { soundId, volume };
-    }
+    },
   };
 
   createAudioTestController(context, createConfiguration(testConfigBuilder));

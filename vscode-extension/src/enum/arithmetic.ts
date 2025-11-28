@@ -1,11 +1,10 @@
-
 export enum Arithmetic {
   Assign = 0,
   Add = 1,
   Subtract = 2,
 }
 
-const set = new Set(Object.values(Arithmetic).filter(x => typeof x === "number"));
+const set = new Set(Object.values(Arithmetic).filter((x) => typeof x === "number"));
 
 export const arithmaticConfiguraiton: Record<Arithmetic, { name: string }> = {
   [Arithmetic.Assign]: { name: "Assign" },

@@ -1,7 +1,7 @@
-import { arithmaticConfiguraiton, Arithmetic, isArithmetic } from "../enum/arithmetic";
-import { Character, isCharacter } from "../enum/character";
 import { characterData } from "../data/character-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
+import { Character, isCharacter } from "../enum/character";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const studentTitleEntry: OpcodeMeta = {
   name: OpcodeName.StudentTitleEntry,
@@ -9,11 +9,11 @@ export const studentTitleEntry: OpcodeMeta = {
   parameters: [
     {
       name: "characterId",
-      values: Character
+      values: Character,
     },
     {
       name: "operation",
-      values: Arithmetic
+      values: Arithmetic,
     },
     {
       name: "value",
@@ -27,13 +27,16 @@ export const studentTitleEntry: OpcodeMeta = {
     if (!isArithmetic(op)) {
       return `Unknown arithmetic: ${op}`;
     }
-    const joiner = (op === Arithmetic.Add || op === Arithmetic.Assign)
-      ? "to"
-      : "from";
+    const joiner = op === Arithmetic.Add || op === Arithmetic.Assign ? "to" : "from";
 
     return [
-      { contentText: `${arithmaticConfiguraiton[op].name} ${value} ${joiner} ` },
-      { contentText: characterData[character].name, color: characterData[character].color },
+      {
+        contentText: `${arithmaticConfiguraiton[op].name} ${value} ${joiner} `,
+      },
+      {
+        contentText: characterData[character].name,
+        color: characterData[character].color,
+      },
       { contentText: ` student title entry` },
     ];
   },

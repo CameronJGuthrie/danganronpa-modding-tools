@@ -1,4 +1,4 @@
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const loadScript: OpcodeMeta = {
   name: OpcodeName.LoadScript,
@@ -18,9 +18,9 @@ export const loadScript: OpcodeMeta = {
     },
   ] as const,
   decorations([episode, scene, script]) {
-    const episodePadded = `${episode}`.padStart(2, '0');
-    const scenePadded = `${scene}`.padStart(3, '0');
-    const scriptPadded = `${script}`.padStart(3, '0');
+    const episodePadded = `${episode}`.padStart(2, "0");
+    const scenePadded = `${scene}`.padStart(3, "0");
+    const scriptPadded = `${script}`.padStart(3, "0");
     return `script e${episodePadded}_${scenePadded}_${scriptPadded}`;
   },
 };

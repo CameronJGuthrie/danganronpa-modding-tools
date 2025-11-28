@@ -1,6 +1,6 @@
-import { isCharacter } from "../enum/character";
 import { characterData } from "../data/character-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { isCharacter } from "../enum/character";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 import { mapProperty } from "../util/data-util";
 
 export const speaker: OpcodeMeta = {

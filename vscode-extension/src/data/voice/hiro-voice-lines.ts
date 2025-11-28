@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const hiroVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -10,7 +10,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     4: "But then couldn't either one of them have grabbed the knife?",
     5: "Huh? The doorknob? What doorknob?",
     6: "And to finish the job, they stabbed her with the kitchen knife.",
-    7: "\"Yeah, our necks are on the line here. Someone seriously needs to do something. For serious.\"",
+    7: '"Yeah, our necks are on the line here. Someone seriously needs to do something. For serious."',
     8: "All right, then it's about time to solve this mystery.",
     9: "When the fighting broke out,",
     10: "The culprit grabbed the sword.",
@@ -20,7 +20,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     14: "Huh? Why not?",
     15: "Oh yeah, we gotta decide who we think did it.",
     16: "Actually, it was supposed to be a crystal ball, but, uh...",
-    17: "Oh, yeah. I'm pretty sure the toolkits we got each had one inside."
+    17: "Oh, yeah. I'm pretty sure the toolkits we got each had one inside.",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 2511 },
@@ -56,7 +56,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     30: "Probably because he was afraid you'd find out the secret he was hiding, right?",
     31: "I have a white tracksuit, personally.",
     32: "I got it from the warehouse if you must know.",
-    33: "Geez, does your confidence just get up and walk away? It's fine, man. Just tell us."
+    33: "Geez, does your confidence just get up and walk away? It's fine, man. Just tell us.",
   },
   [Chapter.Chapter_3]: {
     metadata: { index: 2544 },
@@ -115,7 +115,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     53: "Then you just draped me across Fumi and had him carry my weight!",
     54: "You tried to make me look like the bad guy!",
     55: "No way!",
-    56: "Wait! But my name isn't really Yasuhiro! It's... actually... Taro!"
+    56: "Wait! But my name isn't really Yasuhiro! It's... actually... Taro!",
   },
   [Chapter.Chapter_4]: {
     metadata: { index: 2600 },
@@ -135,7 +135,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     14: "YOU'RE ACTING INCREDIBLY SUSPICIOUS!",
     15: "It's not just normal hostility. You're the real culprit. I even have proof.",
     16: "I'm talking about her shining message.",
-    17: "At the scene of the crime, she had written out \"Toko\" in her own blood, right?",
+    17: 'At the scene of the crime, she had written out "Toko" in her own blood, right?',
     18: "It was her dying message, just like what you guys were talking about with Sayaka!",
     19: "See? See? Toko did it!",
     20: "You just don't know when you're beat, do ya?",
@@ -246,7 +246,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     125: "Someone planted it there after we got the door open?",
     126: "It was Hina, right? She took it and gave it to Ogre.",
     127: "Wait, wait, wait. So, what was that powder doing on Ogre's foot?",
-    128: "Wait, so you're saying...it was suicide?!"
+    128: "Wait, so you're saying...it was suicide?!",
   },
   [Chapter.Chapter_5]: {
     metadata: { index: 2728 },
@@ -334,7 +334,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     82: "Well, someone had to put the key in there.",
     83: "Huh? A hidden side?",
     84: "Then, when we searched Kyoko's room,",
-    85: "How else could the key have gotten there?"
+    85: "How else could the key have gotten there?",
   },
   [Chapter.Chapter_6]: {
     metadata: { index: 2813 },
@@ -399,7 +399,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     59: "Who is it? Who's behind all this?",
     60: "What do you say, Monokuma? Do you give up?",
     61: "Then both of them are dead, right? There can't be any kind of survivor story!",
-    62: "I don't know anything about this \"switching places\" thing, but...",
+    62: 'I don\'t know anything about this "switching places" thing, but...',
     63: "That had to be Junko who got stabbed to death, right?",
     64: "Hold on. So you're saying the Junko we first met",
     65: "was actually Mukuro all along?",
@@ -459,7 +459,7 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     119: "The whole fortune telling thing doesn't matter anymore. What matters is my own gut feelings.",
     120: "*Giggle*",
     121: "I... I've decided to have faith in myself!",
-    122: "We just gotta pull the lever, right?"
+    122: "We just gotta pull the lever, right?",
   },
   [Chapter.Chapter_99]: {
     metadata: { index: 2935 },
@@ -548,6 +548,6 @@ export const hiroVoiceLines: ChapterVoiceLines = {
     83: "Thank you.",
     84: "Thank you.",
     85: "Thank you.",
-    86: "Thank you."
-  }
+    86: "Thank you.",
+  },
 };

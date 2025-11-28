@@ -7,7 +7,7 @@ export function createIncompleteFunctionRegex(functionName: string, numArgs: num
   // Match function calls ensuring the function name is a complete word
   const regexPattern = new RegExp(
     `\\b${functionName}\\b(\\s*\\(|\\s*$|(?!(\\s*\\(\\s*(${argsPattern})\\s*\\)))\\s*\\()`,
-    "gm" // 'g' for global search, 'm' for multiline
+    "gm", // 'g' for global search, 'm' for multiline
   );
 
   return regexPattern;
@@ -29,17 +29,14 @@ export function createCompleteFunctionRegex(functionName: string, numArgs: numbe
 export function createVarargsRegex(functionName: string): RegExp {
   // Match function name followed by parentheses with any number of comma-separated digits
   // Pattern: FunctionName( digit [, digit]* )
-  const regexPattern = new RegExp(
-    `${functionName}\\s*\\(\\s*\\d+(?:\\s*,\\s*\\d+)*\\s*\\)`,
-    "g"
-  );
+  const regexPattern = new RegExp(`${functionName}\\s*\\(\\s*\\d+(?:\\s*,\\s*\\d+)*\\s*\\)`, "g");
 
   return regexPattern;
 }
 
 export function getTextFunctionRegex(): RegExp {
   // Create the regex pattern based on the function name and the number of arguments
-  const regexPattern = new RegExp(`Text\\(\\".*?\\"\\)`, "g");
+  const regexPattern = /Text\(".*?"\)/g;
 
   return regexPattern;
 }
@@ -85,7 +82,7 @@ export function isInsideQuotes(text: string, position: number): boolean {
   // Count unescaped quotes before this position
   let quoteCount = 0;
   for (let i = 0; i < position; i++) {
-    if (text[i] === '"' && (i === 0 || text[i - 1] !== '\\')) {
+    if (text[i] === '"' && (i === 0 || text[i - 1] !== "\\")) {
       quoteCount++;
     }
   }

@@ -1,4 +1,4 @@
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const label: OpcodeMeta = {
   name: OpcodeName.Label,

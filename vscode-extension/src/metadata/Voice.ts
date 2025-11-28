@@ -1,8 +1,8 @@
+import { characterData } from "../data/character-data";
 import { voiceLinesByCharacterByChapter } from "../data/voice";
 import { isChapter } from "../enum/chapter";
 import { Character, isCharacter } from "../enum/character";
-import { characterData } from "../data/character-data";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const voice: OpcodeMeta = {
   name: OpcodeName.Voice,
@@ -10,7 +10,7 @@ export const voice: OpcodeMeta = {
   parameters: [
     {
       name: "characterId",
-      values: Character
+      values: Character,
     },
     {
       name: "chapter",
@@ -22,11 +22,10 @@ export const voice: OpcodeMeta = {
     },
     {
       name: "volume",
-      description: "volume is always 100"
+      description: "volume is always 100",
     },
   ] as const,
   decorations([character, chapter, voiceId, _volume]) {
-
     if (!isCharacter(character)) {
       return [{ contentText: `CharacterID ${character}`, color: "gray" }];
     }

@@ -1,6 +1,6 @@
 import { characterData } from "../data/character-data";
 import { isCharacter } from "../enum/character";
-import { OpcodeName, OpcodeMeta } from "../enum/opcode";
+import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const loadSprite: OpcodeMeta = {
   name: OpcodeName.LoadSprite,
@@ -8,15 +8,15 @@ export const loadSprite: OpcodeMeta = {
   parameters: [
     {
       unknown: true,
-      description: "objectId ? mapId ?"
+      description: "objectId ? mapId ?",
     },
     {
       name: "characterId",
-      description: "sometimes characterId"
+      description: "sometimes characterId",
     },
     {
       unknown: true,
-      description: "visibility?"
+      description: "visibility?",
     },
   ] as const,
   decorations([object, character, visibility]) {

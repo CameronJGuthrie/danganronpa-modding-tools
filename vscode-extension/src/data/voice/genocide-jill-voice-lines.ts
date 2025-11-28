@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const genocideJillVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,
@@ -19,8 +19,8 @@ export const genocideJillVoiceLines: ChapterVoiceLines = {
     12: "What's up?",
     13: "Well, I'll tell you! I am the mastermind of all masterminds!",
     14: "Just kidding!",
-    15: "\"Sure, I'm a bloodthirsty maniac, but life is pain, right? To live is to hurt other people!\"",
-    16: "\"It's a necessary evil if you want to survive. The act of living itself causes pain for everyone.\"",
+    15: '"Sure, I\'m a bloodthirsty maniac, but life is pain, right? To live is to hurt other people!"',
+    16: '"It\'s a necessary evil if you want to survive. The act of living itself causes pain for everyone."',
     17: "Just kidding again!",
     18: "Interesting. Very, very, very interesting.",
     19: "But sorry, as much as I hate to admit it, I'm not the culprit!",
@@ -152,7 +152,7 @@ export const genocideJillVoiceLines: ChapterVoiceLines = {
     23: "I don't know! What's this whole locked room thing about anyway?",
     24: "I think the fact that I don't know proves I didn't kill her, thank you very much.",
     25: "So you're dead set on blaming me, huh?",
-    26: "\"You even checked in there? God, you really ARE into dead bodies!\"",
+    26: '"You even checked in there? God, you really ARE into dead bodies!"',
     27: "Hahahaha! You're making me go all weak in the knees!",
     28: "Everyone, quiet! Shut up and listen to Master!",
     29: "And that's where the poison came from? Section C?",
@@ -164,7 +164,7 @@ export const genocideJillVoiceLines: ChapterVoiceLines = {
     35: "Same here.",
     36: "Huh? So Sakura, who was apparently murdered, just poisoned herself?",
     37: "And it was only on our instep, right?",
-    38: "I don't believe it! I don't believe it any more than I believe I can fly!"
+    38: "I don't believe it! I don't believe it any more than I believe I can fly!",
   },
   [Chapter.Chapter_5]: undefined,
   [Chapter.Chapter_6]: {
@@ -205,7 +205,7 @@ export const genocideJillVoiceLines: ChapterVoiceLines = {
     34: "Hell, no matter how I look, still hate it!",
     35: "Oh, but no matter what, Master has to come along with us!",
     36: "Meh.",
-    37: "I can keep on living as long as I have my master's love!"
+    37: "I can keep on living as long as I have my master's love!",
   },
-  [Chapter.Chapter_99]: undefined
+  [Chapter.Chapter_99]: undefined,
 };

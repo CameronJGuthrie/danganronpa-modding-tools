@@ -8,7 +8,7 @@ export enum Chapter {
   Chapter_99 = 99,
 }
 
-const validChapterSet = new Set(Object.values(Chapter).filter(x => typeof x === "number"));
+const validChapterSet = new Set(Object.values(Chapter).filter((x) => typeof x === "number"));
 
 export function isChapter(chapterId: number): chapterId is Chapter {
   return validChapterSet.has(chapterId);

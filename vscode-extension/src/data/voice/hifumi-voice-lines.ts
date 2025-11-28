@@ -1,5 +1,5 @@
 import { Chapter } from "../../enum/chapter";
-import { ChapterVoiceLines } from ".";
+import type { ChapterVoiceLines } from ".";
 
 export const hifumiVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: {
@@ -41,7 +41,7 @@ export const hifumiVoiceLines: ChapterVoiceLines = {
     35: "Huh? Me?",
     36: "Noooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!",
     37: "Someone threw that... threw a gap in the gate?",
-    38: "Then that must be what he used! There aren't any other tools anywhere!"
+    38: "Then that must be what he used! There aren't any other tools anywhere!",
   },
   [Chapter.Chapter_2]: {
     metadata: { index: 2335 },
@@ -83,7 +83,7 @@ export const hifumiVoiceLines: ChapterVoiceLines = {
     36: "My time has nearly come.",
     37: "That's what my little ghost friend is telling me.",
     38: "Actually, you know, now that I'm thinking about it here calmly, it might not be all that relevant.",
-    39: "\"If you really insist, then...\"",
+    39: '"If you really insist, then..."',
     40: "Um, here it is.",
     41: "It happens to be an e-handbook. I found it laying on the ground, so I scooped it up.",
     42: "For a fact indeed.",
@@ -96,7 +96,7 @@ export const hifumiVoiceLines: ChapterVoiceLines = {
     49: "Whoa! Seriously?",
     50: "Thank you.",
     51: "Thank you.",
-    52: "Thank you."
+    52: "Thank you.",
   },
   [Chapter.Chapter_3]: undefined,
   [Chapter.Chapter_4]: undefined,
@@ -210,6 +210,6 @@ export const hifumiVoiceLines: ChapterVoiceLines = {
     104: "I'm sorry I'm putting you through all this.",
     105: "But I promise that as long as you're in this school, I will do everything I can to protect you.",
     106: "As the headmaster of Hope's Peak Academy, that's the very least I can do for you.",
-    107: "I'm so proud of you, son, but remember, don't push yourself too hard."
-  }
+    107: "I'm so proud of you, son, but remember, don't push yourself too hard.",
+  },
 };
