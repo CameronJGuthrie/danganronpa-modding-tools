@@ -7,7 +7,7 @@
   },
   "files": {
     "includes": [
-      "src/**/*.ts"
+      "vscode-extension/src/**/*.ts"
     ]
   },
   "formatter": {

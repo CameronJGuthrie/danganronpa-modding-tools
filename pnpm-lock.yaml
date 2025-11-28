@@ -11,6 +11,10 @@ importers:
       unzipper:
         specifier: ^0.12.3
         version: 0.12.3
+    devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.3.8
+        version: 2.3.8
 
   scripts:
     dependencies:
@@ -26,9 +30,6 @@ importers:
 
   vscode-extension:
     devDependencies:
-      '@biomejs/biome':
-        specifier: ^2.3.8
-        version: 2.3.8
       '@types/mocha':
         specifier: ^10.0.8
         version: 10.0.10
