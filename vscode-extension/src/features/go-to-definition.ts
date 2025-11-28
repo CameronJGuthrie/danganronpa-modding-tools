@@ -35,9 +35,9 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     // Check if we're on a LoadScript line
     const loadScriptMatch = lineText.match(/^LoadScript\((\d+),\s*(\d+),\s*(\d+)\)/);
     if (loadScriptMatch && (word === "LoadScript" || lineText.startsWith("LoadScript"))) {
-      const chapter = parseInt(loadScriptMatch[1]);
-      const episode = parseInt(loadScriptMatch[2]);
-      const scene = parseInt(loadScriptMatch[3]);
+      const chapter = parseInt(loadScriptMatch[1], 10);
+      const episode = parseInt(loadScriptMatch[2], 10);
+      const scene = parseInt(loadScriptMatch[3], 10);
       log(`LoadScript detected: ${chapter}, ${episode}, ${scene}`);
       return this.findScriptFile(chapter, episode, scene);
     }
@@ -45,9 +45,9 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     // Check if we're on a RunScript line
     const runScriptMatch = lineText.match(/^RunScript\((\d+),\s*(\d+),\s*(\d+)\)/);
     if (runScriptMatch && (word === "RunScript" || lineText.startsWith("RunScript"))) {
-      const chapter = parseInt(runScriptMatch[1]);
-      const episode = parseInt(runScriptMatch[2]);
-      const scene = parseInt(runScriptMatch[3]);
+      const chapter = parseInt(runScriptMatch[1], 10);
+      const episode = parseInt(runScriptMatch[2], 10);
+      const scene = parseInt(runScriptMatch[3], 10);
       log(`RunScript detected: ${chapter}, ${episode}, ${scene}`);
       return this.findScriptFile(chapter, episode, scene);
     }

@@ -132,10 +132,10 @@ Voice(2, 1, 200, 100)`;
     const parts = testId.split(":");
     assert.ok(parts.length >= 6, "Test ID should have at least 6 parts");
 
-    const parsedCharacterId = parseInt(parts[parts.length - 4]);
-    const parsedChapter = parseInt(parts[parts.length - 3]);
-    const parsedVoiceId = parseInt(parts[parts.length - 2]);
-    const parsedVolume = parseInt(parts[parts.length - 1]);
+    const parsedCharacterId = parseInt(parts[parts.length - 4], 10);
+    const parsedChapter = parseInt(parts[parts.length - 3], 10);
+    const parsedVoiceId = parseInt(parts[parts.length - 2], 10);
+    const parsedVolume = parseInt(parts[parts.length - 1], 10);
 
     assert.strictEqual(parsedCharacterId, characterId, "Character ID should be parsed correctly");
     assert.strictEqual(parsedChapter, chapter, "Chapter should be parsed correctly");

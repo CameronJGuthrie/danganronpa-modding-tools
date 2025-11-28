@@ -24,9 +24,9 @@ export function registerMusicTestController(context: vscode.ExtensionContext) {
         return null;
       }
 
-      const musicId = parseInt(parts[parts.length - 3]);
-      const volume = parseInt(parts[parts.length - 2]);
-      const fadeInTime = parseInt(parts[parts.length - 1]);
+      const musicId = parseInt(parts[parts.length - 3], 10);
+      const volume = parseInt(parts[parts.length - 2], 10);
+      const fadeInTime = parseInt(parts[parts.length - 1], 10);
 
       if (isNaN(musicId) || isNaN(volume) || isNaN(fadeInTime)) {
         return null;

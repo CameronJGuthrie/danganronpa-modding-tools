@@ -23,8 +23,8 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
         return null;
       }
 
-      const soundId = parseInt(parts[parts.length - 2]);
-      const volume = parseInt(parts[parts.length - 1]);
+      const soundId = parseInt(parts[parts.length - 2], 10);
+      const volume = parseInt(parts[parts.length - 1], 10);
 
       if (isNaN(soundId) || isNaN(volume)) {
         return null;

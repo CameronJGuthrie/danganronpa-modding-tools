@@ -28,10 +28,10 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
         return null;
       }
 
-      const characterId = parseInt(parts[parts.length - 4]);
-      const chapter = parseInt(parts[parts.length - 3]);
-      const voiceId = parseInt(parts[parts.length - 2]);
-      const volume = parseInt(parts[parts.length - 1]);
+      const characterId = parseInt(parts[parts.length - 4], 10);
+      const chapter = parseInt(parts[parts.length - 3], 10);
+      const voiceId = parseInt(parts[parts.length - 2], 10);
+      const volume = parseInt(parts[parts.length - 1], 10);
 
       if (isNaN(characterId) || isNaN(chapter) || isNaN(voiceId) || isNaN(volume)) {
         return null;
