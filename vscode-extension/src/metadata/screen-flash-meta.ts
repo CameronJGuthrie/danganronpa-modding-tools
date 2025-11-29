@@ -30,15 +30,14 @@ export const screenFlashMeta: OpcodeMeta = {
       description: "Duration in frames",
     },
     {
-      name: "alpha",
-      description: "Transparency 0-255",
+      name: "opacity",
+      description: "Opacity 0-255. Always 255",
     },
   ] as const,
-  decorations([r, g, b, inFrames, holdFrames, outFrames, a]) {
+  decorations([r, g, b, inFrames, holdFrames, outFrames, _opacity]) {
     const red = r.toString(16).padStart(2, "0");
     const green = g.toString(16).padStart(2, "0");
     const blue = b.toString(16).padStart(2, "0");
-    const alpha = a.toString(16).padStart(2, "0");
 
     const fadeInDurationSeconds = (inFrames / 60).toFixed(2);
     const holdDurationSeconds = (holdFrames / 60).toFixed(2);
@@ -47,7 +46,7 @@ export const screenFlashMeta: OpcodeMeta = {
     return [
       {
         contentText: `${fadeInDurationSeconds}s->[${holdDurationSeconds}s]->${fadeOutDurationSeconds}s`,
-        color: `#${red}${green}${blue}${alpha}`,
+        color: `#${red}${green}${blue}`,
       },
     ];
   },

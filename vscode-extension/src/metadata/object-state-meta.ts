@@ -6,19 +6,20 @@ export const objectStateMeta: OpcodeMeta = {
   hexcode: "0x23",
   parameters: [
     {
-      unknown: true,
+      unknown: true, // you would think this would be the objectId, but the object doesn't seem to be used within the script
+      // it might be part of the map
     },
     {
-      unknown: true,
+      unknown: true, // likely combined 2 and 3. Always 0 or 1
     },
     {
-      unknown: true,
+      unknown: true, // likely combined 2 and 3. Always 0
     },
     {
-      unknown: true,
+      unknown: true, // also likely combined 4 and 5. Always 0 or 1
     },
     {
-      unknown: true,
+      unknown: true, // also likely combined 4 and 5. Always 0
     },
   ] as const,
 };

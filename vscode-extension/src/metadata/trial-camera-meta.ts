@@ -6,13 +6,13 @@ export const trialCameraMeta: OpcodeMeta = {
   hexcode: "0x14",
   parameters: [
     {
-      unknown: true,
+      name: "characterId",
     },
     {
-      unknown: true,
+      unknown: true, // seems likely to be one number (MSB)
     },
     {
-      unknown: true,
+      unknown: true, // seems likely to be one number (LSB)
     },
   ] as const,
 };

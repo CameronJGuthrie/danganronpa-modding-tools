@@ -3,6 +3,11 @@ import { OpcodeName } from "../enum/opcode";
 import type { OpcodeMeta } from "../types/opcode-meta";
 import { isTextStyle } from "../enum/text-style";
 
+/**
+ * This is no longer required when using Text(""), as the compiler will insert them correctly automatically
+ * E.g. when you use Text("<CLT 1>Pink Text<CLT>")
+ * You may still insert extra TextStyle(n) calls if you want.
+ */
 export const textStyleMeta: OpcodeMeta = {
   name: OpcodeName.TextStyle,
   hexcode: "0x03",
