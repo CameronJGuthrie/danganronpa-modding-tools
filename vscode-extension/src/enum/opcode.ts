@@ -43,7 +43,6 @@ export enum OpcodeName {
   Sprite = "Sprite",
   SpriteFlash = "SpriteFlash",
   StudentRelationship = "StudentRelationship",
-  StudentReportCard = "StudentReportCard",
   StudentReportInfo = "StudentReportInfo",
   StudentTitleEntry = "StudentTitleEntry",
   Text = "Text",
