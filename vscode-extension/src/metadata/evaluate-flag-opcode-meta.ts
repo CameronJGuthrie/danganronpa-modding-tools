@@ -1,6 +1,8 @@
 import { flagDataByFlagGroup } from "../data/flag-data";
 import { flagGroups, isFlagGroup } from "../enum/flag-group";
-import { comparisonOperatorSymbols, isLogicalCompare, isLogicalJoin, joins } from "../enum/logical";
+import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical";
+import { joins } from "../enum/logical-join";
+import { isLogicalJoin } from "../enum/logical-join";
 import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const evaluateFlagMeta: OpcodeMeta = {
