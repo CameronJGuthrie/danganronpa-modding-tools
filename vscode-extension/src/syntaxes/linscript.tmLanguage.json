@@ -10,7 +10,7 @@
       "name": "string.quoted.double.linscript"
     },
     {
-      "match": "\\b(EvaluateRelationship|EvaluateFreeTimeEvent|ShowBackground|TruthBulletFlag|IfTrue|Evaluate|EvaluateFlag|ChangeUI|Type|LoadSprite|Text|TextStyle|PostProcessingEffect|Movie|Animation|Voice|Music|Sound|SoundB|AddTruthBullet|UnlockSkill|StudentTitleEntry|StudentRelationship|StudentReportInfo|TrialCamera|LoadMap|LoadScript|StopScript|RunScript|RestartScript|Sprite|ScreenFlash|SpriteFlash|Speaker|ScreenFade|ObjectState|ChangeUI|SetVar8|CheckCharacter|CheckObject|Label|SetOption|EndOfJump|CameraFlash|ShowBackground|SetVar16|Goto|WaitInput|WaitFrame|Present)\\b",
+      "match": "\\b(Animation|ChangeUI|CheckCharacter|CheckObject|Evaluate|EvaluateFlag|EvaluateFreeTimeEvent|EvaluateRelationship|Goto|IfTrue|Interaction|LoadScript|LoadSprite|Movie|Music|PostProcessingEffect|Present|RunScript|ScreenFade|ScreenFlash|Script|Label|SetVar16|SetVar8|ShowBackground|Sound|SoundB|Speaker|Sprite|SpriteFlash|StudentRelationship|StudentReportCard|StudentReportInfo|StudentTitleEntry|Text|TextStyle|TruthBulletFlag|UnlockSkill|Voice|LoadMap|ObjectState|RestartScript|SetOption|StopScript|TrialCamera|Type|WaitFrame|WaitInput)\\b",
       "name": "entity.name.function.linscript"
     },
     {

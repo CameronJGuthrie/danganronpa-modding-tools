@@ -106,6 +106,7 @@
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
     "compile": "tsc -p ./",
+    "build-grammar": "tsc -p ./ && node out/syntaxes/tmlanguage-builder.js",
     "typecheck": "pnpm run compile",
     "watch": "tsc -watch -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
