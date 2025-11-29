@@ -32,8 +32,6 @@ namespace LIN
 
         public override List<ScriptEntry> ReadSource(string argsString, int lineNum, Script script)
         {
-            // TODO: do not mutate? This shouldn't be responsible for this
-
             // Mutate script type and increment number of entries
             script.Type = ScriptType.Text;
             script.TextEntries++;
@@ -79,7 +77,7 @@ namespace LIN
                 return entries;
             }
         }
-        
+
         private static string ParseQuotedString(string input, int lineNum)
         {
             input = input.Trim();
