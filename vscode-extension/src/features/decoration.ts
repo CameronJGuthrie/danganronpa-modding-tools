@@ -212,9 +212,7 @@ function addParameterDecoration(
   let decorationWidth = 0;
 
   const border = "";
-  if (param.unknown) {
-    contentText = "?=";
-  } else if (param.name) {
+  if (param.name) {
     contentText = `${param.name}=`;
   }
 
