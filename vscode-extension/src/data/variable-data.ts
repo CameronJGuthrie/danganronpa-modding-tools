@@ -1,4 +1,3 @@
-
 import { Variable } from "../enum/variable";
 import { flatMapProperty } from "../util/data-util";
 import { characterData } from "./character-data";

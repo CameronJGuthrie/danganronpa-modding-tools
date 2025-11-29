@@ -1,5 +1,3 @@
-
-
 export enum TruthBullet {
   // Chapter 1
   CH1_MonokumaFile = 0,

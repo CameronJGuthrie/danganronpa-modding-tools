@@ -1,4 +1,3 @@
-
 import { FlagGroup } from "../enum/flag-group";
 import { characterData } from "./character-data";
 
