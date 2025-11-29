@@ -17,8 +17,8 @@ export const soundMeta: OpcodeMeta = {
   decorations([soundId, _volume]) {
     const soundName = sounds[soundId]?.name ?? `Unknown soundId: ${soundId}`;
 
-    if (soundId === 65536) {
-      return `🔉 Sound Off 🚫`; // This is a best guess
+    if (soundId === 65535) {
+      return `🔉 Sound Off 🚫`;
     }
 
     return `🔉 ${soundName}`;
