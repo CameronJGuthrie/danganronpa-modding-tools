@@ -50,7 +50,7 @@ const tmLanguage: TmLanguage = {
 // Output to src directory (not out) since the grammar file is in src/syntaxes
 const outputPath = join(__dirname, "../../src/syntaxes/linscript.tmLanguage.json");
 
-writeFileSync(outputPath, JSON.stringify(tmLanguage, null, 2) + "\n");
+writeFileSync(outputPath, `${JSON.stringify(tmLanguage, null, 2)}\n`);
 
 console.log(`Generated ${outputPath}`);
 console.log(`Included ${opcodeNames.length} opcodes`);
