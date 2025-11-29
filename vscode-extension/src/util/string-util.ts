@@ -58,7 +58,9 @@ export function getArgumentsFromFunctionLike(functionLike: string) {
       .filter((param) => param !== ""); // Filter out empty strings (from empty parentheses)
     const results: { stringIndex: number; value: number }[] = [];
 
-    let currentIndex = match.index + match[0].indexOf(match[2]); // Start index of parameters
+    // Find the opening parenthesis position to start searching for params after it
+    const openParenIndex = functionLike.indexOf("(", match.index);
+    let currentIndex = openParenIndex + 1;
 
     params.forEach((param) => {
       const startIndex = functionLike.indexOf(param, currentIndex);
