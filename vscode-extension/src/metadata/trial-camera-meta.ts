@@ -9,10 +9,8 @@ export const trialCameraMeta: OpcodeMeta = {
       name: "characterId",
     },
     {
-      unknown: true, // seems likely to be one number (MSB)
-    },
-    {
-      unknown: true, // seems likely to be one number (LSB)
+      name: "trackId",
+      description: "(guess) refers to a path that the camera follows",
     },
   ] as const,
 };

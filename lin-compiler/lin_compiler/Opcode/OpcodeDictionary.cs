@@ -26,7 +26,7 @@ namespace LIN
             { 0x0F, new BaseOpcode("StudentTitleEntry", 3) },
             { 0x10, new BaseOpcode("StudentReportInfo", 3) },
             { 0x11, new BaseOpcode("StudentRelationship", 4) },
-            { 0x14, new BaseOpcode("TrialCamera", 3) },
+            { 0x14, new BaseOpcode("TrialCamera", Type.Byte, Type.UInt16BE) },
             { 0x15, new BaseOpcode("LoadMap", 3) },
             { 0x19, new BaseOpcode("LoadScript", 3) },
             { 0x1A, new BaseOpcode("StopScript", 0) },
