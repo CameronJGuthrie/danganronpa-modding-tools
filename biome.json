@@ -23,8 +23,7 @@
       },
       "suspicious": {
         "noExplicitAny": "warn",
-        "useIterableCallbackReturn": "off",
-        "noAssignInExpressions": "warn"
+        "useIterableCallbackReturn": "off"
       }
     }
   }

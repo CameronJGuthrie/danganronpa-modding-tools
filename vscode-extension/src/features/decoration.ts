@@ -137,9 +137,8 @@ export function registerDecoration() {
     );
 
     const textFunctionRegex = getTextFunctionRegex();
-    let match: RegExpExecArray | null;
 
-    while ((match = textFunctionRegex.exec(documentText)) !== null) {
+    for (const match of documentText.matchAll(textFunctionRegex)) {
       const matchContent = match[0];
 
       const colorRegex = getColorTextRegex();
@@ -245,9 +244,8 @@ function enrichParameters(
   showParameterDecorations: boolean,
   showFunctionDecorations: boolean,
 ) {
-  let match: RegExpExecArray | null;
-  while ((match = regexp.exec(documentText)) !== null) {
-    const matchIndex = match.index;
+  for (const match of documentText.matchAll(regexp)) {
+    const matchIndex = match.index!;
     const matchLength = match[0].length;
     const matchEndIndex = matchIndex + matchLength;
 

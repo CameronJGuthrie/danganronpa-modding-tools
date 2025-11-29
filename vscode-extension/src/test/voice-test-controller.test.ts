@@ -32,12 +32,11 @@ Text("This has Voice(3, 2, 300, 100) in it")`;
 
     const voiceRegex = createCompleteFunctionRegex("Voice", 4);
     const matches = [];
-    let match: RegExpExecArray | null;
 
     // Find all Voice matches
-    while ((match = voiceRegex.exec(testContent)) !== null) {
+    for (const match of testContent.matchAll(voiceRegex)) {
       // Only count matches that are NOT inside quotes
-      if (!isInsideQuotes(testContent, match.index)) {
+      if (!isInsideQuotes(testContent, match.index!)) {
         matches.push(match[0]);
       }
     }
@@ -74,16 +73,15 @@ Voice(4, 3, 400, 100)`;
     const matches = [];
 
     // Find Voice(...) matches
-    let match: RegExpExecArray | null;
-    while ((match = voiceRegex.exec(testContent)) !== null) {
-      if (!isInsideQuotes(testContent, match.index)) {
+    for (const match of testContent.matchAll(voiceRegex)) {
+      if (!isInsideQuotes(testContent, match.index!)) {
         matches.push(match[0]);
       }
     }
 
     // Find 0x08(...) matches
-    while ((match = opcodeRegex.exec(testContent)) !== null) {
-      if (!isInsideQuotes(testContent, match.index)) {
+    for (const match of testContent.matchAll(opcodeRegex)) {
+      if (!isInsideQuotes(testContent, match.index!)) {
         matches.push(match[0]);
       }
     }
@@ -101,12 +99,11 @@ Voice(2, 1, 200, 100)`;
 
     const voiceRegex = createCompleteFunctionRegex("Voice", 4);
     const positions = [];
-    let match: RegExpExecArray | null;
 
-    while ((match = voiceRegex.exec(testContent)) !== null) {
-      if (!isInsideQuotes(testContent, match.index)) {
+    for (const match of testContent.matchAll(voiceRegex)) {
+      if (!isInsideQuotes(testContent, match.index!)) {
         // Calculate line number
-        const textBeforeMatch = testContent.substring(0, match.index);
+        const textBeforeMatch = testContent.substring(0, match.index!);
         const lineNumber = (textBeforeMatch.match(/\n/g) || []).length;
         positions.push({ line: lineNumber, text: match[0] });
       }

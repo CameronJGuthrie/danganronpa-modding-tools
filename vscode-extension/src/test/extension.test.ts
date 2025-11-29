@@ -61,9 +61,8 @@ suite("Extension Test Suite", () => {
     // When
     const regex = getVoiceRegex();
     const matches = [];
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(text)) !== null) {
-      if (!isInsideQuotes(text, match.index)) {
+    for (const match of text.matchAll(regex)) {
+      if (!isInsideQuotes(text, match.index!)) {
         matches.push(match[0]);
       }
     }
@@ -75,9 +74,8 @@ suite("Extension Test Suite", () => {
     const text2 = "Voice(0, 99, 0, 1, 100)";
     const regex2 = getVoiceRegex();
     const matches2 = [];
-    let match2: RegExpExecArray | null;
-    while ((match2 = regex2.exec(text2)) !== null) {
-      if (!isInsideQuotes(text2, match2.index)) {
+    for (const match2 of text2.matchAll(regex2)) {
+      if (!isInsideQuotes(text2, match2.index!)) {
         matches2.push(match2[0]);
       }
     }

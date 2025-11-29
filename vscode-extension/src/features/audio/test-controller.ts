@@ -160,9 +160,8 @@ function processMatches<TInfo>(
   config: AudioTestConfig<TInfo>,
   expectedParamCount: number,
 ): void {
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(documentText)) !== null) {
-    const matchIndex = match.index;
+  for (const match of documentText.matchAll(regex)) {
+    const matchIndex = match.index!;
 
     // Skip if this match is inside quotes
     if (isInsideQuotes(documentText, matchIndex)) {
