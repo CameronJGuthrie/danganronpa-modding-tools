@@ -1,4 +1,4 @@
-import type { OpcodeMeta } from "../enum/opcode";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 import { animationMeta } from "./animation-meta";
 import { changeUiMeta } from "./change-ui-meta";

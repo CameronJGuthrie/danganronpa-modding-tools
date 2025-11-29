@@ -1,16 +1,3 @@
-import type { ThemableDecorationAttachmentRenderOptions } from "vscode";
-
-export type OpcodeMeta<Parameters extends readonly Parameter[] = Parameter[]> = {
-  name: OpcodeName;
-  opcode: string;
-  varargs?: boolean;
-  parameters: Parameters;
-  decorations?: (
-    args: { [K in keyof Parameters]: number },
-    documentText: string,
-  ) => string | ThemableDecorationAttachmentRenderOptions[];
-};
-
 export enum OpcodeName {
   Animation = "Animation",
   ChangeUI = "ChangeUI",
@@ -51,29 +38,3 @@ export enum OpcodeName {
   UnlockSkill = "UnlockSkill",
   Voice = "Voice",
 }
-
-export type ParameterValueMeta =
-  | string
-  | {
-      name: string;
-      description?: string;
-    };
-
-export type Parameter = {
-  /**
-   * The name of the parameter.
-   */
-  name?: string;
-  /**
-   * Other data to keep that won't appear in the editor as a decoration
-   */
-  description?: string;
-  /**
-   * Whether this parameter is understood
-   */
-  unknown?: true;
-  /**
-   * Map of numbers to LinscriptValue, can be a simple string but might also indicate typing for other params
-   */
-  values?: { [key: number]: ParameterValueMeta };
-};

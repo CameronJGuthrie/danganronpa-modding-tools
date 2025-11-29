@@ -2,7 +2,8 @@ import { characterData } from "../data/character-data";
 import { voiceLinesByCharacterByChapter } from "../data/voice";
 import { isChapter } from "../enum/chapter";
 import { Character, isCharacter } from "../enum/character";
-import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
+import { OpcodeName } from "../enum/opcode";
+import { type OpcodeMeta } from "../types/opcode-meta";
 
 export const voiceMeta: OpcodeMeta = {
   name: OpcodeName.Voice,

@@ -1,6 +1,7 @@
 import { variableData } from "../data/variable-data";
 import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
-import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
+import { OpcodeName } from "../enum/opcode";
+import { type OpcodeMeta } from "../types/opcode-meta";
 import { isVariable, Variable, variables } from "../enum/variable";
 
 export const setVar16Meta: OpcodeMeta = {

@@ -1,5 +1,6 @@
 import { Filter, filterConfiguration, isFilter } from "../enum/filter";
-import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
+import { OpcodeName } from "../enum/opcode";
+import { type OpcodeMeta } from "../types/opcode-meta";
 
 export const postProcessingEffectMeta: OpcodeMeta = {
   name: OpcodeName.PostProcessingEffect,

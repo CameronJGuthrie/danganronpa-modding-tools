@@ -2,7 +2,8 @@ import { characterData } from "../data/character-data";
 import { flagDataByFlagGroup, RESET_FLAGS } from "../data/flag-data";
 import { isCharacter } from "../enum/character";
 import { FlagGroup, flagGroups, isFlagGroup } from "../enum/flag-group";
-import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
+import { OpcodeName } from "../enum/opcode";
+import { type OpcodeMeta } from "../types/opcode-meta";
 
 // A better name for this would be setFlag
 export const setVar8Meta: OpcodeMeta = {

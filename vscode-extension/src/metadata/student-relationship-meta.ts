@@ -1,7 +1,8 @@
 import { characterData } from "../data/character-data";
 import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
 import { Character, isCharacter } from "../enum/character";
-import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
+import { OpcodeName } from "../enum/opcode";
+import { type OpcodeMeta } from "../types/opcode-meta";
 
 export const studentRelationshipMeta: OpcodeMeta = {
   name: OpcodeName.StudentRelationship,

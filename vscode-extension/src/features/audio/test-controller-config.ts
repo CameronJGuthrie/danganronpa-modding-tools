@@ -1,5 +1,5 @@
 import type * as vscode from "vscode";
-import type { OpcodeMeta } from "../../enum/opcode";
+import type { OpcodeMeta } from "../../types/opcode-meta";
 
 /**
  * Configuration for creating an audio test controller

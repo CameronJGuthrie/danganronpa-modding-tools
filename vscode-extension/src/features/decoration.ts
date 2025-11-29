@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { textStyleColor } from "../data/text-style-data";
-import type { OpcodeMeta } from "../enum/opcode";
+import type { OpcodeMeta } from "../types/opcode-meta";
 import { metadata } from "../metadata";
 import { logDebug, logError, logWarning } from "../output";
 import {

@@ -3,7 +3,8 @@ import { flagGroups, isFlagGroup } from "../enum/flag-group";
 import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical-compare";
 import { joins } from "../enum/logical-join";
 import { isLogicalJoin } from "../enum/logical-join";
-import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
+import { OpcodeName } from "../enum/opcode";
+import { type OpcodeMeta } from "../types/opcode-meta";
 
 export const evaluateFlagMeta: OpcodeMeta = {
   name: OpcodeName.EvaluateFlag,

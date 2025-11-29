@@ -1,5 +1,6 @@
 import { textStyleColor } from "../data/text-style-data";
-import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
+import { OpcodeName } from "../enum/opcode";
+import { type OpcodeMeta } from "../types/opcode-meta";
 import { isTextStyle } from "../enum/text-style";
 
 export const textStyleMeta: OpcodeMeta = {
