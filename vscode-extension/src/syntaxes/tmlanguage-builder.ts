@@ -12,18 +12,7 @@ type TmLanguage = {
   patterns: TmLanguagePattern[];
 };
 
-const opcodeNames = [
-  ...Object.values(OpcodeName),
-  "LoadMap", // TODO: create metadata
-  "ObjectState", // TODO: create metadata
-  "RestartScript", // TODO: create metadata
-  "SetOption", // TODO: create metadata
-  "StopScript", // TODO: create metadata
-  "TrialCamera", // TODO: create metadata
-  "Type", // TODO: create metadata
-  "WaitFrame", // TODO: create metadata
-  "WaitInput", // TODO: create metadata
-];
+const opcodeNames = Object.values(OpcodeName);
 
 const tmLanguage: TmLanguage = {
   scopeName: "source.linscript",
