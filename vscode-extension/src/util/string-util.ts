@@ -91,3 +91,13 @@ export function isInsideQuotes(text: string, position: number): boolean {
   // If odd number of quotes, we're inside a string
   return quoteCount % 2 === 1;
 }
+
+/**
+ * Creates a regex that matches a function call at the start of a line with capturing groups for each argument.
+ * E.g., createStartOfLineFunctionRegex("Goto", 1) => /^Goto\((\d+)\)/
+ * E.g., createStartOfLineFunctionRegex("LoadScript", 3) => /^LoadScript\((\d+),\s*(\d+),\s*(\d+)\)/
+ */
+export function createStartOfLineFunctionRegex(functionName: string, numArgs: number): RegExp {
+  const argsPattern = Array(numArgs).fill("(\\d+)").join(",\\s*");
+  return new RegExp(`^${functionName}\\(${argsPattern}\\)`);
+}

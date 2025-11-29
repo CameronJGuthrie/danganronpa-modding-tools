@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { log } from "../output";
+import { createStartOfLineFunctionRegex } from "../util/string-util";
 import { findRootDirectory } from "./workspace";
 
 /**
@@ -26,14 +27,14 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     const word = wordRange ? document.getText(wordRange) : "";
 
     // Check if we're on a Goto line
-    const gotoMatch = lineText.match(/^Goto\((\d+)\)/);
+    const gotoMatch = lineText.match(createStartOfLineFunctionRegex("Goto", 1));
     if (gotoMatch && (word === "Goto" || lineText.startsWith("Goto"))) {
       const label = gotoMatch[1];
       return this.findLabel(document, label);
     }
 
     // Check if we're on a LoadScript line
-    const loadScriptMatch = lineText.match(/^LoadScript\((\d+),\s*(\d+),\s*(\d+)\)/);
+    const loadScriptMatch = lineText.match(createStartOfLineFunctionRegex("LoadScript", 3));
     if (loadScriptMatch && (word === "LoadScript" || lineText.startsWith("LoadScript"))) {
       const chapter = parseInt(loadScriptMatch[1], 10);
       const episode = parseInt(loadScriptMatch[2], 10);
@@ -43,13 +44,22 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     // Check if we're on a RunScript line
-    const runScriptMatch = lineText.match(/^RunScript\((\d+),\s*(\d+),\s*(\d+)\)/);
+    const runScriptMatch = lineText.match(createStartOfLineFunctionRegex("RunScript", 3));
     if (runScriptMatch && (word === "RunScript" || lineText.startsWith("RunScript"))) {
       const chapter = parseInt(runScriptMatch[1], 10);
       const episode = parseInt(runScriptMatch[2], 10);
       const scene = parseInt(runScriptMatch[3], 10);
       log(`RunScript detected: ${chapter}, ${episode}, ${scene}`);
       return this.findScriptFile(chapter, episode, scene);
+    }
+
+    // Check if we're on a Sprite line
+    const runSpriteMatch = lineText.match(createStartOfLineFunctionRegex("Sprite", 5));
+    if (runSpriteMatch && (word === "Sprite" || lineText.startsWith("Sprite"))) {
+      const character = parseInt(runSpriteMatch[2], 10);
+      const spriteId = parseInt(runSpriteMatch[3], 10);
+      log(`Sprite detected: ${character}`);
+      return this.findSpriteImageFile(character, spriteId);
     }
 
     return null;
@@ -106,6 +116,45 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     if (fs.existsSync(explorationPath)) {
       log(`Found in exploration!`);
       return new vscode.Location(vscode.Uri.file(explorationPath), new vscode.Position(0, 0));
+    }
+
+    log(`File not found`);
+    return null;
+  }
+
+  /**
+   * Find the sprite image file based on character and spriteId
+   * TODO: when does the Sprite opcode use the bustup images at dr1_data/Dr1/data/all/texture/cg/*.tga
+   */
+  private findSpriteImageFile(character: number, spriteId: number): vscode.Location | null {
+    const rootDir = findRootDirectory();
+    if (!rootDir) {
+      log("Root directory not found");
+      return null;
+    }
+
+    // Format the filename
+    const filename = `stand_${character.toString().padStart(2, "0")}_${spriteId.toString().padStart(2, "0")}.tga`;
+
+    log(`Looking for: ${filename}`);
+    log(`Root dir: ${rootDir}`);
+
+    // Search in the mod directory
+    const modPath = path.join(rootDir, "mod/dr1_data/Dr1/data/all/texture", filename);
+
+    log(`Checking mod path: ${modPath}`);
+    if (fs.existsSync(modPath)) {
+      log(`Found in mod!`);
+      return new vscode.Location(vscode.Uri.file(modPath), new vscode.Position(0, 0));
+    }
+
+    // Search in the modded directory
+    const moddedPath = path.join(rootDir, "modded/dr1_data/Dr1/data/all/texture", filename);
+
+    log(`Checking modded path: ${moddedPath}`);
+    if (fs.existsSync(moddedPath)) {
+      log(`Found in mod!`);
+      return new vscode.Location(vscode.Uri.file(moddedPath), new vscode.Position(0, 0));
     }
 
     log(`File not found`);

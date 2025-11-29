@@ -11,7 +11,6 @@ export const spriteMeta: OpcodeMeta = {
   parameters: [
     {
       name: "objectId",
-      description: "0x27(this-param) seems to be a handler for interactions",
     },
     {
       name: "characterId",
@@ -24,15 +23,29 @@ export const spriteMeta: OpcodeMeta = {
     {
       name: "state",
       values: {
-        0: "non-interactable",
-        1: "interactable",
+        0: "", // 0 rendered nothing
+        1: "", // 1 rendered a bustup with a quick fade in
+        2: "", // 2 rendered a bustup with a slow fade in
+        3: "", // 3 rendered nothing
+        4: "", // 4 rendered nothing
+        5: "", // 5 rendered nothing
+        6: "", // 6 sprite slides in from bottom
+        7: "", // 7 rendered nothing
+        8: "", // 8 immediately appeared with no fade
+        9: "", // 9 positions the sprite lower and on the left
+        10: "", // 10 rendered nothing
       },
       unknown: true,
-      description: "This only seems to have an effect when the character is in a room.",
     },
     {
-      name: "type",
-      unknown: true,
+      name: "position",
+      values: {
+        0: "Leftmost",
+        1: "Left",
+        2: "Center",
+        3: "Right",
+        4: "Rightmost",
+      },
     },
   ] as const,
   decorations([_, character, spriteId, _p4, _p5]) {
