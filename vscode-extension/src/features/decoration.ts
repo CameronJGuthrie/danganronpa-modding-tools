@@ -145,7 +145,7 @@ export function registerDecoration() {
       const colorRegex = getColorTextRegex();
 
       const colorMatch = colorRegex.exec(matchContent);
-      if (colorMatch && colorMatch[1] && colorMatch[2]) {
+      if (colorMatch?.[1] && colorMatch[2]) {
         const colorId = Number(colorMatch[1]);
         const coloredText = colorMatch[2];
 

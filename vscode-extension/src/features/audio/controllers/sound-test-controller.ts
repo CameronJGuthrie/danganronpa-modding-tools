@@ -52,7 +52,7 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
     formatTestLabel: (info: SoundLineInfo): string => {
       const soundMeta = sounds[info.soundId];
 
-      if (soundMeta && soundMeta.name && soundMeta.name !== "?") {
+      if (soundMeta?.name && soundMeta.name !== "?") {
         return `${soundMeta.name} (${info.soundId})`;
       } else {
         return `Sound ${info.soundId}`;
