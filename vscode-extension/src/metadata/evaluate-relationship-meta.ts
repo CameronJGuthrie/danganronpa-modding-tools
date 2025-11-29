@@ -1,6 +1,6 @@
 import { characterData } from "../data/character-data";
 import { isCharacter } from "../enum/character";
-import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical";
+import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical-compare";
 import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
 
 export const evaluateRelationshipMeta: OpcodeMeta = {

@@ -1,4 +1,4 @@
-import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical";
+import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical-compare";
 import { joins } from "../enum/logical-join";
 import { isLogicalJoin } from "../enum/logical-join";
 import { type OpcodeMeta, OpcodeName } from "../enum/opcode";
