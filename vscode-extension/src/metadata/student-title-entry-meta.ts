@@ -6,7 +6,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const studentTitleEntryMeta: OpcodeMeta = {
   name: OpcodeName.StudentTitleEntry,
-  opcode: "0x0F",
+  hexcode: "0x0F",
   parameters: [
     {
       name: "characterId",

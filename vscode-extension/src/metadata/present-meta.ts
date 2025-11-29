@@ -5,7 +5,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const presentMeta: OpcodeMeta = {
   name: OpcodeName.Present,
-  opcode: "0x0D",
+  hexcode: "0x0D",
   parameters: [
     {
       name: "presentId",

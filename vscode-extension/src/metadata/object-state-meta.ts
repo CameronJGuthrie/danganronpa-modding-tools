@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const objectStateMeta: OpcodeMeta = {
   name: OpcodeName.ObjectState,
-  opcode: "0x23",
+  hexcode: "0x23",
   parameters: [
     {
       unknown: true,

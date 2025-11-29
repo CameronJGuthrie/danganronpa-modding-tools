@@ -8,7 +8,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 // A better name for this would be setFlag
 export const setVar8Meta: OpcodeMeta = {
   name: OpcodeName.SetVar8,
-  opcode: "0x26",
+  hexcode: "0x26",
   parameters: [
     {
       name: "flagGroup",

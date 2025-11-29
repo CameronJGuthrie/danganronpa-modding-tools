@@ -3,7 +3,7 @@ import type { OpcodeName } from "../enum/opcode";
 
 export type OpcodeMeta<Parameters extends readonly ParameterMeta[] = ParameterMeta[]> = {
   name: OpcodeName;
-  opcode: string;
+  hexcode: string;
   varargs?: boolean;
   parameters: Parameters;
   decorations?: (

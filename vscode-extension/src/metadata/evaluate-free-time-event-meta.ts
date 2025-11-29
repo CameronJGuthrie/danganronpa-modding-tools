@@ -6,7 +6,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const evaluateFreeTimeEventMeta: OpcodeMeta = {
   name: OpcodeName.EvaluateFreeTimeEvent,
-  opcode: "0x38",
+  hexcode: "0x38",
   parameters: [
     {
       name: "characterId",

@@ -7,7 +7,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const voiceMeta: OpcodeMeta = {
   name: OpcodeName.Voice,
-  opcode: "0x08",
+  hexcode: "0x08",
   parameters: [
     {
       name: "characterId",

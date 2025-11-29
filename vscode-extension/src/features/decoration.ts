@@ -86,8 +86,8 @@ export function registerDecoration() {
         : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length);
 
       const opcodeFunctionRegex = functionDetails.varargs
-        ? createVarargsRegex(functionDetails.opcode)
-        : createCompleteFunctionRegex(functionDetails.opcode, functionDetails.parameters.length);
+        ? createVarargsRegex(functionDetails.hexcode)
+        : createCompleteFunctionRegex(functionDetails.hexcode, functionDetails.parameters.length);
 
       // Debug logging for Evaluate
       if (functionDetails.name === "Evaluate") {
@@ -122,7 +122,7 @@ export function registerDecoration() {
         );
       } catch (e) {
         logError(
-          `Failed to enrich params for function ${functionDetails.name} (${functionDetails.opcode}), regex: /${opcodeFunctionRegex.source}/, detail: ${(e as Error).message}`,
+          `Failed to enrich params for function ${functionDetails.name} (${functionDetails.hexcode}), regex: /${opcodeFunctionRegex.source}/, detail: ${(e as Error).message}`,
         );
       }
     });

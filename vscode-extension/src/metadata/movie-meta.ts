@@ -4,7 +4,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const movieMeta: OpcodeMeta = {
   name: OpcodeName.Movie,
-  opcode: "0x05",
+  hexcode: "0x05",
   parameters: [
     {
       name: "movieId",

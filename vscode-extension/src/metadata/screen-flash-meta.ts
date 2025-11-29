@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const screenFlashMeta: OpcodeMeta = {
   name: OpcodeName.ScreenFlash,
-  opcode: "0x1F",
+  hexcode: "0x1F",
   parameters: [
     {
       name: "R",

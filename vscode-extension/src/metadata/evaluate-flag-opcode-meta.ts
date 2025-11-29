@@ -8,7 +8,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const evaluateFlagMeta: OpcodeMeta = {
   name: OpcodeName.EvaluateFlag,
-  opcode: "0x35",
+  hexcode: "0x35",
   varargs: true,
   parameters: [],
   decorations: (args) => {

@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const labelMeta: OpcodeMeta = {
   name: OpcodeName.Label,
-  opcode: "0x2A",
+  hexcode: "0x2A",
   parameters: [
     {
       name: "label",

@@ -16,7 +16,7 @@ const types: { [type: number]: string } = {
 
 export const screenFadeMeta: OpcodeMeta = {
   name: OpcodeName.ScreenFade,
-  opcode: "0x22",
+  hexcode: "0x22",
   parameters: [
     {
       name: "type",

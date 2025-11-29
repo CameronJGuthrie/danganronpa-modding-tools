@@ -6,7 +6,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const evaluateRelationshipMeta: OpcodeMeta = {
   name: OpcodeName.EvaluateRelationship,
-  opcode: "0x39",
+  hexcode: "0x39",
   parameters: [
     {
       name: "characterId",

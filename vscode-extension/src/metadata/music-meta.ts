@@ -4,7 +4,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const musicMeta: OpcodeMeta = {
   name: OpcodeName.Music,
-  opcode: "0x09",
+  hexcode: "0x09",
   parameters: [
     {
       name: "musicId",

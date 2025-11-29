@@ -162,27 +162,27 @@ suite("Extension Test Suite", () => {
     for (const meta of metadata) {
       if (nameMap.has(meta.name)) {
         assert.fail(
-          `Duplicate function name found: "${meta.name}" (opcode: ${meta.opcode}) ` +
+          `Duplicate function name found: "${meta.name}" (opcode: ${meta.hexcode}) ` +
             `conflicts with existing function (opcode: ${nameMap.get(meta.name)})`,
         );
       }
-      nameMap.set(meta.name, meta.opcode);
+      nameMap.set(meta.name, meta.hexcode);
     }
 
     // Check for duplicate opcodes (skip empty opcodes)
     const opcodeMap = new Map<string, string>();
     for (const meta of metadata) {
-      if (meta.opcode === "") {
+      if (meta.hexcode === "") {
         assert.fail(`Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`);
       }
 
-      if (opcodeMap.has(meta.opcode)) {
+      if (opcodeMap.has(meta.hexcode)) {
         assert.fail(
-          `Duplicate opcode found: "${meta.opcode}" is used by both ` +
-            `"${meta.name}" and "${opcodeMap.get(meta.opcode)}"`,
+          `Duplicate opcode found: "${meta.hexcode}" is used by both ` +
+            `"${meta.name}" and "${opcodeMap.get(meta.hexcode)}"`,
         );
       }
-      opcodeMap.set(meta.opcode, meta.name);
+      opcodeMap.set(meta.hexcode, meta.name);
     }
 
     // If we get here, no duplicates were found

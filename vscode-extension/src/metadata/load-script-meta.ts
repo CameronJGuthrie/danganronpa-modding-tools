@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const loadScriptMeta: OpcodeMeta = {
   name: OpcodeName.LoadScript,
-  opcode: "0x19",
+  hexcode: "0x19",
   parameters: [
     {
       name: "Episode",

@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const showBackgroundMeta: OpcodeMeta = {
   name: OpcodeName.ShowBackground,
-  opcode: "0x30",
+  hexcode: "0x30",
   parameters: [
     {
       name: "backgroundId",

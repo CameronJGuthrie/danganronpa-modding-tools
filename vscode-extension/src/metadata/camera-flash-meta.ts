@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const cameraFlashMeta: OpcodeMeta = {
   name: OpcodeName.CameraFlash,
-  opcode: "0x2E",
+  hexcode: "0x2E",
   parameters: [
     {
       unknown: true,

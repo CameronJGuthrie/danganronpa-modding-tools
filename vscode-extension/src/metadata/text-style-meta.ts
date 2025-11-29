@@ -5,7 +5,7 @@ import { isTextStyle } from "../enum/text-style";
 
 export const textStyleMeta: OpcodeMeta = {
   name: OpcodeName.TextStyle,
-  opcode: "0x03",
+  hexcode: "0x03",
   parameters: [
     {
       name: "styleId",

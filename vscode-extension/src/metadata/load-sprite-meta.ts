@@ -5,7 +5,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const loadSpriteMeta: OpcodeMeta = {
   name: OpcodeName.LoadSprite,
-  opcode: "0x01",
+  hexcode: "0x01",
   parameters: [
     {
       unknown: true,

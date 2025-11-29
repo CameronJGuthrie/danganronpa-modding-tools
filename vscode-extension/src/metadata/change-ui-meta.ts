@@ -5,7 +5,7 @@ import { UserInterface } from "../enum/user-interface";
 
 export const changeUiMeta: OpcodeMeta = {
   name: OpcodeName.ChangeUI,
-  opcode: "0x25",
+  hexcode: "0x25",
   parameters: [
     {
       name: "interfaceId",

@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const gotoMeta: OpcodeMeta = {
   name: OpcodeName.Goto,
-  opcode: "0x34",
+  hexcode: "0x34",
   parameters: [
     {
       name: "label",

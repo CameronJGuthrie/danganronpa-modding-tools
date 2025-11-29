@@ -5,7 +5,7 @@ import { isSkill, Skill } from "../enum/skill";
 
 export const unlockSkillMeta: OpcodeMeta = {
   name: OpcodeName.UnlockSkill,
-  opcode: "0x0E",
+  hexcode: "0x0E",
   parameters: [
     {
       name: "skillId",

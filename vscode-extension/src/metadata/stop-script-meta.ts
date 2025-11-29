@@ -3,6 +3,6 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const stopScriptMeta: OpcodeMeta = {
   name: OpcodeName.StopScript,
-  opcode: "0x1A",
+  hexcode: "0x1A",
   parameters: [] as const,
 };

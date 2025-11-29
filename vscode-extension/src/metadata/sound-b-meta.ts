@@ -4,7 +4,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const soundBMeta: OpcodeMeta = {
   name: OpcodeName.SoundB,
-  opcode: "0x0B",
+  hexcode: "0x0B",
   parameters: [
     {
       name: "soundId",

@@ -7,7 +7,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const spriteMeta: OpcodeMeta = {
   name: OpcodeName.Sprite,
-  opcode: "0x1E",
+  hexcode: "0x1E",
   parameters: [
     {
       name: "objectId",

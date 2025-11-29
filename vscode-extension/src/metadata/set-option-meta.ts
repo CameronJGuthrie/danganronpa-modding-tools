@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const setOptionMeta: OpcodeMeta = {
   name: OpcodeName.SetOption,
-  opcode: "0x2B",
+  hexcode: "0x2B",
   parameters: [
     {
       unknown: true,

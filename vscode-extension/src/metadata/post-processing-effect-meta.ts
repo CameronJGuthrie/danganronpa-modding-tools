@@ -4,7 +4,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const postProcessingEffectMeta: OpcodeMeta = {
   name: OpcodeName.PostProcessingEffect,
-  opcode: "0x04",
+  hexcode: "0x04",
   parameters: [
     {
       unknown: true,

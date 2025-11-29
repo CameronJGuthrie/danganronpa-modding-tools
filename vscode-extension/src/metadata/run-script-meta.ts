@@ -5,7 +5,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 // E.g. getting a Monocoin RunScript(8, 30, 0) for which there is no e08_030_000.lin
 export const runScriptMeta: OpcodeMeta = {
   name: OpcodeName.RunScript,
-  opcode: "0x1B",
+  hexcode: "0x1B",
   parameters: [
     {
       name: "Episode",

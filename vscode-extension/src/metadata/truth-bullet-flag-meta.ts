@@ -5,7 +5,7 @@ import { isTruthBullet, TruthBullet } from "../enum/truth-bullet";
 
 export const truthBulletFlagMeta: OpcodeMeta = {
   name: OpcodeName.TruthBulletFlag,
-  opcode: "0x0C",
+  hexcode: "0x0C",
   parameters: [
     {
       name: "flagId",

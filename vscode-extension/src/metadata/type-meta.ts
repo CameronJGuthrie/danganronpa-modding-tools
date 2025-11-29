@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const typeMeta: OpcodeMeta = {
   name: OpcodeName.Type,
-  opcode: "0x00",
+  hexcode: "0x00",
   parameters: [
     {
       name: "type",

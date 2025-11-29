@@ -7,7 +7,7 @@ import { isVariable, variables } from "../enum/variable";
 
 export const evaluateMeta: OpcodeMeta = {
   name: OpcodeName.Evaluate,
-  opcode: "0x36",
+  hexcode: "0x36",
   varargs: true,
   parameters: [],
   decorations: (args) => {

@@ -3,6 +3,6 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const waitFrameMeta: OpcodeMeta = {
   name: OpcodeName.WaitFrame,
-  opcode: "0x3B",
+  hexcode: "0x3B",
   parameters: [] as const,
 };

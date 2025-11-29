@@ -6,7 +6,7 @@ import { isVariable, Variable, variables } from "../enum/variable";
 
 export const setVar16Meta: OpcodeMeta = {
   name: OpcodeName.SetVar16,
-  opcode: "0x33",
+  hexcode: "0x33",
   parameters: [
     {
       name: "address",

@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const endOfJumpMeta: OpcodeMeta = {
   name: OpcodeName.EndOfJump,
-  opcode: "0x2C",
+  hexcode: "0x2C",
   parameters: [
     {
       unknown: true,

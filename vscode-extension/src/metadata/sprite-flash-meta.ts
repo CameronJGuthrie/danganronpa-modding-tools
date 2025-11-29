@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const spriteFlashMeta: OpcodeMeta = {
   name: OpcodeName.SpriteFlash,
-  opcode: "0x20",
+  hexcode: "0x20",
   parameters: [
     {
       name: "",

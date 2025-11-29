@@ -3,7 +3,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const checkCharacterMeta: OpcodeMeta = {
   name: OpcodeName.CheckCharacter,
-  opcode: "0x27",
+  hexcode: "0x27",
   parameters: [
     {
       name: "objectId",

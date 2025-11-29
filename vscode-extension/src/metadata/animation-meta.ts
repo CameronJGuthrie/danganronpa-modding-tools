@@ -4,7 +4,7 @@ import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const animationMeta: OpcodeMeta = {
   name: OpcodeName.Animation,
-  opcode: "0x06",
+  hexcode: "0x06",
   parameters: [
     {
       name: "id",
