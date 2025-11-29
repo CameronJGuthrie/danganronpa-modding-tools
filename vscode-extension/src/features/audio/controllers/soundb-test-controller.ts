@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import type * as vscode from "vscode";
 import { transitionSounds } from "../../../data/sound-data";
-import { soundB } from "../../../metadata/SoundB";
+import { soundBMeta } from "../../../metadata/sound-b-meta";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
@@ -13,7 +13,7 @@ type SoundBLineInfo = {
 
 export function registerSoundBTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<SoundBLineInfo> = {
-    opcode: soundB,
+    opcode: soundBMeta,
     timeoutMs: 20_000,
 
     parseInfoFromTest: (test: vscode.TestItem): SoundBLineInfo | null => {

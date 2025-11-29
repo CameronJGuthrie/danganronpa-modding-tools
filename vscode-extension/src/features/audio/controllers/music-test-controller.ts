@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import type * as vscode from "vscode";
 import { musics } from "../../../data/music-data";
-import { music } from "../../../metadata/Music";
+import { musicMeta } from "../../../metadata/music-meta";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
@@ -14,7 +14,7 @@ type MusicInfo = {
 
 export function registerMusicTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<MusicInfo> = {
-    opcode: music,
+    opcode: musicMeta,
     timeoutMs: 15_000,
 
     parseInfoFromTest: (test: vscode.TestItem): MusicInfo | null => {

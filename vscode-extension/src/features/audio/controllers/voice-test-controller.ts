@@ -4,7 +4,7 @@ import { characterData } from "../../../data/character-data";
 import { voiceLinesByCharacterByChapter } from "../../../data/voice";
 import { isChapter } from "../../../enum/chapter";
 import { type Character, isCharacter } from "../../../enum/character";
-import { voice } from "../../../metadata/Voice";
+import { voiceMeta } from "../../../metadata/voice-meta";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
@@ -18,7 +18,7 @@ type VoiceLineInfo = {
 
 export function registerVoiceTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<VoiceLineInfo> = {
-    opcode: voice,
+    opcode: voiceMeta,
     timeoutMs: 20_000,
 
     parseInfoFromTest: (test: vscode.TestItem): VoiceLineInfo | null => {
