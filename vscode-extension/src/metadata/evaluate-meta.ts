@@ -2,7 +2,7 @@ import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical-com
 import { joins } from "../enum/logical-join";
 import { isLogicalJoin } from "../enum/logical-join";
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 import { isVariable, variables } from "../enum/variable";
 
 export const evaluateMeta: OpcodeMeta = {

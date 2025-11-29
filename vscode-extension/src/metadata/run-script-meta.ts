@@ -1,5 +1,5 @@
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 // This can point to scripts that don't seem to exist?
 // E.g. getting a Monocoin RunScript(8, 30, 0) for which there is no e08_030_000.lin

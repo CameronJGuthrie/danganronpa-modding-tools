@@ -1,7 +1,7 @@
 import { characterData } from "../data/character-data";
 import { isCharacter } from "../enum/character";
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const loadSpriteMeta: OpcodeMeta = {
   name: OpcodeName.LoadSprite,

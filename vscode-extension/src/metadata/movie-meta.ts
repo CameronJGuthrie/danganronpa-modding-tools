@@ -1,6 +1,6 @@
 import { movies } from "../data/movie-data";
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const movieMeta: OpcodeMeta = {
   name: OpcodeName.Movie,

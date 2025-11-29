@@ -1,7 +1,7 @@
 import { isPresent, Present, presentConfiguration } from "../data/present-data";
 import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const presentMeta: OpcodeMeta = {
   name: OpcodeName.Present,

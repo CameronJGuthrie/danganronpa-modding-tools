@@ -1,6 +1,6 @@
 import { isUserInterface, userInterfaceConfiguration } from "../data/user-interface-data";
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 import { UserInterface } from "../enum/user-interface";
 
 export const changeUiMeta: OpcodeMeta = {

@@ -1,6 +1,6 @@
 import { backgrounds } from "../data/background-data";
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const animationMeta: OpcodeMeta = {
   name: OpcodeName.Animation,

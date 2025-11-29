@@ -1,5 +1,5 @@
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const checkCharacterMeta: OpcodeMeta = {
   name: OpcodeName.CheckCharacter,

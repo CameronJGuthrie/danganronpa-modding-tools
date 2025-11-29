@@ -1,6 +1,6 @@
 import { musics } from "../data/music-data";
 import { OpcodeName } from "../enum/opcode";
-import { type OpcodeMeta } from "../types/opcode-meta";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const musicMeta: OpcodeMeta = {
   name: OpcodeName.Music,
