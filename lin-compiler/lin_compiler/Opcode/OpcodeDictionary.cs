@@ -49,7 +49,7 @@ namespace LIN
             // No 0x2F
             { 0x30, new BaseOpcode("ShowBackground", Type.UInt16BE, Type.Byte) },
             // No 0x31
-            { 0x32, new BaseOpcode(1) },
+            // No 0x32
             { 0x33, new BaseOpcode("SetVar16", Type.Byte, Type.Byte, Type.UInt16BE) },
             { 0x34, new BaseOpcode("Goto", Type.UInt16BE) },
             { 0x35, new EvaluateFlagOpcode() },
