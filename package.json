@@ -11,6 +11,7 @@
         "compile": "cd lin-compiler/lin_compiler && dotnet build -c Release",
         "ext": "pnpm --filter lindecompilerhelper install-extension",
         "reset": "pnpm compile && node scripts/src/extract-linscript.js",
+        "reset-hex": "pnpm compile && node scripts/src/extract-linscript.js --hex",
         "unpack": "node scripts/src/unpack-base-files.js",
         "extract-recursive": "node scripts/src/extract-recursive.js",
         "setup": "node scripts/src/zip-game-files.js && pnpm run unpack && pnpm run reset",

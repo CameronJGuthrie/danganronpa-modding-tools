@@ -49,7 +49,8 @@ namespace LIN
 
         public void WriteSource(StringBuilder output, Script script, ScriptEntry scriptEntry)
         {
-            output.Append(Name ?? $"0x{Opcode:X2}");
+            string opcodeName = Program.UseHexOpcodes ? $"0x{Opcode:X2}" : (Name ?? $"0x{Opcode:X2}");
+            output.Append(opcodeName);
             output.Append('(');
             WriteSourceArgs(output, script, scriptEntry);
             output.AppendLine(")");

@@ -55,7 +55,7 @@ async function extractWadContents(wadPath) {
   return extractDir;
 }
 
-async function decompileLinFiles(extractDir) {
+async function decompileLinFiles(extractDir, useHex = false) {
   console.log('Decompiling .lin files...');
 
   const scriptDir = join(extractDir, 'Dr1/data/us/script');
@@ -69,8 +69,9 @@ async function decompileLinFiles(extractDir) {
   }
 
   // Run the lin-compiler in batch decompile mode
+  const hexFlag = useHex ? '--hex' : '';
   await execAsync(
-    `dotnet "${LIN_COMPILER_PATH}" -s -d "${scriptDir}"`,
+    `dotnet "${LIN_COMPILER_PATH}" -s -d ${hexFlag} "${scriptDir}"`,
     { maxBuffer: 50 * 1024 * 1024 }
   );
 
@@ -123,8 +124,15 @@ async function cleanup() {
 }
 
 async function main() {
+  // Parse command line arguments
+  const args = process.argv.slice(2);
+  const useHex = args.includes('--hex') || args.includes('-h');
+
   try {
     console.log('Starting linscript extraction...\n');
+    if (useHex) {
+      console.log('Using hex opcodes mode\n');
+    }
 
     // Step 1: Extract WAD from ZIP
     const wadPath = await extractWadFromZip();
@@ -133,7 +141,7 @@ async function main() {
     const extractDir = await extractWadContents(wadPath);
 
     // Step 3: Decompile .lin files to .linscript
-    const scriptDir = await decompileLinFiles(extractDir);
+    const scriptDir = await decompileLinFiles(extractDir, useHex);
 
     // Step 4: Copy .linscript files to linscript-exploration
     const linscriptFiles = await copyLinscriptFiles(scriptDir);

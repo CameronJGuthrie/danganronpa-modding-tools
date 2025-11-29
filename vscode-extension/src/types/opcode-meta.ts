@@ -5,6 +5,7 @@ export type OpcodeMeta<Parameters extends readonly ParameterMeta[] = ParameterMe
   name: OpcodeName;
   // TODO: add a description to each opcode meta
   hexcode: string;
+  description?: string;
   varargs?: boolean;
   parameters: Parameters;
   decorations?: (

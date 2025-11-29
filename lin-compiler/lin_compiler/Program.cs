@@ -7,6 +7,8 @@ namespace LIN
     public class Program
     {
         private static bool silentMode = false;
+        public static bool UseHexOpcodes = false;
+
         public static void PrintLine<T>(T line)
         {
             if (!silentMode)
@@ -27,6 +29,7 @@ namespace LIN
             Console.WriteLine("-h, --help\t\tdisplay this message");
             Console.WriteLine("-d, --decompile\t\tdecompile the input file or directory (default is compile)");
             Console.WriteLine("-s, --silent\t\tsuppress all non-error messages");
+            Console.WriteLine("--hex\t\t\toutput opcodes as hex codes instead of names (decompile only)");
             Console.WriteLine("--indent-spaces N\tset indentation spaces per level (default: 2)");
             Console.WriteLine("\nBatch processing:");
             Console.WriteLine("  When input is a directory, all matching files will be processed:");
@@ -107,6 +110,7 @@ namespace LIN
                     if (a == "-h" || a == "--help") { DisplayUsage(); }
                     if (a == "-d" || a == "--decompile") { decompile = true; }
                     if (a == "-s" || a == "--silent") { silentMode = true; }
+                    if (a == "--hex") { UseHexOpcodes = true; }
                     if (a == "--indent-spaces")
                     {
                         if (i + 1 >= args.Length)
