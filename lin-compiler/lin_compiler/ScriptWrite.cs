@@ -71,6 +71,12 @@ namespace LIN
                         continue;
                     }
 
+                    // Skip Type opcode (0x00) - it's inferred from presence of Text opcodes
+                    if (e.Opcode == 0x00)
+                    {
+                        continue;
+                    }
+
                     BaseOpcode opcode = OpcodeDictionary.GetOpcodeDefinition(e.Opcode);
 
                     // Check if this is SetOption to adjust indentation
@@ -176,6 +182,11 @@ namespace LIN
         static public void WriteCompiled(Script s, string Filename)
         {
             Program.PrintLine("[write] writing compiled file...");
+
+            // Infer script type from presence of Text opcodes
+            bool hasTextOpcodes = s.ScriptData.Any(e => e.Opcode == 0x02);
+            s.Type = hasTextOpcodes ? ScriptType.Text : ScriptType.Textless;
+
             List<byte> File =
             [
                 // Header
@@ -216,18 +227,29 @@ namespace LIN
                     : 0;
             }
 
-            // Second pass: update Type opcode with final text count
+            // Create and insert Type opcode at the beginning
+            ScriptEntry typeEntry = new ScriptEntry()
+            {
+                Opcode = 0x00,
+                Args = new byte[2]
+            };
+            BaseOpcode typeOpcode = OpcodeDictionary.GetOpcodeDefinition(0x00);
+            typeOpcode.PrepareForCompilation(s, typeEntry);
+
+            // Write Type opcode first
+            File.Add(0x70);
+            File.Add(typeEntry.Opcode);
+            File.AddRange(typeEntry.Args);
+
+            // Write remaining opcodes (skip any existing Type opcodes from source)
             foreach (ScriptEntry e in s.ScriptData)
             {
+                // Skip Type opcodes - we already wrote one at the beginning
                 if (e.Opcode == 0x00)
                 {
-                    BaseOpcode opcode = OpcodeDictionary.GetOpcodeDefinition(e.Opcode);
-                    opcode.PrepareForCompilation(s, e);
+                    continue;
                 }
-            }
 
-            foreach (ScriptEntry e in s.ScriptData)
-            {
                 File.Add(0x70);
                 File.Add(e.Opcode);
                 File.AddRange(e.Args);
