@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile, readdir, stat, mkdir, rename } from 'fs/promises';
+import { readFile, writeFile, readdir, stat, mkdir, rename, rm } from 'fs/promises';
 import { basename, dirname, join } from 'path';
 
 // ============================================================================
@@ -22,9 +22,10 @@ function writeU32LE(buffer, value, offset) {
 
 class FileTypeChecker {
   static isGMO(data) {
-    if (data.length < 16) return false;
-    const gmoHeader = Buffer.from('4F4D472E30302E3150535000000000', 'hex');
-    return data.slice(0, 16).equals(gmoHeader);
+    if (data.length < 12) return false;
+    // GMO files start with "OMG.00.1PSP\0" (12 bytes)
+    const gmoHeader = Buffer.from('4F4D472E30302E31505350', 'hex'); // "OMG.00.1PSP"
+    return data.slice(0, 11).equals(gmoHeader);
   }
 
   static isPAK(data) {
@@ -264,13 +265,27 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       }
 
       const { pak, buffer } = await readPak(pakPath);
+      // Extract to a directory based on the pak path (without .pak extension)
+      const pakOutputDir = pakPath.replace(/\.pak$/, '');
+
+      // Remove existing directory if it exists (from a previous run)
+      try {
+        const existingStat = await stat(pakOutputDir);
+        if (existingStat.isDirectory()) {
+          await rm(pakOutputDir, { recursive: true });
+        }
+      } catch (err) {
+        // Doesn't exist, that's fine
+      }
+
+      await mkdir(pakOutputDir, { recursive: true });
+
       for (const entry of pak.entries) {
         const content = buffer.slice(entry.offset, entry.offset + entry.size);
-        const entryPath = join(outputPath, String(entry.index).padStart(4, '0'));
-        await mkdir(dirname(entryPath), { recursive: true });
+        const entryPath = join(pakOutputDir, String(entry.index).padStart(4, '0'));
         await writeFile(entryPath, content);
 
-        // Recurse (note: unpacked_folder_suffix is empty in Python)
+        // Recurse - output path is the entry path (will become a directory if it's a PAK)
         await extractPak(entryPath, entryPath, silent, depth + 1);
       }
       break;
