@@ -56,7 +56,7 @@ namespace LIN
             output.AppendLine(")");
         }
 
-        protected virtual void WriteSourceArgs(StringBuilder output, Script script, ScriptEntry scriptEntry)
+        public virtual void WriteSourceArgs(StringBuilder output, Script script, ScriptEntry scriptEntry)
         {
             byte[] argValues = scriptEntry.Args;
             if (argValues.Length == 0)

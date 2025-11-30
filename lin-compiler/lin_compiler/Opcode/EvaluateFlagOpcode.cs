@@ -16,7 +16,7 @@ namespace LIN
             IsVarArg = true;
         }
 
-        protected override void WriteSourceArgs(StringBuilder output, Script script, ScriptEntry scriptEntry)
+        public override void WriteSourceArgs(StringBuilder output, Script script, ScriptEntry scriptEntry)
         {
             byte[] args = scriptEntry.Args;
             if (args.Length < 4)

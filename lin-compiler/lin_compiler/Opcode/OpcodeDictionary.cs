@@ -62,6 +62,12 @@ namespace LIN
             { 0x3C, new BaseOpcode("IfTrue", 0) },
         }.ToDictionary(kvp => kvp.Key, kvp => { kvp.Value.Opcode = kvp.Key; return kvp.Value; });
 
+        // Virtual opcodes that don't have a binary opcode but are used for source representation
+        private static readonly Dictionary<string, BaseOpcode> virtualOpcodes = new Dictionary<string, BaseOpcode>
+        {
+            { "AutoText", new AutoTextOpcode() }
+        };
+
         private static readonly Dictionary<string, byte> opcodesByName = opcodes
             .ToDictionary(
                 kv => kv.Value.Name ?? $"0x{kv.Key:X2}",
@@ -107,7 +113,13 @@ namespace LIN
 
         public static BaseOpcode GetOpcodeDefinitionByName(string name)
         {
-            // Try to get by registered name first
+            // Try virtual opcodes first (e.g., AutoText)
+            if (virtualOpcodes.TryGetValue(name, out BaseOpcode virtualOpcode))
+            {
+                return virtualOpcode;
+            }
+
+            // Try to get by registered name
             if (opcodesByName.TryGetValue(name, out byte opcode))
             {
                 return opcodes[opcode];

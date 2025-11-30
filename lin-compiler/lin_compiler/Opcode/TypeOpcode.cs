@@ -40,7 +40,7 @@ namespace LIN
             }];
         }
 
-        protected override void WriteSourceArgs(StringBuilder outputBuilder, Script script, ScriptEntry scriptEntry)
+        public override void WriteSourceArgs(StringBuilder outputBuilder, Script script, ScriptEntry scriptEntry)
         {
             if (script.Type == ScriptType.Textless)
             {

@@ -14,12 +14,16 @@ namespace LIN
             using (var File = new System.IO.StreamWriter(Filename, false, Encoding.UTF8))
             {
                 var outputBuilder = new StringBuilder();
+
                 int setOptionIndent = 0;
                 int checkObjectIndent = 0;
                 int checkCharacterIndent = 0;
 
-                // First pass: Mark opcodes to skip (those that follow Text entries)
+                // First pass: Determine which Text entries can use AutoText sugar
+                // and mark opcodes to skip
+                bool[] useAutoText = new bool[s.ScriptData.Count];
                 bool[] skipEntry = new bool[s.ScriptData.Count];
+
                 for (int i = 0; i < s.ScriptData.Count; i++)
                 {
                     ScriptEntry e = s.ScriptData[i];
@@ -27,34 +31,55 @@ namespace LIN
                     // Check if this is a Text opcode
                     if (e.Opcode == 0x02 && e.Text != null)
                     {
+                        // Check if this Text can be represented as AutoText
+                        // Pattern: Text followed by only WaitFrame/TextStyle, ending with WaitInput
                         bool hasCLTTags = System.Text.RegularExpressions.Regex.IsMatch(e.Text, @"<CLT\s+\d+>|<CLT>");
+                        bool canUseAutoText = false;
+                        int waitInputIndex = -1;
 
-                        // Mark the TextStyle before this Text (if present and has CLT tags)
-                        if (hasCLTTags && i > 0 && s.ScriptData[i - 1].Opcode == 0x03)
-                        {
-                            skipEntry[i - 1] = true;
-                        }
+                        // Check preceding TextStyle for CLT tags
+                        bool hasMatchingPrecedingTextStyle = hasCLTTags && i > 0 && s.ScriptData[i - 1].Opcode == 0x03;
 
-                        // Mark all following WaitFrame and WaitInput opcodes after ANY Text entry
-                        // Also mark TextStyle opcodes if the text has CLT tags
                         int lookAhead = i + 1;
                         while (lookAhead < s.ScriptData.Count)
                         {
                             byte nextOpcode = s.ScriptData[lookAhead].Opcode;
 
-                            // Always skip WaitFrame (0x3B) and WaitInput (0x3A) after Text
-                            // Also skip TextStyle (0x03) if Text has CLT tags
-                            if (nextOpcode == 0x3B || nextOpcode == 0x3A || (hasCLTTags && nextOpcode == 0x03))
+                            if (nextOpcode == 0x3A) // WaitInput
                             {
-                                skipEntry[lookAhead] = true;
+                                waitInputIndex = lookAhead;
+                                canUseAutoText = true;
+                                break;
+                            }
+                            else if (nextOpcode == 0x3B) // WaitFrame
+                            {
                                 lookAhead++;
-                                // Stop after WaitInput
-                                if (nextOpcode == 0x3A)
-                                    break;
+                            }
+                            else if (nextOpcode == 0x03 && hasCLTTags) // TextStyle (only for CLT)
+                            {
+                                lookAhead++;
                             }
                             else
                             {
+                                // Non-sugar opcode found before WaitInput
                                 break;
+                            }
+                        }
+
+                        if (canUseAutoText)
+                        {
+                            useAutoText[i] = true;
+
+                            // Mark preceding TextStyle to skip (if CLT tags)
+                            if (hasMatchingPrecedingTextStyle)
+                            {
+                                skipEntry[i - 1] = true;
+                            }
+
+                            // Mark all opcodes between Text and WaitInput (inclusive) to skip
+                            for (int j = i + 1; j <= waitInputIndex; j++)
+                            {
+                                skipEntry[j] = true;
                             }
                         }
                     }
@@ -137,6 +162,13 @@ namespace LIN
                         {
                             outputBuilder.AppendJoin(", ", e.Args.Select(b => b.ToString()));
                         }
+                        outputBuilder.AppendLine(")");
+                    }
+                    else if (e.Opcode == 0x02 && useAutoText[i])
+                    {
+                        // Write as AutoText instead of Text
+                        outputBuilder.Append("AutoText(");
+                        opcode.WriteSourceArgs(outputBuilder, s, e);
                         outputBuilder.AppendLine(")");
                     }
                     else
