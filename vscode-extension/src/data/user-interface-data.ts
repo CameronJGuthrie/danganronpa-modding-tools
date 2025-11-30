@@ -1,6 +1,7 @@
 import { UserInterface } from "../enum/user-interface";
 
 export const userInterfaceConfiguration: Record<UserInterface, string> = {
+  [UserInterface.Thinking]: "Thinking",
   [UserInterface.Textbox]: "Textbox",
   [UserInterface.Name]: "Name",
   [UserInterface.HUD]: "HUD",

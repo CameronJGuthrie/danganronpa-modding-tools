@@ -1,4 +1,5 @@
 export enum UserInterface {
+  Thinking = 0,
   Textbox = 1,
   Name = 2,
   HUD = 3,
