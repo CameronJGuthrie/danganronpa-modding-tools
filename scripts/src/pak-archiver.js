@@ -103,6 +103,12 @@ class FileTypeChecker {
     return data[0] === 0x74 && data[1] === 0x46 && data[2] === 0x70 && data[3] === 0x53;
   }
 
+  static isLLFS(data) {
+    if (data.length < 4) return false;
+    // LLFS files start with "LLFS" magic
+    return data[0] === 0x4C && data[1] === 0x4C && data[2] === 0x46 && data[3] === 0x53;
+  }
+
   static isTGA(data) {
     if (data.length < 18) return false;
 
@@ -137,6 +143,7 @@ class FileTypeChecker {
   static detectType(data) {
     if (FileTypeChecker.isGMO(data)) return 'gmo';
     if (FileTypeChecker.isSPFT(data)) return 'spft';
+    if (FileTypeChecker.isLLFS(data)) return 'llfs';
     if (FileTypeChecker.isTGA(data)) return 'tga';
     if (FileTypeChecker.isPAK(data)) return 'pak';
     return null;
@@ -319,6 +326,14 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       const spftPath = inputPath.endsWith('.spft') ? inputPath : inputPath + '.spft';
       if (inputPath !== spftPath) {
         await rename(inputPath, spftPath);
+      }
+      break;
+
+    case 'llfs':
+      printIndented(`Processing ${inputPath} as LLFS`);
+      const llfsPath = inputPath.endsWith('.llfs') ? inputPath : inputPath + '.llfs';
+      if (inputPath !== llfsPath) {
+        await rename(inputPath, llfsPath);
       }
       break;
 
