@@ -2,6 +2,10 @@
 
 import { readFile, writeFile, readdir, stat, mkdir, rename, rm } from 'fs/promises';
 import { basename, dirname, join } from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 // ============================================================================
 // SECTION 1: Binary I/O Helpers
@@ -109,6 +113,32 @@ class FileTypeChecker {
     return data[0] === 0x4C && data[1] === 0x4C && data[2] === 0x46 && data[3] === 0x53;
   }
 
+  static isUTF16Text(data) {
+    if (data.length < 2) return false;
+    // UTF-16LE BOM
+    return data[0] === 0xFF && data[1] === 0xFE;
+  }
+
+  static isLIN(data) {
+    if (data.length < 20) return false;
+
+    // Script type: 01 (Textless) or 02 (Text)
+    const scriptType = data.readUInt32LE(0);
+    if (scriptType !== 1 && scriptType !== 2) return false;
+
+    // Header size (usually 0x10, but could vary)
+    const headerSize = data.readUInt32LE(4);
+    if (headerSize < 8 || headerSize > 0x100) return false;
+
+    // Check that we have enough data to read the first opcode
+    if (data.length <= headerSize) return false;
+
+    // First byte after header should be 0x70 (opcode marker)
+    if (data[headerSize] !== 0x70) return false;
+
+    return true;
+  }
+
   static isTGA(data) {
     if (data.length < 18) return false;
 
@@ -132,10 +162,10 @@ class FileTypeChecker {
     // Image spec starts at byte 8
     // Width at bytes 12-13, height at bytes 14-15
     const width = data.readUInt16LE(12);
-    if (width <= 0 || width >= 2000) return false;
+    if (width <= 0 || width >= 8192) return false;
 
     const height = data.readUInt16LE(14);
-    if (height <= 0 || height >= 2000) return false;
+    if (height <= 0 || height >= 8192) return false;
 
     return true;
   }
@@ -144,6 +174,8 @@ class FileTypeChecker {
     if (FileTypeChecker.isGMO(data)) return 'gmo';
     if (FileTypeChecker.isSPFT(data)) return 'spft';
     if (FileTypeChecker.isLLFS(data)) return 'llfs';
+    if (FileTypeChecker.isUTF16Text(data)) return 'txt';
+    if (FileTypeChecker.isLIN(data)) return 'lin';
     if (FileTypeChecker.isTGA(data)) return 'tga';
     if (FileTypeChecker.isPAK(data)) return 'pak';
     return null;
@@ -334,6 +366,33 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       const llfsPath = inputPath.endsWith('.llfs') ? inputPath : inputPath + '.llfs';
       if (inputPath !== llfsPath) {
         await rename(inputPath, llfsPath);
+      }
+      break;
+
+    case 'txt':
+      printIndented(`Processing ${inputPath} as TXT`);
+      const txtPath = inputPath.endsWith('.txt') ? inputPath : inputPath + '.txt';
+      if (inputPath !== txtPath) {
+        await rename(inputPath, txtPath);
+      }
+      break;
+
+    case 'lin':
+      printIndented(`Processing ${inputPath} as LIN`);
+      const linPath = inputPath.endsWith('.lin') ? inputPath : inputPath + '.lin';
+      if (inputPath !== linPath) {
+        await rename(inputPath, linPath);
+      }
+      // Decompile to .linscript (skip top-level script/ files, only decompile nested ones)
+      const isNestedInScript = /\/script\/[^/]+\//.test(linPath);
+      if (isNestedInScript) {
+        const linscriptPath = linPath.replace(/\.lin$/, '.linscript');
+        try {
+          await execAsync(`dotnet lin-compiler/lin_compiler/bin/Release/net8.0/lin_compiler.dll -d "${linPath}" "${linscriptPath}"`);
+          printIndented(`  Decompiled to ${linscriptPath}`);
+        } catch (err) {
+          printIndented(`  Failed to decompile: ${err.message}`);
+        }
       }
       break;
 
