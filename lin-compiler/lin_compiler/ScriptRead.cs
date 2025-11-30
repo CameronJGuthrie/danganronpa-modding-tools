@@ -26,6 +26,12 @@ namespace LIN
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
 
+                // Skip comment lines
+                if (line.StartsWith("#"))
+                {
+                    continue;
+                }
+
                 Match match = opcodePattern.Match(line);
                 if (!match.Success)
                 {

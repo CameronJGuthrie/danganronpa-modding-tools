@@ -18,6 +18,10 @@ const tmLanguage: TmLanguage = {
   scopeName: "source.linscript",
   patterns: [
     {
+      match: "#.*$",
+      name: "comment.line.number-sign.linscript",
+    },
+    {
       match: "\\b0x[0-9A-Fa-f]+\\b",
       name: "constant.numeric.hex.linscript",
     },
@@ -28,10 +32,6 @@ const tmLanguage: TmLanguage = {
     {
       match: `\\b(${opcodeNames.join("|")})\\b`,
       name: "entity.name.function.linscript",
-    },
-    {
-      match: "\\b(Textless|Text)\\b",
-      name: "constant.language.linscript",
     },
   ],
 };

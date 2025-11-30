@@ -1,5 +1,6 @@
 export enum OpcodeName {
   Animation = "Animation",
+  AutoText = "AutoText", // Text opcode compilation can produce AutoText which combines some additional functionality
   CameraFlash = "CameraFlash",
   ChangeUI = "ChangeUI",
   CheckCharacter = "CheckCharacter",

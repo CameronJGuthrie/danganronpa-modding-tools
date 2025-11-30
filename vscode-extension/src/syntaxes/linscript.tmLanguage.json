@@ -2,6 +2,10 @@
   "scopeName": "source.linscript",
   "patterns": [
     {
+      "match": "#.*$",
+      "name": "comment.line.number-sign.linscript"
+    },
+    {
       "match": "\\b0x[0-9A-Fa-f]+\\b",
       "name": "constant.numeric.hex.linscript"
     },
@@ -10,12 +14,8 @@
       "name": "string.quoted.double.linscript"
     },
     {
-      "match": "\\b(Animation|CameraFlash|ChangeUI|CheckCharacter|CheckObject|EndOfJump|Evaluate|EvaluateFlag|EvaluateFreeTimeEvent|EvaluateRelationship|Goto|IfTrue|Label|LoadMap|LoadScript|LoadSprite|Movie|Music|ObjectState|PostProcessingEffect|Present|RestartScript|RunScript|ScreenFade|ScreenFlash|Script|SetOption|SetVar16|SetVar8|ShowBackground|Sound|SoundB|Speaker|Sprite|SpriteFlash|StopScript|StudentRelationship|StudentReportInfo|StudentTitleEntry|Text|TextStyle|TrialCamera|TruthBulletFlag|Type|UnlockSkill|Voice|WaitFrame|WaitInput)\\b",
+      "match": "\\b(Animation|AutoText|CameraFlash|ChangeUI|CheckCharacter|CheckObject|EndOfJump|Evaluate|EvaluateFlag|EvaluateFreeTimeEvent|EvaluateRelationship|Goto|IfTrue|Label|LoadMap|LoadScript|LoadSprite|Movie|Music|ObjectState|PostProcessingEffect|Present|RestartScript|RunScript|ScreenFade|ScreenFlash|Script|SetOption|SetVar16|SetVar8|ShowBackground|Sound|SoundB|Speaker|Sprite|SpriteFlash|StopScript|StudentRelationship|StudentReportInfo|StudentTitleEntry|Text|TextStyle|TrialCamera|TruthBulletFlag|Type|UnlockSkill|Voice|WaitFrame|WaitInput)\\b",
       "name": "entity.name.function.linscript"
-    },
-    {
-      "match": "\\b(Textless|Text)\\b",
-      "name": "constant.language.linscript"
     }
   ]
 }
