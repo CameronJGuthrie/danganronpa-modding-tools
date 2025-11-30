@@ -97,6 +97,12 @@ class FileTypeChecker {
     return true;
   }
 
+  static isSPFT(data) {
+    if (data.length < 4) return false;
+    // SPFT files start with "tFpS" (little-endian "SpFt" = Sprite Font)
+    return data[0] === 0x74 && data[1] === 0x46 && data[2] === 0x70 && data[3] === 0x53;
+  }
+
   static isTGA(data) {
     if (data.length < 18) return false;
 
@@ -130,6 +136,7 @@ class FileTypeChecker {
 
   static detectType(data) {
     if (FileTypeChecker.isGMO(data)) return 'gmo';
+    if (FileTypeChecker.isSPFT(data)) return 'spft';
     if (FileTypeChecker.isTGA(data)) return 'tga';
     if (FileTypeChecker.isPAK(data)) return 'pak';
     return null;
@@ -304,6 +311,14 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       const tgaPath = inputPath.endsWith('.tga') ? inputPath : inputPath + '.tga';
       if (inputPath !== tgaPath) {
         await rename(inputPath, tgaPath);
+      }
+      break;
+
+    case 'spft':
+      printIndented(`Processing ${inputPath} as SPFT`);
+      const spftPath = inputPath.endsWith('.spft') ? inputPath : inputPath + '.spft';
+      if (inputPath !== spftPath) {
+        await rename(inputPath, spftPath);
       }
       break;
 
