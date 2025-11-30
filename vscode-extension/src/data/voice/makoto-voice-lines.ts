@@ -1130,10 +1130,10 @@ export const makotoVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_99]: {
     metadata: { index: 1107 },
     1: '"Before we go any farther, I guess I should introduce myself. My name\'s Makoto Naegi."',
-    2: "Oh! Saeca?",
+    2: "Oh! Sayaka?",
     3: "Sorry, are you okay?",
     4: "*Gasp*",
-    5: "Saeca?",
+    5: "Sayaka?",
     6: "Psyche.",
     7: "What are you doing?",
     8: "No, not really.",
