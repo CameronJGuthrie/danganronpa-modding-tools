@@ -4,6 +4,8 @@ import { readFile, writeFile, readdir, stat, mkdir, rename, rm } from 'fs/promis
 import { basename, dirname, join } from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { decompress as decompressSpike, isCompressed as isSpikeCompressed } from './spike-chunsoft-decompress.js';
+import { convertGXT } from './gxt-to-png.js';
 
 const execAsync = promisify(exec);
 
@@ -389,9 +391,28 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
 
     case 'gxt':
       printIndented(`Processing ${inputPath} as GXT`);
-      const gxtPath = inputPath.endsWith('.gxt') ? inputPath : inputPath + '.gxt';
+      let gxtPath = inputPath.endsWith('.gxt') ? inputPath : inputPath + '.gxt';
       if (inputPath !== gxtPath) {
         await rename(inputPath, gxtPath);
+      }
+
+      try {
+        // Check if compressed (FC AA 55 A7 magic)
+        if (isSpikeCompressed(data)) {
+          printIndented(`  Decompressing Spike Chunsoft compressed GXT...`);
+          const decompressed = decompressSpike(data);
+          await writeFile(gxtPath, decompressed);
+        }
+
+        // Convert to PNG
+        const pngOutputDir = dirname(gxtPath);
+        printIndented(`  Converting to PNG...`);
+        const pngFiles = await convertGXT(gxtPath, pngOutputDir, true);  // silent mode
+        for (const pngFile of pngFiles) {
+          printIndented(`  Created: ${basename(pngFile)}`);
+        }
+      } catch (err) {
+        printIndented(`  Failed to convert GXT: ${err.message}`);
       }
       break;
 

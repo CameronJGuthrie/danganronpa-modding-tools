@@ -23,28 +23,38 @@ Danganronpa PS Vita uses a proprietary compression format called "SpikeDRVita" o
 
 ### Decompression Algorithm
 
-The algorithm processes flag bytes that control different operations:
+The algorithm uses a circular buffer of 0x1FFF bytes and processes flag bytes that control different operations. The flag byte's upper bits determine the operation type:
 
-**Flag byte with bit 7 set (`0x80`)** - Copy from output buffer (LZ back-reference):
-- Count: `((flag >> 5) & 0x3) + 4`
-- Offset: `((flag & 0x1F) << 8) | next_byte`
-- Copies `count` bytes from `output_pos - offset`
+**Flag byte with bit 7 set (`flag & 0x80 == 0x80`)** - LZ match start:
+- Length: `((flag >> 5) & 0x3) + 4` (range: 4-7 bytes)
+- Displacement: `((flag & 0x1F) << 8) | next_byte` (range: 0-0x1FFF)
+- Copies `length` bytes from `buffer_position - displacement`
+- Saves displacement for potential reuse
 
-**Flag byte with bit 6 set (`0x60`)** - Continue previous copy:
-- Count: `flag & 0x1F`
-- Reuses offset from prior back-reference operation
+**Flag byte pattern `0x60` (`flag & 0x60 == 0x60`)** - LZ match continue:
+- Length: `flag & 0x1F` (range: 0-31 bytes)
+- Reuses displacement from prior LZ match operation
+- Copies `length` bytes from same previous position
 
-**Flag byte with bit 6 set (`0x40`)** - RLE fill:
-- If `flag & 0x10` is clear: count = `(flag & 0x0F) + 4`
-- Otherwise: count = `((flag & 0x0F) << 8 | next_byte) + 4`
-- Reads one byte and repeats it `count` times
+**Flag byte with bit 6 set (`flag & 0x40 == 0x40`)** - RLE fill:
+- If `flag & 0x10` is clear: length = `(flag & 0x0F) + 4` (range: 4-19)
+- Otherwise: length = `((flag & 0x0F) << 8) | next_byte + 4` (range: 4-4099)
+- Reads one value byte and repeats it `length` times
 
-**Flag byte with bits 6-7 clear (`0x00`)** - Raw literal bytes:
-- If `flag & 0x20` is clear: count = `flag & 0x1F`
-- Otherwise: count = `((flag & 0x1F) << 8) | next_byte`
-- Copies `count` bytes directly from input
+**Flag byte with bits 6-7 clear** - Raw literal bytes:
+- If `flag & 0x20` is clear: length = `flag & 0x1F` (range: 0-31)
+- Otherwise: length = `((flag & 0x1F) << 8) | next_byte` (range: 0-8191)
+- Copies `length` bytes directly from compressed stream
 
 The loop continues until output reaches the uncompressed size.
+
+### Decompression Tool
+
+Use `scripts/src/spike-chunsoft-decompress.js` to decompress files:
+
+```bash
+node scripts/src/spike-chunsoft-decompress.js input.gxt output.gxt
+```
 
 ## Raw GXT Format (PS Vita Standard)
 
@@ -139,5 +149,6 @@ These are compressed GXT textures used for background model textures.
 - [PS Vita Dev Wiki - GXT](https://www.psdevwiki.com/vita/GXT)
 - [Scarlet GXT.cs source](https://github.com/xdanieldzd/Scarlet/blob/master/Scarlet.IO.ImageFormats/GXT.cs)
 - [Scarlet SpikeDRVita.cs decompression](https://github.com/xdanieldzd/Scarlet/blob/master/Scarlet.IO.CompressionFormats/SpikeDRVita.cs)
+- [Kuriimu2 ShadeLzDecoder.cs](https://github.com/FanTranslatorsInternational/Kuriimu2/blob/master/src/lib/Kompression/Decoder/ShadeLzDecoder.cs) - Reference implementation
 - [PSP2SDK gxt.h](https://psp2sdk.github.io/gxt_8h.html)
 - [Kuriimu Issue #351 - Danganronpa compression](https://github.com/IcySon55/Kuriimu/issues/351)
