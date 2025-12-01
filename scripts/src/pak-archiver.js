@@ -170,10 +170,28 @@ class FileTypeChecker {
     return true;
   }
 
+  static isGXT(data) {
+    if (data.length < 12) return false;
+    // GXT files can be raw (magic "GXT\0") or compressed (magic FC AA 55 A7)
+
+    // Raw GXT: starts with "GXT\0"
+    if (data[0] === 0x47 && data[1] === 0x58 && data[2] === 0x54 && data[3] === 0x00) {
+      return true;
+    }
+
+    // Compressed GXT (SpikeDRVita): starts with FC AA 55 A7
+    if (data[0] === 0xFC && data[1] === 0xAA && data[2] === 0x55 && data[3] === 0xA7) {
+      return true;
+    }
+
+    return false;
+  }
+
   static detectType(data) {
     if (FileTypeChecker.isGMO(data)) return 'gmo';
     if (FileTypeChecker.isSPFT(data)) return 'spft';
     if (FileTypeChecker.isLLFS(data)) return 'llfs';
+    if (FileTypeChecker.isGXT(data)) return 'gxt';
     if (FileTypeChecker.isUTF16Text(data)) return 'txt';
     if (FileTypeChecker.isLIN(data)) return 'lin';
     if (FileTypeChecker.isTGA(data)) return 'tga';
@@ -366,6 +384,14 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       const llfsPath = inputPath.endsWith('.llfs') ? inputPath : inputPath + '.llfs';
       if (inputPath !== llfsPath) {
         await rename(inputPath, llfsPath);
+      }
+      break;
+
+    case 'gxt':
+      printIndented(`Processing ${inputPath} as GXT`);
+      const gxtPath = inputPath.endsWith('.gxt') ? inputPath : inputPath + '.gxt';
+      if (inputPath !== gxtPath) {
+        await rename(inputPath, gxtPath);
       }
       break;
 
