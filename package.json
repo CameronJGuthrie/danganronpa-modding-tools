@@ -4,6 +4,8 @@
     "private": true,
     "type": "module",
     "dependencies": {
+        "canvas": "^3.2.0",
+        "sharp": "^0.34.5",
         "unzipper": "^0.12.3"
     },
     "scripts": {
@@ -14,6 +16,7 @@
         "reset-hex": "pnpm compile && node scripts/src/extract-linscript.js --hex",
         "unpack": "node scripts/src/unpack-base-files.js",
         "extract-recursive": "node scripts/src/extract-recursive.js",
+        "extract-recursive:all": "node scripts/src/extract-recursive.js workspace/all/dr1_data_us.wad && node scripts/src/extract-recursive.js workspace/all/dr1_data.wad && node scripts/src/extract-recursive.js workspace/all/dr1_data_keyboard_us.wad && node scripts/src/extract-recursive.js workspace/all/dr1_data_keyboard.wad",
         "setup": "node scripts/src/zip-game-files.js && pnpm run unpack && pnpm run reset",
         "select": "node scripts/src/select.js",
         "verify": "node scripts/src/verify.js",

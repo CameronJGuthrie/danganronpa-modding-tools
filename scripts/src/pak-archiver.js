@@ -4,10 +4,23 @@ import { readFile, writeFile, readdir, stat, mkdir, rename, rm } from 'fs/promis
 import { basename, dirname, join } from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import chalk from 'chalk';
 import { decompress as decompressSpike, isCompressed as isSpikeCompressed } from './spike-chunsoft-decompress.js';
 import { convertGXT } from './gxt-to-png.js';
 
 const execAsync = promisify(exec);
+
+// File type colors
+const typeColor = {
+  pak: chalk.white,
+  gmo: chalk.yellow,
+  tga: chalk.magenta,
+  lin: chalk.cyan,
+  txt: chalk.gray,
+  gxt: chalk.green,
+  spft: chalk.blue,
+  llfs: chalk.red,
+};
 
 // ============================================================================
 // SECTION 1: Binary I/O Helpers
@@ -303,6 +316,28 @@ async function flatWalk(dir) {
   return files.sort();
 }
 
+// Map of known extensions to file types
+const EXTENSION_TO_TYPE = {
+  '.pak': 'pak',
+  '.gmo': 'gmo',
+  '.tga': 'tga',
+  '.lin': 'lin',
+  '.txt': 'txt',
+  '.gxt': 'gxt',
+  '.spft': 'spft',
+  '.llfs': 'llfs',
+};
+
+function getTypeFromExtension(filePath) {
+  const lowerPath = filePath.toLowerCase();
+  for (const [ext, type] of Object.entries(EXTENSION_TO_TYPE)) {
+    if (lowerPath.endsWith(ext)) {
+      return type;
+    }
+  }
+  return null;
+}
+
 async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
   const indent = '    '.repeat(depth);
   const printIndented = (msg) => {
@@ -317,11 +352,12 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
     return;
   }
 
-  const fileType = FileTypeChecker.detectType(data);
+  // If file already has a known extension, trust it; otherwise auto-detect
+  const fileType = getTypeFromExtension(inputPath) || FileTypeChecker.detectType(data);
 
   switch (fileType) {
     case 'pak':
-      printIndented(`Processing ${inputPath} as PAK`);
+      printIndented(`Processing ${inputPath} as ${typeColor.pak('PAK')}`);
 
       // Ensure has .pak extension
       let pakPath = inputPath;
@@ -357,7 +393,7 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       break;
 
     case 'gmo':
-      printIndented(`Processing ${inputPath} as GMO`);
+      printIndented(`Processing ${inputPath} as ${typeColor.gmo('GMO')}`);
       const gmoPath = inputPath.endsWith('.gmo') ? inputPath : inputPath + '.gmo';
       if (inputPath !== gmoPath) {
         await rename(inputPath, gmoPath);
@@ -366,7 +402,7 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       break;
 
     case 'tga':
-      printIndented(`Processing ${inputPath} as TGA`);
+      printIndented(`Processing ${inputPath} as ${typeColor.tga('TGA')}`);
       const tgaPath = inputPath.endsWith('.tga') ? inputPath : inputPath + '.tga';
       if (inputPath !== tgaPath) {
         await rename(inputPath, tgaPath);
@@ -374,7 +410,7 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       break;
 
     case 'spft':
-      printIndented(`Processing ${inputPath} as SPFT`);
+      printIndented(`Processing ${inputPath} as ${typeColor.spft('SPFT')}`);
       const spftPath = inputPath.endsWith('.spft') ? inputPath : inputPath + '.spft';
       if (inputPath !== spftPath) {
         await rename(inputPath, spftPath);
@@ -382,7 +418,7 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       break;
 
     case 'llfs':
-      printIndented(`Processing ${inputPath} as LLFS`);
+      printIndented(`Processing ${inputPath} as ${typeColor.llfs('LLFS')}`);
       const llfsPath = inputPath.endsWith('.llfs') ? inputPath : inputPath + '.llfs';
       if (inputPath !== llfsPath) {
         await rename(inputPath, llfsPath);
@@ -390,7 +426,7 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       break;
 
     case 'gxt':
-      printIndented(`Processing ${inputPath} as GXT`);
+      printIndented(`Processing ${inputPath} as ${typeColor.gxt('GXT')}`);
       let gxtPath = inputPath.endsWith('.gxt') ? inputPath : inputPath + '.gxt';
       if (inputPath !== gxtPath) {
         await rename(inputPath, gxtPath);
@@ -417,7 +453,7 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       break;
 
     case 'txt':
-      printIndented(`Processing ${inputPath} as TXT`);
+      printIndented(`Processing ${inputPath} as ${typeColor.txt('TXT')}`);
       const txtPath = inputPath.endsWith('.txt') ? inputPath : inputPath + '.txt';
       if (inputPath !== txtPath) {
         await rename(inputPath, txtPath);
@@ -425,26 +461,15 @@ async function extractPak(inputPath, outputPath, silent = false, depth = 0) {
       break;
 
     case 'lin':
-      printIndented(`Processing ${inputPath} as LIN`);
+      printIndented(`Processing ${inputPath} as ${typeColor.lin('LIN')}`);
       const linPath = inputPath.endsWith('.lin') ? inputPath : inputPath + '.lin';
       if (inputPath !== linPath) {
         await rename(inputPath, linPath);
       }
-      // Decompile to .linscript (skip top-level script/ files, only decompile nested ones)
-      const isNestedInScript = /\/script\/[^/]+\//.test(linPath);
-      if (isNestedInScript) {
-        const linscriptPath = linPath.replace(/\.lin$/, '.linscript');
-        try {
-          await execAsync(`dotnet lin-compiler/lin_compiler/bin/Release/net8.0/lin_compiler.dll -d "${linPath}" "${linscriptPath}"`);
-          printIndented(`  Decompiled to ${linscriptPath}`);
-        } catch (err) {
-          printIndented(`  Failed to decompile: ${err.message}`);
-        }
-      }
       break;
 
     default:
-      printIndented(`Processing ${inputPath} as UNKNOWN`);
+      printIndented(`Processing ${inputPath} as ${chalk.dim('UNKNOWN')}`);
       break;
   }
 }

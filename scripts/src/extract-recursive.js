@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile, mkdir, readdir, stat } from 'fs/promises';
+import { readFile, writeFile, mkdir, readdir, stat, unlink } from 'fs/promises';
 import { basename, dirname, join, extname } from 'path';
 import { fileURLToPath } from 'url';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { extractPak } from './pak-archiver.js';
+
+const execAsync = promisify(exec);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -165,6 +169,65 @@ async function findAndExtractPaks(directory) {
       // Extract PAK files using pak-archiver's extractPak function
       const outputDir = fullPath.replace(/\.pak$/, '');
       await extractPak(fullPath, outputDir, false, 0);
+      // Remove the .pak file after successful extraction (if it still exists -
+      // extractPak may have renamed it if it wasn't actually a PAK)
+      try {
+        await unlink(fullPath);
+        console.log(`  Removed: ${fullPath}`);
+      } catch (err) {
+        // File was likely renamed by extractPak (e.g., TGA misnamed as .pak)
+      }
+    }
+  }
+}
+
+// ============================================================================
+// LIN Decompilation
+// ============================================================================
+
+async function collectDirsWithLinFiles(directory, results = new Set()) {
+  const entries = await readdir(directory, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      await collectDirsWithLinFiles(fullPath, results);
+    } else if (entry.isFile() && entry.name.endsWith('.lin')) {
+      results.add(directory);
+    }
+  }
+
+  return results;
+}
+
+async function removeLinFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isFile() && entry.name.endsWith('.lin')) {
+      await unlink(join(directory, entry.name));
+    }
+  }
+}
+
+async function findAndDecompileLins(directory) {
+  const dirsWithLins = await collectDirsWithLinFiles(directory);
+
+  if (dirsWithLins.size === 0) {
+    console.log('  No .lin files found');
+    return;
+  }
+
+  console.log(`  Found ${dirsWithLins.size} directories with .lin files`);
+
+  // Process each directory with lin-compiler's batch mode
+  for (const dir of dirsWithLins) {
+    try {
+      console.log(`  Decompiling: ${dir}`);
+      await execAsync(`dotnet lin-compiler/lin_compiler/bin/Release/net8.0/lin_compiler.dll -d "${dir}"`);
+      // Remove .lin files after successful decompilation
+      await removeLinFiles(dir);
+    } catch (err) {
+      console.log(`  Failed: ${dir}: ${err.message}`);
     }
   }
 }
@@ -222,6 +285,13 @@ async function main() {
 
     // Step 2: Find and recursively extract all PAK files
     await findAndExtractPaks(outputDir);
+
+    console.log();
+    console.log('PAK extraction complete. Decompiling LIN files...');
+    console.log();
+
+    // Step 3: Find and decompile all .lin files
+    await findAndDecompileLins(outputDir);
 
     console.log();
     console.log('Recursive extraction complete!');
