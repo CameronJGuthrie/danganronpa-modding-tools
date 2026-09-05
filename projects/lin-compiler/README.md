@@ -65,8 +65,10 @@ throws `SourceError` (with a 1-based `line`); malformed binaries throw `BinaryEr
 | --- | --- |
 | `src/cli.ts` | Argument parsing, single-file and batch drivers, all console output |
 | `src/script.ts` | `Script` / `ScriptEntry` model and `ScriptType` |
-| `src/scriptRead.ts` | Parsing of compiled `.lin` bytes and `.linscript` source |
-| `src/scriptWrite.ts` | `.linscript` emission (indentation, AutoText collapsing) and `.lin` serialisation |
+| `src/io/lin-reader.ts` | Parsing of compiled `.lin` bytes |
+| `src/io/lin-writer.ts` | `.lin` serialisation |
+| `src/io/linscript-reader.ts` | Parsing of `.linscript` source |
+| `src/io/linscript-writer.ts` | `.linscript` emission (indentation, AutoText collapsing) |
 | `src/parameter.ts` | Argument encodings (`Byte`, `UInt16LE`, `UInt16BE`) and decimal parsing |
 | `src/errors.ts` | `SourceError` and `BinaryError` |
 | `src/opcodes/` | Opcode table and the per-opcode behaviours |

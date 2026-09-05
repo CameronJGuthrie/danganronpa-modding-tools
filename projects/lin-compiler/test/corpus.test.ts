@@ -5,8 +5,10 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { BinaryError } from "../src/errors.ts";
-import { readCompiled, readSource } from "../src/scriptRead.ts";
-import { writeCompiledBytes, writeSourceText } from "../src/scriptWrite.ts";
+import { readCompiled } from "../src/io/lin-reader.ts";
+import { writeCompiledBytes } from "../src/io/lin-writer.ts";
+import { readSource } from "../src/io/linscript-reader.ts";
+import { writeSourceText } from "../src/io/linscript-writer.ts";
 
 /** The game's script directory as extracted by `pnpm unpack`. */
 const CORPUS_DIR = fileURLToPath(new URL("../../../workspace/modded/dr1_data_us/Dr1/data/us/script", import.meta.url));

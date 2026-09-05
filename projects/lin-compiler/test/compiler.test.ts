@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { BinaryError, SourceError } from "../src/errors.ts";
 import { OP_TEXT, OP_TEXT_STYLE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "../src/opcodes/ids.ts";
-import { readCompiled, readSource } from "../src/scriptRead.ts";
-import { writeCompiledBytes, writeSourceText } from "../src/scriptWrite.ts";
+import { readCompiled } from "../src/io/lin-reader.ts";
+import { writeCompiledBytes } from "../src/io/lin-writer.ts";
+import { readSource } from "../src/io/linscript-reader.ts";
+import { writeSourceText } from "../src/io/linscript-writer.ts";
 
 const int32 = (bytes: Uint8Array, offset: number) =>
   new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getInt32(offset, true);
