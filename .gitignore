@@ -1,6 +1,9 @@
 # Node modules
 node_modules/
 
+# Compiled TypeScript output
+lin-compiler/dist/
+
 # Workspace directory (working files)
 workspace/*
 !workspace/.danganronpa-working-root

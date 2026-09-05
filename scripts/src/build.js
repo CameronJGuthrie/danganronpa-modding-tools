@@ -14,7 +14,7 @@ const PROJECT_ROOT = join(__dirname, '..', '..');
 const MODS_DIR = join(PROJECT_ROOT, 'workspace', 'mod');
 const EXTRACTED_DIR = join(PROJECT_ROOT, 'workspace', 'modded');
 const WAD_ARCHIVER = join(PROJECT_ROOT, 'scripts', 'src', 'wad-archiver.js');
-const LIN_COMPILER = join(PROJECT_ROOT, 'lin-compiler', 'lin_compiler', 'bin', 'Release', 'net8.0', 'lin_compiler.dll');
+const LIN_COMPILER = join(PROJECT_ROOT, 'lin-compiler', 'dist', 'cli.js');
 
 async function compileLinscripts(modPath) {
   console.log('  Compiling .linscript files...');
@@ -30,7 +30,7 @@ async function compileLinscripts(modPath) {
   try {
     // Use lin-compiler in batch mode to compile the directory
     // Note: compiler outputs errors to stderr and summary to stdout
-    const result = execSync(`dotnet "${LIN_COMPILER}" -s "${scriptDir}" 2>&1`, {
+    const result = execSync(`node "${LIN_COMPILER}" -s "${scriptDir}" 2>&1`, {
       cwd: PROJECT_ROOT,
       encoding: 'utf-8'
     });

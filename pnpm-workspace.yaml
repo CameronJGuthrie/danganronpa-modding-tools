@@ -1,4 +1,5 @@
 packages:
+  - lin-compiler
   - vscode-extension
   - mod-tool
   - scripts

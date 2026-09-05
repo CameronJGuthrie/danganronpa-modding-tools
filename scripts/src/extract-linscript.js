@@ -16,7 +16,7 @@ const WORKSPACE_DIR = join(projectRoot, 'workspace');
 const BASE_FILES_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
 const TEMP_DIR = join(WORKSPACE_DIR, 'temp_extract');
 const LINSCRIPT_EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
-const LIN_COMPILER_PATH = join(projectRoot, 'lin-compiler', 'lin_compiler', 'bin', 'Release', 'net8.0', 'lin_compiler.dll');
+const LIN_COMPILER_PATH = join(projectRoot, 'lin-compiler', 'dist', 'cli.js');
 
 async function extractWadFromZip() {
   console.log('Extracting dr1_data_us.wad from base_files.zip...');
@@ -65,13 +65,13 @@ async function decompileLinFiles(extractDir, useHex = false) {
   }
 
   if (!existsSync(LIN_COMPILER_PATH)) {
-    throw new Error('lin_compiler not found. Please build it first with: pnpm lin-compiler:build');
+    throw new Error('lin-compiler not found. Please build it first with: pnpm compile');
   }
 
   // Run the lin-compiler in batch decompile mode
   const hexFlag = useHex ? '--hex' : '';
   await execAsync(
-    `dotnet "${LIN_COMPILER_PATH}" -s -d ${hexFlag} "${scriptDir}"`,
+    `node "${LIN_COMPILER_PATH}" -s -d ${hexFlag} "${scriptDir}"`,
     { maxBuffer: 50 * 1024 * 1024 }
   );
 

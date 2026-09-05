@@ -14,7 +14,7 @@ const projectRoot = join(__dirname, '../..');
 const MODDED_DIR = join(projectRoot, 'workspace', 'modded', 'dr1_data_us');
 const MOD_DIR = join(projectRoot, 'workspace', 'mod', 'dr1_data_us');
 const EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
-const LIN_COMPILER_PATH = join(projectRoot, 'lin-compiler', 'lin_compiler', 'bin', 'Release', 'net8.0', 'lin_compiler.dll');
+const LIN_COMPILER_PATH = join(projectRoot, 'lin-compiler', 'dist', 'cli.js');
 
 function showUsage() {
   console.log(`Usage: pnpm select <filepath>
@@ -93,9 +93,9 @@ async function handleLinFile(inputPath) {
     process.exit(1);
   }
 
-  // Check if lin_compiler exists
+  // Check if lin-compiler exists
   if (!existsSync(LIN_COMPILER_PATH)) {
-    console.error('Error: lin_compiler not found. Please build it first with: pnpm lin-compiler:build');
+    console.error('Error: lin-compiler not found. Please build it first with: pnpm compile');
     process.exit(1);
   }
 
@@ -120,7 +120,7 @@ async function handleLinFile(inputPath) {
   // Decompile the .lin file
   console.log('\nDecompiling...');
   const { stdout, stderr } = await execAsync(
-    `dotnet "${LIN_COMPILER_PATH}" -d "${tempLinFile}" "${outputFile}"`,
+    `node "${LIN_COMPILER_PATH}" -d "${tempLinFile}" "${outputFile}"`,
     { maxBuffer: 10 * 1024 * 1024 }
   );
 

@@ -223,7 +223,7 @@ async function findAndDecompileLins(directory) {
   for (const dir of dirsWithLins) {
     try {
       console.log(`  Decompiling: ${dir}`);
-      await execAsync(`dotnet lin-compiler/lin_compiler/bin/Release/net8.0/lin_compiler.dll -d "${dir}"`);
+      await execAsync(`node lin-compiler/dist/cli.js -d "${dir}"`);
       // Remove .lin files after successful decompilation
       await removeLinFiles(dir);
     } catch (err) {

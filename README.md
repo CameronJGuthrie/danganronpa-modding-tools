@@ -1,13 +1,12 @@
 # danganronpa tooling
 
 ## Credit
- - The original source for the pak-archiver, wad-archiver and lin-compiler was cloned from https://github.com/vn-tools/danganronpa-tools. I have since converted the python scripts to nodejs. Why did I do that?
+ - The original source for the pak-archiver, wad-archiver and lin-compiler was cloned from https://github.com/vn-tools/danganronpa-tools. I have since converted the python scripts to nodejs, and the C# lin-compiler to TypeScript. Why did I do that?
  - Many opcodes and discoveries were also manually translated from this fork of the above https://github.com/morgana-x/danganronpa-lin-compiler-v2/tree/master
  - And, a huge wealth of information lies in this attempted modding framework, it has been very helpful https://github.com/SpiralFramework/Spiral
 
 ## Requirements
- - `.NET 8.0 SDK` https://dotnet.microsoft.com/en-us/download/dotnet/8.0
- - `Node.js` (I used Node 22) https://nodejs.org/en/download
+ - `Node.js` https://nodejs.org/en/download
  - `ffmpeg` (optional, for audio preview in vscode) https://ffmpeg.org/download.html (This doesn't seem to work on Windows)
  - `Danganronpa Trigger Happy Havoc` on Steam. Other versions currently unsupported.
 
@@ -81,6 +80,27 @@
     # start Danganronpa Steam game
     pnpm run game
     ```
+
+## lin-compiler
+
+`/lin-compiler` is the TypeScript (de)compiler that converts between the game's binary `.lin`
+scripts and the readable `.linscript` format. `pnpm run setup` builds it for you; to rebuild it
+on its own:
+
+```bash
+pnpm run compile
+```
+
+It can also be driven directly, on a single file or on a whole directory:
+
+```bash
+node lin-compiler/dist/cli.js -d input.lin output.linscript   # decompile
+node lin-compiler/dist/cli.js input.linscript output.lin      # compile
+node lin-compiler/dist/cli.js -s -d path/to/scripts/          # batch decompile a directory
+```
+
+See [lin-compiler/README.md](lin-compiler/README.md) for the full option list and for how to add
+new opcodes.
 
 ## Linux Users
 

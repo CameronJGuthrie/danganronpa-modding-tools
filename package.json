@@ -10,7 +10,7 @@
     },
     "scripts": {
         "start": "pnpm run build && pnpm run game",
-        "compile": "cd lin-compiler/lin_compiler && dotnet build -c Release",
+        "compile": "pnpm --filter lin-compiler run build",
         "ext": "pnpm --filter lindecompilerhelper install-extension",
         "reset": "pnpm compile && node scripts/src/extract-linscript.js",
         "reset-hex": "pnpm compile && node scripts/src/extract-linscript.js --hex",

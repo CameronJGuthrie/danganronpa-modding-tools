@@ -50,11 +50,13 @@ WAD → PAK → (GMO | TGA | PAK | ?)
 2. For PAK files: Extract using `unpak.py` to get individual files
 
 ## lin-compiler
-C# tool for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.txt` format.
+TypeScript CLI tool and library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `lin-compiler/src/`.
 
-**Status:** Built for .NET 8.0 (cross-platform). Located at `lin-compiler/lin_compiler/bin/Release/net8.0/lin_compiler.dll`
+**Status:** Node.js/TypeScript (migrated from C#). Build with `pnpm compile`; entry point is `lin-compiler/dist/cli.js`.
 
-**Usage:** `dotnet lin_compiler.dll -d input.lin output.txt` (decompile) or `dotnet lin_compiler.dll input.txt output.lin` (compile)
+**Usage:** `node lin-compiler/dist/cli.js -d input.lin output.linscript` (decompile) or `node lin-compiler/dist/cli.js input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--hex` hex opcode names, `--indent-spaces N`.
+
+Opcode definitions live in `lin-compiler/src/opcodes/opcodeDictionary.ts` — add an entry to `opcodeList` to teach the compiler a new opcode. Opcodes needing custom argument handling subclass `BaseOpcode`.
 
 ## gui
 Electron desktop app for browsing and editing Danganronpa assets. Features character sprite viewer, script viewer, and TGA image support.
