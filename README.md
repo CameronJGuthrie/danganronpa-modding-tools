@@ -6,7 +6,7 @@
  - And, a huge wealth of information lies in this attempted modding framework, it has been very helpful https://github.com/SpiralFramework/Spiral
 
 ## Requirements
- - `Node.js` https://nodejs.org/en/download
+ - `Node.js` 22.18 or newer https://nodejs.org/en/download (the scripts run TypeScript directly via Node's built-in type stripping)
  - `ffmpeg` (optional, for audio preview in vscode) https://ffmpeg.org/download.html (This doesn't seem to work on Windows)
  - `Danganronpa Trigger Happy Havoc` on Steam. Other versions currently unsupported.
 
@@ -22,7 +22,7 @@ Every buildable project lives under `projects/`:
 | Path | What it is |
 | --- | --- |
 | `projects/lin-compiler` | TypeScript (de)compiler for the game's `.lin` scripts |
-| `projects/scripts` | Node automation scripts behind the root `pnpm run ...` commands |
+| `projects/scripts` | TypeScript automation scripts behind the root `pnpm run ...` commands |
 | `projects/vscode-extension` | The VSCode extension (`lindecompilerhelper`) |
 | `projects/gui` | Electron asset browser (standalone, has its own lockfile) |
 | `docs/` | Reverse-engineering notes on the game's file formats |
@@ -109,13 +109,32 @@ pnpm run compile
 It can also be driven directly, on a single file or on a whole directory:
 
 ```bash
-node projects/lin-compiler/dist/cli.js -d input.lin output.linscript   # decompile
-node projects/lin-compiler/dist/cli.js input.linscript output.lin      # compile
-node projects/lin-compiler/dist/cli.js -s -d path/to/scripts/          # batch decompile a directory
+node projects/lin-compiler/src/cli.ts -d input.lin output.linscript   # decompile
+node projects/lin-compiler/src/cli.ts input.linscript output.lin      # compile
+node projects/lin-compiler/src/cli.ts -s -d path/to/scripts/          # batch decompile a directory
 ```
 
 See [projects/lin-compiler/README.md](projects/lin-compiler/README.md) for the full option list and for how to add
 new opcodes.
+
+## Scripts
+
+`projects/scripts` holds the automation behind the root `pnpm run ...` commands. They are
+TypeScript, run directly by Node's type stripping - there is no build step:
+
+```bash
+node projects/scripts/src/validate-paks.ts    # same as: pnpm validate-paks
+```
+
+Typechecking is separate from running, and emits nothing:
+
+```bash
+pnpm --filter danganronpa-scripts run typecheck
+```
+
+Node strips types rather than transforming syntax, so these files must stay *erasable*: no
+`enum`, no `namespace`, no constructor parameter properties, and local imports name the real
+`.ts` file (`./steam-paths.ts`). `tsc` enforces this via `erasableSyntaxOnly`.
 
 ## Linux Users
 

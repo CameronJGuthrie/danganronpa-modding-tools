@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
-import { OP_TEXT } from "./opcodes/ids.js";
-import { getOpcodeArgCount, getOpcodeDefinitionByName } from "./opcodes/opcodeDictionary.js";
-import { printLine, toHexOpcode } from "./options.js";
-import { type Script, type ScriptEntry, ScriptType } from "./script.js";
+import { OP_TEXT } from "./opcodes/ids.ts";
+import { getOpcodeArgCount, getOpcodeDefinitionByName } from "./opcodes/opcodeDictionary.ts";
+import { printLine, toHexOpcode } from "./options.ts";
+import { type Script, type ScriptEntry, ScriptType } from "./script.ts";
 
 /** Matches `OpcodeName(args)` or `0xNN(args)`, capturing the name and the raw argument text. */
 const OPCODE_PATTERN = /^\s*(\w+|0x[0-9A-Fa-f]+)\s*\((.*)\)\s*$/;

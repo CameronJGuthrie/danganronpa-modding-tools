@@ -7,6 +7,7 @@ import { existsSync } from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import unzipper from 'unzipper';
+import { errorMessage } from './errors.ts';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -16,15 +17,15 @@ const WORKSPACE_DIR = join(projectRoot, 'workspace');
 const BASE_FILES_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
 const TEMP_DIR = join(WORKSPACE_DIR, 'temp_extract');
 const LINSCRIPT_EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
-const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'dist', 'cli.js');
+const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'src', 'cli.ts');
 
-async function extractWadFromZip() {
+async function extractWadFromZip(): Promise<string> {
   console.log('Extracting dr1_data_us.wad from base_files.zip...');
 
   const zipBuffer = await readFile(BASE_FILES_ZIP);
   const directory = await unzipper.Open.buffer(zipBuffer);
 
-  const wadFile = directory.files.find(f => f.path === 'dr1_data_us.wad');
+  const wadFile = directory.files.find((f) => f.path === 'dr1_data_us.wad');
 
   if (!wadFile) {
     throw new Error('dr1_data_us.wad not found in base_files.zip');
@@ -39,10 +40,10 @@ async function extractWadFromZip() {
   return tempWadPath;
 }
 
-async function extractWadContents(wadPath) {
+async function extractWadContents(wadPath: string): Promise<string> {
   console.log('Extracting WAD contents...');
 
-  const wadArchiverPath = join(projectRoot, 'projects/scripts/src/wad-archiver.js');
+  const wadArchiverPath = join(projectRoot, 'projects/scripts/src/wad-archiver.ts');
   const extractDir = join(TEMP_DIR, 'extracted');
 
   await mkdir(extractDir, { recursive: true });
@@ -55,7 +56,7 @@ async function extractWadContents(wadPath) {
   return extractDir;
 }
 
-async function decompileLinFiles(extractDir, useHex = false) {
+async function decompileLinFiles(extractDir: string, useHex = false): Promise<string> {
   console.log('Decompiling .lin files...');
 
   const scriptDir = join(extractDir, 'Dr1/data/us/script');
@@ -65,7 +66,7 @@ async function decompileLinFiles(extractDir, useHex = false) {
   }
 
   if (!existsSync(LIN_COMPILER_PATH)) {
-    throw new Error('lin-compiler not found. Please build it first with: pnpm compile');
+    throw new Error(`lin-compiler entry point not found at ${LIN_COMPILER_PATH}`);
   }
 
   // Run the lin-compiler in batch decompile mode
@@ -78,13 +79,13 @@ async function decompileLinFiles(extractDir, useHex = false) {
   return scriptDir;
 }
 
-async function copyLinscriptFiles(scriptDir) {
+async function copyLinscriptFiles(scriptDir: string): Promise<string[]> {
   console.log('Copying .linscript files to linscript-exploration...');
 
   await mkdir(LINSCRIPT_EXPLORATION_DIR, { recursive: true });
 
   const files = await readdir(scriptDir);
-  const linscriptFiles = files.filter(f => f.endsWith('.linscript'));
+  const linscriptFiles = files.filter((f) => f.endsWith('.linscript'));
 
   let copiedCount = 0;
   for (const file of linscriptFiles) {
@@ -94,7 +95,7 @@ async function copyLinscriptFiles(scriptDir) {
     // Remove read-only flag if file exists
     try {
       await chmod(destPath, 0o644);
-    } catch (err) {
+    } catch {
       // File doesn't exist yet, ignore
     }
 
@@ -106,7 +107,7 @@ async function copyLinscriptFiles(scriptDir) {
   return linscriptFiles;
 }
 
-async function makeFilesReadonly(files) {
+async function makeFilesReadonly(files: string[]): Promise<void> {
   console.log('Making files read-only...');
 
   for (const file of files) {
@@ -118,12 +119,12 @@ async function makeFilesReadonly(files) {
   console.log(`Set ${files.length} files to read-only`);
 }
 
-async function cleanup() {
+async function cleanup(): Promise<void> {
   console.log('Cleaning up temporary directory...');
   await rm(TEMP_DIR, { recursive: true, force: true });
 }
 
-async function main() {
+async function main(): Promise<void> {
   // Parse command line arguments
   const args = process.argv.slice(2);
   const useHex = args.includes('--hex') || args.includes('-h');
@@ -154,7 +155,7 @@ async function main() {
 
     console.log('\n✓ Complete! Linscript files are in linscript-exploration/');
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`Error: ${errorMessage(error)}`);
 
     // Attempt cleanup on error
     try {

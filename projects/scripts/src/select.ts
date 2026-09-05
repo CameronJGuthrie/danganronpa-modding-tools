@@ -6,6 +6,7 @@ import { join, dirname, relative, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { errorMessage } from './errors.ts';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -14,9 +15,9 @@ const projectRoot = join(__dirname, '../../..');
 const MODDED_DIR = join(projectRoot, 'workspace', 'modded', 'dr1_data_us');
 const MOD_DIR = join(projectRoot, 'workspace', 'mod', 'dr1_data_us');
 const EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
-const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'dist', 'cli.js');
+const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'src', 'cli.ts');
 
-function showUsage() {
+function showUsage(): void {
   console.log(`Usage: pnpm select <filepath>
 
 Two modes:
@@ -32,7 +33,7 @@ Examples:
   pnpm select workspace/linscript-exploration/e01_004_135.linscript`);
 }
 
-function resolveLinFilePath(inputPath) {
+function resolveLinFilePath(inputPath: string): string {
   // If it's an absolute path
   if (inputPath.startsWith('/')) {
     if (!inputPath.startsWith(MODDED_DIR)) {
@@ -60,7 +61,7 @@ function resolveLinFilePath(inputPath) {
   return join(MODDED_DIR, inputPath);
 }
 
-function resolveLinscriptFilePath(inputPath) {
+function resolveLinscriptFilePath(inputPath: string): string {
   // If it's an absolute path
   if (inputPath.startsWith('/')) {
     if (!inputPath.startsWith(EXPLORATION_DIR)) {
@@ -83,7 +84,7 @@ function resolveLinscriptFilePath(inputPath) {
   return join(EXPLORATION_DIR, inputPath);
 }
 
-async function handleLinFile(inputPath) {
+async function handleLinFile(inputPath: string): Promise<void> {
   // Resolve the input path
   const sourceFile = resolveLinFilePath(inputPath);
 
@@ -95,7 +96,7 @@ async function handleLinFile(inputPath) {
 
   // Check if lin-compiler exists
   if (!existsSync(LIN_COMPILER_PATH)) {
-    console.error('Error: lin-compiler not found. Please build it first with: pnpm compile');
+    console.error('Error: lin-compiler entry point not found at ' + LIN_COMPILER_PATH);
     process.exit(1);
   }
 
@@ -135,12 +136,12 @@ async function handleLinFile(inputPath) {
   // Open the file in VSCode
   try {
     await execAsync(`code "${outputFile}"`);
-  } catch (error) {
+  } catch {
     // Silently fail if 'code' command is not available
   }
 }
 
-async function handleLinscriptFile(inputPath) {
+async function handleLinscriptFile(inputPath: string): Promise<void> {
   // Resolve the input path
   const sourceFile = resolveLinscriptFilePath(inputPath);
 
@@ -182,12 +183,12 @@ async function handleLinscriptFile(inputPath) {
   // Open the file in VSCode
   try {
     await execAsync(`code "${outputFile}"`);
-  } catch (error) {
+  } catch {
     // Silently fail if 'code' command is not available
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
   if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
@@ -209,7 +210,7 @@ async function main() {
       process.exit(1);
     }
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);
   }
 }

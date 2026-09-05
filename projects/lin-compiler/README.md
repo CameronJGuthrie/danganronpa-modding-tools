@@ -6,15 +6,15 @@ binary `.lin` format and the human-readable `.linscript` format.
 ## Build
 
 ```bash
-pnpm --filter lin-compiler run build   # or, from the repo root: pnpm compile
+pnpm --filter lin-compiler run typecheck   # or, from the repo root: pnpm compile
 ```
 
-Output lands in `projects/lin-compiler/dist/`, with `dist/cli.js` as the executable entry point.
+There is no build output: Node runs the TypeScript sources directly via type stripping, with `src/cli.ts` as the entry point.
 
 ## Usage
 
 ```bash
-node projects/lin-compiler/dist/cli.js [options] input [output]
+node projects/lin-compiler/src/cli.ts [options] input [output]
 ```
 
 | Option | Description |
@@ -28,9 +28,9 @@ node projects/lin-compiler/dist/cli.js [options] input [output]
 Examples:
 
 ```bash
-node projects/lin-compiler/dist/cli.js -d input.lin output.linscript   # decompile
-node projects/lin-compiler/dist/cli.js input.linscript output.lin      # compile
-node projects/lin-compiler/dist/cli.js -s -d path/to/scripts/          # batch decompile a directory
+node projects/lin-compiler/src/cli.ts -d input.lin output.linscript   # decompile
+node projects/lin-compiler/src/cli.ts input.linscript output.lin      # compile
+node projects/lin-compiler/src/cli.ts -s -d path/to/scripts/          # batch decompile a directory
 ```
 
 When `input` is a directory, every matching file in it is processed in place: `*.lin` →

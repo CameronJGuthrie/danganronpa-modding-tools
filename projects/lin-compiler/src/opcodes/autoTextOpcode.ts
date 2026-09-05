@@ -1,6 +1,6 @@
-import { type Script, type ScriptEntry, ScriptType } from "../script.js";
-import { OP_TEXT, OP_TEXT_STYLE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./ids.js";
-import { parseQuotedString, TextOpcode } from "./textOpcode.js";
+import { type Script, type ScriptEntry, ScriptType } from "../script.ts";
+import { OP_TEXT, OP_TEXT_STYLE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./ids.ts";
+import { parseQuotedString, TextOpcode } from "./textOpcode.ts";
 
 /** Matches `<CLT N>` opening tags, `<CLT>` closing tags, and literal newlines. */
 const CLT_PATTERN = /<CLT\s+(\d+)>|<CLT>|\n/g;

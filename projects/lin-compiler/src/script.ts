@@ -1,7 +1,8 @@
-export enum ScriptType {
-  Textless = 1,
-  Text = 2,
-}
+export const ScriptType = {
+  Textless: 1,
+  Text: 2,
+} as const;
+export type ScriptType = (typeof ScriptType)[keyof typeof ScriptType];
 
 export interface ScriptEntry {
   opcode: number;

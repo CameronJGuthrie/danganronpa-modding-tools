@@ -3,6 +3,9 @@ packages:
   - projects/vscode-extension
   - projects/scripts
 
+catalog:
+  typescript: ^7.0.2
+
 onlyBuiltDependencies:
   - '@vscode/vsce-sign'
   - electron

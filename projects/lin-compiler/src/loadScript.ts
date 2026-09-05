@@ -1,5 +1,5 @@
-import { Script } from "./script.js";
-import { readCompiledFile, readSource } from "./scriptRead.js";
+import { Script } from "./script.ts";
+import { readCompiledFile, readSource } from "./scriptRead.ts";
 
 /** Load a script from disk, either from compiled `.lin` bytes or from `.linscript` source. */
 export async function loadScript(filename: string, compiled = true): Promise<Script> {

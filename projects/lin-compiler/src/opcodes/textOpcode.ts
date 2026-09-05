@@ -1,7 +1,7 @@
-import type { SourceBuilder } from "../output.js";
-import { ParamType } from "../parameter.js";
-import { type Script, type ScriptEntry, ScriptType } from "../script.js";
-import { BaseOpcode } from "./baseOpcode.js";
+import type { SourceBuilder } from "../output.ts";
+import { ParamType } from "../parameter.ts";
+import { type Script, type ScriptEntry, ScriptType } from "../script.ts";
+import { BaseOpcode } from "./baseOpcode.ts";
 
 export class TextOpcode extends BaseOpcode {
   constructor(name: string, opcode = 0xff) {

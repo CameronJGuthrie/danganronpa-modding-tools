@@ -3,7 +3,7 @@
 ## Repository layout
 All buildable projects live under `projects/`:
 - `projects/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler
-- `projects/scripts` - Node automation scripts (root `pnpm run ...` commands)
+- `projects/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
 - `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension
 - `projects/gui` - Electron asset browser (standalone; not a workspace package, has its own lockfile)
 
@@ -62,9 +62,9 @@ WAD → PAK → (GMO | TGA | PAK | ?)
 ## lin-compiler
 TypeScript CLI tool and library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `projects/lin-compiler/src/`.
 
-**Status:** Node.js/TypeScript (migrated from C#). Build with `pnpm compile`; entry point is `projects/lin-compiler/dist/cli.js`.
+**Status:** Node.js/TypeScript (migrated from C#). No build step — it runs straight from source via Node's type stripping; entry point is `projects/lin-compiler/src/cli.ts`. `pnpm compile` typechecks it.
 
-**Usage:** `node projects/lin-compiler/dist/cli.js -d input.lin output.linscript` (decompile) or `node projects/lin-compiler/dist/cli.js input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--hex` hex opcode names, `--indent-spaces N`.
+**Usage:** `node projects/lin-compiler/src/cli.ts -d input.lin output.linscript` (decompile) or `node projects/lin-compiler/src/cli.ts input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--hex` hex opcode names, `--indent-spaces N`.
 
 Opcode definitions live in `projects/lin-compiler/src/opcodes/opcodeDictionary.ts` — add an entry to `opcodeList` to teach the compiler a new opcode. Opcodes needing custom argument handling subclass `BaseOpcode`.
 
@@ -74,10 +74,14 @@ Electron desktop app for browsing and editing Danganronpa assets. Features chara
 ## pak-archiver
 Utility for extracting, creating, and modifying PAK archive files. Handles nested archives and detects GMO/TGA file types.
 
-**Status:** Migrated to Node.js (projects/scripts/src/pak-archiver.js).
+**Status:** Migrated to TypeScript (projects/scripts/src/pak-archiver.ts).
 
 ## scripts
-NodeJS automation scripts for common modding operations. Scripts are kept in `projects/scripts/src/*.js`:
+TypeScript automation scripts for common modding operations. Scripts are kept in `projects/scripts/src/*.ts`.
+
+They are run directly by Node's type stripping - there is no build step, so `node projects/scripts/src/build.ts` just works (requires Node >= 22.18). Because Node strips types rather than transforming syntax, these files must stay erasable: no `enum`, no `namespace`, no constructor parameter properties. `tsc` enforces this via `erasableSyntaxOnly`. Local imports name the real `.ts` file (`./steam-paths.ts`), which is what Node resolves at runtime.
+
+Typecheck with `pnpm --filter danganronpa-scripts run typecheck` (emits nothing).
 
 **Node.js scripts:**
 

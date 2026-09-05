@@ -1,36 +1,38 @@
 {
-    "name": "danganronpa-modding-tools",
-    "version": "1.0.0",
-    "private": true,
-    "type": "module",
-    "dependencies": {
-        "canvas": "^3.2.0",
-        "sharp": "^0.34.5",
-        "unzipper": "^0.12.3"
-    },
-    "scripts": {
-        "start": "pnpm run build && pnpm run game",
-        "compile": "pnpm --filter lin-compiler run build",
-        "ext": "pnpm --filter lindecompilerhelper install-extension",
-        "reset": "pnpm compile && node projects/scripts/src/extract-linscript.js",
-        "reset-hex": "pnpm compile && node projects/scripts/src/extract-linscript.js --hex",
-        "unpack": "node projects/scripts/src/unpack-base-files.js",
-        "extract-recursive": "node projects/scripts/src/extract-recursive.js",
-        "extract-recursive:all": "node projects/scripts/src/extract-recursive.js workspace/all/dr1_data_us.wad && node projects/scripts/src/extract-recursive.js workspace/all/dr1_data.wad && node projects/scripts/src/extract-recursive.js workspace/all/dr1_data_keyboard_us.wad && node projects/scripts/src/extract-recursive.js workspace/all/dr1_data_keyboard.wad",
-        "setup": "node projects/scripts/src/zip-game-files.js && pnpm run unpack && pnpm run reset",
-        "select": "node projects/scripts/src/select.js",
-        "verify": "node projects/scripts/src/verify.js",
-        "build": "node projects/scripts/src/build.js",
-        "clear-proton": "node projects/scripts/src/clear-proton.js",
-        "copy": "node projects/scripts/src/generator.js",
-        "game": "node projects/scripts/src/launch-game.js",
-        "investigate": "node projects/scripts/src/investigate.js",
-        "validate-paks": "node projects/scripts/src/validate-paks.js",
-        "test:all": "pnpm -r --if-present run test ",
-        "lint:all": "pnpm -r --if-present run lint "
-    },
-    "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
-    "devDependencies": {
-        "@biomejs/biome": "^2.3.8"
-    }
+  "name": "danganronpa-modding-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "canvas": "^3.2.0",
+    "sharp": "^0.34.5",
+    "unzipper": "^0.12.3"
+  },
+  "scripts": {
+    "start": "pnpm run build && pnpm run game",
+    "ext": "pnpm --filter lindecompilerhelper install-extension",
+    "reset": "node projects/scripts/src/extract-linscript.ts",
+    "reset-hex": "node projects/scripts/src/extract-linscript.ts --hex",
+    "unpack": "node projects/scripts/src/unpack-base-files.ts",
+    "extract-recursive": "node projects/scripts/src/extract-recursive.ts",
+    "extract-recursive:all": "node projects/scripts/src/extract-recursive.ts workspace/all/dr1_data_us.wad && node projects/scripts/src/extract-recursive.ts workspace/all/dr1_data.wad && node projects/scripts/src/extract-recursive.ts workspace/all/dr1_data_keyboard_us.wad && node projects/scripts/src/extract-recursive.ts workspace/all/dr1_data_keyboard.wad",
+    "setup": "node projects/scripts/src/zip-game-files.ts && pnpm run unpack && pnpm run reset",
+    "select": "node projects/scripts/src/select.ts",
+    "verify": "node projects/scripts/src/verify.ts",
+    "build": "node projects/scripts/src/build.ts",
+    "clear-proton": "node projects/scripts/src/clear-proton.ts",
+    "copy": "node projects/scripts/src/generator.ts",
+    "game": "node projects/scripts/src/launch-game.ts",
+    "investigate": "node projects/scripts/src/investigate.ts",
+    "validate-paks": "node projects/scripts/src/validate-paks.ts",
+    "test:all": "pnpm -r --if-present run test ",
+    "lint:all": "pnpm -r --if-present run lint "
+  },
+  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
 }

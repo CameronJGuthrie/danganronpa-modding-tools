@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { readdir, stat } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
-import { loadScript } from "./loadScript.js";
-import { options } from "./options.js";
-import { writeCompiled, writeSource } from "./scriptWrite.js";
+import { loadScript } from "./loadScript.ts";
+import { options } from "./options.ts";
+import { writeCompiled, writeSource } from "./scriptWrite.ts";
 
 const USAGE = `
 lin-compiler: danganronpa script (de)compiler

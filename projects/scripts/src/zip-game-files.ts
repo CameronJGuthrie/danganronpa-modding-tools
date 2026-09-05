@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * zip-game-files.js
+ * zip-game-files.ts
  *
  * Creates a backup zip of the 4 .wad files from the Steam game directory
  * and saves it as base_files.zip in the workspace directory.
@@ -12,7 +12,8 @@ import { stat } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import archiver from 'archiver';
-import { getGameDirectoryOrThrow } from './steam-paths.js';
+import { getGameDirectoryOrThrow } from './steam-paths.ts';
+import { errorMessage } from './errors.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, '../../..');
@@ -29,7 +30,7 @@ const WAD_FILES = [
   'dr1_data_keyboard.wad'
 ];
 
-async function zipGameFiles() {
+async function zipGameFiles(): Promise<void> {
   console.log('Starting zip-game-files...\n');
   console.log(`Using game directory: ${GAME_DIR}\n`);
 
@@ -73,7 +74,7 @@ async function zipGameFiles() {
       console.log(`Adding ${wadFile} (${sizeMB} MB)...`);
       archive.file(wadPath, { name: wadFile });
       filesAdded++;
-    } catch (error) {
+    } catch {
       console.warn(`Warning: Could not find ${wadFile}, skipping...`);
     }
   }
@@ -88,7 +89,7 @@ async function zipGameFiles() {
 }
 
 // Run the script
-zipGameFiles().catch((error) => {
-  console.error(`Error: ${error.message}`);
+zipGameFiles().catch((error: unknown) => {
+  console.error(`Error: ${errorMessage(error)}`);
   process.exit(1);
 });

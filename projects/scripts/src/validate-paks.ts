@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import { readFile, readdir, stat } from 'fs/promises';
+import type { Dirent } from 'fs';
 import { basename, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync } from 'fs';
+import { errorMessage } from './errors.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '../../..');
@@ -12,16 +14,20 @@ const projectRoot = join(__dirname, '../../..');
 // Binary I/O Helpers
 // ============================================================================
 
-function readU32LE(buffer, offset) {
+function readU32LE(buffer: Buffer, offset: number): number {
   return buffer.readUInt32LE(offset);
 }
 
 // ============================================================================
-// PAK Reading (copied from pak-archiver.js)
+// PAK Reading (copied from pak-archiver.ts)
 // ============================================================================
 
 class PakEntry {
-  constructor(index, offset, size) {
+  index: number;
+  offset: number;
+  size: number;
+
+  constructor(index: number, offset: number, size: number) {
     this.index = index;
     this.offset = offset;
     this.size = size;
@@ -29,24 +35,26 @@ class PakEntry {
 }
 
 class Pak {
-  constructor(entries) {
+  entries: PakEntry[];
+
+  constructor(entries: PakEntry[]) {
     this.entries = entries;
   }
 }
 
-async function readPak(filePath) {
+async function readPak(filePath: string): Promise<{ pak: Pak; buffer: Buffer }> {
   const buffer = await readFile(filePath);
 
   const fileCount = readU32LE(buffer, 0);
 
-  const offsets = [];
+  const offsets: number[] = [];
   for (let i = 0; i < fileCount; i++) {
     offsets.push(readU32LE(buffer, 4 + i * 4));
   }
 
   offsets.push(buffer.length);
 
-  const entries = [];
+  const entries: PakEntry[] = [];
   for (let i = 0; i < fileCount; i++) {
     entries.push(new PakEntry(
       i,
@@ -62,24 +70,24 @@ async function readPak(filePath) {
 // Utility Functions
 // ============================================================================
 
-function formatBytes(bytes) {
+function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
 
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return String(parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]).padStart(9, " ");
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`.padStart(9, ' ');
 }
 
-async function findPakFiles(directory) {
-  const pakFiles = [];
+async function findPakFiles(directory: string): Promise<string[]> {
+  const pakFiles: string[] = [];
 
-  async function walk(currentDir) {
-    let entries;
+  async function walk(currentDir: string): Promise<void> {
+    let entries: Dirent[];
     try {
       entries = await readdir(currentDir, { withFileTypes: true });
-    } catch (err) {
+    } catch {
       // Skip directories we can't read
       return;
     }
@@ -99,14 +107,14 @@ async function findPakFiles(directory) {
   return pakFiles.sort();
 }
 
-async function getDirectorySize(directory) {
+async function getDirectorySize(directory: string): Promise<number> {
   let totalSize = 0;
 
-  async function walk(currentDir) {
-    let entries;
+  async function walk(currentDir: string): Promise<void> {
+    let entries: Dirent[];
     try {
       entries = await readdir(currentDir, { withFileTypes: true });
-    } catch (err) {
+    } catch {
       return;
     }
 
@@ -119,7 +127,7 @@ async function getDirectorySize(directory) {
         try {
           const stats = await stat(fullPath);
           totalSize += Number(stats.size);
-        } catch (err) {
+        } catch {
           // Skip files we can't stat
         }
       }
@@ -134,7 +142,19 @@ async function getDirectorySize(directory) {
 // Validation Logic
 // ============================================================================
 
-async function validatePakExtraction(pakPath, maxDeviation) {
+type ValidationStatus = 'missing' | 'ok' | 'deviation';
+
+interface ValidationResult {
+  pakPath: string;
+  status: ValidationStatus;
+  pakSize: number;
+  extractedSize: number;
+  deviation: number;
+  absoluteDiff?: number;
+  isIncrease?: boolean;
+}
+
+async function validatePakExtraction(pakPath: string, maxDeviation: number): Promise<ValidationResult> {
   const extractedDir = pakPath.replace(/\.pak$/, '');
 
   // Check if extracted directory exists
@@ -182,7 +202,7 @@ async function validatePakExtraction(pakPath, maxDeviation) {
 // CLI & Main
 // ============================================================================
 
-function showUsage() {
+function showUsage(): void {
   console.log(`Usage: pnpm validate-paks [options]
 
 Description:
@@ -201,17 +221,23 @@ Examples:
   pnpm validate-paks --path=workspace/all/dr1_data`);
 }
 
-function parseArgs() {
+interface CliArgs {
+  command: 'help' | 'validate';
+  maxDeviation: number;
+  searchPath: string;
+}
+
+function parseArgs(): CliArgs {
   const args = process.argv.slice(2);
   let maxDeviation = 10;
   let searchPath = join(projectRoot, 'workspace/all');
 
   for (const arg of args) {
     if (arg === '-h' || arg === '--help') {
-      return { command: 'help' };
+      return { command: 'help', maxDeviation, searchPath };
     } else if (arg.startsWith('--max-deviation=')) {
-      maxDeviation = parseFloat(arg.split('=')[1]);
-      if (isNaN(maxDeviation) || maxDeviation < 0) {
+      maxDeviation = Number.parseFloat(arg.split('=')[1]);
+      if (Number.isNaN(maxDeviation) || maxDeviation < 0) {
         throw new Error('Invalid max-deviation value');
       }
     } else if (arg.startsWith('--path=')) {
@@ -224,7 +250,7 @@ function parseArgs() {
   return { command: 'validate', maxDeviation, searchPath };
 }
 
-async function main() {
+async function main(): Promise<void> {
   try {
     const { command, maxDeviation, searchPath } = parseArgs();
 
@@ -243,24 +269,24 @@ async function main() {
     console.log();
 
     // Validate each PAK file
-    const results = [];
+    const results: ValidationResult[] = [];
     for (const pakPath of pakFiles) {
       const result = await validatePakExtraction(pakPath, maxDeviation);
       results.push(result);
     }
 
     // Count statistics
-    const totalChecked = results.filter(r => r.status !== 'missing').length;
-    const withinDeviation = results.filter(r => r.status === 'ok').length;
-    const outsideDeviation = results.filter(r => r.status === 'deviation').length;
-    const missing = results.filter(r => r.status === 'missing').length;
+    const totalChecked = results.filter((r) => r.status !== 'missing').length;
+    const withinDeviation = results.filter((r) => r.status === 'ok').length;
+    const outsideDeviation = results.filter((r) => r.status === 'deviation').length;
+    const missing = results.filter((r) => r.status === 'missing').length;
 
     // Print missing directories if any
     if (missing > 0) {
       console.log('MISSING EXTRACTED DIRECTORIES:');
       console.log('-'.repeat(80));
 
-      const missingResults = results.filter(r => r.status === 'missing');
+      const missingResults = results.filter((r) => r.status === 'missing');
       for (const result of missingResults) {
         console.log(`${result.pakPath}`);
       }
@@ -273,7 +299,7 @@ async function main() {
       console.log('-'.repeat(80));
 
       const deviationResults = results
-        .filter(r => r.status === 'deviation')
+        .filter((r) => r.status === 'deviation')
         .sort((a, b) => b.deviation - a.deviation);
 
       for (const result of deviationResults) {
@@ -300,7 +326,7 @@ async function main() {
     }
 
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);
   }
 }

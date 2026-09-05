@@ -9,7 +9,7 @@ workspace/*
 !workspace/.danganronpa-working-root
 
 # Really messy debug scripts
-projects/scripts/src/generator.js
+projects/scripts/src/generator.ts
 
 # Python cache
 __pycache__/

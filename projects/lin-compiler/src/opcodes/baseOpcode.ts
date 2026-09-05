@@ -1,7 +1,7 @@
-import { options, toHexOpcode } from "../options.js";
-import type { SourceBuilder } from "../output.js";
-import { type ByteCursor, countBytes, formatValue, ParamType, parseValue } from "../parameter.js";
-import type { Script, ScriptEntry } from "../script.js";
+import { options, toHexOpcode } from "../options.ts";
+import type { SourceBuilder } from "../output.ts";
+import { type ByteCursor, countBytes, formatValue, ParamType, parseValue } from "../parameter.ts";
+import type { Script, ScriptEntry } from "../script.ts";
 
 /** Shorthand for an opcode that takes `count` plain bytes. */
 export function bytes(count: number): ParamType[] {

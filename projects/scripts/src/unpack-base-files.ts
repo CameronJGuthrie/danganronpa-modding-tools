@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * unpack-base-files.js
+ * unpack-base-files.ts
  *
  * Extracts dr1_data_us.wad and dr1_data.wad from base_files.zip and unpacks all files to workspace/modded/
  * This gives you a fresh copy of all base game files for modding.
@@ -14,6 +14,7 @@ import { dirname } from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import unzipper from 'unzipper';
+import { errorMessage } from './errors.ts';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -25,13 +26,13 @@ const MODDED_DIR = join(WORKSPACE_DIR, 'modded');
 const DR1_DATA_US_DIR = join(MODDED_DIR, 'dr1_data_us');
 const DR1_DATA_DIR = join(MODDED_DIR, 'dr1_data');
 
-async function extractWadFromZip(wadFileName) {
+async function extractWadFromZip(wadFileName: string): Promise<string> {
   console.log(`Extracting ${wadFileName} from base_files.zip...`);
 
   const zipBuffer = await readFile(BASE_FILES_ZIP);
   const directory = await unzipper.Open.buffer(zipBuffer);
 
-  const wadFile = directory.files.find(f => f.path === wadFileName);
+  const wadFile = directory.files.find((f) => f.path === wadFileName);
 
   if (!wadFile) {
     throw new Error(`${wadFileName} not found in base_files.zip`);
@@ -46,10 +47,10 @@ async function extractWadFromZip(wadFileName) {
   return tempWadPath;
 }
 
-async function extractWadContents(wadPath, outputDir) {
+async function extractWadContents(wadPath: string, outputDir: string): Promise<void> {
   console.log(`Extracting WAD contents to ${outputDir}...`);
 
-  const wadArchiverPath = join(projectRoot, 'projects/scripts/src/wad-archiver.js');
+  const wadArchiverPath = join(projectRoot, 'projects/scripts/src/wad-archiver.ts');
 
   // Remove existing directory if it exists
   await rm(outputDir, { recursive: true, force: true });
@@ -64,12 +65,12 @@ async function extractWadContents(wadPath, outputDir) {
   if (stderr) console.error(stderr);
 }
 
-async function cleanup(tempWadPath) {
+async function cleanup(tempWadPath: string): Promise<void> {
   console.log('Cleaning up temporary files...');
   await rm(tempWadPath, { force: true });
 }
 
-async function main() {
+async function main(): Promise<void> {
   try {
     console.log('Starting unpack-base-files...\n');
 
@@ -89,7 +90,7 @@ async function main() {
 
     console.log('\n✓ All files extracted successfully!');
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);
   }
 }

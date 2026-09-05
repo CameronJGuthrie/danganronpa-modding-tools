@@ -1,12 +1,13 @@
 /** Parameter encodings used by opcode arguments. */
-export enum ParamType {
+export const ParamType = {
   /** 8-bit unsigned */
-  Byte = "Byte",
+  Byte: "Byte",
   /** 16-bit unsigned, little-endian (LSB first, MSB second) */
-  UInt16LE = "UInt16LE",
+  UInt16LE: "UInt16LE",
   /** 16-bit unsigned, big-endian (MSB first, LSB second) */
-  UInt16BE = "UInt16BE",
-}
+  UInt16BE: "UInt16BE",
+} as const;
+export type ParamType = (typeof ParamType)[keyof typeof ParamType];
 
 /** Cursor into a byte array, so formatters can advance a shared read position. */
 export interface ByteCursor {
@@ -62,8 +63,11 @@ export function parseUnsigned(stringValue: string, max: number): number {
 
 /** Thrown for malformed numeric arguments; callers turn it into a line-annotated error. */
 export class FormatError extends Error {
-  constructor(public readonly value: string) {
+  readonly value: string;
+
+  constructor(value: string) {
     super(`invalid numeric value '${value}'`);
+    this.value = value;
     this.name = "FormatError";
   }
 }

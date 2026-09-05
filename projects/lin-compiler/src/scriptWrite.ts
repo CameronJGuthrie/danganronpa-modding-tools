@@ -1,9 +1,9 @@
 import { writeFile } from "node:fs/promises";
-import { OP_TEXT, OP_TEXT_STYLE, OP_TYPE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./opcodes/ids.js";
-import { getOpcodeDefinition } from "./opcodes/opcodeDictionary.js";
-import { printLine, toHexOpcode } from "./options.js";
-import { SourceBuilder } from "./output.js";
-import { type Script, type ScriptEntry, ScriptType } from "./script.js";
+import { OP_TEXT, OP_TEXT_STYLE, OP_TYPE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./opcodes/ids.ts";
+import { getOpcodeDefinition } from "./opcodes/opcodeDictionary.ts";
+import { printLine, toHexOpcode } from "./options.ts";
+import { SourceBuilder } from "./output.ts";
+import { type Script, type ScriptEntry, ScriptType } from "./script.ts";
 
 const UTF8_BOM = "\uFEFF";
 const HAS_CLT = /<CLT\s+\d+>|<CLT>/;

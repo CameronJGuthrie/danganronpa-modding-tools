@@ -1,7 +1,7 @@
-import type { SourceBuilder } from "../output.js";
-import type { Script, ScriptEntry } from "../script.js";
-import { BaseOpcode } from "./baseOpcode.js";
-import { parseByteArg } from "./parseHelpers.js";
+import type { SourceBuilder } from "../output.ts";
+import type { Script, ScriptEntry } from "../script.ts";
+import { BaseOpcode } from "./baseOpcode.ts";
+import { parseByteArg } from "./parseHelpers.ts";
 
 /**
  * Opcode 0x35 - EvaluateFlag

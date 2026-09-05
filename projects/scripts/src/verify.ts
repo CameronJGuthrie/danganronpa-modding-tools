@@ -6,6 +6,7 @@ import { join, dirname, relative, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { errorMessage } from './errors.ts';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -13,9 +14,9 @@ const projectRoot = join(__dirname, '../../..');
 
 const MODDED_DIR = join(projectRoot, 'workspace/modded/dr1_data_us');
 const VERIFY_DIR = join(projectRoot, 'workspace/verify');
-const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'dist', 'cli.js');
+const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'src', 'cli.ts');
 
-function showUsage() {
+function showUsage(): void {
   console.log(`Usage: pnpm verify <filepath>
 
 Decompiles a .lin file from workspace/modded/ and places the .linscript in workspace/verify/
@@ -26,7 +27,7 @@ Examples:
   pnpm verify workspace/modded/dr1_data_us/Dr1/data/us/script/e01_004_135.lin`);
 }
 
-function resolveLinFilePath(inputPath) {
+function resolveLinFilePath(inputPath: string): string {
   // If it's an absolute path
   if (inputPath.startsWith('/')) {
     if (!inputPath.startsWith(MODDED_DIR)) {
@@ -54,7 +55,7 @@ function resolveLinFilePath(inputPath) {
   return join(MODDED_DIR, inputPath);
 }
 
-async function main() {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
   if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
@@ -83,7 +84,7 @@ async function main() {
 
     // Check if lin-compiler exists
     if (!existsSync(LIN_COMPILER_PATH)) {
-      console.error('Error: lin-compiler not found. Please build it first with: pnpm compile');
+      console.error('Error: lin-compiler entry point not found at ' + LIN_COMPILER_PATH);
       process.exit(1);
     }
 
@@ -119,11 +120,11 @@ async function main() {
     // Open the file in VSCode
     try {
       await execAsync(`code "${outputFile}"`);
-    } catch (error) {
+    } catch {
       // Silently fail if 'code' command is not available
     }
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);
   }
 }

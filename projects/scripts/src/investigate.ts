@@ -3,12 +3,28 @@
 import { readFile, readdir } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { errorMessage } from './errors.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '../../..');
 const LINSCRIPT_EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
 
-function parseArgs() {
+type SortMode = 'frequency' | 'value';
+
+interface InvestigateArgs {
+  opcode: string;
+  filters: string[];
+  sortMode: SortMode;
+}
+
+/** Per-argument value distribution; null for arguments pinned by a filter. */
+interface ArgStats {
+  values: Array<[string, number]>;
+  totalUnique: number;
+  totalOccurrences: number;
+}
+
+function parseArgs(): InvestigateArgs {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
@@ -25,8 +41,8 @@ function parseArgs() {
   const filterStr = args[1];
 
   // Parse optional --sort parameter
-  let sortMode = 'frequency'; // default
-  const sortArg = args.find(arg => arg.startsWith('--sort='));
+  let sortMode: SortMode = 'frequency'; // default
+  const sortArg = args.find((arg) => arg.startsWith('--sort='));
   if (sortArg) {
     const sortValue = sortArg.split('=')[1];
     if (sortValue !== 'frequency' && sortValue !== 'value') {
@@ -43,22 +59,22 @@ function parseArgs() {
     process.exit(1);
   }
 
-  const filters = match[1].split(',').map(f => f.trim());
+  const filters = match[1].split(',').map((f) => f.trim());
 
   return { opcode, filters, sortMode };
 }
 
-function parseLinscriptFile(content, opcode, filters) {
+function parseLinscriptFile(content: string, opcode: string, filters: string[]): string[][] {
   const lines = content.split('\n');
   const pattern = new RegExp(`^${opcode}\\((.+)\\)\\s*$`);
-  const matches = [];
+  const matches: string[][] = [];
   const numArgs = filters.length;
 
   for (const line of lines) {
     const match = line.match(pattern);
     if (match) {
       const argsStr = match[1];
-      const args = argsStr.split(',').map(arg => arg.trim());
+      const args = argsStr.split(',').map((arg) => arg.trim());
 
       if (args.length === numArgs) {
         // Check if args match the filters
@@ -80,8 +96,8 @@ function parseLinscriptFile(content, opcode, filters) {
   return matches;
 }
 
-function analyzeArguments(allMatches, filters, sortMode) {
-  const argStats = [];
+function analyzeArguments(allMatches: string[][], filters: string[], sortMode: SortMode): Array<ArgStats | null> {
+  const argStats: Array<ArgStats | null> = [];
   const numArgs = filters.length;
 
   for (let i = 0; i < numArgs; i++) {
@@ -91,7 +107,7 @@ function analyzeArguments(allMatches, filters, sortMode) {
       continue;
     }
 
-    const valueCounts = new Map();
+    const valueCounts = new Map<string, number>();
 
     for (const match of allMatches) {
       const value = match[i];
@@ -99,7 +115,7 @@ function analyzeArguments(allMatches, filters, sortMode) {
     }
 
     // Sort based on mode
-    let sortedValues;
+    let sortedValues: Array<[string, number]>;
     if (sortMode === 'frequency') {
       // Sort by count (descending), then by value (ascending) for ties
       sortedValues = Array.from(valueCounts.entries())
@@ -108,9 +124,9 @@ function analyzeArguments(allMatches, filters, sortMode) {
             return b[1] - a[1]; // Sort by frequency descending
           }
           // For ties, sort by value ascending (numeric if possible)
-          const aNum = parseFloat(a[0]);
-          const bNum = parseFloat(b[0]);
-          if (!isNaN(aNum) && !isNaN(bNum)) {
+          const aNum = Number.parseFloat(a[0]);
+          const bNum = Number.parseFloat(b[0]);
+          if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
             return aNum - bNum;
           }
           return a[0].localeCompare(b[0]);
@@ -119,9 +135,9 @@ function analyzeArguments(allMatches, filters, sortMode) {
       // Sort by value (numeric if possible, then alphabetic)
       sortedValues = Array.from(valueCounts.entries())
         .sort((a, b) => {
-          const aNum = parseFloat(a[0]);
-          const bNum = parseFloat(b[0]);
-          if (!isNaN(aNum) && !isNaN(bNum)) {
+          const aNum = Number.parseFloat(a[0]);
+          const bNum = Number.parseFloat(b[0]);
+          if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
             return aNum - bNum;
           }
           return a[0].localeCompare(b[0]);
@@ -138,19 +154,19 @@ function analyzeArguments(allMatches, filters, sortMode) {
   return argStats;
 }
 
-async function investigate() {
+async function investigate(): Promise<void> {
   const { opcode, filters, sortMode } = parseArgs();
 
-  const filterDisplay = filters.map((f, i) => f === 'x' ? 'x' : f).join(', ');
+  const filterDisplay = filters.join(', ');
   console.log(`\nInvestigating opcode: ${opcode}(${filterDisplay})`);
   console.log(`Sort mode: ${sortMode}\n`);
 
   const files = await readdir(LINSCRIPT_EXPLORATION_DIR);
-  const linscriptFiles = files.filter(f => f.endsWith('.linscript'));
+  const linscriptFiles = files.filter((f) => f.endsWith('.linscript'));
 
   console.log(`Analyzing ${linscriptFiles.length} linscript files...\n`);
 
-  let allMatches = [];
+  let allMatches: string[][] = [];
 
   for (const file of linscriptFiles) {
     const filePath = join(LINSCRIPT_EXPLORATION_DIR, file);
@@ -169,19 +185,20 @@ async function investigate() {
   const argStats = analyzeArguments(allMatches, filters, sortMode);
 
   for (let i = 0; i < filters.length; i++) {
-    if (argStats[i] === null) {
+    const stats = argStats[i];
+    if (stats === null) {
       // Skip filtered arguments
       continue;
     }
 
     console.log(`\n${'='.repeat(60)}`);
-    console.log(`Argument ${i + 1} (${argStats[i].totalUnique} unique values)`);
+    console.log(`Argument ${i + 1} (${stats.totalUnique} unique values)`);
     console.log(`${'='.repeat(60)}\n`);
 
     const sortLabel = sortMode === 'frequency' ? 'sorted by frequency' : 'sorted by value';
     console.log(`All values (${sortLabel}):`);
-    for (const [value, count] of argStats[i].values) {
-      const percentage = ((count / argStats[i].totalOccurrences) * 100).toFixed(1);
+    for (const [value, count] of stats.values) {
+      const percentage = ((count / stats.totalOccurrences) * 100).toFixed(1);
       console.log(`  ${value.padEnd(20)} → ${count.toString().padStart(5)} occurrences (${percentage}%)`);
     }
   }
@@ -189,7 +206,7 @@ async function investigate() {
   console.log(`\n${'='.repeat(60)}\n`);
 }
 
-investigate().catch(error => {
-  console.error('Error:', error.message);
+investigate().catch((error: unknown) => {
+  console.error('Error:', errorMessage(error));
   process.exit(1);
 });

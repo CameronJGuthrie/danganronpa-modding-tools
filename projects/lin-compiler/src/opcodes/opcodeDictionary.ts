@@ -1,11 +1,11 @@
-import { toHexOpcode } from "../options.js";
-import { ParamType } from "../parameter.js";
-import { AutoTextOpcode } from "./autoTextOpcode.js";
-import { BaseOpcode } from "./baseOpcode.js";
-import { EvaluateFlagOpcode } from "./evaluateFlagOpcode.js";
-import { EvaluateOpcode } from "./evaluateOpcode.js";
-import { TextOpcode } from "./textOpcode.js";
-import { TypeOpcode } from "./typeOpcode.js";
+import { toHexOpcode } from "../options.ts";
+import { ParamType } from "../parameter.ts";
+import { AutoTextOpcode } from "./autoTextOpcode.ts";
+import { BaseOpcode } from "./baseOpcode.ts";
+import { EvaluateFlagOpcode } from "./evaluateFlagOpcode.ts";
+import { EvaluateOpcode } from "./evaluateOpcode.ts";
+import { TextOpcode } from "./textOpcode.ts";
+import { TypeOpcode } from "./typeOpcode.ts";
 
 const { Byte, UInt16BE } = ParamType;
 

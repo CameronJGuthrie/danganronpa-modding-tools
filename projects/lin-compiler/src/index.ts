@@ -1,6 +1,6 @@
-export { loadScript } from "./loadScript.js";
-export { BaseOpcode } from "./opcodes/baseOpcode.js";
-export * from "./opcodes/ids.js";
+export { loadScript } from "./loadScript.ts";
+export { BaseOpcode } from "./opcodes/baseOpcode.ts";
+export * from "./opcodes/ids.ts";
 export {
   getOpcodeArgCount,
   getOpcodeByName,
@@ -8,9 +8,9 @@ export {
   getOpcodeDefinitionByName,
   getOpcodeParamTypes,
   getOpName,
-} from "./opcodes/opcodeDictionary.js";
-export { options } from "./options.js";
-export { countBytes, ParamType } from "./parameter.js";
-export { Script, type ScriptEntry, ScriptType } from "./script.js";
-export { readCompiled, readCompiledFile, readSource, readSourceText } from "./scriptRead.js";
-export { writeCompiled, writeCompiledBytes, writeSource, writeSourceText } from "./scriptWrite.js";
+} from "./opcodes/opcodeDictionary.ts";
+export { options } from "./options.ts";
+export { countBytes, ParamType } from "./parameter.ts";
+export { Script, type ScriptEntry, ScriptType } from "./script.ts";
+export { readCompiled, readCompiledFile, readSource, readSourceText } from "./scriptRead.ts";
+export { writeCompiled, writeCompiledBytes, writeSource, writeSourceText } from "./scriptWrite.ts";

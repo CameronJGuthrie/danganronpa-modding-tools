@@ -1,4 +1,4 @@
-import { FormatError, parseUnsigned } from "../parameter.js";
+import { FormatError, parseUnsigned } from "../parameter.ts";
 
 export function parseByteArg(value: string, lineNum: number, message = "invalid byte value"): number {
   try {

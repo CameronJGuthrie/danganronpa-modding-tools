@@ -5,7 +5,8 @@ import { dirname, join, basename } from 'path';
 import { readdir, stat } from 'fs/promises';
 import { existsSync } from 'fs';
 import { execSync } from 'child_process';
-import { getGameDirectoryOrThrow } from './steam-paths.js';
+import { getGameDirectoryOrThrow } from './steam-paths.ts';
+import { errorMessage } from './errors.ts';
 
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
@@ -13,10 +14,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, '..', '..', '..');
 const MODS_DIR = join(PROJECT_ROOT, 'workspace', 'mod');
 const EXTRACTED_DIR = join(PROJECT_ROOT, 'workspace', 'modded');
-const WAD_ARCHIVER = join(PROJECT_ROOT, 'scripts', 'src', 'wad-archiver.js');
-const LIN_COMPILER = join(PROJECT_ROOT, 'projects', 'lin-compiler', 'dist', 'cli.js');
+const WAD_ARCHIVER = join(PROJECT_ROOT, 'projects', 'scripts', 'src', 'wad-archiver.ts');
+const LIN_COMPILER = join(PROJECT_ROOT, 'projects', 'lin-compiler', 'src', 'cli.ts');
 
-async function compileLinscripts(modPath) {
+interface CompileStats {
+  succeeded: number;
+  failed: number;
+}
+
+/** `execSync` rejects with the child's captured output attached. */
+interface ExecError extends Error {
+  stdout?: string;
+  stderr?: string;
+}
+
+async function compileLinscripts(modPath: string): Promise<CompileStats> {
   console.log('  Compiling .linscript files...');
 
   // Find all .linscript files in the mod directory
@@ -37,8 +49,8 @@ async function compileLinscripts(modPath) {
 
     // Parse the output for statistics
     const match = result.match(/Batch complete: (\d+) succeeded, (\d+) failed/);
-    const succeeded = match ? parseInt(match[1]) : 0;
-    const failed = match ? parseInt(match[2]) : 0;
+    const succeeded = match ? Number.parseInt(match[1], 10) : 0;
+    const failed = match ? Number.parseInt(match[2], 10) : 0;
 
     // Show full output if there were errors
     if (failed > 0) {
@@ -51,13 +63,14 @@ async function compileLinscripts(modPath) {
     return { succeeded, failed };
   } catch (error) {
     console.error('  ✗ Failed to compile .linscript files');
-    if (error.stdout) console.error(error.stdout);
-    if (error.stderr) console.error(error.stderr);
+    const execError = error as ExecError;
+    if (execError.stdout) console.error(execError.stdout);
+    if (execError.stderr) console.error(execError.stderr);
     throw error;
   }
 }
 
-async function moveCompiledLins(modPath, extractedPath) {
+async function moveCompiledLins(modPath: string, extractedPath: string): Promise<void> {
   console.log('  Moving compiled .lin files to modded directory...');
 
   const modScriptDir = join(modPath, 'Dr1', 'data', 'us', 'script');
@@ -81,7 +94,7 @@ async function moveCompiledLins(modPath, extractedPath) {
   }
 }
 
-async function buildMods() {
+async function buildMods(): Promise<void> {
   console.log(`Using game directory: ${GAME_DIR}\n`);
 
   // Check if mod directory exists
@@ -92,7 +105,7 @@ async function buildMods() {
 
   // Check if wad-archiver exists
   if (!existsSync(WAD_ARCHIVER)) {
-    console.error(`Error: wad-archiver.js not found: ${WAD_ARCHIVER}`);
+    console.error(`Error: wad-archiver.ts not found: ${WAD_ARCHIVER}`);
     process.exit(1);
   }
 
@@ -142,7 +155,7 @@ async function buildMods() {
 
       console.log(`✓ Successfully built ${wadName} to game directory`);
       successCount++;
-    } catch (error) {
+    } catch {
       console.error(`✗ Failed to build ${wadName}`);
       errorCount++;
     }
@@ -162,7 +175,7 @@ async function buildMods() {
   }
 }
 
-buildMods().catch(err => {
-  console.error('Error:', err.message);
+buildMods().catch((err: unknown) => {
+  console.error('Error:', errorMessage(err));
   process.exit(1);
 });
