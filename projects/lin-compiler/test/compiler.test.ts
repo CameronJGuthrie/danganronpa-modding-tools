@@ -50,7 +50,9 @@ describe("compile and decompile", () => {
   test("text escapes survive a round trip", () => {
     const source = 'Text("say \\"hi\\"\\nnext\\\\line")\nSpeaker(1)\n';
     assert.equal(roundTrip(source), source);
-    assert.equal(readSource(source).entries[0].text, 'say "hi"\nnext\\line');
+    const [entry] = readSource(source).entries;
+    assert.ok("text" in entry);
+    assert.equal(entry.text, 'say "hi"\nnext\\line');
   });
 
   test("Evaluate chains round-trip through big-endian packing", () => {

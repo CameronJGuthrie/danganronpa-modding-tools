@@ -1,6 +1,6 @@
 import { SourceError } from "../errors.ts";
 import { ParamType, parseArg, splitArgs } from "../parameter.ts";
-import type { ScriptEntry } from "../script.ts";
+import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { BaseOpcode, formatRawBytes } from "./baseOpcode.ts";
 
 const MIN_ARGS = 4;

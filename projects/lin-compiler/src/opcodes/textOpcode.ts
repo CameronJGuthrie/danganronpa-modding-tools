@@ -1,6 +1,6 @@
 import { SourceError } from "../errors.ts";
 import { ParamType } from "../parameter.ts";
-import type { ScriptEntry } from "../script.ts";
+import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { BaseOpcode } from "./baseOpcode.ts";
 
 /**
@@ -13,7 +13,7 @@ export class TextOpcode extends BaseOpcode {
   }
 
   override formatArgs(entry: ScriptEntry): string {
-    return formatQuotedString(entry.text ?? "");
+    return formatQuotedString("text" in entry ? entry.text : "");
   }
 
   override parseSource(argsText: string, line: number): ScriptEntry[] {

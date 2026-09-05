@@ -3,7 +3,7 @@ import { planAutoText } from "../opcodes/autoTextOpcode.ts";
 import { formatRawBytes } from "../opcodes/baseOpcode.ts";
 import { OP_TYPE } from "../opcodes/ids.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
-import type { Script } from "../script.ts";
+import type { Script } from "../definitions/script.definition.ts";
 
 export interface WriteSourceOptions {
   /** Spaces per indentation level. */

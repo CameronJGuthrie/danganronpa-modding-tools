@@ -3,7 +3,7 @@ export { BaseOpcode, bytes } from "./opcodes/baseOpcode.ts";
 export * from "./opcodes/ids.ts";
 export { getOpcode, getOpcodeByName, hexOpcodeName, parseHexOpcodeName } from "./opcodes/opcodeDictionary.ts";
 export { byteSize, decodeValue, encodeValue, ParamType } from "./parameter.ts";
-export { type Script, type ScriptEntry, ScriptType } from "./script.ts";
+export { type Script, type ScriptEntry, ScriptType } from "./definitions/script.definition.ts";
 export { readCompiled, readCompiledFile } from "./io/lin-reader.ts";
 export { writeCompiledBytes, writeCompiledFile } from "./io/lin-writer.ts";
 export { readSource, readSourceFile } from "./io/linscript-reader.ts";

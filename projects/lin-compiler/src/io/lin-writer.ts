@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { OP_TEXT, OP_TYPE, OPCODE_MARKER } from "../opcodes/ids.ts";
 import { encodeValue, ParamType } from "../parameter.ts";
-import { type Script, ScriptType } from "../script.ts";
+import { type Script, ScriptType } from "../definitions/script.definition.ts";
 
 /**
  * Serialise a script to `.lin` bytes. See `readCompiled` for the layout. The script type is
@@ -9,7 +9,7 @@ import { type Script, ScriptType } from "../script.ts";
  * any Type entries in the input are replaced by a synthesised one carrying the text count.
  */
 export function writeCompiledBytes(script: Script): Buffer {
-  const texts = script.entries.filter((entry) => entry.opcode === OP_TEXT).map((entry) => entry.text ?? "");
+  const texts = script.entries.filter((entry) => entry.opcode === OP_TEXT).map((entry) => ("text" in entry ? entry.text : ""));
   const type = texts.length > 0 ? ScriptType.Text : ScriptType.Textless;
   const file = new ByteWriter();
 

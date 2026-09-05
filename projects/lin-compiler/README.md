@@ -64,7 +64,7 @@ throws `SourceError` (with a 1-based `line`); malformed binaries throw `BinaryEr
 | Path | Contents |
 | --- | --- |
 | `src/cli.ts` | Argument parsing, single-file and batch drivers, all console output |
-| `src/script.ts` | `Script` / `ScriptEntry` model and `ScriptType` |
+| `src/definitions/script.definition.ts` | `Script` / `ScriptEntry` model and `ScriptType` |
 | `src/io/lin-reader.ts` | Parsing of compiled `.lin` bytes |
 | `src/io/lin-writer.ts` | `.lin` serialisation |
 | `src/io/linscript-reader.ts` | Parsing of `.linscript` source |

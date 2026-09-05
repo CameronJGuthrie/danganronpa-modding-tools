@@ -1,4 +1,4 @@
-import type { ScriptEntry } from "../script.ts";
+import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { OP_TEXT, OP_TEXT_STYLE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./ids.ts";
 import { parseQuotedString, TextOpcode } from "./textOpcode.ts";
 
@@ -76,7 +76,7 @@ export function planAutoText(entries: readonly ScriptEntry[]): AutoTextPlan {
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-    if (entry.opcode !== OP_TEXT || entry.text === undefined) {
+    if (entry.opcode !== OP_TEXT || !("text" in entry)) {
       continue;
     }
     const hasCLT = HAS_CLT.test(entry.text);

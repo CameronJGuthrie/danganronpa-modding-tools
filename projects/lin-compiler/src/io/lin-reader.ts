@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { BinaryError } from "../errors.ts";
 import { OP_TEXT, OPCODE_MARKER } from "../opcodes/ids.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
-import { type Script, type ScriptEntry, ScriptType } from "../script.ts";
+import { type Script, type ScriptEntry, ScriptType } from "../definitions/script.definition.ts";
 
 /**
  * Parse a compiled `.lin` file.
@@ -88,9 +88,9 @@ function attachTextEntries(entries: ScriptEntry[], bytes: Uint8Array, textBlockP
   const offsetAt = (textId: number) => view.getInt32(textBlockPos + 4 + textId * 4, true);
   const buffer = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
-  for (const entry of entries) {
+  entries.forEach((entry, index) => {
     if (entry.opcode !== OP_TEXT) {
-      continue;
+      return;
     }
     const textId = (entry.args[0] << 8) | entry.args[1];
     if (textId >= textCount) {
@@ -101,6 +101,6 @@ function attachTextEntries(entries: ScriptEntry[], bytes: Uint8Array, textBlockP
     const end = textId === textCount - 1 ? fileSize : textBlockPos + offsetAt(textId + 1);
     const text = buffer.toString("utf16le", start, end);
     // Drop a byte-reversed BOM if one leads the entry
-    entry.text = text.startsWith("\uFFFE") ? text.slice(1) : text;
-  }
+    entries[index] = { ...entry, text: text.startsWith("\uFFFE") ? text.slice(1) : text };
+  });
 }

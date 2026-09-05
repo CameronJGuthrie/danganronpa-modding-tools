@@ -1,6 +1,6 @@
 import { SourceError } from "../errors.ts";
 import { ParamType, splitArgs } from "../parameter.ts";
-import type { ScriptEntry } from "../script.ts";
+import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { BaseOpcode, formatByLayout, formatRawBytes, parseByLayout } from "./baseOpcode.ts";
 
 const { Byte, UInt16BE } = ParamType;
