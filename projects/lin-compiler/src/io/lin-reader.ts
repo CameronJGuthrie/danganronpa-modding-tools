@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { BinaryError } from "../errors.ts";
-import { OP_TEXT, OPCODE_MARKER } from "../opcodes/ids.ts";
+import { OPCODE_MARKER, Opcode } from "../definitions/opcode.definition.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
 import { type Script, type ScriptEntry, ScriptType } from "../definitions/script.definition.ts";
 
@@ -89,7 +89,7 @@ function attachTextEntries(entries: ScriptEntry[], bytes: Uint8Array, textBlockP
   const buffer = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
   entries.forEach((entry, index) => {
-    if (entry.opcode !== OP_TEXT) {
+    if (entry.opcode !== Opcode.Text) {
       return;
     }
     const textId = (entry.args[0] << 8) | entry.args[1];

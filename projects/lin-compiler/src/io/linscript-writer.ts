@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { planAutoText } from "../opcodes/autoTextOpcode.ts";
 import { formatRawBytes } from "../opcodes/baseOpcode.ts";
-import { OP_TYPE } from "../opcodes/ids.ts";
+import { Opcode } from "../definitions/opcode.definition.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
 import type { Script } from "../definitions/script.definition.ts";
 
@@ -33,7 +33,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
 
   entries.forEach((entry, index) => {
     // Type is implied by the presence of Text opcodes and regenerated on compile
-    if (skipped.has(index) || entry.opcode === OP_TYPE) {
+    if (skipped.has(index) || entry.opcode === Opcode.Type) {
       return;
     }
 

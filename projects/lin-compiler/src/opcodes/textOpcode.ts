@@ -1,3 +1,4 @@
+import type { Opcode } from "../definitions/opcode.definition.ts";
 import { SourceError } from "../errors.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
@@ -8,8 +9,8 @@ import { BaseOpcode } from "./baseOpcode.ts";
  * source shows the quoted string itself instead.
  */
 export class TextOpcode extends BaseOpcode {
-  constructor(id: number, name: string) {
-    super(id, name, [ParameterType.UInt16BE]);
+  constructor(id: Opcode) {
+    super(id, [ParameterType.UInt16BE]);
   }
 
   override formatArgs(entry: ScriptEntry): string {

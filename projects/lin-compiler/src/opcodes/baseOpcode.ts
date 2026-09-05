@@ -1,4 +1,5 @@
 import { SourceError } from "../errors.ts";
+import { type Opcode, opcodeName } from "../definitions/opcode.definition.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import { byteSize, decodeValue, parseArg, splitArgs } from "../parameter.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
@@ -20,9 +21,9 @@ export class BaseOpcode {
   /** Variadic opcodes have no fixed byte count; the reader consumes bytes up to the next marker. */
   readonly variadic: boolean;
 
-  constructor(id: number, name: string, params: readonly ParameterType[] | number = [], variadic = false) {
+  constructor(id: Opcode, params: readonly ParameterType[] | number = [], variadic = false) {
     this.id = id;
-    this.name = name;
+    this.name = opcodeName(id);
     this.params = typeof params === "number" ? bytes(params) : params;
     this.variadic = variadic;
   }

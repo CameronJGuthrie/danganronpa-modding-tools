@@ -1,6 +1,6 @@
 export { BinaryError, SourceError } from "./errors.ts";
 export { BaseOpcode, bytes } from "./opcodes/baseOpcode.ts";
-export * from "./opcodes/ids.ts";
+export * from "./definitions/opcode.definition.ts";
 export { getOpcode, getOpcodeByName, hexOpcodeName, parseHexOpcodeName } from "./opcodes/opcodeDictionary.ts";
 export { ParameterType as ParamType } from "./definitions/parameter.definition.ts";
 export { byteSize, decodeValue, encodeValue } from "./parameter.ts";

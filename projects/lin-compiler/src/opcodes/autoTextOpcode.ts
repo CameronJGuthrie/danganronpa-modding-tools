@@ -1,5 +1,5 @@
 import type { ScriptEntry } from "../definitions/script.definition.ts";
-import { OP_TEXT, OP_TEXT_STYLE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./ids.ts";
+import { Opcode } from "../definitions/opcode.definition.ts";
 import { parseQuotedString, TextOpcode } from "./textOpcode.ts";
 
 /**
@@ -20,8 +20,10 @@ const CLT_OR_NEWLINE = /<CLT\s+(\d+)>|<CLT>|\n/g;
 const HAS_CLT = /<CLT\s+\d+>|<CLT>/;
 
 export class AutoTextOpcode extends TextOpcode {
+  override readonly name = "AutoText";
+
   constructor() {
-    super(OP_TEXT, "AutoText");
+    super(Opcode.Text);
   }
 
   override parseSource(argsText: string, line: number): ScriptEntry[] {
@@ -39,11 +41,11 @@ function expandAutoText(text: string): ScriptEntry[] {
     // and colour 0 otherwise. It is emitted before the Text so the colour applies from the start.
     entries.push(textStyle(first[1] === undefined ? 0 : Number(first[1])));
   }
-  entries.push({ opcode: OP_TEXT, args: [0, 0], text });
+  entries.push({ opcode: Opcode.Text, args: [0, 0], text });
 
   for (const token of tokens) {
     if (token[0] === "\n") {
-      entries.push({ opcode: OP_WAIT_FRAME, args: [] });
+      entries.push({ opcode: Opcode.WaitFrame, args: [] });
     } else if (token[0] === "<CLT>") {
       entries.push(textStyle(0));
     } else if (token !== first) {
@@ -52,12 +54,12 @@ function expandAutoText(text: string): ScriptEntry[] {
     }
   }
 
-  entries.push({ opcode: OP_WAIT_INPUT, args: [] });
+  entries.push({ opcode: Opcode.WaitInput, args: [] });
   return entries;
 }
 
 function textStyle(style: number): ScriptEntry {
-  return { opcode: OP_TEXT_STYLE, args: [style & 0xff] };
+  return { opcode: Opcode.TextStyle, args: [style & 0xff] };
 }
 
 export interface AutoTextPlan {
@@ -76,7 +78,7 @@ export function planAutoText(entries: readonly ScriptEntry[]): AutoTextPlan {
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-    if (entry.opcode !== OP_TEXT || !("text" in entry)) {
+    if (entry.opcode !== Opcode.Text || !("text" in entry)) {
       continue;
     }
     const hasCLT = HAS_CLT.test(entry.text);
@@ -88,7 +90,7 @@ export function planAutoText(entries: readonly ScriptEntry[]): AutoTextPlan {
 
     plan.autoText.add(i);
     // A preceding TextStyle belongs to the CLT tags and is regenerated on compile
-    if (hasCLT && i > 0 && entries[i - 1].opcode === OP_TEXT_STYLE) {
+    if (hasCLT && i > 0 && entries[i - 1].opcode === Opcode.TextStyle) {
       plan.skipped.add(i - 1);
     }
     for (let j = i + 1; j <= waitInput; j++) {
@@ -107,10 +109,10 @@ function findClosingWaitInput(
 ): number | undefined {
   for (let i = from; i < entries.length; i++) {
     const opcode = entries[i].opcode;
-    if (opcode === OP_WAIT_INPUT) {
+    if (opcode === Opcode.WaitInput) {
       return i;
     }
-    const isSugar = opcode === OP_WAIT_FRAME || (opcode === OP_TEXT_STYLE && allowTextStyle);
+    const isSugar = opcode === Opcode.WaitFrame || (opcode === Opcode.TextStyle && allowTextStyle);
     if (!isSugar) {
       return undefined;
     }

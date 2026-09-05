@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises";
-import { OP_TEXT, OP_TYPE, OPCODE_MARKER } from "../opcodes/ids.ts";
+import { OPCODE_MARKER, Opcode } from "../definitions/opcode.definition.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import { encodeValue } from "../parameter.ts";
 import { type Script, ScriptType } from "../definitions/script.definition.ts";
@@ -11,7 +11,7 @@ import { type Script, ScriptType } from "../definitions/script.definition.ts";
  */
 export function writeCompiledBytes(script: Script): Buffer {
   const texts = script.entries
-    .filter((entry) => entry.opcode === OP_TEXT)
+    .filter((entry) => entry.opcode === Opcode.Text)
     .map((entry) => ("text" in entry ? entry.text : ""));
   const type = texts.length > 0 ? ScriptType.Text : ScriptType.Textless;
   const file = new ByteWriter();
@@ -23,13 +23,13 @@ export function writeCompiledBytes(script: Script): Buffer {
   const fileSizeField = file.reserveInt32();
 
   // Script data
-  writeRecord(file, OP_TYPE, encodeValue(ParameterType.UInt16LE, texts.length));
+  writeRecord(file, Opcode.Type, encodeValue(ParameterType.UInt16LE, texts.length));
   let nextTextId = 0;
   for (const entry of script.entries) {
-    if (entry.opcode === OP_TYPE) {
+    if (entry.opcode === Opcode.Type) {
       continue;
     }
-    const args = entry.opcode === OP_TEXT ? encodeValue(ParameterType.UInt16BE, nextTextId++) : entry.args;
+    const args = entry.opcode === Opcode.Text ? encodeValue(ParameterType.UInt16BE, nextTextId++) : entry.args;
     writeRecord(file, entry.opcode, args);
   }
   file.padTo4();

@@ -3,7 +3,7 @@ import { AutoTextOpcode } from "./autoTextOpcode.ts";
 import { BaseOpcode } from "./baseOpcode.ts";
 import { EvaluateFlagOpcode } from "./evaluateFlagOpcode.ts";
 import { EvaluateOpcode } from "./evaluateOpcode.ts";
-import { OP_TEXT, OP_TEXT_STYLE, OP_TYPE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./ids.ts";
+import { Opcode } from "../definitions/opcode.definition.ts";
 import { TextOpcode } from "./textOpcode.ts";
 import { TypeOpcode } from "./typeOpcode.ts";
 
@@ -11,63 +11,63 @@ const { Byte, UInt16BE } = ParameterType;
 
 /** Every known binary opcode. Add an entry here to teach the compiler a new one. */
 const opcodeList: readonly BaseOpcode[] = [
-  new TypeOpcode(OP_TYPE, "Type"),
-  new BaseOpcode(0x01, "LoadSprite", 3),
-  new TextOpcode(OP_TEXT, "Text"),
-  new BaseOpcode(OP_TEXT_STYLE, "TextStyle", 1),
-  new BaseOpcode(0x04, "PostProcessingEffect", 4),
-  new BaseOpcode(0x05, "Movie", 2),
-  new BaseOpcode(0x06, "Animation", [UInt16BE, Byte, Byte, Byte, Byte, Byte, Byte]),
+  new TypeOpcode(Opcode.Type),
+  new BaseOpcode(Opcode.LoadSprite, 3),
+  new TextOpcode(Opcode.Text),
+  new BaseOpcode(Opcode.TextStyle, 1),
+  new BaseOpcode(Opcode.PostProcessingEffect, 4),
+  new BaseOpcode(Opcode.Movie, 2),
+  new BaseOpcode(Opcode.Animation, [UInt16BE, Byte, Byte, Byte, Byte, Byte, Byte]),
   // No 0x07
-  new BaseOpcode(0x08, "Voice", [Byte, Byte, UInt16BE, Byte]),
-  new BaseOpcode(0x09, "Music", 3),
-  new BaseOpcode(0x0a, "Sound", [UInt16BE, Byte]),
-  new BaseOpcode(0x0b, "SoundB", 2),
-  new BaseOpcode(0x0c, "TruthBulletFlag", 2),
-  new BaseOpcode(0x0d, "Present", 3),
-  new BaseOpcode(0x0e, "UnlockSkill", 2),
-  new BaseOpcode(0x0f, "StudentTitleEntry", 3),
-  new BaseOpcode(0x10, "StudentReportInfo", 3),
-  new BaseOpcode(0x11, "StudentRelationship", 4),
+  new BaseOpcode(Opcode.Voice, [Byte, Byte, UInt16BE, Byte]),
+  new BaseOpcode(Opcode.Music, 3),
+  new BaseOpcode(Opcode.Sound, [UInt16BE, Byte]),
+  new BaseOpcode(Opcode.SoundB, 2),
+  new BaseOpcode(Opcode.TruthBulletFlag, 2),
+  new BaseOpcode(Opcode.Present, 3),
+  new BaseOpcode(Opcode.UnlockSkill, 2),
+  new BaseOpcode(Opcode.StudentTitleEntry, 3),
+  new BaseOpcode(Opcode.StudentReportInfo, 3),
+  new BaseOpcode(Opcode.StudentRelationship, 4),
   // No 0x12, 0x13
-  new BaseOpcode(0x14, "TrialCamera", [Byte, UInt16BE]),
-  new BaseOpcode(0x15, "LoadMap", 3),
+  new BaseOpcode(Opcode.TrialCamera, [Byte, UInt16BE]),
+  new BaseOpcode(Opcode.LoadMap, 3),
   // No 0x16, 0x17, 0x18
-  new BaseOpcode(0x19, "LoadScript", 3),
-  new BaseOpcode(0x1a, "StopScript", 0),
-  new BaseOpcode(0x1b, "RunScript", 3),
-  new BaseOpcode(0x1c, "RestartScript", 0),
+  new BaseOpcode(Opcode.LoadScript, 3),
+  new BaseOpcode(Opcode.StopScript, 0),
+  new BaseOpcode(Opcode.RunScript, 3),
+  new BaseOpcode(Opcode.RestartScript, 0),
   // No 0x1d
-  new BaseOpcode(0x1e, "Sprite", 5),
-  new BaseOpcode(0x1f, "ScreenFlash", 7),
-  new BaseOpcode(0x20, "SpriteFlash", 5),
-  new BaseOpcode(0x21, "Speaker", 1),
-  new BaseOpcode(0x22, "ScreenFade", 3),
-  new BaseOpcode(0x23, "ObjectState", 5),
+  new BaseOpcode(Opcode.Sprite, 5),
+  new BaseOpcode(Opcode.ScreenFlash, 7),
+  new BaseOpcode(Opcode.SpriteFlash, 5),
+  new BaseOpcode(Opcode.Speaker, 1),
+  new BaseOpcode(Opcode.ScreenFade, 3),
+  new BaseOpcode(Opcode.ObjectState, 5),
   // No 0x24
-  new BaseOpcode(0x25, "ChangeUI", 2),
-  new BaseOpcode(0x26, "SetVar8", 3),
-  new BaseOpcode(0x27, "CheckCharacter", 1),
+  new BaseOpcode(Opcode.ChangeUI, 2),
+  new BaseOpcode(Opcode.SetVar8, 3),
+  new BaseOpcode(Opcode.CheckCharacter, 1),
   // No 0x28
-  new BaseOpcode(0x29, "CheckObject", 1),
-  new BaseOpcode(0x2a, "Label", [UInt16BE]),
-  new BaseOpcode(0x2b, "SetOption", 1),
-  new BaseOpcode(0x2c, "EndOfJump", 2),
+  new BaseOpcode(Opcode.CheckObject, 1),
+  new BaseOpcode(Opcode.Label, [UInt16BE]),
+  new BaseOpcode(Opcode.SetOption, 1),
+  new BaseOpcode(Opcode.EndOfJump, 2),
   // No 0x2d
-  new BaseOpcode(0x2e, "CameraFlash", 2),
+  new BaseOpcode(Opcode.CameraFlash, 2),
   // No 0x2f
-  new BaseOpcode(0x30, "ShowBackground", [UInt16BE, Byte]),
+  new BaseOpcode(Opcode.ShowBackground, [UInt16BE, Byte]),
   // No 0x31, 0x32
-  new BaseOpcode(0x33, "SetVar16", [Byte, Byte, UInt16BE]),
-  new BaseOpcode(0x34, "Goto", [UInt16BE]),
-  new EvaluateFlagOpcode(0x35, "EvaluateFlag"),
-  new EvaluateOpcode(0x36, "Evaluate"),
+  new BaseOpcode(Opcode.SetVar16, [Byte, Byte, UInt16BE]),
+  new BaseOpcode(Opcode.Goto, [UInt16BE]),
+  new EvaluateFlagOpcode(Opcode.EvaluateFlag),
+  new EvaluateOpcode(Opcode.Evaluate),
   // No 0x37
-  new BaseOpcode(0x38, "EvaluateFreeTimeEvent", [UInt16BE, Byte, UInt16BE]),
-  new BaseOpcode(0x39, "EvaluateRelationship", [UInt16BE, Byte, UInt16BE]),
-  new BaseOpcode(OP_WAIT_INPUT, "WaitInput", 0),
-  new BaseOpcode(OP_WAIT_FRAME, "WaitFrame", 0),
-  new BaseOpcode(0x3c, "IfTrue", 0),
+  new BaseOpcode(Opcode.EvaluateFreeTimeEvent, [UInt16BE, Byte, UInt16BE]),
+  new BaseOpcode(Opcode.EvaluateRelationship, [UInt16BE, Byte, UInt16BE]),
+  new BaseOpcode(Opcode.WaitInput, 0),
+  new BaseOpcode(Opcode.WaitFrame, 0),
+  new BaseOpcode(Opcode.IfTrue, 0),
 ];
 
 /** Source-only opcodes that expand to binary ones when compiled. */

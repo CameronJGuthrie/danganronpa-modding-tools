@@ -1,3 +1,4 @@
+import type { Opcode } from "../definitions/opcode.definition.ts";
 import { SourceError } from "../errors.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import { splitArgs } from "../parameter.ts";
@@ -19,8 +20,8 @@ const CHAINED_BYTES = 6;
  * 5 bytes and each further expression adds a 1-byte joiner in front, for 6 bytes.
  */
 export class EvaluateOpcode extends BaseOpcode {
-  constructor(id: number, name: string) {
-    super(id, name, [], true);
+  constructor(id: Opcode) {
+    super(id, [], true);
   }
 
   override formatArgs(entry: ScriptEntry): string {

@@ -1,3 +1,4 @@
+import type { Opcode } from "../definitions/opcode.definition.ts";
 import { SourceError } from "../errors.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import { parseArg, splitArgs } from "../parameter.ts";
@@ -11,8 +12,8 @@ const MIN_ARGS = 4;
  * flag-check bytes whose structure is not yet understood, so every byte is shown verbatim.
  */
 export class EvaluateFlagOpcode extends BaseOpcode {
-  constructor(id: number, name: string) {
-    super(id, name, [], true);
+  constructor(id: Opcode) {
+    super(id, [], true);
   }
 
   override formatArgs(entry: ScriptEntry): string {

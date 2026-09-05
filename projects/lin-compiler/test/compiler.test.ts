@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { BinaryError, SourceError } from "../src/errors.ts";
-import { OP_TEXT, OP_TEXT_STYLE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "../src/opcodes/ids.ts";
+import { Opcode } from "../src/definitions/opcode.definition.ts";
 import { readCompiled } from "../src/io/lin-reader.ts";
 import { writeCompiledBytes } from "../src/io/lin-writer.ts";
 import { readSource } from "../src/io/linscript-reader.ts";
@@ -86,7 +86,7 @@ describe("AutoText sugar", () => {
     const { entries } = readSource('AutoText("one\\ntwo\\nthree")');
     assert.deepEqual(
       entries.map((e) => e.opcode),
-      [OP_TEXT, OP_WAIT_FRAME, OP_WAIT_FRAME, OP_WAIT_INPUT],
+      [Opcode.Text, Opcode.WaitFrame, Opcode.WaitFrame, Opcode.WaitInput],
     );
   });
 
@@ -94,7 +94,7 @@ describe("AutoText sugar", () => {
     const { entries } = readSource('AutoText("<CLT 3>red<CLT> plain <CLT 5>blue")');
     assert.deepEqual(
       entries.map((e) => [e.opcode, ...e.args]),
-      [[OP_TEXT_STYLE, 3], [OP_TEXT, 0, 0], [OP_TEXT_STYLE, 0], [OP_TEXT_STYLE, 5], [OP_WAIT_INPUT]],
+      [[Opcode.TextStyle, 3], [Opcode.Text, 0, 0], [Opcode.TextStyle, 0], [Opcode.TextStyle, 5], [Opcode.WaitInput]],
     );
   });
 
