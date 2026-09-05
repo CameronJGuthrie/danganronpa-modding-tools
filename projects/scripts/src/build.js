@@ -10,11 +10,11 @@ import { getGameDirectoryOrThrow } from './steam-paths.js';
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, '..', '..');
+const PROJECT_ROOT = join(__dirname, '..', '..', '..');
 const MODS_DIR = join(PROJECT_ROOT, 'workspace', 'mod');
 const EXTRACTED_DIR = join(PROJECT_ROOT, 'workspace', 'modded');
 const WAD_ARCHIVER = join(PROJECT_ROOT, 'scripts', 'src', 'wad-archiver.js');
-const LIN_COMPILER = join(PROJECT_ROOT, 'lin-compiler', 'dist', 'cli.js');
+const LIN_COMPILER = join(PROJECT_ROOT, 'projects', 'lin-compiler', 'dist', 'cli.js');
 
 async function compileLinscripts(modPath) {
   console.log('  Compiling .linscript files...');

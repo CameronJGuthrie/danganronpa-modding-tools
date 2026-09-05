@@ -1,8 +1,7 @@
 packages:
-  - lin-compiler
-  - vscode-extension
-  - mod-tool
-  - scripts
+  - projects/lin-compiler
+  - projects/vscode-extension
+  - projects/scripts
 
 onlyBuiltDependencies:
   - '@vscode/vsce-sign'

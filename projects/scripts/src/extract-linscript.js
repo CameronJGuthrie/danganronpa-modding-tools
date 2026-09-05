@@ -10,13 +10,13 @@ import unzipper from 'unzipper';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = join(__dirname, '../..');
+const projectRoot = join(__dirname, '../../..');
 
 const WORKSPACE_DIR = join(projectRoot, 'workspace');
 const BASE_FILES_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
 const TEMP_DIR = join(WORKSPACE_DIR, 'temp_extract');
 const LINSCRIPT_EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
-const LIN_COMPILER_PATH = join(projectRoot, 'lin-compiler', 'dist', 'cli.js');
+const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'dist', 'cli.js');
 
 async function extractWadFromZip() {
   console.log('Extracting dr1_data_us.wad from base_files.zip...');
@@ -42,7 +42,7 @@ async function extractWadFromZip() {
 async function extractWadContents(wadPath) {
   console.log('Extracting WAD contents...');
 
-  const wadArchiverPath = join(projectRoot, 'scripts/src/wad-archiver.js');
+  const wadArchiverPath = join(projectRoot, 'projects/scripts/src/wad-archiver.js');
   const extractDir = join(TEMP_DIR, 'extracted');
 
   await mkdir(extractDir, { recursive: true });

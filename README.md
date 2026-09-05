@@ -11,9 +11,24 @@
  - `Danganronpa Trigger Happy Havoc` on Steam. Other versions currently unsupported.
 
 ## What is this?
- - This is a danganronpa modding framework that I've frankenstiened into a **VSCode extension** that lives inside a pnpm monorepo (primarily useful tools are the /vscode-extension and /scripts)
+ - This is a danganronpa modding framework that I've frankenstiened into a **VSCode extension** that lives inside a pnpm monorepo (primarily useful tools are `projects/vscode-extension` and `projects/scripts`)
  - At this stage, this tool is mostly helpful to learn and understand how the game works rather than create mods.
  - At some point this turned into a vibe coding experiment, so parts of the code are starting to resemble spaghetti.
+
+## Repository layout
+
+Every buildable project lives under `projects/`:
+
+| Path | What it is |
+| --- | --- |
+| `projects/lin-compiler` | TypeScript (de)compiler for the game's `.lin` scripts |
+| `projects/scripts` | Node automation scripts behind the root `pnpm run ...` commands |
+| `projects/vscode-extension` | The VSCode extension (`lindecompilerhelper`) |
+| `projects/gui` | Electron asset browser (standalone, has its own lockfile) |
+| `docs/` | Reverse-engineering notes on the game's file formats |
+| `workspace/` | Generated working files - extracted game data, mods, scratch |
+
+The first three are pnpm workspace packages; `projects/gui` is installed and run on its own.
 
 ## Setup and Usage
 
@@ -83,7 +98,7 @@
 
 ## lin-compiler
 
-`/lin-compiler` is the TypeScript (de)compiler that converts between the game's binary `.lin`
+`projects/lin-compiler` is the TypeScript (de)compiler that converts between the game's binary `.lin`
 scripts and the readable `.linscript` format. `pnpm run setup` builds it for you; to rebuild it
 on its own:
 
@@ -94,12 +109,12 @@ pnpm run compile
 It can also be driven directly, on a single file or on a whole directory:
 
 ```bash
-node lin-compiler/dist/cli.js -d input.lin output.linscript   # decompile
-node lin-compiler/dist/cli.js input.linscript output.lin      # compile
-node lin-compiler/dist/cli.js -s -d path/to/scripts/          # batch decompile a directory
+node projects/lin-compiler/dist/cli.js -d input.lin output.linscript   # decompile
+node projects/lin-compiler/dist/cli.js input.linscript output.lin      # compile
+node projects/lin-compiler/dist/cli.js -s -d path/to/scripts/          # batch decompile a directory
 ```
 
-See [lin-compiler/README.md](lin-compiler/README.md) for the full option list and for how to add
+See [projects/lin-compiler/README.md](projects/lin-compiler/README.md) for the full option list and for how to add
 new opcodes.
 
 ## Linux Users

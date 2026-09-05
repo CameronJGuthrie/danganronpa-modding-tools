@@ -7,7 +7,7 @@ LIN is a format used for scripting in the game engine used for Danganronpa 1 and
 The LIN format consists of opcodes and arguments. For Danganronpa Trigger Happy Havoc, there are 48 opcodes present in the game's .lin files. Interestingly, these 48 opcodes are not all continguous, meaning there may be some opcodes unused in the engine.
 
 ### Quick Note
-This is just a summary. For more on these, find the corresponding `*-meta.ts` in `vscode-extension/src/metadata/` with more details on the opcodes and their parameters.
+This is just a summary. For more on these, find the corresponding `*-meta.ts` in `projects/vscode-extension/src/metadata/` with more details on the opcodes and their parameters.
 
 ### How to read this
  - All numbers are unsigned integers.

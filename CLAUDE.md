@@ -1,8 +1,18 @@
 # Danganronpa Modding Tools
 
+## Repository layout
+All buildable projects live under `projects/`:
+- `projects/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler
+- `projects/scripts` - Node automation scripts (root `pnpm run ...` commands)
+- `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension
+- `projects/gui` - Electron asset browser (standalone; not a workspace package, has its own lockfile)
+
+`docs/file-formats/` holds reverse-engineering notes; `workspace/` holds generated working files.
+The first three are pnpm workspace packages (see `pnpm-workspace.yaml`).
+
 ## Exploration Mode
 This is when I'm trying to discover what the opcodes do. You'll be helping me to understand patterns in the workspace/linscript-exploration/*.linscript files.
-I document my findings in these typescript files at vscode-extension/src/functions/*.ts with the names of the opcodes corresponding to the functions. E.g. Voice -> Voice.ts
+I document my findings in these typescript files at projects/vscode-extension/src/functions/*.ts with the names of the opcodes corresponding to the functions. E.g. Voice -> Voice.ts
 
 **Investigation Script:**
 Use `pnpm run investigate` to analyze opcode usage patterns across all linscript files:
@@ -50,13 +60,13 @@ WAD → PAK → (GMO | TGA | PAK | ?)
 2. For PAK files: Extract using `unpak.py` to get individual files
 
 ## lin-compiler
-TypeScript CLI tool and library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `lin-compiler/src/`.
+TypeScript CLI tool and library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `projects/lin-compiler/src/`.
 
-**Status:** Node.js/TypeScript (migrated from C#). Build with `pnpm compile`; entry point is `lin-compiler/dist/cli.js`.
+**Status:** Node.js/TypeScript (migrated from C#). Build with `pnpm compile`; entry point is `projects/lin-compiler/dist/cli.js`.
 
-**Usage:** `node lin-compiler/dist/cli.js -d input.lin output.linscript` (decompile) or `node lin-compiler/dist/cli.js input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--hex` hex opcode names, `--indent-spaces N`.
+**Usage:** `node projects/lin-compiler/dist/cli.js -d input.lin output.linscript` (decompile) or `node projects/lin-compiler/dist/cli.js input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--hex` hex opcode names, `--indent-spaces N`.
 
-Opcode definitions live in `lin-compiler/src/opcodes/opcodeDictionary.ts` — add an entry to `opcodeList` to teach the compiler a new opcode. Opcodes needing custom argument handling subclass `BaseOpcode`.
+Opcode definitions live in `projects/lin-compiler/src/opcodes/opcodeDictionary.ts` — add an entry to `opcodeList` to teach the compiler a new opcode. Opcodes needing custom argument handling subclass `BaseOpcode`.
 
 ## gui
 Electron desktop app for browsing and editing Danganronpa assets. Features character sprite viewer, script viewer, and TGA image support.
@@ -64,10 +74,10 @@ Electron desktop app for browsing and editing Danganronpa assets. Features chara
 ## pak-archiver
 Utility for extracting, creating, and modifying PAK archive files. Handles nested archives and detects GMO/TGA file types.
 
-**Status:** Migrated to Node.js (scripts/src/pak-archiver.js).
+**Status:** Migrated to Node.js (projects/scripts/src/pak-archiver.js).
 
 ## scripts
-NodeJS automation scripts for common modding operations. Scripts are kept in `scripts/src/*.js`:
+NodeJS automation scripts for common modding operations. Scripts are kept in `projects/scripts/src/*.js`:
 
 **Node.js scripts:**
 

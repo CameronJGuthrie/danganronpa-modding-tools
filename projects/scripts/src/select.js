@@ -9,12 +9,12 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = join(__dirname, '../..');
+const projectRoot = join(__dirname, '../../..');
 
 const MODDED_DIR = join(projectRoot, 'workspace', 'modded', 'dr1_data_us');
 const MOD_DIR = join(projectRoot, 'workspace', 'mod', 'dr1_data_us');
 const EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
-const LIN_COMPILER_PATH = join(projectRoot, 'lin-compiler', 'dist', 'cli.js');
+const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'dist', 'cli.js');
 
 function showUsage() {
   console.log(`Usage: pnpm select <filepath>
