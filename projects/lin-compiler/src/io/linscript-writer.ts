@@ -1,9 +1,9 @@
 import { writeFile } from "node:fs/promises";
+import { Opcode } from "../definitions/opcode.definition.ts";
+import type { Script } from "../definitions/script.definition.ts";
 import { planAutoText } from "../opcodes/autoTextOpcode.ts";
 import { formatRawBytes } from "../opcodes/baseOpcode.ts";
-import { Opcode } from "../definitions/opcode.definition.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
-import type { Script } from "../definitions/script.definition.ts";
 
 export interface WriteSourceOptions {
   /** Spaces per indentation level. */
@@ -66,4 +66,3 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
 export async function writeSourceFile(script: Script, path: string, options: WriteSourceOptions = {}): Promise<void> {
   await writeFile(path, UTF8_BOM + writeSourceText(script, options), "utf8");
 }
-

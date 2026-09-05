@@ -1,8 +1,8 @@
 import type { Opcode } from "../definitions/opcode.definition.ts";
-import { SourceError } from "../errors.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
-import { splitArgs } from "../parameter.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
+import { SourceError } from "../errors.ts";
+import { splitArgs } from "../parameter.ts";
 import { BaseOpcode, formatByLayout, formatRawBytes, parseByLayout } from "./baseOpcode.ts";
 
 const { Byte, UInt16BE } = ParameterType;

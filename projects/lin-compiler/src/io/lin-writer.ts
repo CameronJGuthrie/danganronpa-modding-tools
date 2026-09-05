@@ -1,8 +1,8 @@
 import { writeFile } from "node:fs/promises";
 import { OPCODE_MARKER, Opcode } from "../definitions/opcode.definition.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
-import { encodeValue } from "../parameter.ts";
 import { type Script, ScriptType } from "../definitions/script.definition.ts";
+import { encodeValue } from "../parameter.ts";
 
 /**
  * Serialise a script to `.lin` bytes. See `readCompiled` for the layout. The script type is

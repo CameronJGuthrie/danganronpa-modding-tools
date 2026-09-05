@@ -1,7 +1,7 @@
 import { textStyleColor } from "../data/text-style-data";
 import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
 import { isTextStyle } from "../enum/text-style";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 /**
  * This is no longer required when using Text(""), as the compiler will insert them correctly automatically

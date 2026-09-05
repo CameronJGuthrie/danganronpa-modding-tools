@@ -10,7 +10,7 @@
   },
   "scripts": {
     "lint": "biome lint",
-    "lint:fix": "biome lint --fix --unsafe",
+    "lint:fix": "biome check --fix --unsafe",
     "start": "pnpm run build && pnpm run game",
     "ext": "pnpm --filter lindecompilerhelper install-extension",
     "reset": "node projects/scripts/src/extract-linscript.ts",

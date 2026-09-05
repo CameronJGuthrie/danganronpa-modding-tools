@@ -1,8 +1,8 @@
 import type { Opcode } from "../definitions/opcode.definition.ts";
-import { SourceError } from "../errors.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
-import { parseArg, splitArgs } from "../parameter.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
+import { SourceError } from "../errors.ts";
+import { parseArg, splitArgs } from "../parameter.ts";
 import { BaseOpcode, formatRawBytes } from "./baseOpcode.ts";
 
 const MIN_ARGS = 4;

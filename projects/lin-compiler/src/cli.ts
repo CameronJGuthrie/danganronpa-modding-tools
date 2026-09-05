@@ -150,7 +150,8 @@ export async function main(argv: readonly string[]): Promise<void> {
       await convertDirectory(args.input, args);
       break;
     case "file": {
-      const defaultOutput = args.input.slice(0, -extname(args.input).length || undefined) + EXTENSIONS[args.mode].output;
+      const defaultOutput =
+        args.input.slice(0, -extname(args.input).length || undefined) + EXTENSIONS[args.mode].output;
       await convertFile(args.input, args.output ?? defaultOutput, args);
       if (!args.silent) {
         console.log(`Wrote ${args.output ?? defaultOutput}`);

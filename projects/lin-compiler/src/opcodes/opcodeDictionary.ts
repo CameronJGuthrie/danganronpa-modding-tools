@@ -1,9 +1,9 @@
+import { Opcode } from "../definitions/opcode.definition.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import { AutoTextOpcode } from "./autoTextOpcode.ts";
 import { BaseOpcode } from "./baseOpcode.ts";
 import { EvaluateFlagOpcode } from "./evaluateFlagOpcode.ts";
 import { EvaluateOpcode } from "./evaluateOpcode.ts";
-import { Opcode } from "../definitions/opcode.definition.ts";
 import { TextOpcode } from "./textOpcode.ts";
 import { TypeOpcode } from "./typeOpcode.ts";
 

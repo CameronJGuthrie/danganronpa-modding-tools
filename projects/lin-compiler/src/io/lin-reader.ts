@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
-import { BinaryError } from "../errors.ts";
 import { OPCODE_MARKER, Opcode } from "../definitions/opcode.definition.ts";
-import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
 import { type Script, type ScriptEntry, ScriptType } from "../definitions/script.definition.ts";
+import { BinaryError } from "../errors.ts";
+import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
 
 /**
  * Parse a compiled `.lin` file.
@@ -56,7 +56,8 @@ function readScriptData(bytes: Uint8Array, start: number, end: number): ScriptEn
     pos += 2;
 
     const opcode = getOpcode(id);
-    const argEnd = opcode === undefined || opcode.variadic ? findNextMarker(bytes, pos, end) : pos + opcode.argByteCount;
+    const argEnd =
+      opcode === undefined || opcode.variadic ? findNextMarker(bytes, pos, end) : pos + opcode.argByteCount;
 
     entries.push({ opcode: id, args: Array.from(bytes.subarray(pos, argEnd)) });
     pos = argEnd;
@@ -69,7 +70,9 @@ function readScriptData(bytes: Uint8Array, start: number, end: number): ScriptEn
 function expectZeroPadding(bytes: Uint8Array, from: number, end: number): void {
   for (let pos = from; pos < end; pos++) {
     if (bytes[pos] !== 0x00) {
-      throw new BinaryError(`expected opcode marker ${hexOpcodeName(OPCODE_MARKER)} at offset ${pos}, got ${hexOpcodeName(bytes[pos])}`);
+      throw new BinaryError(
+        `expected opcode marker ${hexOpcodeName(OPCODE_MARKER)} at offset ${pos}, got ${hexOpcodeName(bytes[pos])}`,
+      );
     }
   }
 }

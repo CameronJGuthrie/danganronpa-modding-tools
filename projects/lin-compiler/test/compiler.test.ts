@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { BinaryError, SourceError } from "../src/errors.ts";
 import { Opcode } from "../src/definitions/opcode.definition.ts";
+import { BinaryError, SourceError } from "../src/errors.ts";
 import { readCompiled } from "../src/io/lin-reader.ts";
 import { writeCompiledBytes } from "../src/io/lin-writer.ts";
 import { readSource } from "../src/io/linscript-reader.ts";
@@ -99,7 +99,11 @@ describe("AutoText sugar", () => {
   });
 
   test("expanded groups collapse back to AutoText on decompile", () => {
-    for (const source of ['AutoText("one\\ntwo")\n', 'AutoText("<CLT 3>red<CLT> plain")\n', 'AutoText("a\\n<CLT 2>b")\n']) {
+    for (const source of [
+      'AutoText("one\\ntwo")\n',
+      'AutoText("<CLT 3>red<CLT> plain")\n',
+      'AutoText("a\\n<CLT 2>b")\n',
+    ]) {
       assert.equal(roundTrip(source), source);
     }
   });
@@ -128,12 +132,15 @@ describe("block indentation", () => {
 describe("source errors", () => {
   test("report the 1-based line, skipping blank and comment lines", () => {
     const source = "# header\n\nSpeaker(1)\nBogus(1)\n";
-    assert.throws(() => readSource(source), (error: unknown) => {
-      assert.ok(error instanceof SourceError);
-      assert.equal(error.line, 4);
-      assert.match(error.message, /line 4: unknown opcode 'Bogus'/);
-      return true;
-    });
+    assert.throws(
+      () => readSource(source),
+      (error: unknown) => {
+        assert.ok(error instanceof SourceError);
+        assert.equal(error.line, 4);
+        assert.match(error.message, /line 4: unknown opcode 'Bogus'/);
+        return true;
+      },
+    );
   });
 
   test("wrong argument counts are rejected instead of silently truncated", () => {

@@ -13,7 +13,9 @@ import { writeSourceText } from "../src/io/linscript-writer.ts";
 /** The game's script directory as extracted by `pnpm unpack`. */
 const CORPUS_DIR = fileURLToPath(new URL("../../../workspace/modded/dr1_data_us/Dr1/data/us/script", import.meta.url));
 
-test("every game script round-trips through source and back", { skip: !existsSync(CORPUS_DIR) && "corpus not extracted" }, async (t) => {
+test("every game script round-trips through source and back", {
+  skip: !existsSync(CORPUS_DIR) && "corpus not extracted",
+}, async (t) => {
   const files = (await readdir(CORPUS_DIR)).filter((name) => name.endsWith(".lin")).sort();
   assert.ok(files.length > 0, "corpus directory is empty");
 
@@ -44,7 +46,9 @@ test("every game script round-trips through source and back", { skip: !existsSyn
     }
   }
 
-  t.diagnostic(`${files.length} files; ${identicalToOriginal} recompile byte-identical; ${unreadable.length} unreadable`);
+  t.diagnostic(
+    `${files.length} files; ${identicalToOriginal} recompile byte-identical; ${unreadable.length} unreadable`,
+  );
   for (const line of unreadable) {
     t.diagnostic(line);
   }

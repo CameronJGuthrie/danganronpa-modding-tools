@@ -1,7 +1,7 @@
 import type { Opcode } from "../definitions/opcode.definition.ts";
-import { SourceError } from "../errors.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
+import { SourceError } from "../errors.ts";
 import { BaseOpcode } from "./baseOpcode.ts";
 
 /**

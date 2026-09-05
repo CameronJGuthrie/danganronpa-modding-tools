@@ -1,7 +1,7 @@
 import { skills } from "../data/skill-data";
 import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
 import { isSkill, Skill } from "../enum/skill";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const unlockSkillMeta: OpcodeMeta = {
   name: OpcodeName.UnlockSkill,

@@ -1,9 +1,9 @@
 import { readFile } from "node:fs/promises";
+import { ParameterType } from "../definitions/parameter.definition.ts";
+import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { SourceError } from "../errors.ts";
 import { getOpcodeByName, parseHexOpcodeName } from "../opcodes/opcodeDictionary.ts";
-import { ParameterType } from "../definitions/parameter.definition.ts";
 import { parseArg, splitArgs } from "../parameter.ts";
-import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 
 /** Matches `OpcodeName(args)` or `0xNN(args)`, capturing the name and the raw argument text. */
 const OPCODE_LINE = /^(\w+)\s*\((.*)\)$/;

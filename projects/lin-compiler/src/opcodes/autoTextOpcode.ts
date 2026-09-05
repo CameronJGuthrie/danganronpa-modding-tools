@@ -1,5 +1,5 @@
-import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { Opcode } from "../definitions/opcode.definition.ts";
+import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { parseQuotedString, TextOpcode } from "./textOpcode.ts";
 
 /**

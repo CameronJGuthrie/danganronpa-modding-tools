@@ -1,8 +1,8 @@
-import { SourceError } from "../errors.ts";
 import { type Opcode, opcodeName } from "../definitions/opcode.definition.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
-import { byteSize, decodeValue, parseArg, splitArgs } from "../parameter.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
+import { SourceError } from "../errors.ts";
+import { byteSize, decodeValue, parseArg, splitArgs } from "../parameter.ts";
 
 /** Shorthand for an opcode that takes `count` plain bytes. */
 export function bytes(count: number): ParameterType[] {

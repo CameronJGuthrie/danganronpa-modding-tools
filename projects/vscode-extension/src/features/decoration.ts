@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { textStyleColor } from "../data/text-style-data";
-import type { OpcodeMeta } from "../types/opcode-meta";
 import { metadata } from "../metadata";
 import { logDebug, logError, logWarning } from "../output";
+import type { OpcodeMeta } from "../types/opcode-meta";
 import {
   createCompleteFunctionRegex,
   createVarargsRegex,

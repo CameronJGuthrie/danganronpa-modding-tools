@@ -1,7 +1,7 @@
 import { truthBulletFlags } from "../data/truth-bullet-data";
 import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
 import { isTruthBullet, TruthBullet } from "../enum/truth-bullet";
+import type { OpcodeMeta } from "../types/opcode-meta";
 
 export const truthBulletFlagMeta: OpcodeMeta = {
   name: OpcodeName.TruthBulletFlag,
