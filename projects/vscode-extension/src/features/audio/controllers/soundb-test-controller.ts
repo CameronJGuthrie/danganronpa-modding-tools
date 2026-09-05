@@ -35,7 +35,7 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
 
     getAudioFilePath: (info: SoundBLineInfo): string | null => {
       const soundMeta = transitionSounds[info.soundId];
-      if (!soundMeta || !soundMeta.sourcePath) {
+      if (!soundMeta?.sourcePath) {
         return null;
       }
 

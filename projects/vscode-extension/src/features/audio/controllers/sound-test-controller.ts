@@ -35,7 +35,7 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
 
     getAudioFilePath: (info: SoundLineInfo): string | null => {
       const soundMeta = sounds[info.soundId];
-      if (!soundMeta || !soundMeta.sourcePath) {
+      if (!soundMeta?.sourcePath) {
         return null;
       }
 

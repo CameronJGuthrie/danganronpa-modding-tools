@@ -53,7 +53,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       }
 
       const chapterData = voiceData[info.chapter];
-      if (!chapterData || !chapterData.metadata) {
+      if (!chapterData?.metadata) {
         return null;
       }
 

@@ -1,15 +1,21 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    // The VSCode extension host loads plain JS, so this package really emits.
-    // Pinned target rather than ESNext to keep the output reproducible.
     "target": "ES2023",
-    "lib": ["ES2023"],
+    "lib": [
+      "ES2023"
+    ],
     "noEmit": false,
     "outDir": "out",
     "rootDir": "src",
     "sourceMap": true,
-    "types": ["node", "vscode", "mocha"]
+    "types": [
+      "node",
+      "vscode",
+      "mocha"
+    ]
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts"
+  ]
 }
