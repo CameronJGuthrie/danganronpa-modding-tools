@@ -1,87 +1,119 @@
-import { type Script, type ScriptEntry, ScriptType } from "../script.ts";
+import type { ScriptEntry } from "../script.ts";
 import { OP_TEXT, OP_TEXT_STYLE, OP_WAIT_FRAME, OP_WAIT_INPUT } from "./ids.ts";
 import { parseQuotedString, TextOpcode } from "./textOpcode.ts";
 
+/**
+ * AutoText is source-only sugar for the common dialogue shape
+ * `[TextStyle] Text WaitFrame* TextStyle* WaitInput`:
+ *
+ * - each `\n` in the text expands to a `WaitFrame`
+ * - `<CLT N>` and `<CLT>` colour tags expand to `TextStyle(N)` / `TextStyle(0)`, with the
+ *   first style also emitted before the Text itself
+ * - a `WaitInput` closes the group
+ *
+ * This file owns both directions: `AutoTextOpcode.parseSource` expands the sugar when compiling
+ * and `planAutoText` recognises collapsible groups when decompiling.
+ */
+
 /** Matches `<CLT N>` opening tags, `<CLT>` closing tags, and literal newlines. */
-const CLT_PATTERN = /<CLT\s+(\d+)>|<CLT>|\n/g;
+const CLT_OR_NEWLINE = /<CLT\s+(\d+)>|<CLT>|\n/g;
 const HAS_CLT = /<CLT\s+\d+>|<CLT>/;
 
-/**
- * Auto-Text opcode - generates WaitFrame/WaitInput automatically based on newlines.
- * This is syntactic sugar that expands to Text + WaitFrame(s) + WaitInput.
- */
 export class AutoTextOpcode extends TextOpcode {
   constructor() {
-    super("AutoText");
+    super(OP_TEXT, "AutoText");
   }
 
-  override readSource(argsString: string, lineNum: number, script: Script): ScriptEntry[] {
-    // Mutate script type and increment number of entries
-    script.type = ScriptType.Text;
-    script.textEntries++;
-
-    const text = parseQuotedString(argsString, lineNum);
-
-    if (HAS_CLT.test(text)) {
-      // Parse CLT tags and generate opcodes
-      return parseCLTTags(text);
-    }
-
-    // No CLT tags - generate Text with WaitFrame for each \n and WaitInput at end
-    const entries: ScriptEntry[] = [{ opcode: OP_TEXT, text, args: [0, 0] }];
-
-    // Count newlines and add WaitFrame for each
-    const newlineCount = [...text].filter((c) => c === "\n").length;
-    for (let i = 0; i < newlineCount; i++) {
-      entries.push({ opcode: OP_WAIT_FRAME, args: [] });
-    }
-
-    // Add WaitInput at the end
-    entries.push({ opcode: OP_WAIT_INPUT, args: [] });
-
-    return entries;
+  override parseSource(argsText: string, line: number): ScriptEntry[] {
+    return expandAutoText(parseQuotedString(argsText, line));
   }
 }
 
-function parseCLTTags(text: string): ScriptEntry[] {
+function expandAutoText(text: string): ScriptEntry[] {
   const entries: ScriptEntry[] = [];
-  const matches = [...text.matchAll(CLT_PATTERN)];
+  const tokens = [...text.matchAll(CLT_OR_NEWLINE)];
+  const first = tokens[0];
 
-  // If no matches, just create a simple Text entry with WaitInput
-  if (matches.length === 0) {
-    entries.push({ opcode: OP_TEXT, text, args: [0, 0] });
-    entries.push({ opcode: OP_WAIT_INPUT, args: [] });
-    return entries;
+  if (HAS_CLT.test(text)) {
+    // A leading TextStyle carries the first token's colour when that token is an opening tag,
+    // and colour 0 otherwise. It is emitted before the Text so the colour applies from the start.
+    entries.push(textStyle(first[1] === undefined ? 0 : Number(first[1])));
   }
+  entries.push({ opcode: OP_TEXT, args: [0, 0], text });
 
-  // Extract the first CLT style number to set before Text
-  const firstMatch = matches[0];
-  const initialStyle = firstMatch[1] !== undefined ? Number.parseInt(firstMatch[1], 10) : 0;
-
-  // Add initial TextStyle before Text
-  entries.push({ opcode: OP_TEXT_STYLE, args: [initialStyle & 0xff] });
-
-  // Add the Text entry (with CLT tags preserved)
-  entries.push({ opcode: OP_TEXT, text, args: [0, 0] });
-
-  // Process all matches to generate TextStyle and WaitFrame opcodes
-  for (const match of matches) {
-    if (match[0] === "<CLT>") {
-      // <CLT> without number - closing tag, reset style to 0
-      entries.push({ opcode: OP_TEXT_STYLE, args: [0] });
-    } else if (match[0] === "\n") {
-      // Newline - add WaitFrame
+  for (const token of tokens) {
+    if (token[0] === "\n") {
       entries.push({ opcode: OP_WAIT_FRAME, args: [] });
-    } else if (match[1] !== undefined) {
-      // <CLT N> opening tag - but skip the first one since we already handled it
-      if (match.index > firstMatch.index) {
-        entries.push({ opcode: OP_TEXT_STYLE, args: [Number.parseInt(match[1], 10) & 0xff] });
-      }
+    } else if (token[0] === "<CLT>") {
+      entries.push(textStyle(0));
+    } else if (token !== first) {
+      // An opening tag; the first one was already emitted ahead of the Text
+      entries.push(textStyle(Number(token[1])));
     }
   }
 
-  // Add WaitInput at the end
   entries.push({ opcode: OP_WAIT_INPUT, args: [] });
-
   return entries;
+}
+
+function textStyle(style: number): ScriptEntry {
+  return { opcode: OP_TEXT_STYLE, args: [style & 0xff] };
+}
+
+export interface AutoTextPlan {
+  /** Indices of Text entries to write as `AutoText(...)`. */
+  autoText: Set<number>;
+  /** Indices of entries absorbed into an AutoText and therefore not written. */
+  skipped: Set<number>;
+}
+
+/**
+ * Find Text entries that can be collapsed into AutoText: a Text followed only by WaitFrame
+ * (and TextStyle, when the text carries CLT tags) and terminated by WaitInput.
+ */
+export function planAutoText(entries: readonly ScriptEntry[]): AutoTextPlan {
+  const plan: AutoTextPlan = { autoText: new Set(), skipped: new Set() };
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (entry.opcode !== OP_TEXT || entry.text === undefined) {
+      continue;
+    }
+    const hasCLT = HAS_CLT.test(entry.text);
+
+    const waitInput = findClosingWaitInput(entries, i + 1, hasCLT);
+    if (waitInput === undefined) {
+      continue;
+    }
+
+    plan.autoText.add(i);
+    // A preceding TextStyle belongs to the CLT tags and is regenerated on compile
+    if (hasCLT && i > 0 && entries[i - 1].opcode === OP_TEXT_STYLE) {
+      plan.skipped.add(i - 1);
+    }
+    for (let j = i + 1; j <= waitInput; j++) {
+      plan.skipped.add(j);
+    }
+  }
+
+  return plan;
+}
+
+/** Index of the WaitInput closing a Text, if only sugar opcodes lie between `from` and it. */
+function findClosingWaitInput(
+  entries: readonly ScriptEntry[],
+  from: number,
+  allowTextStyle: boolean,
+): number | undefined {
+  for (let i = from; i < entries.length; i++) {
+    const opcode = entries[i].opcode;
+    if (opcode === OP_WAIT_INPUT) {
+      return i;
+    }
+    const isSugar = opcode === OP_WAIT_FRAME || (opcode === OP_TEXT_STYLE && allowTextStyle);
+    if (!isSugar) {
+      return undefined;
+    }
+  }
+  return undefined;
 }

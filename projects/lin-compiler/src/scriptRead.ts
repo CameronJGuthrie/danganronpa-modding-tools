@@ -1,164 +1,164 @@
 import { readFile } from "node:fs/promises";
-import { OP_TEXT } from "./opcodes/ids.ts";
-import { getOpcodeArgCount, getOpcodeDefinitionByName } from "./opcodes/opcodeDictionary.ts";
-import { printLine, toHexOpcode } from "./options.ts";
+import { BinaryError, SourceError } from "./errors.ts";
+import { OP_TEXT, OPCODE_MARKER } from "./opcodes/ids.ts";
+import { getOpcode, getOpcodeByName, hexOpcodeName, parseHexOpcodeName } from "./opcodes/opcodeDictionary.ts";
+import { ParamType, parseArg, splitArgs } from "./parameter.ts";
 import { type Script, type ScriptEntry, ScriptType } from "./script.ts";
 
+// ---------------------------------------------------------------------------
+// .linscript source
+// ---------------------------------------------------------------------------
+
 /** Matches `OpcodeName(args)` or `0xNN(args)`, capturing the name and the raw argument text. */
-const OPCODE_PATTERN = /^\s*(\w+|0x[0-9A-Fa-f]+)\s*\((.*)\)\s*$/;
+const OPCODE_LINE = /^(\w+)\s*\((.*)\)$/;
 
-/** Marks the start of every opcode in the compiled script data. */
-const OPCODE_MARKER = 0x70;
+/** Parse `.linscript` source text. Blank lines and `#` comments are ignored. */
+export function readSource(source: string): Script {
+  const entries: ScriptEntry[] = [];
 
-export function readSourceText(script: Script, source: string): void {
-  // Default script type is textless
-  script.type = ScriptType.Textless;
-  printLine("[read] reading source file...");
-
-  const lines = splitLines(source);
-  const scriptData: ScriptEntry[] = [];
-
-  for (let lineNum = 0; lineNum < lines.length; lineNum++) {
-    const line = lines[lineNum].trim();
-    if (line.length === 0) {
-      continue;
+  splitLines(source).forEach((rawLine, index) => {
+    const line = index + 1;
+    const text = rawLine.trim();
+    if (text.length === 0 || text.startsWith("#")) {
+      return;
     }
 
-    // Skip comment lines
-    if (line.startsWith("#")) {
-      continue;
-    }
-
-    const match = OPCODE_PATTERN.exec(line);
+    const match = OPCODE_LINE.exec(text);
     if (match === null) {
-      throw new Error(`[read] error: invalid syntax at line ${lineNum + 1}: ${line}`);
+      throw new SourceError(line, `invalid syntax: ${text}`);
     }
+    const [, name, argsText] = match;
+    entries.push(...parseOpcodeLine(name, argsText, line));
+  });
 
-    const [, opcodeName, argsString] = match;
-
-    const opcodeDefinition = getOpcodeDefinitionByName(opcodeName);
-    if (opcodeDefinition === null) {
-      throw new Error(`[read] error: unknown opcode '${opcodeName}' at line ${lineNum + 1}`);
-    }
-    scriptData.push(...opcodeDefinition.readSource(argsString, lineNum, script));
-  }
-
-  script.scriptData = scriptData;
+  return { entries };
 }
 
-export async function readSource(script: Script, filename: string): Promise<void> {
-  readSourceText(script, await readFile(filename, "utf8"));
+export async function readSourceFile(path: string): Promise<Script> {
+  return readSource(await readFile(path, "utf8"));
+}
+
+function parseOpcodeLine(name: string, argsText: string, line: number): ScriptEntry[] {
+  const opcode = getOpcodeByName(name);
+  if (opcode !== undefined) {
+    return opcode.parseSource(argsText, line);
+  }
+
+  // An unregistered `0xNN(a, b, c)` is written by the decompiler for unknown opcodes; take its bytes verbatim
+  const rawId = parseHexOpcodeName(name);
+  if (rawId !== undefined) {
+    const args = splitArgs(argsText).flatMap((value) => parseArg(ParamType.Byte, value, line));
+    return [{ opcode: rawId, args }];
+  }
+
+  throw new SourceError(line, `unknown opcode '${name}'`);
 }
 
 function splitLines(source: string): string[] {
-  // Strip the UTF-8 BOM, as .NET's StreamReader does, then split on any line ending
   const text = source.startsWith("\uFEFF") ? source.slice(1) : source;
-  const lines = text.split(/\r\n|\r|\n/);
-  // A trailing newline does not produce a final empty line in File.ReadAllLines
-  if (lines.length > 0 && lines[lines.length - 1] === "") {
-    lines.pop();
-  }
-  return lines;
+  return text.split(/\r\n|\r|\n/);
 }
 
-export function readCompiled(s: Script, fileBytes: Uint8Array): void {
-  printLine("[read] reading compiled file...");
-  s.file = fileBytes;
-  const view = new DataView(fileBytes.buffer, fileBytes.byteOffset, fileBytes.byteLength);
+// ---------------------------------------------------------------------------
+// compiled .lin bytes
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse a compiled `.lin` file.
+ *
+ * Layout (all integers little-endian int32):
+ *
+ *     Textless: type=1, headerSize, fileSize, script data...
+ *     Text:     type=2, headerSize, textBlockPos, fileSize, script data..., text block
+ *
+ * Script data is a sequence of `0x70 <opcode> <args...>` records, zero-padded to the text block.
+ * The text block is a count, `count + 1` offsets relative to the block start, then UTF-16LE strings.
+ */
+export function readCompiled(bytes: Uint8Array): Script {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const int32 = (offset: number) => view.getInt32(offset, true);
 
-  printLine("[read] reading header...");
-  s.type = int32(0x0) as ScriptType;
-  s.headerSize = int32(0x4);
-  switch (s.type) {
-    case ScriptType.Textless:
-      s.fileSize = int32(0x8);
-      if (s.fileSize === 0) {
-        s.fileSize = fileBytes.length;
-      }
-      s.textBlockPos = s.fileSize;
-      s.scriptData = readScriptData(s);
-      break;
-    case ScriptType.Text:
-      s.textBlockPos = int32(0x8);
-      s.fileSize = int32(0xc);
-      if (s.fileSize === 0) {
-        s.fileSize = fileBytes.length;
-      }
-      s.scriptData = readScriptData(s);
-      s.textEntries = int32(s.textBlockPos);
-      readTextEntries(s, int32);
-      break;
+  const type = int32(0x0);
+  const headerSize = int32(0x4);
+
+  switch (type) {
+    case ScriptType.Textless: {
+      const fileSize = int32(0x8) || bytes.length;
+      return { entries: readScriptData(bytes, headerSize, fileSize) };
+    }
+    case ScriptType.Text: {
+      const textBlockPos = int32(0x8);
+      const fileSize = int32(0xc) || bytes.length;
+      const entries = readScriptData(bytes, headerSize, textBlockPos);
+      attachTextEntries(entries, bytes, textBlockPos, fileSize);
+      return { entries };
+    }
     default:
-      throw new Error("[read] error: unknown script type.");
+      throw new BinaryError(`unknown script type ${type}`);
   }
 }
 
-export async function readCompiledFile(script: Script, filename: string): Promise<void> {
-  readCompiled(script, await readFile(filename));
+export async function readCompiledFile(path: string): Promise<Script> {
+  return readCompiled(new Uint8Array(await readFile(path)));
 }
 
-function readScriptData(s: Script): ScriptEntry[] {
-  printLine("[read] reading script data...");
-  const scriptData: ScriptEntry[] = [];
+function readScriptData(bytes: Uint8Array, start: number, end: number): ScriptEntry[] {
+  const entries: ScriptEntry[] = [];
+  let pos = start;
 
-  for (let i = s.headerSize; i < s.textBlockPos; i++) {
-    if (s.file[i] !== OPCODE_MARKER) {
-      // EOF - the remainder must be zero padding
-      while (i < s.textBlockPos) {
-        if (s.file[i] !== 0x00) {
-          throw new Error(`[read] error: expected 0x70, got ${toHexOpcode(s.file[i])}.`);
-        }
-        i++;
-      }
-      return scriptData;
+  while (pos < end) {
+    if (bytes[pos] !== OPCODE_MARKER) {
+      expectZeroPadding(bytes, pos, end);
+      break;
     }
+    const id = bytes[pos + 1];
+    pos += 2;
 
-    i++;
-    const entry: ScriptEntry = { opcode: s.file[i], args: [] };
+    const opcode = getOpcode(id);
+    const argEnd = opcode === undefined || opcode.variadic ? findNextMarker(bytes, pos, end) : pos + opcode.argByteCount;
 
-    const argCount = getOpcodeArgCount(entry.opcode);
-    if (argCount === -1) {
-      // Vararg: consume bytes until the next opcode marker
-      while (s.file[i + 1] !== OPCODE_MARKER) {
-        entry.args.push(s.file[i + 1]);
-        i++;
-      }
-    } else {
-      for (let a = 0; a < argCount; a++) {
-        entry.args.push(s.file[i + 1]);
-        i++;
-      }
-    }
-    scriptData.push(entry);
+    entries.push({ opcode: id, args: Array.from(bytes.subarray(pos, argEnd)) });
+    pos = argEnd;
   }
 
-  return scriptData;
+  return entries;
 }
 
-function readTextEntries(s: Script, int32: (offset: number) => number): void {
-  printLine("[read] reading text entries...");
-  const buffer = Buffer.from(s.file.buffer, s.file.byteOffset, s.file.byteLength);
+/** Once the opcode records stop, only zero bytes may remain before `end`. */
+function expectZeroPadding(bytes: Uint8Array, from: number, end: number): void {
+  for (let pos = from; pos < end; pos++) {
+    if (bytes[pos] !== 0x00) {
+      throw new BinaryError(`expected opcode marker ${hexOpcodeName(OPCODE_MARKER)} at offset ${pos}, got ${hexOpcodeName(bytes[pos])}`);
+    }
+  }
+}
 
-  for (const entry of s.scriptData) {
+function findNextMarker(bytes: Uint8Array, from: number, end: number): number {
+  let pos = from;
+  while (pos < end && bytes[pos] !== OPCODE_MARKER) {
+    pos++;
+  }
+  return pos;
+}
+
+function attachTextEntries(entries: ScriptEntry[], bytes: Uint8Array, textBlockPos: number, fileSize: number): void {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const textCount = view.getInt32(textBlockPos, true);
+  const offsetAt = (textId: number) => view.getInt32(textBlockPos + 4 + textId * 4, true);
+  const buffer = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+
+  for (const entry of entries) {
     if (entry.opcode !== OP_TEXT) {
-      entry.text = null;
       continue;
     }
-
-    // Big-endian: MSB first, LSB second (as stored in file)
     const textId = (entry.args[0] << 8) | entry.args[1];
-
-    if (textId >= s.textEntries) {
-      throw new Error("[read] error: text id out of range.");
+    if (textId >= textCount) {
+      throw new BinaryError(`text id ${textId} out of range (${textCount} entries)`);
     }
 
-    const textPos = int32(s.textBlockPos + (textId + 1) * 4);
-    const nextTextPos =
-      textId === s.textEntries - 1 ? s.fileSize - s.textBlockPos : int32(s.textBlockPos + (textId + 2) * 4);
-
-    const start = s.textBlockPos + textPos;
-    const text = buffer.toString("utf16le", start, start + (nextTextPos - textPos));
+    const start = textBlockPos + offsetAt(textId);
+    const end = textId === textCount - 1 ? fileSize : textBlockPos + offsetAt(textId + 1);
+    const text = buffer.toString("utf16le", start, end);
     // Drop a byte-reversed BOM if one leads the entry
     entry.text = text.startsWith("\uFFFE") ? text.slice(1) : text;
   }

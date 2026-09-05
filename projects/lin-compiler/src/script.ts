@@ -4,18 +4,13 @@ export const ScriptType = {
 } as const;
 export type ScriptType = (typeof ScriptType)[keyof typeof ScriptType];
 
+/** One opcode invocation. `args` holds the raw argument bytes; `text` is set only on Text entries. */
 export interface ScriptEntry {
   opcode: number;
   args: number[];
-  text?: string | null;
+  text?: string;
 }
 
-export class Script {
-  file: Uint8Array = new Uint8Array(0);
-  type: ScriptType = ScriptType.Textless;
-  headerSize = 0;
-  fileSize = 0;
-  textBlockPos = 0;
-  scriptData: ScriptEntry[] = [];
-  textEntries = 0;
+export interface Script {
+  entries: ScriptEntry[];
 }

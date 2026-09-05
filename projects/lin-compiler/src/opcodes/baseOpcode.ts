@@ -1,97 +1,76 @@
-import { options, toHexOpcode } from "../options.ts";
-import type { SourceBuilder } from "../output.ts";
-import { type ByteCursor, countBytes, formatValue, ParamType, parseValue } from "../parameter.ts";
-import type { Script, ScriptEntry } from "../script.ts";
+import { SourceError } from "../errors.ts";
+import { byteSize, decodeValue, ParamType, parseArg, splitArgs } from "../parameter.ts";
+import type { ScriptEntry } from "../script.ts";
 
 /** Shorthand for an opcode that takes `count` plain bytes. */
 export function bytes(count: number): ParamType[] {
-  return new Array(count).fill(ParamType.Byte);
+  return new Array<ParamType>(count).fill(ParamType.Byte);
 }
 
+/**
+ * Describes one opcode: its binary id, source name, and how its arguments convert between
+ * the raw bytes stored on a `ScriptEntry` and the argument list written in `.linscript`.
+ * Subclass to customise either direction.
+ */
 export class BaseOpcode {
-  /** Set when the opcode is registered in the dictionary. */
-  opcode: number;
-  readonly name: string | null;
-  readonly paramTypes: ParamType[];
-  isVarArg = false;
+  readonly id: number;
+  readonly name: string;
+  readonly params: readonly ParamType[];
+  /** Variadic opcodes have no fixed byte count; the reader consumes bytes up to the next marker. */
+  readonly variadic: boolean;
 
-  constructor(name: string | null, paramTypes: ParamType[] | number = [], opcode = 0xff) {
-    this.opcode = opcode;
+  constructor(id: number, name: string, params: readonly ParamType[] | number = [], variadic = false) {
+    this.id = id;
     this.name = name;
-    this.paramTypes = typeof paramTypes === "number" ? bytes(paramTypes) : paramTypes;
+    this.params = typeof params === "number" ? bytes(params) : params;
+    this.variadic = variadic;
   }
 
-  getByteCount(): number {
-    return this.paramTypes.reduce((total, type) => total + countBytes(type), 0);
+  /** Total argument bytes. Meaningless for variadic opcodes. */
+  get argByteCount(): number {
+    return this.params.reduce((total, type) => total + byteSize(type), 0);
   }
 
-  get displayName(): string {
-    return this.name ?? toHexOpcode(this.opcode);
-  }
-
-  writeSource(output: SourceBuilder, script: Script, scriptEntry: ScriptEntry): void {
-    output.append(options.useHexOpcodes ? toHexOpcode(this.opcode) : this.displayName);
-    output.append("(");
-    this.writeSourceArgs(output, script, scriptEntry);
-    output.appendLine(")");
-  }
-
-  writeSourceArgs(output: SourceBuilder, _script: Script, scriptEntry: ScriptEntry): void {
-    const argValues = scriptEntry.args;
-    if (argValues.length === 0) {
-      return;
+  /** Render `entry.args` as the comma-separated argument list used in source. */
+  formatArgs(entry: ScriptEntry): string {
+    if (entry.args.length !== this.argByteCount) {
+      // Malformed entry: keep every byte visible rather than decoding garbage
+      return formatRawBytes(entry.args);
     }
+    return formatByLayout(this.params, entry.args);
+  }
 
-    const args: string[] = [];
-    const cursor: ByteCursor = { index: 0 };
-    const values = Uint8Array.from(argValues);
+  /** Parse a source argument list into the entries it compiles to. */
+  parseSource(argsText: string, line: number): ScriptEntry[] {
+    return [{ opcode: this.id, args: this.parseArgs(argsText, line) }];
+  }
 
-    for (const paramType of this.paramTypes) {
-      args.push(formatValue(paramType, values, cursor));
+  /** Parse a source argument list into raw argument bytes. */
+  protected parseArgs(argsText: string, line: number): number[] {
+    const values = splitArgs(argsText);
+    if (values.length !== this.params.length) {
+      throw new SourceError(line, `${this.name} expects ${this.params.length} argument(s), got ${values.length}`);
     }
-    output.appendJoin(", ", args);
+    return parseByLayout(this.params, values, line);
   }
+}
 
-  readSource(argsString: string, lineNum: number, _script: Script): ScriptEntry[] {
-    return [
-      {
-        opcode: this.opcode,
-        args: this.parseOpcodeArgs(argsString, lineNum),
-      },
-    ];
+/** Decode `args` according to `layout` and join the values for source output. */
+export function formatByLayout(layout: readonly ParamType[], args: readonly number[]): string {
+  const values: string[] = [];
+  let offset = 0;
+  for (const type of layout) {
+    values.push(String(decodeValue(type, args, offset)));
+    offset += byteSize(type);
   }
+  return values.join(", ");
+}
 
-  protected parseOpcodeArgs(argsString: string, lineNum: number): number[] {
-    const trimmed = argsString.trim();
+/** Encode one source value per entry of `layout`. Callers check the counts match first. */
+export function parseByLayout(layout: readonly ParamType[], values: readonly string[], line: number): number[] {
+  return layout.flatMap((type, i) => parseArg(type, values[i], line));
+}
 
-    // Empty args
-    if (trimmed.length === 0) {
-      return [];
-    }
-
-    const argStrings = trimmed.split(",").map((arg) => arg.trim());
-
-    // Convert arguments to bytes based on parameter types
-    const argBytes: number[] = [];
-
-    let argIndex = 0;
-    for (const paramType of this.paramTypes) {
-      if (argIndex >= argStrings.length) {
-        throw new Error(`[read] error: not enough arguments at line ${lineNum + 1}`);
-      }
-
-      parseValue(paramType, argStrings[argIndex], argBytes, lineNum);
-      argIndex++;
-    }
-
-    return argBytes;
-  }
-
-  /**
-   * Called during compilation to prepare the entry for writing.
-   * Override for opcodes that need special preparation (e.g. text ID assignment).
-   */
-  prepareForCompilation(_script: Script, _entry: ScriptEntry): void {
-    // Default: no special preparation needed
-  }
+export function formatRawBytes(args: readonly number[]): string {
+  return args.join(", ");
 }

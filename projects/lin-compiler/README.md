@@ -3,13 +3,18 @@
 TypeScript CLI and library for compiling/decompiling Danganronpa script files between the
 binary `.lin` format and the human-readable `.linscript` format.
 
-## Build
+## Build and test
 
 ```bash
 pnpm --filter lin-compiler run typecheck   # or, from the repo root: pnpm compile
+pnpm --filter lin-compiler run test        # unit tests, plus a corpus round-trip when scripts are extracted
 ```
 
 There is no build output: Node runs the TypeScript sources directly via type stripping, with `src/cli.ts` as the entry point.
+
+The corpus test in `test/corpus.test.ts` decompiles and recompiles every `.lin` under
+`workspace/modded/dr1_data_us/Dr1/data/us/script` and checks the regenerated source is
+identical. It is skipped when that directory has not been extracted with `pnpm unpack`.
 
 ## Usage
 
@@ -39,29 +44,41 @@ not accepted in that mode.
 
 ## Library
 
-The package also exports its internals for use from other scripts:
+The package also exports its internals for use from other scripts. Readers return a `Script`,
+writers take one, and nothing depends on process-wide state:
 
 ```ts
-import { loadScript, writeCompiledBytes, writeSourceText } from "lin-compiler";
+import { readCompiledFile, readSource, writeCompiledBytes, writeSourceText } from "lin-compiler";
 
-const script = await loadScript("input.lin", true);
-const source = writeSourceText(script, 2);
+const script = await readCompiledFile("input.lin");
+const source = writeSourceText(script, { indentSpaces: 4, hexOpcodes: false });
+const bytes = writeCompiledBytes(readSource(source));
 ```
+
+A `Script` is `{ entries: ScriptEntry[] }`, where each entry is `{ opcode, args, text? }` with
+`args` holding the raw argument bytes and `text` set only on Text entries. Malformed source
+throws `SourceError` (with a 1-based `line`); malformed binaries throw `BinaryError`.
 
 ## Layout
 
 | Path | Contents |
 | --- | --- |
-| `src/cli.ts` | Argument parsing, single-file and batch drivers |
+| `src/cli.ts` | Argument parsing, single-file and batch drivers, all console output |
 | `src/script.ts` | `Script` / `ScriptEntry` model and `ScriptType` |
-| `src/scriptRead.ts` | Binary `.lin` and `.linscript` source parsing |
-| `src/scriptWrite.ts` | `.linscript` emission (incl. AutoText sugar) and `.lin` serialisation |
-| `src/parameter.ts` | Argument encodings (`Byte`, `UInt16LE`, `UInt16BE`) |
+| `src/scriptRead.ts` | Parsing of compiled `.lin` bytes and `.linscript` source |
+| `src/scriptWrite.ts` | `.linscript` emission (indentation, AutoText collapsing) and `.lin` serialisation |
+| `src/parameter.ts` | Argument encodings (`Byte`, `UInt16LE`, `UInt16BE`) and decimal parsing |
+| `src/errors.ts` | `SourceError` and `BinaryError` |
 | `src/opcodes/` | Opcode table and the per-opcode behaviours |
+| `test/` | `node:test` suites |
 
 To teach the compiler a new opcode, add an entry to `opcodeList` in
 `src/opcodes/opcodeDictionary.ts`. Opcodes needing custom argument formatting or source
-expansion subclass `BaseOpcode` (see `TextOpcode`, `AutoTextOpcode`, `EvaluateOpcode`).
+expansion subclass `BaseOpcode` and override `formatArgs` (decompile) and `parseSource` or
+`parseArgs` (compile); see `TextOpcode`, `AutoTextOpcode`, `EvaluateOpcode`. AutoText sugar is
+owned entirely by `src/opcodes/autoTextOpcode.ts`, which handles both expansion and collapsing.
+
+Unknown opcodes decompile to `0xNN(bytes...)` and compile back from that form verbatim.
 
 ## Credit
  - The original source for the lin-compiler was cloned from https://github.com/vn-tools/danganronpa-tools.

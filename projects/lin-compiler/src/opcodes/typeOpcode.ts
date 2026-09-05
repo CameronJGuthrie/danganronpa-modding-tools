@@ -1,37 +1,23 @@
-import type { SourceBuilder } from "../output.ts";
+import { SourceError } from "../errors.ts";
 import { ParamType } from "../parameter.ts";
-import { type Script, type ScriptEntry, ScriptType } from "../script.ts";
+import type { ScriptEntry } from "../script.ts";
 import { BaseOpcode } from "./baseOpcode.ts";
 
+/**
+ * Opcode 0x00 - Type. Its argument is the text entry count, which the compiler computes itself,
+ * so the decompiler omits the opcode and the compiler synthesises it. It is still accepted in
+ * source as `Type(Text)` / `Type(Textless)` for compatibility with older scripts.
+ */
 export class TypeOpcode extends BaseOpcode {
-  constructor(name: string, opcode = 0xff) {
-    super(name, [ParamType.UInt16LE], opcode);
+  constructor(id: number, name: string) {
+    super(id, name, [ParamType.UInt16LE]);
   }
 
-  override readSource(argsString: string, lineNum: number, script: Script): ScriptEntry[] {
-    // Parse the script type and set it on the script
-    const value = argsString.trim();
-
-    if (value.toLowerCase() === "textless") {
-      script.type = ScriptType.Textless;
-    } else if (value.toLowerCase() === "text") {
-      script.type = ScriptType.Text;
-    } else {
-      throw new Error(`[read] error: Type opcode expects 'Textless' or 'Text' at line ${lineNum + 1}, got '${value}'`);
+  override parseSource(argsText: string, line: number): ScriptEntry[] {
+    const value = argsText.trim().toLowerCase();
+    if (value !== "textless" && value !== "text") {
+      throw new SourceError(line, `${this.name} expects 'Textless' or 'Text', got '${argsText.trim()}'`);
     }
-
-    // 2-byte arg array, filled with the text count during PrepareForCompilation
-    return [{ opcode: this.opcode, args: [0, 0] }];
-  }
-
-  override writeSourceArgs(output: SourceBuilder, script: Script, _scriptEntry: ScriptEntry): void {
-    output.append(script.type === ScriptType.Textless ? "Textless" : "Text");
-  }
-
-  override prepareForCompilation(script: Script, entry: ScriptEntry): void {
-    // Type opcode parameter is the text entry count (little-endian)
-    const textCount = script.textEntries & 0xffff;
-    entry.args[0] = textCount & 0xff;
-    entry.args[1] = textCount >> 8;
+    return [{ opcode: this.id, args: [0, 0] }];
   }
 }

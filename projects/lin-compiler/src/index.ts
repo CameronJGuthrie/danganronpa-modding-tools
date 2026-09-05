@@ -1,16 +1,15 @@
-export { loadScript } from "./loadScript.ts";
-export { BaseOpcode } from "./opcodes/baseOpcode.ts";
+export { BinaryError, SourceError } from "./errors.ts";
+export { BaseOpcode, bytes } from "./opcodes/baseOpcode.ts";
 export * from "./opcodes/ids.ts";
+export { getOpcode, getOpcodeByName, hexOpcodeName, parseHexOpcodeName } from "./opcodes/opcodeDictionary.ts";
+export { byteSize, decodeValue, encodeValue, ParamType } from "./parameter.ts";
+export { type Script, type ScriptEntry, ScriptType } from "./script.ts";
+export { readCompiled, readCompiledFile, readSource, readSourceFile } from "./scriptRead.ts";
 export {
-  getOpcodeArgCount,
-  getOpcodeByName,
-  getOpcodeDefinition,
-  getOpcodeDefinitionByName,
-  getOpcodeParamTypes,
-  getOpName,
-} from "./opcodes/opcodeDictionary.ts";
-export { options } from "./options.ts";
-export { countBytes, ParamType } from "./parameter.ts";
-export { Script, type ScriptEntry, ScriptType } from "./script.ts";
-export { readCompiled, readCompiledFile, readSource, readSourceText } from "./scriptRead.ts";
-export { writeCompiled, writeCompiledBytes, writeSource, writeSourceText } from "./scriptWrite.ts";
+  DEFAULT_INDENT_SPACES,
+  type WriteSourceOptions,
+  writeCompiledBytes,
+  writeCompiledFile,
+  writeSourceFile,
+  writeSourceText,
+} from "./scriptWrite.ts";

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { readdir, stat } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
-import { loadScript } from "./loadScript.ts";
-import { options } from "./options.ts";
-import { writeCompiled, writeSource } from "./scriptWrite.ts";
+import { readCompiledFile, readSourceFile } from "./scriptRead.ts";
+import { DEFAULT_INDENT_SPACES, type WriteSourceOptions, writeCompiledFile, writeSourceFile } from "./scriptWrite.ts";
 
 const USAGE = `
 lin-compiler: danganronpa script (de)compiler
@@ -14,7 +13,7 @@ options:
 -d, --decompile\t\tdecompile the input file or directory (default is compile)
 -s, --silent\t\tsuppress all non-error messages
 --hex\t\t\toutput opcodes as hex codes instead of names (decompile only)
---indent-spaces N\tset indentation spaces per level (default: 2)
+--indent-spaces N\tset indentation spaces per level (default: ${DEFAULT_INDENT_SPACES})
 
 Batch processing:
   When input is a directory, all matching files will be processed:
@@ -22,120 +21,104 @@ Batch processing:
   - Compile mode: processes all .linscript files to .lin
 `;
 
+type Mode = "compile" | "decompile";
+
 interface CliArgs {
-  decompile: boolean;
-  indentSpaces: number;
+  mode: Mode;
+  silent: boolean;
+  source: WriteSourceOptions;
   input: string;
   output: string | null;
 }
 
-function trimExtension(path: string): string {
-  const ext = extname(path);
-  return ext === "" ? path : path.slice(0, -ext.length);
-}
+const EXTENSIONS: Record<Mode, { input: string; output: string }> = {
+  compile: { input: ".linscript", output: ".lin" },
+  decompile: { input: ".lin", output: ".linscript" },
+};
 
+/** Parse command-line arguments; returns null when usage should be shown instead. */
 export function parseArgs(argv: readonly string[]): CliArgs | null {
-  let decompile = false;
-  let indentSpaces = 2;
-  const plainArgs: string[] = [];
-
   if (argv.length === 0) {
     return null;
   }
+  const args: CliArgs = { mode: "compile", silent: false, source: {}, input: "", output: null };
+  const positional: string[] = [];
 
   for (let i = 0; i < argv.length; i++) {
-    const a = argv[i];
-    if (!a.startsWith("-")) {
-      plainArgs.push(a);
-      continue;
-    }
-
-    switch (a) {
+    const arg = argv[i];
+    switch (arg) {
       case "-h":
       case "--help":
         return null;
       case "-d":
       case "--decompile":
-        decompile = true;
+        args.mode = "decompile";
         break;
       case "-s":
       case "--silent":
-        options.silent = true;
+        args.silent = true;
         break;
       case "--hex":
-        options.useHexOpcodes = true;
+        args.source.hexOpcodes = true;
         break;
       case "--indent-spaces": {
-        if (i + 1 >= argv.length) {
-          throw new Error("error: --indent-spaces requires a numeric argument.");
+        const value = argv[++i];
+        if (value === undefined || !/^\d+$/.test(value)) {
+          throw new Error("error: --indent-spaces requires a non-negative integer.");
         }
-        const value = argv[i + 1];
-        indentSpaces = Number(value);
-        if (!/^\d+$/.test(value) || !Number.isSafeInteger(indentSpaces)) {
-          throw new Error("error: --indent-spaces must be a non-negative integer.");
-        }
-        i++; // Skip the next argument since we consumed it
+        args.source.indentSpaces = Number(value);
         break;
       }
       default:
-        // Unrecognised flags are ignored, as in the original compiler
-        break;
+        if (arg.startsWith("-")) {
+          // Unrecognised flags are ignored, as in the original compiler
+          break;
+        }
+        positional.push(arg);
     }
   }
 
-  if (plainArgs.length === 0 || plainArgs.length > 2) {
+  if (positional.length === 0 || positional.length > 2) {
     throw new Error("error: incorrect arguments.");
   }
-
-  return {
-    decompile,
-    indentSpaces,
-    input: plainArgs[0],
-    output: plainArgs.length === 2 ? plainArgs[1] : null,
-  };
+  args.input = positional[0];
+  args.output = positional[1] ?? null;
+  return args;
 }
 
-async function processSingleFile(input: string, output: string, decompile: boolean, indentSpaces = 2): Promise<void> {
-  const script = await loadScript(input, decompile);
-  if (decompile) {
-    await writeSource(script, output, indentSpaces);
+async function convertFile(input: string, output: string, args: CliArgs): Promise<void> {
+  if (args.mode === "decompile") {
+    await writeSourceFile(await readCompiledFile(input), output, args.source);
   } else {
-    await writeCompiled(script, output);
+    await writeCompiledFile(await readSourceFile(input), output);
   }
 }
 
-async function processDirectory(directory: string, decompile: boolean, indentSpaces = 2): Promise<void> {
-  const inputExtension = decompile ? ".lin" : ".linscript";
-  const outputExtension = decompile ? ".linscript" : ".lin";
-
-  const files = (await readdir(directory)).filter((name) => extname(name) === inputExtension).sort();
+async function convertDirectory(directory: string, args: CliArgs): Promise<void> {
+  const ext = EXTENSIONS[args.mode];
+  const files = (await readdir(directory)).filter((name) => extname(name) === ext.input).sort();
 
   if (files.length === 0) {
-    console.log(`No *${inputExtension} files found in ${directory}`);
+    console.log(`No *${ext.input} files found in ${directory}`);
     return;
   }
 
-  let successCount = 0;
-  let errorCount = 0;
-
+  let succeeded = 0;
+  let failed = 0;
   for (const fileName of files) {
-    const inputFile = join(directory, fileName);
-    const outputFile = join(directory, basename(fileName, inputExtension) + outputExtension);
-
+    if (!args.silent) {
+      console.log(`Processing ${fileName}...`);
+    }
     try {
-      if (!options.silent) {
-        console.log(`Processing ${fileName}...`);
-      }
-
-      await processSingleFile(inputFile, outputFile, decompile, indentSpaces);
-      successCount++;
+      await convertFile(join(directory, fileName), join(directory, basename(fileName, ext.input) + ext.output), args);
+      succeeded++;
     } catch (error) {
-      console.error(`Error processing ${fileName}: ${error instanceof Error ? error.message : error}`);
-      errorCount++;
+      console.error(`Error processing ${fileName}: ${errorMessage(error)}`);
+      failed++;
     }
   }
 
-  console.log(`\nBatch complete: ${successCount} succeeded, ${errorCount} failed`);
+  console.log(`\nBatch complete: ${succeeded} succeeded, ${failed} failed`);
 }
 
 async function pathKind(path: string): Promise<"directory" | "file" | "missing"> {
@@ -144,6 +127,10 @@ async function pathKind(path: string): Promise<"directory" | "file" | "missing">
   } catch {
     return "missing";
   }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 export async function main(argv: readonly string[]): Promise<void> {
@@ -158,11 +145,14 @@ export async function main(argv: readonly string[]): Promise<void> {
       if (args.output !== null) {
         throw new Error("error: output path not supported for directory batch processing.");
       }
-      await processDirectory(args.input, args.decompile, args.indentSpaces);
+      await convertDirectory(args.input, args);
       break;
     case "file": {
-      const output = args.output ?? trimExtension(args.input) + (args.decompile ? ".linscript" : ".lin");
-      await processSingleFile(args.input, output, args.decompile, args.indentSpaces);
+      const defaultOutput = args.input.slice(0, -extname(args.input).length || undefined) + EXTENSIONS[args.mode].output;
+      await convertFile(args.input, args.output ?? defaultOutput, args);
+      if (!args.silent) {
+        console.log(`Wrote ${args.output ?? defaultOutput}`);
+      }
       break;
     }
     default:
@@ -171,6 +161,6 @@ export async function main(argv: readonly string[]): Promise<void> {
 }
 
 main(process.argv.slice(2)).catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
+  console.error(errorMessage(error));
   process.exitCode = 1;
 });

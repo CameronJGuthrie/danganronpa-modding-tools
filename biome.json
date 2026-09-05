@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["projects/lin-compiler/src/**/*.ts", "projects/vscode-extension/src/**/*.ts"]
+    "includes": ["projects/lin-compiler/src/**/*.ts", "projects/lin-compiler/test/**/*.ts", "projects/vscode-extension/src/**/*.ts"]
   },
   "formatter": {
     "enabled": true,

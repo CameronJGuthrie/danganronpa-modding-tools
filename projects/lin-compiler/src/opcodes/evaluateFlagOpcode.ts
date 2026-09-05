@@ -1,47 +1,28 @@
-import type { SourceBuilder } from "../output.ts";
-import type { Script, ScriptEntry } from "../script.ts";
-import { BaseOpcode } from "./baseOpcode.ts";
-import { parseByteArg } from "./parseHelpers.ts";
+import { SourceError } from "../errors.ts";
+import { ParamType, parseArg, splitArgs } from "../parameter.ts";
+import type { ScriptEntry } from "../script.ts";
+import { BaseOpcode, formatRawBytes } from "./baseOpcode.ts";
+
+const MIN_ARGS = 4;
 
 /**
- * Opcode 0x35 - EvaluateFlag
- * Format: byte byte byte count [variable bytes - flag checking logic]
- * The count byte and remaining bytes form a complex flag-checking structure.
+ * Opcode 0x35 - EvaluateFlag. Three fixed bytes, a count byte, then a variable number of
+ * flag-check bytes whose structure is not yet understood, so every byte is shown verbatim.
  */
 export class EvaluateFlagOpcode extends BaseOpcode {
-  constructor() {
-    super("EvaluateFlag");
-    this.isVarArg = true;
+  constructor(id: number, name: string) {
+    super(id, name, [], true);
   }
 
-  override writeSourceArgs(output: SourceBuilder, script: Script, scriptEntry: ScriptEntry): void {
-    const args = scriptEntry.args;
-    if (args.length < 4) {
-      // Shouldn't happen, but handle gracefully
-      super.writeSourceArgs(output, script, scriptEntry);
-      return;
-    }
-
-    // First 3 fixed bytes, the count byte, then all remaining bytes verbatim
-    output.appendJoin(", ", args.map(String));
+  override formatArgs(entry: ScriptEntry): string {
+    return formatRawBytes(entry.args);
   }
 
-  protected override parseOpcodeArgs(argsString: string, lineNum: number): number[] {
-    const trimmed = argsString.trim();
-
-    if (trimmed.length === 0) {
-      throw new Error(`[read] error: EvaluateFlag requires at least 4 arguments at line ${lineNum + 1}`);
+  protected override parseArgs(argsText: string, line: number): number[] {
+    const values = splitArgs(argsText);
+    if (values.length < MIN_ARGS) {
+      throw new SourceError(line, `${this.name} expects at least ${MIN_ARGS} arguments, got ${values.length}`);
     }
-
-    const argStrings = trimmed.split(",").map((arg) => arg.trim());
-
-    if (argStrings.length < 4) {
-      throw new Error(`[read] error: EvaluateFlag requires at least 4 arguments at line ${lineNum + 1}`);
-    }
-
-    // First 3 fixed bytes, the count byte, then remaining bytes (variable, per flag logic)
-    return argStrings.map((arg, i) =>
-      parseByteArg(arg, lineNum, i === 3 ? "invalid count value" : "invalid byte value"),
-    );
+    return values.flatMap((value) => parseArg(ParamType.Byte, value, line));
   }
 }
