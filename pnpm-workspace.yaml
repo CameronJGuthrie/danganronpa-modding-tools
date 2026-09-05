@@ -3,15 +3,13 @@ packages:
   - projects/vscode-extension
   - projects/scripts
 
+allowBuilds:
+  '@vscode/vsce-sign': true
+  canvas: true
+  keytar: true
+
 catalog:
   typescript: ^7.0.2
-
-onlyBuiltDependencies:
-  - '@vscode/vsce-sign'
-  - electron
-  - electron-winstaller
-  - esbuild
-  - keytar
 
 overrides:
   adm-zip@<0.6.0: '>=0.6.0'
