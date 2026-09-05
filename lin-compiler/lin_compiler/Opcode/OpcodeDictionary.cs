@@ -16,6 +16,7 @@ namespace LIN
             { 0x04, new BaseOpcode("PostProcessingEffect", 4) },
             { 0x05, new BaseOpcode("Movie", 2) },
             { 0x06, new BaseOpcode("Animation", Type.UInt16BE, Type.Byte, Type.Byte, Type.Byte, Type.Byte, Type.Byte, Type.Byte) },
+            // No 0x07
             { 0x08, new BaseOpcode("Voice", [Type.Byte, Type.Byte, Type.UInt16BE, Type.Byte]) },
             { 0x09, new BaseOpcode("Music", 3) },
             { 0x0A, new BaseOpcode("Sound", [Type.UInt16BE, Type.Byte]) },
@@ -26,8 +27,13 @@ namespace LIN
             { 0x0F, new BaseOpcode("StudentTitleEntry", 3) },
             { 0x10, new BaseOpcode("StudentReportInfo", 3) },
             { 0x11, new BaseOpcode("StudentRelationship", 4) },
+            // No 0x12
+            // No 0x13
             { 0x14, new BaseOpcode("TrialCamera", Type.Byte, Type.UInt16BE) },
             { 0x15, new BaseOpcode("LoadMap", 3) },
+            // No 0x16
+            // No 0x17
+            // No 0x18
             { 0x19, new BaseOpcode("LoadScript", 3) },
             { 0x1A, new BaseOpcode("StopScript", 0) },
             { 0x1B, new BaseOpcode("RunScript", 3) },
@@ -38,9 +44,11 @@ namespace LIN
             { 0x21, new BaseOpcode("Speaker", 1) },
             { 0x22, new BaseOpcode("ScreenFade", 3) },
             { 0x23, new BaseOpcode("ObjectState", 5) },
+            // No 0x24
             { 0x25, new BaseOpcode("ChangeUI", 2) },
             { 0x26, new BaseOpcode("SetVar8", 3) },
             { 0x27, new BaseOpcode("CheckCharacter", 1) },
+            // No 0x28
             { 0x29, new BaseOpcode("CheckObject", 1) },
             { 0x2A, new BaseOpcode("Label", Type.UInt16BE) },
             { 0x2B, new BaseOpcode("SetOption", 1) },
