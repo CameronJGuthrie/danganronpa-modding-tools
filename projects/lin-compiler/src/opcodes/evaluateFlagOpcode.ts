@@ -1,5 +1,6 @@
 import { SourceError } from "../errors.ts";
-import { ParamType, parseArg, splitArgs } from "../parameter.ts";
+import { ParameterType } from "../definitions/parameter.definition.ts";
+import { parseArg, splitArgs } from "../parameter.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { BaseOpcode, formatRawBytes } from "./baseOpcode.ts";
 
@@ -23,6 +24,6 @@ export class EvaluateFlagOpcode extends BaseOpcode {
     if (values.length < MIN_ARGS) {
       throw new SourceError(line, `${this.name} expects at least ${MIN_ARGS} arguments, got ${values.length}`);
     }
-    return values.flatMap((value) => parseArg(ParamType.Byte, value, line));
+    return values.flatMap((value) => parseArg(ParameterType.Byte, value, line));
   }
 }

@@ -1,14 +1,15 @@
 import { SourceError } from "../errors.ts";
-import { ParamType, splitArgs } from "../parameter.ts";
+import { ParameterType } from "../definitions/parameter.definition.ts";
+import { splitArgs } from "../parameter.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { BaseOpcode, formatByLayout, formatRawBytes, parseByLayout } from "./baseOpcode.ts";
 
-const { Byte, UInt16BE } = ParamType;
+const { Byte, UInt16BE } = ParameterType;
 
 /** `value1, operand, value2` */
-const FIRST_EXPRESSION: readonly ParamType[] = [UInt16BE, Byte, UInt16BE];
+const FIRST_EXPRESSION: readonly ParameterType[] = [UInt16BE, Byte, UInt16BE];
 /** `joiner, value1, operand, value2` */
-const CHAINED_EXPRESSION: readonly ParamType[] = [Byte, UInt16BE, Byte, UInt16BE];
+const CHAINED_EXPRESSION: readonly ParameterType[] = [Byte, UInt16BE, Byte, UInt16BE];
 
 const FIRST_BYTES = 5;
 const CHAINED_BYTES = 6;
@@ -41,7 +42,7 @@ export class EvaluateOpcode extends BaseOpcode {
 }
 
 /** Parameter layout of a first expression followed by `chainedCount` chained expressions. */
-function chainLayout(chainedCount: number): ParamType[] {
+function chainLayout(chainedCount: number): ParameterType[] {
   const layout = [...FIRST_EXPRESSION];
   for (let i = 0; i < chainedCount; i++) {
     layout.push(...CHAINED_EXPRESSION);

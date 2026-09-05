@@ -69,7 +69,8 @@ throws `SourceError` (with a 1-based `line`); malformed binaries throw `BinaryEr
 | `src/io/lin-writer.ts` | `.lin` serialisation |
 | `src/io/linscript-reader.ts` | Parsing of `.linscript` source |
 | `src/io/linscript-writer.ts` | `.linscript` emission (indentation, AutoText collapsing) |
-| `src/parameter.ts` | Argument encodings (`Byte`, `UInt16LE`, `UInt16BE`) and decimal parsing |
+| `src/definitions/parameter.definition.ts` | `ParamType` argument encodings (`Byte`, `UInt16LE`, `UInt16BE`) |
+| `src/parameter.ts` | Encoding, decoding and decimal parsing of arguments |
 | `src/errors.ts` | `SourceError` and `BinaryError` |
 | `src/opcodes/` | Opcode table and the per-opcode behaviours |
 | `test/` | `node:test` suites |

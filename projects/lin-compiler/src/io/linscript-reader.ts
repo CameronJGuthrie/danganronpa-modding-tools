@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { SourceError } from "../errors.ts";
 import { getOpcodeByName, parseHexOpcodeName } from "../opcodes/opcodeDictionary.ts";
-import { ParamType, parseArg, splitArgs } from "../parameter.ts";
+import { ParameterType } from "../definitions/parameter.definition.ts";
+import { parseArg, splitArgs } from "../parameter.ts";
 import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 
 /** Matches `OpcodeName(args)` or `0xNN(args)`, capturing the name and the raw argument text. */
@@ -42,7 +43,7 @@ function parseOpcodeLine(name: string, argsText: string, line: number): ScriptEn
   // An unregistered `0xNN(a, b, c)` is written by the decompiler for unknown opcodes; take its bytes verbatim
   const rawId = parseHexOpcodeName(name);
   if (rawId !== undefined) {
-    const args = splitArgs(argsText).flatMap((value) => parseArg(ParamType.Byte, value, line));
+    const args = splitArgs(argsText).flatMap((value) => parseArg(ParameterType.Byte, value, line));
     return [{ opcode: rawId, args }];
   }
 
@@ -53,4 +54,3 @@ function splitLines(source: string): string[] {
   const text = source.startsWith("\uFEFF") ? source.slice(1) : source;
   return text.split(/\r\n|\r|\n/);
 }
-

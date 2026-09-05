@@ -1,5 +1,5 @@
 import { SourceError } from "../errors.ts";
-import { ParamType } from "../parameter.ts";
+import { ParameterType } from "../definitions/parameter.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { BaseOpcode } from "./baseOpcode.ts";
 
@@ -10,7 +10,7 @@ import { BaseOpcode } from "./baseOpcode.ts";
  */
 export class TypeOpcode extends BaseOpcode {
   constructor(id: number, name: string) {
-    super(id, name, [ParamType.UInt16LE]);
+    super(id, name, [ParameterType.UInt16LE]);
   }
 
   override parseSource(argsText: string, line: number): ScriptEntry[] {

@@ -1,4 +1,4 @@
-import { ParamType } from "../parameter.ts";
+import { ParameterType } from "../definitions/parameter.definition.ts";
 import { AutoTextOpcode } from "./autoTextOpcode.ts";
 import { BaseOpcode } from "./baseOpcode.ts";
 import { EvaluateFlagOpcode } from "./evaluateFlagOpcode.ts";
@@ -7,7 +7,7 @@ import { OP_TEXT, OP_TEXT_STYLE, OP_TYPE, OP_WAIT_FRAME, OP_WAIT_INPUT } from ".
 import { TextOpcode } from "./textOpcode.ts";
 import { TypeOpcode } from "./typeOpcode.ts";
 
-const { Byte, UInt16BE } = ParamType;
+const { Byte, UInt16BE } = ParameterType;
 
 /** Every known binary opcode. Add an entry here to teach the compiler a new one. */
 const opcodeList: readonly BaseOpcode[] = [

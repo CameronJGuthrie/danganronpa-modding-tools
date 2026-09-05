@@ -1,10 +1,11 @@
 import { SourceError } from "../errors.ts";
-import { byteSize, decodeValue, ParamType, parseArg, splitArgs } from "../parameter.ts";
+import { ParameterType } from "../definitions/parameter.definition.ts";
+import { byteSize, decodeValue, parseArg, splitArgs } from "../parameter.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 
 /** Shorthand for an opcode that takes `count` plain bytes. */
-export function bytes(count: number): ParamType[] {
-  return new Array<ParamType>(count).fill(ParamType.Byte);
+export function bytes(count: number): ParameterType[] {
+  return new Array<ParameterType>(count).fill(ParameterType.Byte);
 }
 
 /**
@@ -15,11 +16,11 @@ export function bytes(count: number): ParamType[] {
 export class BaseOpcode {
   readonly id: number;
   readonly name: string;
-  readonly params: readonly ParamType[];
+  readonly params: readonly ParameterType[];
   /** Variadic opcodes have no fixed byte count; the reader consumes bytes up to the next marker. */
   readonly variadic: boolean;
 
-  constructor(id: number, name: string, params: readonly ParamType[] | number = [], variadic = false) {
+  constructor(id: number, name: string, params: readonly ParameterType[] | number = [], variadic = false) {
     this.id = id;
     this.name = name;
     this.params = typeof params === "number" ? bytes(params) : params;
@@ -56,7 +57,7 @@ export class BaseOpcode {
 }
 
 /** Decode `args` according to `layout` and join the values for source output. */
-export function formatByLayout(layout: readonly ParamType[], args: readonly number[]): string {
+export function formatByLayout(layout: readonly ParameterType[], args: readonly number[]): string {
   const values: string[] = [];
   let offset = 0;
   for (const type of layout) {
@@ -67,7 +68,7 @@ export function formatByLayout(layout: readonly ParamType[], args: readonly numb
 }
 
 /** Encode one source value per entry of `layout`. Callers check the counts match first. */
-export function parseByLayout(layout: readonly ParamType[], values: readonly string[], line: number): number[] {
+export function parseByLayout(layout: readonly ParameterType[], values: readonly string[], line: number): number[] {
   return layout.flatMap((type, i) => parseArg(type, values[i], line));
 }
 
