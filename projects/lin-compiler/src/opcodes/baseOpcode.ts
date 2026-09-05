@@ -2,7 +2,7 @@ import { type Opcode, opcodeName } from "../definitions/opcode.definition.ts";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { SourceError } from "../errors.ts";
-import { byteSize, decodeValue, parseArg, splitArgs } from "../parameter.ts";
+import { decodeValue, parameterProperties, parseArg, splitArgs } from "../parameter.ts";
 
 /** Shorthand for an opcode that takes `count` plain bytes. */
 export function bytes(count: number): ParameterType[] {
@@ -15,7 +15,7 @@ export function bytes(count: number): ParameterType[] {
  * Subclass to customise either direction.
  */
 export class BaseOpcode {
-  readonly id: number;
+  readonly id: Opcode;
   readonly name: string;
   readonly params: readonly ParameterType[];
   /** Variadic opcodes have no fixed byte count; the reader consumes bytes up to the next marker. */
@@ -30,7 +30,7 @@ export class BaseOpcode {
 
   /** Total argument bytes. Meaningless for variadic opcodes. */
   get argByteCount(): number {
-    return this.params.reduce((total, type) => total + byteSize(type), 0);
+    return this.params.reduce((total, type) => total + parameterProperties[type].size, 0);
   }
 
   /** Render `entry.args` as the comma-separated argument list used in source. */
@@ -63,7 +63,7 @@ export function formatByLayout(layout: readonly ParameterType[], args: readonly 
   let offset = 0;
   for (const type of layout) {
     values.push(String(decodeValue(type, args, offset)));
-    offset += byteSize(type);
+    offset += parameterProperties[type].size;
   }
   return values.join(", ");
 }

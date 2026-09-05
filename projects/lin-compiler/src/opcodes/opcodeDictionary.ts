@@ -73,7 +73,7 @@ const opcodeList: readonly BaseOpcode[] = [
 /** Source-only opcodes that expand to binary ones when compiled. */
 const virtualOpcodes: readonly BaseOpcode[] = [new AutoTextOpcode()];
 
-const byId = new Map(opcodeList.map((opcode) => [opcode.id, opcode]));
+const byId = new Map<number, BaseOpcode>(opcodeList.map((opcode) => [opcode.id, opcode]));
 const byName = new Map([...opcodeList, ...virtualOpcodes].map((opcode) => [opcode.name, opcode]));
 
 export function getOpcode(id: number): BaseOpcode | undefined {

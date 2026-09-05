@@ -1,13 +1,16 @@
 import { ParameterType } from "./definitions/parameter.definition.ts";
 import { SourceError } from "./errors.ts";
 
-export function byteSize(type: ParameterType): number {
-  return type === ParameterType.Byte ? 1 : 2;
-}
+type ParameterProperties = {
+  size: number;
+  maxValue: number;
+};
 
-function maxValue(type: ParameterType): number {
-  return type === ParameterType.Byte ? 0xff : 0xffff;
-}
+export const parameterProperties: Record<ParameterType, ParameterProperties> = {
+  Byte: { size: 1, maxValue: 0xff },
+  UInt16BE: { size: 2, maxValue: 0xffff },
+  UInt16LE: { size: 2, maxValue: 0xffff },
+};
 
 /** Decode one value of `type` from `bytes`, starting at `offset`. */
 export function decodeValue(type: ParameterType, bytes: ArrayLike<number>, offset: number): number {
@@ -38,7 +41,7 @@ const UNSIGNED_DECIMAL = /^\+?\d+$/;
 /** Parse a decimal source argument into the bytes of `type`. */
 export function parseArg(type: ParameterType, text: string, line: number): number[] {
   const trimmed = text.trim();
-  if (!UNSIGNED_DECIMAL.test(trimmed) || Number(trimmed) > maxValue(type)) {
+  if (!UNSIGNED_DECIMAL.test(trimmed) || Number(trimmed) > parameterProperties[type].maxValue) {
     throw new SourceError(line, `invalid ${type} argument '${text}'`);
   }
   return encodeValue(type, Number(trimmed));

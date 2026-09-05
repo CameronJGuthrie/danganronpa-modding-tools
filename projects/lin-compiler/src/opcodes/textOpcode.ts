@@ -26,7 +26,7 @@ const BOM = "\uFEFF";
 const NUL = "\0";
 
 /** Quote and escape a text entry, dropping any leading byte-order marks and trailing terminators. */
-export function formatQuotedString(text: string): string {
+function formatQuotedString(text: string): string {
   let start = 0;
   while (text[start] === BOM) {
     start++;

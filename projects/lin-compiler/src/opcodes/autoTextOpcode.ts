@@ -62,7 +62,7 @@ function textStyle(style: number): ScriptEntry {
   return { opcode: Opcode.TextStyle, args: [style & 0xff] };
 }
 
-export interface AutoTextPlan {
+interface AutoTextPlan {
   /** Indices of Text entries to write as `AutoText(...)`. */
   autoText: Set<number>;
   /** Indices of entries absorbed into an AutoText and therefore not written. */

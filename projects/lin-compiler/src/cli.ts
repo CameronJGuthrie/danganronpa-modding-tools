@@ -39,7 +39,7 @@ const EXTENSIONS: Record<Mode, { input: string; output: string }> = {
 };
 
 /** Parse command-line arguments; returns null when usage should be shown instead. */
-export function parseArgs(argv: readonly string[]): CliArgs | null {
+function parseArgs(argv: readonly string[]): CliArgs | null {
   if (argv.length === 0) {
     return null;
   }
@@ -135,7 +135,7 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export async function main(argv: readonly string[]): Promise<void> {
+async function main(argv: readonly string[]): Promise<void> {
   const args = parseArgs(argv);
   if (args === null) {
     console.log(USAGE);
