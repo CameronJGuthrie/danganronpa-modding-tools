@@ -1,4 +1,4 @@
-import { Instruction } from "../types/instruction";
+import type { Instruction } from "../types/instruction";
 
 type InstructionDetailsProps = {
   instruction: Instruction;

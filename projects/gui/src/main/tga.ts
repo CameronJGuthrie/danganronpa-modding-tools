@@ -1,5 +1,5 @@
 import { PNG } from "pngjs";
-import { Writable } from "stream";
+import { Writable } from "node:stream";
 import TGA from "tga";
 
 import { loadFile } from "./file";

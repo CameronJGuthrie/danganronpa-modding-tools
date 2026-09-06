@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Character } from "./character";
+import type { Character } from "./character";
 
 export type SpriteMeta = {
   name: string;

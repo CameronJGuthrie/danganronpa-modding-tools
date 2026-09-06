@@ -10,9 +10,7 @@ if (!container) {
 const root = createRoot(container);
 
 root.render(
-  <>
-    <AppContextProvider>
-      <Layout />
-    </AppContextProvider>
-  </>
+  <AppContextProvider>
+    <Layout />
+  </AppContextProvider>,
 );

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useFile } from "../hooks/useFile";
-import { Instruction } from "../types/instruction";
+import type { Instruction } from "../types/instruction";
 import { uid } from "../util/uid";
 import { InstructionList } from "./InstructionList";
 
@@ -26,7 +26,7 @@ export function ScriptViewer() {
 
   return (
     <div className="flex flex-col items-start bg-slate-100 p-4 gap-4">
-      <button onClick={onChooseScript} className="bg-slate-400 p-2">
+      <button type="button" onClick={onChooseScript} className="bg-slate-400 p-2">
         Choose Script
       </button>
 
@@ -64,7 +64,7 @@ function mapInstruction(line: string): Instruction {
 
   let args: number[] = [];
   if (match[2]) {
-    args = match[2].split(",").map((arg) => parseInt(arg));
+    args = match[2].split(",").map((arg) => parseInt(arg, 10));
   }
 
   return {

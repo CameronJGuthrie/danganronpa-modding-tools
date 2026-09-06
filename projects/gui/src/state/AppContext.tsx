@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { Setters } from "../types/setter";
+import type { Setters } from "../types/setter";
 import { useStateSetters } from "./useStateSetters";
 
 export type AppState = AppData & Setters<AppData>;
@@ -29,7 +29,6 @@ export const AppContextProvider = ({ children }: { children: React.ReactNode }) 
 };
 
 // Export hook separately for fast refresh compatibility
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAppContext() {
   const context = useContext(AppContext);
   if (!context) {

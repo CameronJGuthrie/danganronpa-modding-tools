@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { Setters } from "../types/setter";
-import { AppData } from "./AppContext";
+import type { Setters } from "../types/setter";
+import type { AppData } from "./AppContext";
 
 export function useStateSetters(setData: React.Dispatch<React.SetStateAction<AppData>>): Setters<AppData> {
   const setGameDirectory = useCallback(

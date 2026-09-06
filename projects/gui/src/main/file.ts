@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 
 export async function loadFile(filePath: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Character, useCharacters } from "../data/character";
-import { SpriteMeta, useCharacterSprites, useSelectedCharacterSprite } from "../data/sprite";
+import { type Character, useCharacters } from "../data/character";
+import { type SpriteMeta, useCharacterSprites, useSelectedCharacterSprite } from "../data/sprite";
 import { Button } from "./base/Button";
 import { Column } from "./base/Column";
 import { Row } from "./base/Row";

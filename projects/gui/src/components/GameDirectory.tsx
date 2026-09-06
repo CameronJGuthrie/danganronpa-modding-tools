@@ -1,4 +1,5 @@
-import React, { useCallback } from "react";
+import type React from "react";
+import { useCallback } from "react";
 import { useGameDirectory } from "../hooks/useGameDirectory";
 
 const GameDirectory: React.FC = () => {
@@ -14,10 +15,10 @@ const GameDirectory: React.FC = () => {
   return (
     <div className="flex gap-3">
       <div>
-        <label className="text-sm">Game Directory</label>
+        <span className="text-sm">Game Directory</span>
         <div className="p-1 px-3 bg-slate-100 border-slate-300 border-2">{gameDirectory ?? "None"}</div>
       </div>
-      <button className="p-1 px-3 bg-slate-300" onClick={handleSelectDirectory}>
+      <button type="button" className="p-1 px-3 bg-slate-300" onClick={handleSelectDirectory}>
         Browse
       </button>
     </div>

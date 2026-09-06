@@ -1,4 +1,4 @@
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 
 type RowProps = ComponentProps<"button"> & {
   size?: "small" | "medium" | "large";

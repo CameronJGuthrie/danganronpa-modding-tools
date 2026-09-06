@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Instruction } from "../types/instruction";
+import type { Instruction } from "../types/instruction";
 
 type InstructionListProps = {
   instructions: Instruction[];
@@ -38,7 +38,11 @@ function InstructionItem({ instruction, lineNumber, selected, onSelect }: Instru
   const backgroundColor = selected ? "bg-blue-300" : "bg-blue-100";
 
   return (
-    <button className={`flex items-start gap-2 ${backgroundColor} cursor-default font-mono`} onClick={handleClick}>
+    <button
+      type="button"
+      className={`flex items-start gap-2 ${backgroundColor} cursor-default font-mono`}
+      onClick={handleClick}
+    >
       <span className="text-gray-500">{lineNumber}</span>
       <span className="text-left">
         {instruction.functionName}({instruction.args.join(", ")})

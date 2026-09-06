@@ -13,5 +13,5 @@ export function TgaImage({ filePath, width, height }: Props) {
     return null;
   }
 
-  return <img src={dataUrl ?? undefined} width={width} height={height} className="" />;
+  return <img src={dataUrl ?? undefined} alt={filePath} width={width} height={height} />;
 }
