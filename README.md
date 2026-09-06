@@ -141,7 +141,3 @@ Node strips types rather than transforming syntax, so these files must stay *era
 I used Proton version 10 to test most of these changes.
 
 I'm not certain if it does anything, but you can run `pnpm run clear-proton` to clear the game's proton files.
-
-## Volume Warning
-
-Try not to run *all* of the tests in the linscript exploration folder (or even within a script file). If you do, you can say goodbye to your ears.
