@@ -11,12 +11,15 @@ export type AudioTestConfig<TInfo> = {
   controllerLabel: string;
   /** Display label for the run profile */
   runProfileLabel: string;
-  /** Name for the terminal player */
-  playerName: string;
+  /** Playback channel; only one process plays per channel at a time */
+  channel: string;
   /** Function patterns to match (e.g., ["Voice", "0x08"]) */
   functionPatterns: Array<{ name: string; paramCount: number }>;
-  /** Timeout in milliseconds before disposing the terminal */
-  timeoutMs: number;
+  /**
+   * True when these arguments mean "stop this channel" rather than "play something".
+   * For example Music(255, ...) stops the current music. Omit if the opcode has no stop value.
+   */
+  isStopRequest?: (info: TInfo) => boolean;
   /** Parse test info from test ID */
   parseInfoFromTest: (test: vscode.TestItem) => TInfo | null;
   /** Get audio file path from parsed info */
@@ -37,7 +40,7 @@ export type AudioTestConfigBuilder<TInfo> = {
   /** And all other properties not derived from the opcode */
 } & Omit<
   AudioTestConfig<TInfo>,
-  "controllerId" | "controllerLabel" | "runProfileLabel" | "playerName" | "functionPatterns"
+  "controllerId" | "controllerLabel" | "runProfileLabel" | "channel" | "functionPatterns"
 >;
 
 export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): AudioTestConfig<T> {
@@ -47,7 +50,7 @@ export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): Audi
     controllerId: `${opcode.name}-playback-controller`,
     controllerLabel: `${opcode.name} Playback`,
     runProfileLabel: `Play ${opcode.name}`,
-    playerName: `${opcode.name} Player`,
+    channel: opcode.name,
     functionPatterns: [
       {
         name: opcode.name,

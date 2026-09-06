@@ -19,7 +19,6 @@ type VoiceLineInfo = {
 export function registerVoiceTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<VoiceLineInfo> = {
     opcode: voiceMeta,
-    timeoutMs: 20_000,
 
     parseInfoFromTest: (test: vscode.TestItem): VoiceLineInfo | null => {
       // Test ID format: "file:///path:line:characterId:chapter:voiceId:volume"

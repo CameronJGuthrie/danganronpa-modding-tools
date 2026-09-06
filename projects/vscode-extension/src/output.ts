@@ -12,11 +12,12 @@ export function initializeOutputChannel(context: vscode.ExtensionContext): vscod
 }
 
 /**
- * Get the output channel instance
+ * Get the output channel instance, creating it on first use if the extension has not
+ * initialised it yet (for example when a unit under test logs).
  */
 export function getOutputChannel(): vscode.OutputChannel {
   if (!outputChannel) {
-    throw new Error("Output channel not initialized. Call initializeOutputChannel first.");
+    outputChannel = vscode.window.createOutputChannel("Danganronpa Modding");
   }
   return outputChannel;
 }

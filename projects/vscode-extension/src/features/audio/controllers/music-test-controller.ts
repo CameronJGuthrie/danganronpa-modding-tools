@@ -15,7 +15,8 @@ type MusicInfo = {
 export function registerMusicTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<MusicInfo> = {
     opcode: musicMeta,
-    timeoutMs: 15_000,
+    // Music(255, ...) is the engine's "stop music" instruction.
+    isStopRequest: (info) => info.musicId === 255,
 
     parseInfoFromTest: (test: vscode.TestItem): MusicInfo | null => {
       // Test ID format: "file:///path:line:musicId:volume:fadeInTime"
