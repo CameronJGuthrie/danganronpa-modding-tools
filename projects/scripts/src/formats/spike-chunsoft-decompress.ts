@@ -15,11 +15,11 @@
  * Reference: https://github.com/FanTranslatorsInternational/Kuriimu2
  */
 
-import { readFile, writeFile } from 'fs/promises';
-import { errorMessage } from '../lib/errors.ts';
+import { readFile, writeFile } from "node:fs/promises";
+import { errorMessage } from "../lib/errors.ts";
 
-const MAGIC = Buffer.from([0xFC, 0xAA, 0x55, 0xA7]);
-const BUFFER_SIZE = 0x1FFF;
+const MAGIC = Buffer.from([0xfc, 0xaa, 0x55, 0xa7]);
+const BUFFER_SIZE = 0x1fff;
 
 /**
  * Circular buffer for LZ decompression
@@ -46,7 +46,7 @@ class CircularBuffer {
    */
   copy(displacement: number, length: number): Buffer {
     const result = Buffer.alloc(length);
-    let readPos = this.position - displacement;
+    const readPos = this.position - displacement;
 
     for (let i = 0; i < length; i++) {
       const value = this.buffer[(readPos + i) % this.length];
@@ -62,11 +62,11 @@ class CircularBuffer {
 export function decompress(input: Buffer): Buffer {
   // Validate magic
   if (!input.slice(0, 4).equals(MAGIC)) {
-    throw new Error(`Invalid magic bytes. Expected FC AA 55 A7, got ${input.slice(0, 4).toString('hex')}`);
+    throw new Error(`Invalid magic bytes. Expected FC AA 55 A7, got ${input.slice(0, 4).toString("hex")}`);
   }
 
   const decompressedSize = input.readUInt32LE(4);
-  const compressedSize = input.readUInt32LE(8);
+  const _compressedSize = input.readUInt32LE(8);
 
   // Decompress the data starting after the 12-byte header
   return decompressHeaderless(input.slice(12), decompressedSize);
@@ -89,30 +89,28 @@ export function decompressHeaderless(input: Buffer, decompressedSize: number): B
       // Length: 4-7 bytes
       // Displacement: 0-0x1FFF
       const length = ((flag >> 5) & 0x3) + 4;
-      const displacement = ((flag & 0x1F) << 8) | input[inputPos++];
+      const displacement = ((flag & 0x1f) << 8) | input[inputPos++];
 
       previousDisplacement = displacement;
       const copied = circularBuffer.copy(displacement, length);
       copied.copy(output, outputPos);
       outputPos += length;
-    }
-    else if ((flag & 0x60) === 0x60) {
+    } else if ((flag & 0x60) === 0x60) {
       // LZ match continue (reuse previous displacement)
       // Length: 0-0x1F bytes
-      const length = flag & 0x1F;
+      const length = flag & 0x1f;
 
       const copied = circularBuffer.copy(previousDisplacement, length);
       copied.copy(output, outputPos);
       outputPos += length;
-    }
-    else if ((flag & 0x40) === 0x40) {
+    } else if ((flag & 0x40) === 0x40) {
       // RLE data
       // Length: 4-0x1003 bytes
       let length: number;
       if ((flag & 0x10) === 0x00) {
-        length = (flag & 0x0F) + 4;
+        length = (flag & 0x0f) + 4;
       } else {
-        length = ((flag & 0x0F) << 8) + input[inputPos++] + 4;
+        length = ((flag & 0x0f) << 8) + input[inputPos++] + 4;
       }
 
       const value = input[inputPos++];
@@ -120,15 +118,14 @@ export function decompressHeaderless(input: Buffer, decompressedSize: number): B
         output[outputPos++] = value;
         circularBuffer.writeByte(value);
       }
-    }
-    else {
+    } else {
       // Raw data
       // Length: 0-0x1FFF bytes
       let length: number;
       if ((flag & 0x20) === 0x00) {
-        length = flag & 0x1F;
+        length = flag & 0x1f;
       } else {
-        length = ((flag & 0x1F) << 8) + input[inputPos++];
+        length = ((flag & 0x1f) << 8) + input[inputPos++];
       }
 
       for (let i = 0; i < length; i++) {
@@ -189,18 +186,17 @@ Example:
     console.log(`Decompressed size: ${output.length} bytes`);
 
     // Show first few bytes of decompressed data
-    console.log(`First 16 bytes: ${output.slice(0, 16).toString('hex')}`);
+    console.log(`First 16 bytes: ${output.slice(0, 16).toString("hex")}`);
 
     // Try to identify the decompressed format
     const magic = output.slice(0, 4);
-    if (magic.toString('ascii').startsWith('GXT')) {
+    if (magic.toString("ascii").startsWith("GXT")) {
       console.log(`Detected format: GXT (PS Vita texture)`);
-    } else if (magic.toString('ascii').startsWith('OMG.')) {
+    } else if (magic.toString("ascii").startsWith("OMG.")) {
       console.log(`Detected format: GMO (3D model)`);
     } else {
-      console.log(`Magic bytes: ${magic.toString('hex')} (${magic.toString('ascii').replace(/[^\x20-\x7E]/g, '.')})`);
+      console.log(`Magic bytes: ${magic.toString("hex")} (${magic.toString("ascii").replace(/[^\x20-\x7E]/g, ".")})`);
     }
-
   } catch (err) {
     console.error(`Error: ${errorMessage(err)}`);
     process.exit(1);

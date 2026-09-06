@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile, readdir, stat, mkdir, rename, rm } from 'fs/promises';
-import { basename, dirname, join } from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import chalk from 'chalk';
-import { decompress as decompressSpike, isCompressed as isSpikeCompressed } from './spike-chunsoft-decompress.ts';
-import { convertGXT } from './gxt-to-png.ts';
-import { errorMessage } from '../lib/errors.ts';
+import { exec } from "node:child_process";
+import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { basename, dirname, join } from "node:path";
+import { promisify } from "node:util";
+import chalk from "chalk";
+import { errorMessage } from "../lib/errors.ts";
+import { convertGXT } from "./gxt-to-png.ts";
+import { decompress as decompressSpike, isCompressed as isSpikeCompressed } from "./spike-chunsoft-decompress.ts";
 
-const execAsync = promisify(exec);
+const _execAsync = promisify(exec);
 
 /** The file kinds this archiver can recognise inside a PAK. */
-type FileType = 'pak' | 'gmo' | 'tga' | 'lin' | 'txt' | 'gxt' | 'spft' | 'llfs';
+type FileType = "pak" | "gmo" | "tga" | "lin" | "txt" | "gxt" | "spft" | "llfs";
 
 // File type colors
 const typeColor: Record<FileType, (text: string) => string> = {
@@ -43,11 +43,12 @@ function writeU32LE(buffer: Buffer, value: number, offset: number): number {
 // SECTION 2: File Type Detection
 // ============================================================================
 
+// biome-ignore lint/complexity/noStaticOnlyClass: migrating existing code
 class FileTypeChecker {
   static isGMO(data: Buffer): boolean {
     if (data.length < 12) return false;
     // GMO files start with "OMG.00.1PSP\0" (12 bytes)
-    const gmoHeader = Buffer.from('4F4D472E30302E31505350', 'hex'); // "OMG.00.1PSP"
+    const gmoHeader = Buffer.from("4F4D472E30302E31505350", "hex"); // "OMG.00.1PSP"
     return data.slice(0, 11).equals(gmoHeader);
   }
 
@@ -100,7 +101,7 @@ class FileTypeChecker {
     let utf16Entries = 0;
     for (let i = 0; i < fileCount; i++) {
       const entryStart = offsets[i];
-      if (entryStart + 2 <= data.length && data[entryStart] === 0xFF && data[entryStart + 1] === 0xFE) {
+      if (entryStart + 2 <= data.length && data[entryStart] === 0xff && data[entryStart + 1] === 0xfe) {
         utf16Entries++;
       }
     }
@@ -109,7 +110,7 @@ class FileTypeChecker {
     // Skip size checks for text PAKs - they legitimately have small entries
     if (!isTextPak) {
       // Reject if most entries are tiny (likely a string table, not a PAK)
-      const tinyEntries = sizes.filter(s => s < 50).length;
+      const tinyEntries = sizes.filter((s) => s < 50).length;
       if (tinyEntries > fileCount * 0.8) return false;
 
       // Reject if average entry size is suspiciously small
@@ -129,13 +130,13 @@ class FileTypeChecker {
   static isLLFS(data: Buffer): boolean {
     if (data.length < 4) return false;
     // LLFS files start with "LLFS" magic
-    return data[0] === 0x4C && data[1] === 0x4C && data[2] === 0x46 && data[3] === 0x53;
+    return data[0] === 0x4c && data[1] === 0x4c && data[2] === 0x46 && data[3] === 0x53;
   }
 
   static isUTF16Text(data: Buffer): boolean {
     if (data.length < 2) return false;
     // UTF-16LE BOM
-    return data[0] === 0xFF && data[1] === 0xFE;
+    return data[0] === 0xff && data[1] === 0xfe;
   }
 
   static isLIN(data: Buffer): boolean {
@@ -199,7 +200,7 @@ class FileTypeChecker {
     }
 
     // Compressed GXT (SpikeDRVita): starts with FC AA 55 A7
-    if (data[0] === 0xFC && data[1] === 0xAA && data[2] === 0x55 && data[3] === 0xA7) {
+    if (data[0] === 0xfc && data[1] === 0xaa && data[2] === 0x55 && data[3] === 0xa7) {
       return true;
     }
 
@@ -207,14 +208,14 @@ class FileTypeChecker {
   }
 
   static detectType(data: Buffer): FileType | null {
-    if (FileTypeChecker.isGMO(data)) return 'gmo';
-    if (FileTypeChecker.isSPFT(data)) return 'spft';
-    if (FileTypeChecker.isLLFS(data)) return 'llfs';
-    if (FileTypeChecker.isGXT(data)) return 'gxt';
-    if (FileTypeChecker.isUTF16Text(data)) return 'txt';
-    if (FileTypeChecker.isLIN(data)) return 'lin';
-    if (FileTypeChecker.isTGA(data)) return 'tga';
-    if (FileTypeChecker.isPAK(data)) return 'pak';
+    if (FileTypeChecker.isGMO(data)) return "gmo";
+    if (FileTypeChecker.isSPFT(data)) return "spft";
+    if (FileTypeChecker.isLLFS(data)) return "llfs";
+    if (FileTypeChecker.isGXT(data)) return "gxt";
+    if (FileTypeChecker.isUTF16Text(data)) return "txt";
+    if (FileTypeChecker.isLIN(data)) return "lin";
+    if (FileTypeChecker.isTGA(data)) return "tga";
+    if (FileTypeChecker.isPAK(data)) return "pak";
     return null;
   }
 }
@@ -271,11 +272,13 @@ async function readPak(filePath: string): Promise<ReadPakResult> {
   // Build entries - offsets are already absolute
   const entries: PakEntry[] = [];
   for (let i = 0; i < fileCount; i++) {
-    entries.push(new PakEntry(
-      i,
-      offsets[i],  // Use absolute offset directly
-      offsets[i + 1] - offsets[i]
-    ));
+    entries.push(
+      new PakEntry(
+        i,
+        offsets[i], // Use absolute offset directly
+        offsets[i + 1] - offsets[i],
+      ),
+    );
   }
 
   return { pak: new Pak(entries), buffer };
@@ -289,10 +292,10 @@ async function writePak(pak: Pak, outputPath: string, inputFiles: InputFile[]): 
   const headerSize = 4 + pak.entries.length * 4;
 
   // Calculate total size
-  let totalSize = headerSize;
+  let _totalSize = headerSize;
   for (const [filePath] of inputFiles) {
     const fileStats = await stat(filePath);
-    totalSize += Number(fileStats.size);
+    _totalSize += Number(fileStats.size);
   }
 
   // Create header buffer
@@ -313,7 +316,7 @@ async function writePak(pak: Pak, outputPath: string, inputFiles: InputFile[]): 
   // Append file contents
   for (const [filePath] of inputFiles) {
     const content = await readFile(filePath);
-    await writeFile(outputPath, content, { flag: 'a' });
+    await writeFile(outputPath, content, { flag: "a" });
   }
 }
 
@@ -338,14 +341,14 @@ async function flatWalk(dir: string): Promise<string[]> {
 
 // Map of known extensions to file types
 const EXTENSION_TO_TYPE: Record<string, FileType> = {
-  '.pak': 'pak',
-  '.gmo': 'gmo',
-  '.tga': 'tga',
-  '.lin': 'lin',
-  '.txt': 'txt',
-  '.gxt': 'gxt',
-  '.spft': 'spft',
-  '.llfs': 'llfs',
+  ".pak": "pak",
+  ".gmo": "gmo",
+  ".tga": "tga",
+  ".lin": "lin",
+  ".txt": "txt",
+  ".gxt": "gxt",
+  ".spft": "spft",
+  ".llfs": "llfs",
 };
 
 function getTypeFromExtension(filePath: string): FileType | null {
@@ -358,8 +361,8 @@ function getTypeFromExtension(filePath: string): FileType | null {
   return null;
 }
 
-async function extractPak(inputPath: string, outputPath: string, silent = false, depth = 0): Promise<void> {
-  const indent = '    '.repeat(depth);
+async function extractPak(inputPath: string, _outputPath: string, silent = false, depth = 0): Promise<void> {
+  const indent = "    ".repeat(depth);
   const printIndented = (msg: string): void => {
     if (!silent) console.log(`${indent}${msg}`);
   };
@@ -376,19 +379,19 @@ async function extractPak(inputPath: string, outputPath: string, silent = false,
   const fileType = getTypeFromExtension(inputPath) || FileTypeChecker.detectType(data);
 
   switch (fileType) {
-    case 'pak':
-      printIndented(`Processing ${inputPath} as ${typeColor.pak('PAK')}`);
+    case "pak": {
+      printIndented(`Processing ${inputPath} as ${typeColor.pak("PAK")}`);
 
       // Ensure has .pak extension
       let pakPath = inputPath;
-      if (!inputPath.endsWith('.pak')) {
-        pakPath = inputPath + '.pak';
+      if (!inputPath.endsWith(".pak")) {
+        pakPath = `${inputPath}.pak`;
         await rename(inputPath, pakPath);
       }
 
       const { pak, buffer } = await readPak(pakPath);
       // Extract to a directory based on the pak path (without .pak extension)
-      const pakOutputDir = pakPath.replace(/\.pak$/, '');
+      const pakOutputDir = pakPath.replace(/\.pak$/, "");
 
       // Remove existing directory if it exists (from a previous run)
       try {
@@ -396,7 +399,7 @@ async function extractPak(inputPath: string, outputPath: string, silent = false,
         if (existingStat.isDirectory()) {
           await rm(pakOutputDir, { recursive: true });
         }
-      } catch (err) {
+      } catch (_err) {
         // Doesn't exist, that's fine
       }
 
@@ -404,50 +407,55 @@ async function extractPak(inputPath: string, outputPath: string, silent = false,
 
       for (const entry of pak.entries) {
         const content = buffer.slice(entry.offset, entry.offset + entry.size);
-        const entryPath = join(pakOutputDir, String(entry.index).padStart(4, '0'));
+        const entryPath = join(pakOutputDir, String(entry.index).padStart(4, "0"));
         await writeFile(entryPath, content);
 
         // Recurse - output path is the entry path (will become a directory if it's a PAK)
         await extractPak(entryPath, entryPath, silent, depth + 1);
       }
       break;
+    }
 
-    case 'gmo':
-      printIndented(`Processing ${inputPath} as ${typeColor.gmo('GMO')}`);
-      const gmoPath = inputPath.endsWith('.gmo') ? inputPath : inputPath + '.gmo';
+    case "gmo": {
+      printIndented(`Processing ${inputPath} as ${typeColor.gmo("GMO")}`);
+      const gmoPath = inputPath.endsWith(".gmo") ? inputPath : `${inputPath}.gmo`;
       if (inputPath !== gmoPath) {
         await rename(inputPath, gmoPath);
       }
       await linkGMOName(gmoPath);
       break;
+    }
 
-    case 'tga':
-      printIndented(`Processing ${inputPath} as ${typeColor.tga('TGA')}`);
-      const tgaPath = inputPath.endsWith('.tga') ? inputPath : inputPath + '.tga';
+    case "tga": {
+      printIndented(`Processing ${inputPath} as ${typeColor.tga("TGA")}`);
+      const tgaPath = inputPath.endsWith(".tga") ? inputPath : `${inputPath}.tga`;
       if (inputPath !== tgaPath) {
         await rename(inputPath, tgaPath);
       }
       break;
+    }
 
-    case 'spft':
-      printIndented(`Processing ${inputPath} as ${typeColor.spft('SPFT')}`);
-      const spftPath = inputPath.endsWith('.spft') ? inputPath : inputPath + '.spft';
+    case "spft": {
+      printIndented(`Processing ${inputPath} as ${typeColor.spft("SPFT")}`);
+      const spftPath = inputPath.endsWith(".spft") ? inputPath : `${inputPath}.spft`;
       if (inputPath !== spftPath) {
         await rename(inputPath, spftPath);
       }
       break;
+    }
 
-    case 'llfs':
-      printIndented(`Processing ${inputPath} as ${typeColor.llfs('LLFS')}`);
-      const llfsPath = inputPath.endsWith('.llfs') ? inputPath : inputPath + '.llfs';
+    case "llfs": {
+      printIndented(`Processing ${inputPath} as ${typeColor.llfs("LLFS")}`);
+      const llfsPath = inputPath.endsWith(".llfs") ? inputPath : `${inputPath}.llfs`;
       if (inputPath !== llfsPath) {
         await rename(inputPath, llfsPath);
       }
       break;
+    }
 
-    case 'gxt':
-      printIndented(`Processing ${inputPath} as ${typeColor.gxt('GXT')}`);
-      let gxtPath = inputPath.endsWith('.gxt') ? inputPath : inputPath + '.gxt';
+    case "gxt": {
+      printIndented(`Processing ${inputPath} as ${typeColor.gxt("GXT")}`);
+      const gxtPath = inputPath.endsWith(".gxt") ? inputPath : `${inputPath}.gxt`;
       if (inputPath !== gxtPath) {
         await rename(inputPath, gxtPath);
       }
@@ -463,7 +471,7 @@ async function extractPak(inputPath: string, outputPath: string, silent = false,
         // Convert to PNG
         const pngOutputDir = dirname(gxtPath);
         printIndented(`  Converting to PNG...`);
-        const pngFiles = await convertGXT(gxtPath, pngOutputDir, true);  // silent mode
+        const pngFiles = await convertGXT(gxtPath, pngOutputDir, true); // silent mode
         for (const pngFile of pngFiles) {
           printIndented(`  Created: ${basename(pngFile)}`);
         }
@@ -471,25 +479,28 @@ async function extractPak(inputPath: string, outputPath: string, silent = false,
         printIndented(`  Failed to convert GXT: ${errorMessage(err)}`);
       }
       break;
+    }
 
-    case 'txt':
-      printIndented(`Processing ${inputPath} as ${typeColor.txt('TXT')}`);
-      const txtPath = inputPath.endsWith('.txt') ? inputPath : inputPath + '.txt';
+    case "txt": {
+      printIndented(`Processing ${inputPath} as ${typeColor.txt("TXT")}`);
+      const txtPath = inputPath.endsWith(".txt") ? inputPath : `${inputPath}.txt`;
       if (inputPath !== txtPath) {
         await rename(inputPath, txtPath);
       }
       break;
+    }
 
-    case 'lin':
-      printIndented(`Processing ${inputPath} as ${typeColor.lin('LIN')}`);
-      const linPath = inputPath.endsWith('.lin') ? inputPath : inputPath + '.lin';
+    case "lin": {
+      printIndented(`Processing ${inputPath} as ${typeColor.lin("LIN")}`);
+      const linPath = inputPath.endsWith(".lin") ? inputPath : `${inputPath}.lin`;
       if (inputPath !== linPath) {
         await rename(inputPath, linPath);
       }
       break;
+    }
 
     default:
-      printIndented(`Processing ${inputPath} as ${chalk.dim('UNKNOWN')}`);
+      printIndented(`Processing ${inputPath} as ${chalk.dim("UNKNOWN")}`);
       break;
   }
 }
@@ -501,16 +512,16 @@ async function extractPak(inputPath: string, outputPath: string, silent = false,
 async function linkGMOName(gmoPath: string): Promise<void> {
   try {
     const parentFolder = dirname(gmoPath);
-    const gmoBasename = basename(gmoPath, '.gmo');
-    const fileIndex = Number.parseInt(gmoBasename.split('.')[0], 10);
+    const gmoBasename = basename(gmoPath, ".gmo");
+    const fileIndex = Number.parseInt(gmoBasename.split(".")[0], 10);
     const gmoNameIndex = fileIndex - 3;
 
     // unpacked_folder_suffix is empty in Python, so just "0000"
-    const unpackedFolder = join(parentFolder, '0000');
-    const unpackedFile = join(unpackedFolder, String(gmoNameIndex).padStart(4, '0'));
+    const unpackedFolder = join(parentFolder, "0000");
+    const unpackedFile = join(unpackedFolder, String(gmoNameIndex).padStart(4, "0"));
 
     const content = await readFile(unpackedFile);
-    const name = content.toString('utf8').split('\0')[0];
+    const name = content.toString("utf8").split("\0")[0];
 
     const newGmoPath = join(parentFolder, `${gmoBasename}.${name}.gmo`);
     await rename(gmoPath, newGmoPath);
@@ -524,10 +535,10 @@ async function linkGMOName(gmoPath: string): Promise<void> {
 // SECTION 6: Commands
 // ============================================================================
 
-const BOM = Buffer.from([0xFF, 0xFE]); // UTF-16 LE BOM
+const BOM = Buffer.from([0xff, 0xfe]); // UTF-16 LE BOM
 
 function isUTF16Text(data: Buffer): boolean {
-  return data.length >= 2 && data[0] === 0xFF && data[1] === 0xFE;
+  return data.length >= 2 && data[0] === 0xff && data[1] === 0xfe;
 }
 
 async function listFiles(inputPaths: string[]): Promise<void> {
@@ -546,13 +557,13 @@ async function listFiles(inputPaths: string[]): Promise<void> {
 
       let contentText: string;
       if (isUTF16Text(content)) {
-        contentText = content.toString('utf16le');
+        contentText = content.toString("utf16le");
       } else {
-        contentText = '/BINARY CONTENT/';
+        contentText = "/BINARY CONTENT/";
       }
 
-      const indexStr = String(entry.index).padStart(indexPad, ' ');
-      const sizeStr = String(entry.size).padStart(sizePad, '0');
+      const indexStr = String(entry.index).padStart(indexPad, " ");
+      const sizeStr = String(entry.size).padStart(sizePad, "0");
       console.log(`${indexStr} (${sizeStr}) ${contentText}`);
     }
   }
@@ -592,7 +603,7 @@ async function packFiles(inputDirs: string[], outputPath: string, silent: boolea
 
   if (!silent) {
     for (const [filePath] of inputFiles) {
-      console.log('Adding', filePath);
+      console.log("Adding", filePath);
     }
   }
 }
@@ -614,11 +625,11 @@ async function replaceTextEntry(inputPath: string, index: string, content: strin
   }
 
   if (entry.content === undefined || !isUTF16Text(entry.content)) {
-    throw new Error('Chosen entry contains binary data! Use extract/create instead.');
+    throw new Error("Chosen entry contains binary data! Use extract/create instead.");
   }
 
   // Encode new content with BOM
-  entry.content = Buffer.concat([BOM, Buffer.from(content, 'utf16le')]);
+  entry.content = Buffer.concat([BOM, Buffer.from(content, "utf16le")]);
 
   // Recalculate offsets
   const headerSize = 4 + pak.entries.length * 4;
@@ -642,7 +653,7 @@ async function replaceTextEntry(inputPath: string, index: string, content: strin
   // Append contents
   for (const entry of pak.entries) {
     if (entry.content !== undefined) {
-      await writeFile(inputPath, entry.content, { flag: 'a' });
+      await writeFile(inputPath, entry.content, { flag: "a" });
     }
   }
 }
@@ -677,17 +688,17 @@ function parseArgs() {
   const filteredArgs = [];
 
   for (const arg of args) {
-    if (arg === '-s' || arg === '--silent') {
+    if (arg === "-s" || arg === "--silent") {
       silent = true;
-    } else if (arg === '-h' || arg === '--help') {
-      return { command: 'help', args: [], silent };
+    } else if (arg === "-h" || arg === "--help") {
+      return { command: "help", args: [], silent };
     } else {
       filteredArgs.push(arg);
     }
   }
 
   if (filteredArgs.length === 0) {
-    return { command: 'help', args: [], silent };
+    return { command: "help", args: [], silent };
   }
 
   const command = filteredArgs[0];
@@ -700,39 +711,35 @@ async function main(): Promise<void> {
   try {
     const { command, args, silent } = parseArgs();
 
-    if (command === 'help') {
+    if (command === "help") {
       showUsage();
       process.exit(0);
     }
 
-    if (command === 'list') {
+    if (command === "list") {
       if (args.length === 0) {
-        console.error('Error: list command requires at least one input file');
+        console.error("Error: list command requires at least one input file");
         process.exit(1);
       }
       await listFiles(args);
-
-    } else if (command === 'extract') {
+    } else if (command === "extract") {
       if (args.length < 2) {
-        console.error('Error: extract command requires input file and output directory');
+        console.error("Error: extract command requires input file and output directory");
         process.exit(1);
       }
       await extractFiles(args[0], args[1], silent);
-
-    } else if (command === 'create') {
+    } else if (command === "create") {
       if (args.length < 2) {
-        console.error('Error: create command requires input directory and output file');
+        console.error("Error: create command requires input directory and output file");
         process.exit(1);
       }
       await packFiles([args[0]], args[1], silent);
-
-    } else if (command === 'replace') {
+    } else if (command === "replace") {
       if (args.length < 3) {
-        console.error('Error: replace command requires input file, index, and content');
+        console.error("Error: replace command requires input file, index, and content");
         process.exit(1);
       }
       await replaceTextEntry(args[0], args[1], args[2]);
-
     } else {
       console.error(`Error: Unknown command '${command}'`);
       showUsage();
@@ -745,7 +752,7 @@ async function main(): Promise<void> {
 }
 
 // Export functions for use by other scripts
-export { FileTypeChecker, extractPak, linkGMOName, readPak };
+export { extractPak, FileTypeChecker, linkGMOName, readPak };
 
 // Only run main if this is the entry point
 if (import.meta.url === `file://${process.argv[1]}`) {

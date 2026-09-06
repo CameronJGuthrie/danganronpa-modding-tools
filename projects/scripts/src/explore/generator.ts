@@ -1,15 +1,11 @@
-import clipboardy from 'clipboardy';
+import clipboardy from "clipboardy";
 
 let result = "";
-const characters = [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
-const chapters = [1, 2, 3, 4, 5, 6, 99];
+const _characters = [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
+const _chapters = [1, 2, 3, 4, 5, 6, 99];
 
 function getLine(line: string): string {
-    return [
-        `Text("${line}")`,
-        line,
-        ""
-    ].join("\n")
+  return [`Text("${line}")`, line, ""].join("\n");
 }
 
 // let result = "";
@@ -47,14 +43,12 @@ function getLine(line: string): string {
 // }
 
 for (let i = 0; i < 1; i++) {
-    result += getLine(`ScreenFade(101, 1, 24)`)
-    result += getLine(`ScreenFade(1, ${i}, 60)`)
-    result += getLine(`ScreenFade(0, ${i}, 60)`)
-    result += getLine(`ScreenFade(101, 1, 24)`)
-    result += getLine(`ScreenFade(0, ${i}, 60)`)
-    result += getLine(`ScreenFade(1, ${i}, 60)`)
+  result += getLine(`ScreenFade(101, 1, 24)`);
+  result += getLine(`ScreenFade(1, ${i}, 60)`);
+  result += getLine(`ScreenFade(0, ${i}, 60)`);
+  result += getLine(`ScreenFade(101, 1, 24)`);
+  result += getLine(`ScreenFade(0, ${i}, 60)`);
+  result += getLine(`ScreenFade(1, ${i}, 60)`);
 }
 
-clipboardy.write(result.trimEnd())
-    .then(() => console.log("Copied " + result.length + " characters"));
-
+clipboardy.write(result.trimEnd()).then(() => console.log(`Copied ${result.length} characters`));

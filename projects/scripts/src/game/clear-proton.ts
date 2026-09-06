@@ -1,30 +1,30 @@
 #!/usr/bin/env node
 
-import { execSync } from 'child_process';
-import { findCompatDataDirectory } from '../lib/steam-paths.ts';
+import { execSync } from "node:child_process";
+import { findCompatDataDirectory } from "../lib/steam-paths.ts";
 
 function clearProtonCache(): void {
-  if (process.platform !== 'linux') {
-    console.log('Proton cache clearing is only needed on Linux. Skipping.');
+  if (process.platform !== "linux") {
+    console.log("Proton cache clearing is only needed on Linux. Skipping.");
     return;
   }
 
-  console.log('Clearing Proton cache...');
+  console.log("Clearing Proton cache...");
 
   const compatData = findCompatDataDirectory();
 
   if (compatData) {
     console.log(`Found compatdata at: ${compatData}`);
     try {
-      execSync(`rm -rf "${compatData}"`, { stdio: 'inherit' });
-      console.log('✓ Cleared Proton compatdata (will rebuild on next game launch)');
+      execSync(`rm -rf "${compatData}"`, { stdio: "inherit" });
+      console.log("✓ Cleared Proton compatdata (will rebuild on next game launch)");
     } catch {
-      console.error('✗ Failed to clear Proton cache');
-      console.error('  You may need to run this with appropriate permissions');
+      console.error("✗ Failed to clear Proton cache");
+      console.error("  You may need to run this with appropriate permissions");
       process.exit(1);
     }
   } else {
-    console.log('No Proton cache found (this is normal if you haven\'t run the game yet)');
+    console.log("No Proton cache found (this is normal if you haven't run the game yet)");
   }
 }
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-import { readFile, readdir, stat } from 'fs/promises';
-import type { Dirent } from 'fs';
-import { basename, join } from 'path';
-import { existsSync } from 'fs';
-import { errorMessage } from '../lib/errors.ts';
-import { WORKSPACE_DIR } from '../lib/paths.ts';
-
+import type { Dirent } from "node:fs";
+import { existsSync } from "node:fs";
+import { readdir, readFile, stat } from "node:fs/promises";
+import { join } from "node:path";
+import { errorMessage } from "../lib/errors.ts";
+import { WORKSPACE_DIR } from "../lib/paths.ts";
 
 // ============================================================================
 // Binary I/O Helpers
@@ -54,11 +53,7 @@ async function readPak(filePath: string): Promise<{ pak: Pak; buffer: Buffer }> 
 
   const entries: PakEntry[] = [];
   for (let i = 0; i < fileCount; i++) {
-    entries.push(new PakEntry(
-      i,
-      offsets[i],
-      offsets[i + 1] - offsets[i]
-    ));
+    entries.push(new PakEntry(i, offsets[i], offsets[i + 1] - offsets[i]));
   }
 
   return { pak: new Pak(entries), buffer };
@@ -69,13 +64,13 @@ async function readPak(filePath: string): Promise<{ pak: Pak; buffer: Buffer }> 
 // ============================================================================
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) return "0 B";
 
   const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`.padStart(9, ' ');
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`.padStart(9, " ");
 }
 
 async function findPakFiles(directory: string): Promise<string[]> {
@@ -95,7 +90,7 @@ async function findPakFiles(directory: string): Promise<string[]> {
 
       if (entry.isDirectory()) {
         await walk(fullPath);
-      } else if (entry.isFile() && entry.name.endsWith('.pak')) {
+      } else if (entry.isFile() && entry.name.endsWith(".pak")) {
         pakFiles.push(fullPath);
       }
     }
@@ -140,7 +135,7 @@ async function getDirectorySize(directory: string): Promise<number> {
 // Validation Logic
 // ============================================================================
 
-type ValidationStatus = 'missing' | 'ok' | 'deviation';
+type ValidationStatus = "missing" | "ok" | "deviation";
 
 interface ValidationResult {
   pakPath: string;
@@ -153,22 +148,22 @@ interface ValidationResult {
 }
 
 async function validatePakExtraction(pakPath: string, maxDeviation: number): Promise<ValidationResult> {
-  const extractedDir = pakPath.replace(/\.pak$/, '');
+  const extractedDir = pakPath.replace(/\.pak$/, "");
 
   // Check if extracted directory exists
   if (!existsSync(extractedDir)) {
     return {
       pakPath,
-      status: 'missing',
+      status: "missing",
       pakSize: 0,
       extractedSize: 0,
-      deviation: 0
+      deviation: 0,
     };
   }
 
   // Read PAK to get file count and calculate header size
   const { pak } = await readPak(pakPath);
-  const headerSize = 4 + (pak.entries.length * 4);
+  const headerSize = 4 + pak.entries.length * 4;
 
   // Get PAK file size (minus header, since extracted files don't include it)
   const pakStats = await stat(pakPath);
@@ -179,7 +174,7 @@ async function validatePakExtraction(pakPath: string, maxDeviation: number): Pro
 
   // Calculate deviation percentage and absolute difference
   const absoluteDiff = Math.abs(extractedSize - pakSize);
-  const deviation = pakSize === 0 ? 0 : Math.abs((extractedSize - pakSize) / pakSize * 100);
+  const deviation = pakSize === 0 ? 0 : Math.abs(((extractedSize - pakSize) / pakSize) * 100);
   const isIncrease = extractedSize > pakSize;
 
   // Filter out: increases, absolute diff < 1KB, or within deviation threshold
@@ -187,12 +182,12 @@ async function validatePakExtraction(pakPath: string, maxDeviation: number): Pro
 
   return {
     pakPath,
-    status: shouldReport ? 'deviation' : 'ok',
+    status: shouldReport ? "deviation" : "ok",
     pakSize,
     extractedSize,
     deviation,
     absoluteDiff,
-    isIncrease
+    isIncrease,
   };
 }
 
@@ -220,7 +215,7 @@ Examples:
 }
 
 interface CliArgs {
-  command: 'help' | 'validate';
+  command: "help" | "validate";
   maxDeviation: number;
   searchPath: string;
 }
@@ -228,31 +223,31 @@ interface CliArgs {
 function parseArgs(): CliArgs {
   const args = process.argv.slice(2);
   let maxDeviation = 10;
-  let searchPath = join(WORKSPACE_DIR, 'all');
+  let searchPath = join(WORKSPACE_DIR, "all");
 
   for (const arg of args) {
-    if (arg === '-h' || arg === '--help') {
-      return { command: 'help', maxDeviation, searchPath };
-    } else if (arg.startsWith('--max-deviation=')) {
-      maxDeviation = Number.parseFloat(arg.split('=')[1]);
+    if (arg === "-h" || arg === "--help") {
+      return { command: "help", maxDeviation, searchPath };
+    } else if (arg.startsWith("--max-deviation=")) {
+      maxDeviation = Number.parseFloat(arg.split("=")[1]);
       if (Number.isNaN(maxDeviation) || maxDeviation < 0) {
-        throw new Error('Invalid max-deviation value');
+        throw new Error("Invalid max-deviation value");
       }
-    } else if (arg.startsWith('--path=')) {
-      searchPath = arg.split('=')[1];
+    } else if (arg.startsWith("--path=")) {
+      searchPath = arg.split("=")[1];
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
   }
 
-  return { command: 'validate', maxDeviation, searchPath };
+  return { command: "validate", maxDeviation, searchPath };
 }
 
 async function main(): Promise<void> {
   try {
     const { command, maxDeviation, searchPath } = parseArgs();
 
-    if (command === 'help') {
+    if (command === "help") {
       showUsage();
       process.exit(0);
     }
@@ -274,17 +269,17 @@ async function main(): Promise<void> {
     }
 
     // Count statistics
-    const totalChecked = results.filter((r) => r.status !== 'missing').length;
-    const withinDeviation = results.filter((r) => r.status === 'ok').length;
-    const outsideDeviation = results.filter((r) => r.status === 'deviation').length;
-    const missing = results.filter((r) => r.status === 'missing').length;
+    const totalChecked = results.filter((r) => r.status !== "missing").length;
+    const withinDeviation = results.filter((r) => r.status === "ok").length;
+    const outsideDeviation = results.filter((r) => r.status === "deviation").length;
+    const missing = results.filter((r) => r.status === "missing").length;
 
     // Print missing directories if any
     if (missing > 0) {
-      console.log('MISSING EXTRACTED DIRECTORIES:');
-      console.log('-'.repeat(80));
+      console.log("MISSING EXTRACTED DIRECTORIES:");
+      console.log("-".repeat(80));
 
-      const missingResults = results.filter((r) => r.status === 'missing');
+      const missingResults = results.filter((r) => r.status === "missing");
       for (const result of missingResults) {
         console.log(`${result.pakPath}`);
       }
@@ -293,22 +288,24 @@ async function main(): Promise<void> {
 
     // Print deviations (sorted by deviation percentage, descending)
     if (outsideDeviation > 0) {
-      console.log('FILES OUTSIDE DEVIATION:');
-      console.log('-'.repeat(80));
+      console.log("FILES OUTSIDE DEVIATION:");
+      console.log("-".repeat(80));
 
       const deviationResults = results
-        .filter((r) => r.status === 'deviation')
+        .filter((r) => r.status === "deviation")
         .sort((a, b) => b.deviation - a.deviation);
 
       for (const result of deviationResults) {
-        console.log(`(${result.deviation.toFixed(1)}% smaller) [${formatBytes(result.pakSize)} -> ${formatBytes(result.extractedSize)}] ${result.pakPath} `);
+        console.log(
+          `(${result.deviation.toFixed(1)}% smaller) [${formatBytes(result.pakSize)} -> ${formatBytes(result.extractedSize)}] ${result.pakPath} `,
+        );
       }
     }
 
     // Print summary
-    console.log('='.repeat(80));
-    console.log('VALIDATION SUMMARY');
-    console.log('='.repeat(80));
+    console.log("=".repeat(80));
+    console.log("VALIDATION SUMMARY");
+    console.log("=".repeat(80));
     console.log(`${results.length} PAK files found`);
     console.log(`${totalChecked} PAK files checked against extracted directories`);
     console.log(`${withinDeviation} files were found to be within the allowed deviation (${maxDeviation}%)`);
@@ -322,7 +319,6 @@ async function main(): Promise<void> {
     if (outsideDeviation > 0) {
       process.exit(1);
     }
-
   } catch (error) {
     console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);

@@ -9,6 +9,7 @@
     "includes": [
       "projects/lin-compiler/src/**/*.ts",
       "projects/lin-compiler/test/**/*.ts",
+      "projects/scripts/src/**/*.ts",
       "projects/vscode-extension/src/**/*.ts"
     ]
   },
@@ -28,6 +29,9 @@
       "suspicious": {
         "noExplicitAny": "warn",
         "useIterableCallbackReturn": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "error"
       }
     }
   },

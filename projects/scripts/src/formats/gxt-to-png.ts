@@ -9,24 +9,24 @@
  * Based on analysis of Kuriimu2's GXT plugin and VitaSwizzle implementation.
  */
 
-import { readFile, mkdir } from 'fs/promises';
-import { dirname, basename, join } from 'path';
-import sharp from 'sharp';
-import { errorMessage } from '../lib/errors.ts';
+import { mkdir, readFile } from "node:fs/promises";
+import { basename, dirname, join } from "node:path";
+import sharp from "sharp";
+import { errorMessage } from "../lib/errors.ts";
 
 // GXT Format constants
-const GXT_MAGIC = 'GXT\0';
+const GXT_MAGIC = "GXT\0";
 const HEADER_SIZE = 0x20;
 const ENTRY_SIZE_V3 = 0x20;
 
 // Format types
-const FORMAT_I4 = 0x94000000;  // 4-bit indexed
-const FORMAT_I8 = 0x95000000;  // 8-bit indexed
+const FORMAT_I4 = 0x94000000; // 4-bit indexed
+const FORMAT_I8 = 0x95000000; // 8-bit indexed
 const FORMAT_DXT1 = 0x85000000;
 
 // Swizzle types
 const TYPE_SWIZZLED = 0x00000000;
-const TYPE_LINEAR = 0x60000000;
+const _TYPE_LINEAR = 0x60000000;
 
 interface GxtHeader {
   magic: string;
@@ -68,7 +68,7 @@ interface DecodedTexture {
  * Parse GXT file header
  */
 function parseHeader(buffer: Buffer): GxtHeader {
-  const magic = buffer.toString('ascii', 0, 4);
+  const magic = buffer.toString("ascii", 0, 4);
   if (magic !== GXT_MAGIC) {
     throw new Error(`Invalid GXT magic: ${magic}`);
   }
@@ -81,7 +81,7 @@ function parseHeader(buffer: Buffer): GxtHeader {
     dataSize: buffer.readInt32LE(16),
     p4PalCount: buffer.readInt32LE(20),
     p8PalCount: buffer.readInt32LE(24),
-    reserved: buffer.readInt32LE(28)
+    reserved: buffer.readInt32LE(28),
   };
 }
 
@@ -98,7 +98,7 @@ function parseEntryV3(buffer: Buffer, offset: number): GxtEntry {
     format: buffer.readUInt32LE(offset + 20),
     width: buffer.readUInt16LE(offset + 24),
     height: buffer.readUInt16LE(offset + 26),
-    mipCount: buffer.readUInt8(offset + 28)
+    mipCount: buffer.readUInt8(offset + 28),
   };
 }
 
@@ -179,7 +179,7 @@ function readPalette(
   is4bit: boolean,
   paletteFormat: number,
 ): Rgba[] {
-  const paletteSize = is4bit ? 16 * 4 : 256 * 4;
+  const _paletteSize = is4bit ? 16 * 4 : 256 * 4;
   const p8Offset = header.dataOffset + header.dataSize - header.p8PalCount * 256 * 4;
   const p4Offset = p8Offset - header.p4PalCount * 16 * 4;
 
@@ -207,32 +207,59 @@ function readPalette(
 
     switch (paletteFormat) {
       case PALETTE_ABGR:
-        a = b0; b = b1; g = b2; r = b3;
+        a = b0;
+        b = b1;
+        g = b2;
+        r = b3;
         break;
       case PALETTE_ARGB:
-        a = b0; r = b1; g = b2; b = b3;
+        a = b0;
+        r = b1;
+        g = b2;
+        b = b3;
         break;
       case PALETTE_RGBA:
-        r = b0; g = b1; b = b2; a = b3;
+        r = b0;
+        g = b1;
+        b = b2;
+        a = b3;
         break;
       case PALETTE_BGRA:
-        b = b0; g = b1; r = b2; a = b3;
+        b = b0;
+        g = b1;
+        r = b2;
+        a = b3;
         break;
       case PALETTE_XBGR:
-        a = 255; b = b1; g = b2; r = b3;
+        a = 255;
+        b = b1;
+        g = b2;
+        r = b3;
         break;
       case PALETTE_XRGB:
-        a = 255; r = b1; g = b2; b = b3;
+        a = 255;
+        r = b1;
+        g = b2;
+        b = b3;
         break;
       case PALETTE_RGBX:
-        r = b0; g = b1; b = b2; a = 255;
+        r = b0;
+        g = b1;
+        b = b2;
+        a = 255;
         break;
       case PALETTE_BGRX:
-        b = b0; g = b1; r = b2; a = 255;
+        b = b0;
+        g = b1;
+        r = b2;
+        a = 255;
         break;
       default:
         // Default to RGBA
-        r = b0; g = b1; b = b2; a = b3;
+        r = b0;
+        g = b1;
+        b = b2;
+        a = b3;
     }
 
     colors.push({ r, g, b, a });
@@ -253,7 +280,7 @@ function decodeI8(buffer: Buffer, entry: GxtEntry, palette: Rgba[]): DecodedText
   const indices = buffer.slice(entry.dataOffset, entry.dataOffset + entry.dataSize);
 
   // Check if swizzled
-  const isSwizzled = (entry.type & 0xFF000000) === TYPE_SWIZZLED;
+  const isSwizzled = (entry.type & 0xff000000) === TYPE_SWIZZLED;
 
   if (isSwizzled) {
     // Unswizzle using Vita Morton order
@@ -296,7 +323,7 @@ function decodeI4(buffer: Buffer, entry: GxtEntry, palette: Rgba[]): DecodedText
   const pixelData = new Uint8Array(width * height * 4);
 
   const rawData = buffer.slice(entry.dataOffset, entry.dataOffset + entry.dataSize);
-  const isSwizzled = (entry.type & 0xFF000000) === TYPE_SWIZZLED;
+  const isSwizzled = (entry.type & 0xff000000) === TYPE_SWIZZLED;
 
   if (isSwizzled) {
     const unswizzle = vitaUnswizzle(width, height, false);
@@ -305,7 +332,7 @@ function decodeI4(buffer: Buffer, entry: GxtEntry, palette: Rgba[]): DecodedText
       const { x, y } = unswizzle(i);
       if (x < width && y < height) {
         const byteIndex = Math.floor(i / 2);
-        const colorIndex = (i % 2 === 0) ? (rawData[byteIndex] & 0x0F) : (rawData[byteIndex] >> 4);
+        const colorIndex = i % 2 === 0 ? rawData[byteIndex] & 0x0f : rawData[byteIndex] >> 4;
         const color = palette[colorIndex] || { r: 255, g: 0, b: 255, a: 255 };
         const destIndex = (y * width + x) * 4;
         pixelData[destIndex] = color.r;
@@ -317,7 +344,7 @@ function decodeI4(buffer: Buffer, entry: GxtEntry, palette: Rgba[]): DecodedText
   } else {
     for (let i = 0; i < width * height; i++) {
       const byteIndex = Math.floor(i / 2);
-      const colorIndex = (i % 2 === 0) ? (rawData[byteIndex] & 0x0F) : (rawData[byteIndex] >> 4);
+      const colorIndex = i % 2 === 0 ? rawData[byteIndex] & 0x0f : rawData[byteIndex] >> 4;
       const color = palette[colorIndex] || { r: 255, g: 0, b: 255, a: 255 };
       const destIndex = i * 4;
       pixelData[destIndex] = color.r;
@@ -338,8 +365,8 @@ async function savePNG(pixelData: Uint8Array, width: number, height: number, out
     raw: {
       width,
       height,
-      channels: 4
-    }
+      channels: 4,
+    },
   })
     .png()
     .toFile(outputPath);
@@ -368,7 +395,7 @@ export async function convertGXT(inputPath: string, outputDir: string, silent = 
   await mkdir(outputDir, { recursive: true });
 
   const results: string[] = [];
-  const baseName = basename(inputPath, '.gxt');
+  const baseName = basename(inputPath, ".gxt");
 
   // Parse and decode each texture
   for (let i = 0; i < header.texCount; i++) {
@@ -383,15 +410,15 @@ export async function convertGXT(inputPath: string, outputDir: string, silent = 
     log(`  Data offset: 0x${entry.dataOffset.toString(16)}`);
     log(`  Data size: ${entry.dataSize}`);
 
-    const formatBase = ((entry.format >>> 24) << 24) >>> 0;  // Get top byte as unsigned
+    const formatBase = ((entry.format >>> 24) << 24) >>> 0; // Get top byte as unsigned
     let decoded: DecodedTexture;
 
     if (formatBase === FORMAT_I8) {
-      const paletteFormat = entry.format & 0xFFFF;
+      const paletteFormat = entry.format & 0xffff;
       const palette = readPalette(buffer, header, entry.paletteIndex, false, paletteFormat);
       decoded = decodeI8(buffer, entry, palette);
     } else if (formatBase === FORMAT_I4) {
-      const paletteFormat = entry.format & 0xFFFF;
+      const paletteFormat = entry.format & 0xffff;
       const palette = readPalette(buffer, header, entry.paletteIndex, true, paletteFormat);
       decoded = decodeI4(buffer, entry, palette);
     } else if (formatBase === FORMAT_DXT1) {

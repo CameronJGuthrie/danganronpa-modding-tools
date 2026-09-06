@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import { readFile, readdir } from 'fs/promises';
-import { join } from 'path';
-import { errorMessage } from '../lib/errors.ts';
-import { WORKSPACE_DIR } from '../lib/paths.ts';
+import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { errorMessage } from "../lib/errors.ts";
+import { WORKSPACE_DIR } from "../lib/paths.ts";
 
-const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, 'linscript-exploration');
+const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, "linscript-exploration");
 
-type SortMode = 'frequency' | 'value';
+type SortMode = "frequency" | "value";
 
 interface InvestigateArgs {
   opcode: string;
@@ -26,12 +26,12 @@ function parseArgs(): InvestigateArgs {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
-    console.error('Usage: pnpm run investigate <opcode> [filter1,filter2,...] [--sort=frequency|value]');
+    console.error("Usage: pnpm run investigate <opcode> [filter1,filter2,...] [--sort=frequency|value]");
     console.error('   Use "x" for any value');
     console.error('   --sort defaults to "frequency"');
-    console.error('Example: pnpm run investigate SetVar8 [x,x,x]');
-    console.error('         pnpm run investigate SetVar8 [12,x,x]');
-    console.error('         pnpm run investigate SetVar8 [x,x,x] --sort=value');
+    console.error("Example: pnpm run investigate SetVar8 [x,x,x]");
+    console.error("         pnpm run investigate SetVar8 [12,x,x]");
+    console.error("         pnpm run investigate SetVar8 [x,x,x] --sort=value");
     process.exit(1);
   }
 
@@ -39,11 +39,11 @@ function parseArgs(): InvestigateArgs {
   const filterStr = args[1];
 
   // Parse optional --sort parameter
-  let sortMode: SortMode = 'frequency'; // default
-  const sortArg = args.find((arg) => arg.startsWith('--sort='));
+  let sortMode: SortMode = "frequency"; // default
+  const sortArg = args.find((arg) => arg.startsWith("--sort="));
   if (sortArg) {
-    const sortValue = sortArg.split('=')[1];
-    if (sortValue !== 'frequency' && sortValue !== 'value') {
+    const sortValue = sortArg.split("=")[1];
+    if (sortValue !== "frequency" && sortValue !== "value") {
       console.error('--sort must be either "frequency" or "value"');
       process.exit(1);
     }
@@ -53,17 +53,17 @@ function parseArgs(): InvestigateArgs {
   // Parse the filter array [x,x,x] or [12,x,x]
   const match = filterStr.match(/^\[(.+)\]$/);
   if (!match) {
-    console.error('Filter must be in format [x,x,x] or [12,x,x]');
+    console.error("Filter must be in format [x,x,x] or [12,x,x]");
     process.exit(1);
   }
 
-  const filters = match[1].split(',').map((f) => f.trim());
+  const filters = match[1].split(",").map((f) => f.trim());
 
   return { opcode, filters, sortMode };
 }
 
 function parseLinscriptFile(content: string, opcode: string, filters: string[]): string[][] {
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   const pattern = new RegExp(`^${opcode}\\((.+)\\)\\s*$`);
   const matches: string[][] = [];
   const numArgs = filters.length;
@@ -72,13 +72,13 @@ function parseLinscriptFile(content: string, opcode: string, filters: string[]):
     const match = line.match(pattern);
     if (match) {
       const argsStr = match[1];
-      const args = argsStr.split(',').map((arg) => arg.trim());
+      const args = argsStr.split(",").map((arg) => arg.trim());
 
       if (args.length === numArgs) {
         // Check if args match the filters
         let matchesFilter = true;
         for (let i = 0; i < numArgs; i++) {
-          if (filters[i] !== 'x' && filters[i] !== args[i]) {
+          if (filters[i] !== "x" && filters[i] !== args[i]) {
             matchesFilter = false;
             break;
           }
@@ -100,7 +100,7 @@ function analyzeArguments(allMatches: string[][], filters: string[], sortMode: S
 
   for (let i = 0; i < numArgs; i++) {
     // Skip analysis for filtered (non-x) arguments
-    if (filters[i] !== 'x') {
+    if (filters[i] !== "x") {
       argStats.push(null);
       continue;
     }
@@ -114,38 +114,37 @@ function analyzeArguments(allMatches: string[][], filters: string[], sortMode: S
 
     // Sort based on mode
     let sortedValues: Array<[string, number]>;
-    if (sortMode === 'frequency') {
+    if (sortMode === "frequency") {
       // Sort by count (descending), then by value (ascending) for ties
-      sortedValues = Array.from(valueCounts.entries())
-        .sort((a, b) => {
-          if (b[1] !== a[1]) {
-            return b[1] - a[1]; // Sort by frequency descending
-          }
-          // For ties, sort by value ascending (numeric if possible)
-          const aNum = Number.parseFloat(a[0]);
-          const bNum = Number.parseFloat(b[0]);
-          if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
-            return aNum - bNum;
-          }
-          return a[0].localeCompare(b[0]);
-        });
-    } else { // sortMode === 'value'
+      sortedValues = Array.from(valueCounts.entries()).sort((a, b) => {
+        if (b[1] !== a[1]) {
+          return b[1] - a[1]; // Sort by frequency descending
+        }
+        // For ties, sort by value ascending (numeric if possible)
+        const aNum = Number.parseFloat(a[0]);
+        const bNum = Number.parseFloat(b[0]);
+        if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+          return aNum - bNum;
+        }
+        return a[0].localeCompare(b[0]);
+      });
+    } else {
+      // sortMode === 'value'
       // Sort by value (numeric if possible, then alphabetic)
-      sortedValues = Array.from(valueCounts.entries())
-        .sort((a, b) => {
-          const aNum = Number.parseFloat(a[0]);
-          const bNum = Number.parseFloat(b[0]);
-          if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
-            return aNum - bNum;
-          }
-          return a[0].localeCompare(b[0]);
-        });
+      sortedValues = Array.from(valueCounts.entries()).sort((a, b) => {
+        const aNum = Number.parseFloat(a[0]);
+        const bNum = Number.parseFloat(b[0]);
+        if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+          return aNum - bNum;
+        }
+        return a[0].localeCompare(b[0]);
+      });
     }
 
     argStats.push({
       values: sortedValues,
       totalUnique: valueCounts.size,
-      totalOccurrences: allMatches.length
+      totalOccurrences: allMatches.length,
     });
   }
 
@@ -155,12 +154,12 @@ function analyzeArguments(allMatches: string[][], filters: string[], sortMode: S
 async function investigate(): Promise<void> {
   const { opcode, filters, sortMode } = parseArgs();
 
-  const filterDisplay = filters.join(', ');
+  const filterDisplay = filters.join(", ");
   console.log(`\nInvestigating opcode: ${opcode}(${filterDisplay})`);
   console.log(`Sort mode: ${sortMode}\n`);
 
   const files = await readdir(LINSCRIPT_EXPLORATION_DIR);
-  const linscriptFiles = files.filter((f) => f.endsWith('.linscript'));
+  const linscriptFiles = files.filter((f) => f.endsWith(".linscript"));
 
   console.log(`Analyzing ${linscriptFiles.length} linscript files...\n`);
 
@@ -168,7 +167,7 @@ async function investigate(): Promise<void> {
 
   for (const file of linscriptFiles) {
     const filePath = join(LINSCRIPT_EXPLORATION_DIR, file);
-    const content = await readFile(filePath, 'utf8');
+    const content = await readFile(filePath, "utf8");
     const matches = parseLinscriptFile(content, opcode, filters);
     allMatches = allMatches.concat(matches);
   }
@@ -189,11 +188,11 @@ async function investigate(): Promise<void> {
       continue;
     }
 
-    console.log(`\n${'='.repeat(60)}`);
+    console.log(`\n${"=".repeat(60)}`);
     console.log(`Argument ${i + 1} (${stats.totalUnique} unique values)`);
-    console.log(`${'='.repeat(60)}\n`);
+    console.log(`${"=".repeat(60)}\n`);
 
-    const sortLabel = sortMode === 'frequency' ? 'sorted by frequency' : 'sorted by value';
+    const sortLabel = sortMode === "frequency" ? "sorted by frequency" : "sorted by value";
     console.log(`All values (${sortLabel}):`);
     for (const [value, count] of stats.values) {
       const percentage = ((count / stats.totalOccurrences) * 100).toFixed(1);
@@ -201,10 +200,10 @@ async function investigate(): Promise<void> {
     }
   }
 
-  console.log(`\n${'='.repeat(60)}\n`);
+  console.log(`\n${"=".repeat(60)}\n`);
 }
 
 investigate().catch((error: unknown) => {
-  console.error('Error:', errorMessage(error));
+  console.error("Error:", errorMessage(error));
   process.exit(1);
 });

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { readdir, stat, open, mkdir, readFile, writeFile } from 'fs/promises';
-import { join, dirname, relative } from 'path';
-import { errorMessage } from '../lib/errors.ts';
+import { mkdir, open, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { dirname, join, relative } from "node:path";
+import { errorMessage } from "../lib/errors.ts";
 
 // Data Structures
 
@@ -15,7 +15,7 @@ class WadFileEntry {
   offset: U64;
 
   constructor(path: string, size: U64, offset: U64) {
-    this.path = path.replace(/\\/g, '/');
+    this.path = path.replace(/\\/g, "/");
     this.size = size;
     this.offset = offset;
   }
@@ -26,7 +26,7 @@ class WadDirEntry {
   type: number;
 
   constructor(path: string, type: number) {
-    this.path = path.replace(/\\/g, '/');
+    this.path = path.replace(/\\/g, "/");
     this.type = type;
   }
 }
@@ -36,7 +36,7 @@ class WadDir {
   entries: WadDirEntry[];
 
   constructor(path: string, entries?: WadDirEntry[]) {
-    this.path = path.replace(/\\/g, '/');
+    this.path = path.replace(/\\/g, "/");
     this.entries = entries || [];
   }
 }
@@ -71,7 +71,7 @@ function readU64LE(buffer: Buffer, offset: number): bigint {
 
 function readString(buffer: Buffer, offset: number): { value: string; nextOffset: number } {
   const length = buffer.readUInt32LE(offset);
-  const value = buffer.toString('utf8', offset + 4, offset + 4 + length);
+  const value = buffer.toString("utf8", offset + 4, offset + 4 + length);
   return { value, nextOffset: offset + 4 + length };
 }
 
@@ -93,7 +93,7 @@ function writeU64LE(buffer: Buffer, value: U64, offset: number): number {
 }
 
 function writeString(buffer: Buffer, value: string, offset: number): number {
-  const strBuffer = Buffer.from(value, 'utf8');
+  const strBuffer = Buffer.from(value, "utf8");
   buffer.writeUInt32LE(strBuffer.length, offset);
   strBuffer.copy(buffer, offset + 4);
   return offset + 4 + strBuffer.length;
@@ -121,7 +121,7 @@ async function flatWalk(dir: string): Promise<string[]> {
 }
 
 function calculateStringSize(str: string): number {
-  return 4 + Buffer.byteLength(str, 'utf8');
+  return 4 + Buffer.byteLength(str, "utf8");
 }
 
 // Core WAD Functions
@@ -137,11 +137,11 @@ async function readWad(filePath: string): Promise<ReadWadResult> {
   let offset = 0;
 
   // Read magic
-  const magic = buffer.toString('ascii', offset, offset + 4);
+  const magic = buffer.toString("ascii", offset, offset + 4);
   offset += 4;
 
-  if (magic !== 'AGAR') {
-    throw new Error('Not a WAD archive');
+  if (magic !== "AGAR") {
+    throw new Error("Not a WAD archive");
   }
 
   // Read version
@@ -231,10 +231,10 @@ async function writeWad(wad: Wad, outputPath: string, inputFiles: InputFile[]): 
   }
 
   // Calculate total file size
-  let totalSize = headerSize;
+  let _totalSize = headerSize;
   for (const [physicalPath] of inputFiles) {
     const fileStats = await stat(physicalPath);
-    totalSize += Number(fileStats.size);
+    _totalSize += Number(fileStats.size);
   }
 
   // Create buffer and write header
@@ -242,7 +242,7 @@ async function writeWad(wad: Wad, outputPath: string, inputFiles: InputFile[]): 
   let offset = 0;
 
   // Write magic
-  headerBuffer.write('AGAR', offset, 'ascii');
+  headerBuffer.write("AGAR", offset, "ascii");
   offset += 4;
 
   // Write version
@@ -277,7 +277,7 @@ async function writeWad(wad: Wad, outputPath: string, inputFiles: InputFile[]): 
   await writeFile(outputPath, headerBuffer);
 
   // Append file contents
-  const fh = await open(outputPath, 'a');
+  const fh = await open(outputPath, "a");
   try {
     for (const [physicalPath] of inputFiles) {
       const content = await readFile(physicalPath);
@@ -307,7 +307,7 @@ async function extractFiles(wadPath: string, outputDir: string, silent = false):
 
     const outputPath = join(outputDir, file.path);
     if (!silent) {
-      console.log('Saved', outputPath);
+      console.log("Saved", outputPath);
     }
 
     await mkdir(dirname(outputPath), { recursive: true });
@@ -327,7 +327,7 @@ async function packFiles(inputDirs: string[], outputPath: string, silent = false
   for (const dir of inputDirs) {
     const physicalPaths = await flatWalk(dir);
     for (const physicalPath of physicalPaths) {
-      const relativePath = relative(dir, physicalPath).replace(/\\/g, '/');
+      const relativePath = relative(dir, physicalPath).replace(/\\/g, "/");
 
       // Check if file already added
       const exists = inputFiles.some(([, r]) => r === relativePath);
@@ -352,7 +352,7 @@ async function packFiles(inputDirs: string[], outputPath: string, silent = false
 
   if (!silent) {
     for (const [, relativePath] of inputFiles) {
-      console.log('Adding', relativePath);
+      console.log("Adding", relativePath);
     }
   }
 }
@@ -375,7 +375,7 @@ Options:
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
-  if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
+  if (args.length === 0 || args.includes("-h") || args.includes("--help")) {
     showUsage();
     process.exit(0);
   }
@@ -384,7 +384,7 @@ async function main(): Promise<void> {
   const filteredArgs: string[] = [];
 
   for (const arg of args) {
-    if (arg === '-s' || arg === '--silent') {
+    if (arg === "-s" || arg === "--silent") {
       silent = true;
     } else {
       filteredArgs.push(arg);
@@ -394,27 +394,24 @@ async function main(): Promise<void> {
   const command = filteredArgs[0];
 
   try {
-    if (command === 'list') {
+    if (command === "list") {
       if (filteredArgs.length < 2) {
-        console.error('Error: list command requires input file');
+        console.error("Error: list command requires input file");
         process.exit(1);
       }
       await listFiles(filteredArgs[1]);
-
-    } else if (command === 'extract') {
+    } else if (command === "extract") {
       if (filteredArgs.length < 3) {
-        console.error('Error: extract command requires input file and output directory');
+        console.error("Error: extract command requires input file and output directory");
         process.exit(1);
       }
       await extractFiles(filteredArgs[1], filteredArgs[2], silent);
-
-    } else if (command === 'create') {
+    } else if (command === "create") {
       if (filteredArgs.length < 3) {
-        console.error('Error: create command requires input directory and output file');
+        console.error("Error: create command requires input directory and output file");
         process.exit(1);
       }
       await packFiles([filteredArgs[1]], filteredArgs[2], silent);
-
     } else {
       console.error(`Error: Unknown command '${command}'`);
       showUsage();

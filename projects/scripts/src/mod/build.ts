@@ -1,17 +1,22 @@
 #!/usr/bin/env node
 
-import { join, basename } from 'path';
-import { readdir, stat } from 'fs/promises';
-import { existsSync } from 'fs';
-import { execSync } from 'child_process';
-import { getGameDirectoryOrThrow } from '../lib/steam-paths.ts';
-import { errorMessage } from '../lib/errors.ts';
-import { PROJECT_ROOT, WORKSPACE_DIR, LIN_COMPILER_CLI as LIN_COMPILER, WAD_ARCHIVER_CLI as WAD_ARCHIVER } from '../lib/paths.ts';
+import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readdir, stat } from "node:fs/promises";
+import { join } from "node:path";
+import { errorMessage } from "../lib/errors.ts";
+import {
+  LIN_COMPILER_CLI as LIN_COMPILER,
+  PROJECT_ROOT,
+  WAD_ARCHIVER_CLI as WAD_ARCHIVER,
+  WORKSPACE_DIR,
+} from "../lib/paths.ts";
+import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
-const MODS_DIR = join(WORKSPACE_DIR, 'mod');
-const EXTRACTED_DIR = join(WORKSPACE_DIR, 'modded');
+const MODS_DIR = join(WORKSPACE_DIR, "mod");
+const EXTRACTED_DIR = join(WORKSPACE_DIR, "modded");
 
 interface CompileStats {
   succeeded: number;
@@ -25,13 +30,13 @@ interface ExecError extends Error {
 }
 
 async function compileLinscripts(modPath: string): Promise<CompileStats> {
-  console.log('  Compiling .linscript files...');
+  console.log("  Compiling .linscript files...");
 
   // Find all .linscript files in the mod directory
-  const scriptDir = join(modPath, 'Dr1', 'data', 'us', 'script');
+  const scriptDir = join(modPath, "Dr1", "data", "us", "script");
 
   if (!existsSync(scriptDir)) {
-    console.log('  No script directory found, skipping linscript compilation');
+    console.log("  No script directory found, skipping linscript compilation");
     return { succeeded: 0, failed: 0 };
   }
 
@@ -40,7 +45,7 @@ async function compileLinscripts(modPath: string): Promise<CompileStats> {
     // Note: compiler outputs errors to stderr and summary to stdout
     const result = execSync(`node "${LIN_COMPILER}" -s "${scriptDir}" 2>&1`, {
       cwd: PROJECT_ROOT,
-      encoding: 'utf-8'
+      encoding: "utf-8",
     });
 
     // Parse the output for statistics
@@ -51,14 +56,14 @@ async function compileLinscripts(modPath: string): Promise<CompileStats> {
     // Show full output if there were errors
     if (failed > 0) {
       console.error(result);
-      console.error('  ✗ Linscript compilation failed');
-      throw new Error('Linscript compilation failed');
+      console.error("  ✗ Linscript compilation failed");
+      throw new Error("Linscript compilation failed");
     }
 
     console.log(`  ✓ Compiled ${succeeded} .linscript file(s) to .lin`);
     return { succeeded, failed };
   } catch (error) {
-    console.error('  ✗ Failed to compile .linscript files');
+    console.error("  ✗ Failed to compile .linscript files");
     const execError = error as ExecError;
     if (execError.stdout) console.error(execError.stdout);
     if (execError.stderr) console.error(execError.stderr);
@@ -67,25 +72,25 @@ async function compileLinscripts(modPath: string): Promise<CompileStats> {
 }
 
 async function moveCompiledLins(modPath: string, extractedPath: string): Promise<void> {
-  console.log('  Moving compiled .lin files to modded directory...');
+  console.log("  Moving compiled .lin files to modded directory...");
 
-  const modScriptDir = join(modPath, 'Dr1', 'data', 'us', 'script');
-  const extractedScriptDir = join(extractedPath, 'Dr1', 'data', 'us', 'script');
+  const modScriptDir = join(modPath, "Dr1", "data", "us", "script");
+  const extractedScriptDir = join(extractedPath, "Dr1", "data", "us", "script");
 
   if (!existsSync(modScriptDir)) {
-    console.log('  No script directory found, skipping');
+    console.log("  No script directory found, skipping");
     return;
   }
 
   try {
     // Move all .lin files from mod/ to modded/, overwriting existing ones
     execSync(`find "${modScriptDir}" -name "*.lin" -exec mv {} "${extractedScriptDir}"/ \\;`, {
-      stdio: 'pipe',
-      cwd: PROJECT_ROOT
+      stdio: "pipe",
+      cwd: PROJECT_ROOT,
     });
-    console.log('  ✓ Moved compiled .lin files');
+    console.log("  ✓ Moved compiled .lin files");
   } catch (error) {
-    console.error('  ✗ Failed to move .lin files');
+    console.error("  ✗ Failed to move .lin files");
     throw error;
   }
 }
@@ -145,8 +150,8 @@ async function buildMods(): Promise<void> {
 
       // Step 3: Use wad-archiver to pack the modded directory
       execSync(`node "${WAD_ARCHIVER}" create "${extractedPath}" "${outputPath}"`, {
-        stdio: 'inherit',
-        cwd: PROJECT_ROOT
+        stdio: "inherit",
+        cwd: PROJECT_ROOT,
       });
 
       console.log(`✓ Successfully built ${wadName} to game directory`);
@@ -172,6 +177,6 @@ async function buildMods(): Promise<void> {
 }
 
 buildMods().catch((err: unknown) => {
-  console.error('Error:', errorMessage(err));
+  console.error("Error:", errorMessage(err));
   process.exit(1);
 });

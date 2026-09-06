@@ -7,49 +7,43 @@
  * and saves it as base_files.zip in the workspace directory.
  */
 
-import { createWriteStream } from 'fs';
-import { stat } from 'fs/promises';
-import { join } from 'path';
-import archiver from 'archiver';
-import { getGameDirectoryOrThrow } from '../lib/steam-paths.ts';
-import { errorMessage } from '../lib/errors.ts';
-import { WORKSPACE_DIR } from '../lib/paths.ts';
-
+import { createWriteStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import { join } from "node:path";
+import archiver from "archiver";
+import { errorMessage } from "../lib/errors.ts";
+import { WORKSPACE_DIR } from "../lib/paths.ts";
+import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 const GAME_DIR = getGameDirectoryOrThrow();
-const OUTPUT_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
+const OUTPUT_ZIP = join(WORKSPACE_DIR, "base_files.zip");
 
 // The 4 .wad files to backup
-const WAD_FILES = [
-  'dr1_data.wad',
-  'dr1_data_us.wad',
-  'dr1_data_keyboard_us.wad',
-  'dr1_data_keyboard.wad'
-];
+const WAD_FILES = ["dr1_data.wad", "dr1_data_us.wad", "dr1_data_keyboard_us.wad", "dr1_data_keyboard.wad"];
 
 async function zipGameFiles(): Promise<void> {
-  console.log('Starting zip-game-files...\n');
+  console.log("Starting zip-game-files...\n");
   console.log(`Using game directory: ${GAME_DIR}\n`);
 
   // Create output stream
   const output = createWriteStream(OUTPUT_ZIP);
-  const archive = archiver('zip', {
-    zlib: { level: 9 } // Maximum compression
+  const archive = archiver("zip", {
+    zlib: { level: 9 }, // Maximum compression
   });
 
   // Listen for archive events
-  output.on('close', () => {
+  output.on("close", () => {
     const sizeMB = (archive.pointer() / 1024 / 1024).toFixed(2);
     console.log(`\n✓ Archive created: ${OUTPUT_ZIP}`);
     console.log(`✓ Total size: ${sizeMB} MB`);
   });
 
-  archive.on('error', (err) => {
+  archive.on("error", (err) => {
     throw err;
   });
 
-  archive.on('warning', (err) => {
-    if (err.code === 'ENOENT') {
+  archive.on("warning", (err) => {
+    if (err.code === "ENOENT") {
       console.warn(`Warning: ${err.message}`);
     } else {
       throw err;
@@ -77,7 +71,7 @@ async function zipGameFiles(): Promise<void> {
   }
 
   if (filesAdded === 0) {
-    console.error('Error: No .wad files found in game directory');
+    console.error("Error: No .wad files found in game directory");
     process.exit(1);
   }
 

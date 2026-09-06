@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile, mkdir, readdir, stat, unlink } from 'fs/promises';
-import { basename, dirname, join, extname } from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { extractPak } from '../formats/pak-archiver.ts';
-import { errorMessage } from '../lib/errors.ts';
+import { exec } from "node:child_process";
+import { mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
+import { basename, dirname, extname, join } from "node:path";
+import { promisify } from "node:util";
+import { extractPak } from "../formats/pak-archiver.ts";
+import { errorMessage } from "../lib/errors.ts";
 
 const execAsync = promisify(exec);
-
 
 // ============================================================================
 // WAD Archive Functions
@@ -25,7 +24,7 @@ function readU64LE(buffer: Buffer, offset: number): bigint {
 
 function readString(buffer: Buffer, offset: number): { value: string; nextOffset: number } {
   const length = buffer.readUInt32LE(offset);
-  const value = buffer.toString('utf8', offset + 4, offset + 4 + length);
+  const value = buffer.toString("utf8", offset + 4, offset + 4 + length);
   return { value, nextOffset: offset + 4 + length };
 }
 
@@ -35,7 +34,7 @@ class WadFileEntry {
   offset: bigint;
 
   constructor(path: string, size: bigint, offset: bigint) {
-    this.path = path.replace(/\\/g, '/');
+    this.path = path.replace(/\\/g, "/");
     this.size = size;
     this.offset = offset;
   }
@@ -46,7 +45,7 @@ class WadDirEntry {
   type: number;
 
   constructor(path: string, type: number) {
-    this.path = path.replace(/\\/g, '/');
+    this.path = path.replace(/\\/g, "/");
     this.type = type;
   }
 }
@@ -56,7 +55,7 @@ class WadDir {
   entries: WadDirEntry[];
 
   constructor(path: string, entries?: WadDirEntry[]) {
-    this.path = path.replace(/\\/g, '/');
+    this.path = path.replace(/\\/g, "/");
     this.entries = entries || [];
   }
 }
@@ -86,11 +85,11 @@ async function readWad(filePath: string): Promise<ReadWadResult> {
   let offset = 0;
 
   // Read magic
-  const magic = buffer.toString('ascii', offset, offset + 4);
+  const magic = buffer.toString("ascii", offset, offset + 4);
   offset += 4;
 
-  if (magic !== 'AGAR') {
-    throw new Error('Not a WAD archive');
+  if (magic !== "AGAR") {
+    throw new Error("Not a WAD archive");
   }
 
   // Read version
@@ -185,9 +184,9 @@ async function findAndExtractPaks(directory: string): Promise<void> {
     if (entry.isDirectory()) {
       // Recursively search subdirectories
       await findAndExtractPaks(fullPath);
-    } else if (entry.isFile() && entry.name.endsWith('.pak')) {
+    } else if (entry.isFile() && entry.name.endsWith(".pak")) {
       // Extract PAK files using pak-archiver's extractPak function
-      const outputDir = fullPath.replace(/\.pak$/, '');
+      const outputDir = fullPath.replace(/\.pak$/, "");
       await extractPak(fullPath, outputDir, false, 0);
       // Remove the .pak file after successful extraction (if it still exists -
       // extractPak may have renamed it if it wasn't actually a PAK)
@@ -205,17 +204,14 @@ async function findAndExtractPaks(directory: string): Promise<void> {
 // LIN Decompilation
 // ============================================================================
 
-async function collectDirsWithLinFiles(
-  directory: string,
-  results = new Set<string>(),
-): Promise<Set<string>> {
+async function collectDirsWithLinFiles(directory: string, results = new Set<string>()): Promise<Set<string>> {
   const entries = await readdir(directory, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = join(directory, entry.name);
     if (entry.isDirectory()) {
       await collectDirsWithLinFiles(fullPath, results);
-    } else if (entry.isFile() && entry.name.endsWith('.lin')) {
+    } else if (entry.isFile() && entry.name.endsWith(".lin")) {
       results.add(directory);
     }
   }
@@ -226,7 +222,7 @@ async function collectDirsWithLinFiles(
 async function removeLinFiles(directory: string): Promise<void> {
   const entries = await readdir(directory, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.isFile() && entry.name.endsWith('.lin')) {
+    if (entry.isFile() && entry.name.endsWith(".lin")) {
       await unlink(join(directory, entry.name));
     }
   }
@@ -236,7 +232,7 @@ async function findAndDecompileLins(directory: string): Promise<void> {
   const dirsWithLins = await collectDirsWithLinFiles(directory);
 
   if (dirsWithLins.size === 0) {
-    console.log('  No .lin files found');
+    console.log("  No .lin files found");
     return;
   }
 
@@ -274,7 +270,7 @@ Example:
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
-  if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
+  if (args.length === 0 || args.includes("-h") || args.includes("--help")) {
     showUsage();
     process.exit(0);
   }
@@ -303,21 +299,21 @@ async function main(): Promise<void> {
     await extractWad(wadPath, outputDir);
 
     console.log();
-    console.log('WAD extraction complete. Searching for PAK files...');
+    console.log("WAD extraction complete. Searching for PAK files...");
     console.log();
 
     // Step 2: Find and recursively extract all PAK files
     await findAndExtractPaks(outputDir);
 
     console.log();
-    console.log('PAK extraction complete. Decompiling LIN files...');
+    console.log("PAK extraction complete. Decompiling LIN files...");
     console.log();
 
     // Step 3: Find and decompile all .lin files
     await findAndDecompileLins(outputDir);
 
     console.log();
-    console.log('Recursive extraction complete!');
+    console.log("Recursive extraction complete!");
   } catch (error) {
     console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);

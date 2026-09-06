@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-import { existsSync } from 'fs';
-import { mkdir, copyFile } from 'fs/promises';
-import { join, dirname, relative, basename, extname } from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { errorMessage } from '../lib/errors.ts';
-import { PROJECT_ROOT as projectRoot, LIN_COMPILER_CLI as LIN_COMPILER_PATH } from '../lib/paths.ts';
+import { exec } from "node:child_process";
+import { existsSync } from "node:fs";
+import { copyFile, mkdir } from "node:fs/promises";
+import { basename, dirname, extname, join, relative } from "node:path";
+import { promisify } from "node:util";
+import { errorMessage } from "../lib/errors.ts";
+import { LIN_COMPILER_CLI as LIN_COMPILER_PATH, PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 
-const MODDED_DIR = join(projectRoot, 'workspace', 'modded', 'dr1_data_us');
-const MOD_DIR = join(projectRoot, 'workspace', 'mod', 'dr1_data_us');
-const EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
+const MODDED_DIR = join(projectRoot, "workspace", "modded", "dr1_data_us");
+const MOD_DIR = join(projectRoot, "workspace", "mod", "dr1_data_us");
+const EXPLORATION_DIR = join(projectRoot, "workspace", "linscript-exploration");
 
 function showUsage(): void {
   console.log(`Usage: pnpm select <filepath>
@@ -32,7 +32,7 @@ Examples:
 
 function resolveLinFilePath(inputPath: string): string {
   // If it's an absolute path
-  if (inputPath.startsWith('/')) {
+  if (inputPath.startsWith("/")) {
     if (!inputPath.startsWith(MODDED_DIR)) {
       throw new Error(`File must be within ${MODDED_DIR}`);
     }
@@ -40,18 +40,18 @@ function resolveLinFilePath(inputPath: string): string {
   }
 
   // If it's a relative path from project root
-  if (inputPath.startsWith('workspace/modded/')) {
+  if (inputPath.startsWith("workspace/modded/")) {
     return join(projectRoot, inputPath);
   }
 
   // If it's a path relative to dr1_data_us
-  if (inputPath.startsWith('Dr1/')) {
+  if (inputPath.startsWith("Dr1/")) {
     return join(MODDED_DIR, inputPath);
   }
 
   // If it's just a filename, assume it's in the script directory
-  if (!inputPath.includes('/')) {
-    return join(MODDED_DIR, 'Dr1/data/us/script', inputPath);
+  if (!inputPath.includes("/")) {
+    return join(MODDED_DIR, "Dr1/data/us/script", inputPath);
   }
 
   // Otherwise, try treating it as relative to MODDED_DIR
@@ -60,7 +60,7 @@ function resolveLinFilePath(inputPath: string): string {
 
 function resolveLinscriptFilePath(inputPath: string): string {
   // If it's an absolute path
-  if (inputPath.startsWith('/')) {
+  if (inputPath.startsWith("/")) {
     if (!inputPath.startsWith(EXPLORATION_DIR)) {
       throw new Error(`File must be within ${EXPLORATION_DIR}`);
     }
@@ -68,12 +68,12 @@ function resolveLinscriptFilePath(inputPath: string): string {
   }
 
   // If it's a relative path from project root
-  if (inputPath.startsWith('workspace/linscript-exploration/')) {
+  if (inputPath.startsWith("workspace/linscript-exploration/")) {
     return join(projectRoot, inputPath);
   }
 
   // If it's just a filename, assume it's in the exploration directory
-  if (!inputPath.includes('/')) {
+  if (!inputPath.includes("/")) {
     return join(EXPLORATION_DIR, inputPath);
   }
 
@@ -93,7 +93,7 @@ async function handleLinFile(inputPath: string): Promise<void> {
 
   // Check if lin-compiler exists
   if (!existsSync(LIN_COMPILER_PATH)) {
-    console.error('Error: lin-compiler entry point not found at ' + LIN_COMPILER_PATH);
+    console.error(`Error: lin-compiler entry point not found at ${LIN_COMPILER_PATH}`);
     process.exit(1);
   }
 
@@ -101,7 +101,7 @@ async function handleLinFile(inputPath: string): Promise<void> {
   const relativePath = relative(MODDED_DIR, sourceFile);
 
   // Calculate the output path in MOD_DIR
-  const outputBase = basename(sourceFile, '.lin');
+  const outputBase = basename(sourceFile, ".lin");
   const outputFile = join(MOD_DIR, dirname(relativePath), `${outputBase}.linscript`);
 
   console.log(`Selecting: ${relativePath}`);
@@ -116,11 +116,10 @@ async function handleLinFile(inputPath: string): Promise<void> {
   await copyFile(sourceFile, tempLinFile);
 
   // Decompile the .lin file
-  console.log('\nDecompiling...');
-  const { stdout, stderr } = await execAsync(
-    `node "${LIN_COMPILER_PATH}" -d "${tempLinFile}" "${outputFile}"`,
-    { maxBuffer: 10 * 1024 * 1024 }
-  );
+  console.log("\nDecompiling...");
+  const { stdout, stderr } = await execAsync(`node "${LIN_COMPILER_PATH}" -d "${tempLinFile}" "${outputFile}"`, {
+    maxBuffer: 10 * 1024 * 1024,
+  });
 
   if (stdout) console.log(stdout);
   if (stderr) console.error(stderr);
@@ -149,11 +148,11 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
   }
 
   // Extract the base filename (e.g., e01_004_135 from e01_004_135.linscript)
-  const baseFilename = basename(sourceFile, '.linscript');
+  const baseFilename = basename(sourceFile, ".linscript");
 
   // Find the corresponding .lin file in workspace/modded
   // All script files are in Dr1/data/us/script/ directory
-  const correspondingLinFile = join(MODDED_DIR, 'Dr1/data/us/script', `${baseFilename}.lin`);
+  const correspondingLinFile = join(MODDED_DIR, "Dr1/data/us/script", `${baseFilename}.lin`);
 
   if (!existsSync(correspondingLinFile)) {
     console.error(`Error: Corresponding .lin file not found: ${correspondingLinFile}`);
@@ -162,7 +161,7 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
   }
 
   // Calculate the output path in MOD_DIR (same structure as .lin files)
-  const outputFile = join(MOD_DIR, 'Dr1/data/us/script', `${baseFilename}.linscript`);
+  const outputFile = join(MOD_DIR, "Dr1/data/us/script", `${baseFilename}.linscript`);
 
   console.log(`Selecting: ${basename(sourceFile)}`);
   console.log(`Found:     Dr1/data/us/script/${baseFilename}.lin`);
@@ -188,7 +187,7 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
-  if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
+  if (args.length === 0 || args.includes("-h") || args.includes("--help")) {
     showUsage();
     process.exit(0);
   }
@@ -198,12 +197,12 @@ async function main(): Promise<void> {
   try {
     const ext = extname(inputPath);
 
-    if (ext === '.lin') {
+    if (ext === ".lin") {
       await handleLinFile(inputPath);
-    } else if (ext === '.linscript') {
+    } else if (ext === ".linscript") {
       await handleLinscriptFile(inputPath);
     } else {
-      console.error('Error: File must be a .lin or .linscript file');
+      console.error("Error: File must be a .lin or .linscript file");
       process.exit(1);
     }
   } catch (error) {

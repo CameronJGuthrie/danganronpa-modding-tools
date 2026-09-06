@@ -5,12 +5,12 @@
  * Supports Windows, Linux, and macOS.
  */
 
-import { homedir } from 'os';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
-const GAME_NAME = 'Danganronpa Trigger Happy Havoc';
-const GAME_APP_ID = '413410';
+const GAME_NAME = "Danganronpa Trigger Happy Havoc";
+const GAME_APP_ID = "413410";
 
 /**
  * Returns an array of potential Steam game directory paths for all platforms.
@@ -19,30 +19,28 @@ const GAME_APP_ID = '413410';
 function getPotentialGamePaths(): string[] {
   const paths: string[] = [];
 
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     // Windows Steam paths
     paths.push(
       `C:\\Program Files (x86)\\Steam\\steamapps\\common\\${GAME_NAME}`,
-      `C:\\Program Files\\Steam\\steamapps\\common\\${GAME_NAME}`
+      `C:\\Program Files\\Steam\\steamapps\\common\\${GAME_NAME}`,
     );
 
     // Check common alternate drive letters for custom Steam libraries
-    for (const drive of ['D', 'E', 'F']) {
+    for (const drive of ["D", "E", "F"]) {
       paths.push(
         `${drive}:\\SteamLibrary\\steamapps\\common\\${GAME_NAME}`,
-        `${drive}:\\Steam\\steamapps\\common\\${GAME_NAME}`
+        `${drive}:\\Steam\\steamapps\\common\\${GAME_NAME}`,
       );
     }
-  } else if (process.platform === 'darwin') {
+  } else if (process.platform === "darwin") {
     // macOS Steam paths
-    paths.push(
-      join(homedir(), `Library/Application Support/Steam/steamapps/common/${GAME_NAME}`)
-    );
+    paths.push(join(homedir(), `Library/Application Support/Steam/steamapps/common/${GAME_NAME}`));
   } else {
     // Linux Steam paths
     paths.push(
       join(homedir(), `.local/share/Steam/steamapps/common/${GAME_NAME}`),
-      join(homedir(), `.steam/steam/steamapps/common/${GAME_NAME}`)
+      join(homedir(), `.steam/steam/steamapps/common/${GAME_NAME}`),
     );
   }
 
@@ -53,13 +51,13 @@ function getPotentialGamePaths(): string[] {
  * Returns an array of potential Proton compatdata paths (Linux only).
  */
 function getPotentialCompatDataPaths(): string[] {
-  if (process.platform !== 'linux') {
+  if (process.platform !== "linux") {
     return [];
   }
 
   return [
     join(homedir(), `.local/share/Steam/steamapps/compatdata/${GAME_APP_ID}`),
-    join(homedir(), `.steam/steam/steamapps/compatdata/${GAME_APP_ID}`)
+    join(homedir(), `.steam/steam/steamapps/compatdata/${GAME_APP_ID}`),
   ];
 }
 
@@ -104,8 +102,10 @@ export function getGameDirectoryOrThrow(): string {
   if (!gameDir) {
     const error = new Error(
       `Game directory not found. Make sure "${GAME_NAME}" is installed via Steam.\n` +
-      'Checked the following locations:\n' +
-      getPotentialGamePaths().map((p) => `  - ${p}`).join('\n')
+        "Checked the following locations:\n" +
+        getPotentialGamePaths()
+          .map((p) => `  - ${p}`)
+          .join("\n"),
     );
     throw error;
   }

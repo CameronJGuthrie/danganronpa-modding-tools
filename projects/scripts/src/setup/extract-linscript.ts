@@ -1,33 +1,33 @@
 #!/usr/bin/env node
 
-import { readFile, mkdir, rm, writeFile, readdir, copyFile, chmod } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import unzipper from 'unzipper';
-import { errorMessage } from '../lib/errors.ts';
-import { PROJECT_ROOT, WORKSPACE_DIR, LIN_COMPILER_CLI, WAD_ARCHIVER_CLI } from '../lib/paths.ts';
+import { exec } from "node:child_process";
+import { existsSync } from "node:fs";
+import { chmod, copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { promisify } from "node:util";
+import unzipper from "unzipper";
+import { errorMessage } from "../lib/errors.ts";
+import { LIN_COMPILER_CLI, WAD_ARCHIVER_CLI, WORKSPACE_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
-const BASE_FILES_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
-const TEMP_DIR = join(WORKSPACE_DIR, 'temp_extract');
-const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, 'linscript-exploration');
+const BASE_FILES_ZIP = join(WORKSPACE_DIR, "base_files.zip");
+const TEMP_DIR = join(WORKSPACE_DIR, "temp_extract");
+const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, "linscript-exploration");
 
 async function extractWadFromZip(): Promise<string> {
-  console.log('Extracting dr1_data_us.wad from base_files.zip...');
+  console.log("Extracting dr1_data_us.wad from base_files.zip...");
 
   const zipBuffer = await readFile(BASE_FILES_ZIP);
   const directory = await unzipper.Open.buffer(zipBuffer);
 
-  const wadFile = directory.files.find((f) => f.path === 'dr1_data_us.wad');
+  const wadFile = directory.files.find((f) => f.path === "dr1_data_us.wad");
 
   if (!wadFile) {
-    throw new Error('dr1_data_us.wad not found in base_files.zip');
+    throw new Error("dr1_data_us.wad not found in base_files.zip");
   }
 
   const wadBuffer = await wadFile.buffer();
-  const tempWadPath = join(TEMP_DIR, 'dr1_data_us.wad');
+  const tempWadPath = join(TEMP_DIR, "dr1_data_us.wad");
 
   await mkdir(TEMP_DIR, { recursive: true });
   await writeFile(tempWadPath, wadBuffer);
@@ -36,24 +36,23 @@ async function extractWadFromZip(): Promise<string> {
 }
 
 async function extractWadContents(wadPath: string): Promise<string> {
-  console.log('Extracting WAD contents...');
+  console.log("Extracting WAD contents...");
 
-  const extractDir = join(TEMP_DIR, 'extracted');
+  const extractDir = join(TEMP_DIR, "extracted");
 
   await mkdir(extractDir, { recursive: true });
 
-  await execAsync(
-    `node "${WAD_ARCHIVER_CLI}" extract "${wadPath}" "${extractDir}" --silent`,
-    { maxBuffer: 50 * 1024 * 1024 }
-  );
+  await execAsync(`node "${WAD_ARCHIVER_CLI}" extract "${wadPath}" "${extractDir}" --silent`, {
+    maxBuffer: 50 * 1024 * 1024,
+  });
 
   return extractDir;
 }
 
 async function decompileLinFiles(extractDir: string, useHex = false): Promise<string> {
-  console.log('Decompiling .lin files...');
+  console.log("Decompiling .lin files...");
 
-  const scriptDir = join(extractDir, 'Dr1/data/us/script');
+  const scriptDir = join(extractDir, "Dr1/data/us/script");
 
   if (!existsSync(scriptDir)) {
     throw new Error(`Script directory not found: ${scriptDir}`);
@@ -64,22 +63,19 @@ async function decompileLinFiles(extractDir: string, useHex = false): Promise<st
   }
 
   // Run the lin-compiler in batch decompile mode
-  const hexFlag = useHex ? '--hex' : '';
-  await execAsync(
-    `node "${LIN_COMPILER_CLI}" -s -d ${hexFlag} "${scriptDir}"`,
-    { maxBuffer: 50 * 1024 * 1024 }
-  );
+  const hexFlag = useHex ? "--hex" : "";
+  await execAsync(`node "${LIN_COMPILER_CLI}" -s -d ${hexFlag} "${scriptDir}"`, { maxBuffer: 50 * 1024 * 1024 });
 
   return scriptDir;
 }
 
 async function copyLinscriptFiles(scriptDir: string): Promise<string[]> {
-  console.log('Copying .linscript files to linscript-exploration...');
+  console.log("Copying .linscript files to linscript-exploration...");
 
   await mkdir(LINSCRIPT_EXPLORATION_DIR, { recursive: true });
 
   const files = await readdir(scriptDir);
-  const linscriptFiles = files.filter((f) => f.endsWith('.linscript'));
+  const linscriptFiles = files.filter((f) => f.endsWith(".linscript"));
 
   let copiedCount = 0;
   for (const file of linscriptFiles) {
@@ -102,7 +98,7 @@ async function copyLinscriptFiles(scriptDir: string): Promise<string[]> {
 }
 
 async function makeFilesReadonly(files: string[]): Promise<void> {
-  console.log('Making files read-only...');
+  console.log("Making files read-only...");
 
   for (const file of files) {
     const filePath = join(LINSCRIPT_EXPLORATION_DIR, file);
@@ -114,19 +110,19 @@ async function makeFilesReadonly(files: string[]): Promise<void> {
 }
 
 async function cleanup(): Promise<void> {
-  console.log('Cleaning up temporary directory...');
+  console.log("Cleaning up temporary directory...");
   await rm(TEMP_DIR, { recursive: true, force: true });
 }
 
 async function main(): Promise<void> {
   // Parse command line arguments
   const args = process.argv.slice(2);
-  const useHex = args.includes('--hex') || args.includes('-h');
+  const useHex = args.includes("--hex") || args.includes("-h");
 
   try {
-    console.log('Starting linscript extraction...\n');
+    console.log("Starting linscript extraction...\n");
     if (useHex) {
-      console.log('Using hex opcodes mode\n');
+      console.log("Using hex opcodes mode\n");
     }
 
     // Step 1: Extract WAD from ZIP
@@ -147,14 +143,14 @@ async function main(): Promise<void> {
     // Step 6: Remove temporary directory
     await cleanup();
 
-    console.log('\n✓ Complete! Linscript files are in linscript-exploration/');
+    console.log("\n✓ Complete! Linscript files are in linscript-exploration/");
   } catch (error) {
     console.error(`Error: ${errorMessage(error)}`);
 
     // Attempt cleanup on error
     try {
       await rm(TEMP_DIR, { recursive: true, force: true });
-    } catch { }
+    } catch {}
 
     process.exit(1);
   }

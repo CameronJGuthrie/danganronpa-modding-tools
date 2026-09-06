@@ -7,19 +7,19 @@
  * This gives you a fresh copy of all base game files for modding.
  */
 
-import { readFile, mkdir, rm, writeFile } from 'fs/promises';
-import { join } from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import unzipper from 'unzipper';
-import { errorMessage } from '../lib/errors.ts';
-import { WORKSPACE_DIR, WAD_ARCHIVER_CLI } from '../lib/paths.ts';
+import { exec } from "node:child_process";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { promisify } from "node:util";
+import unzipper from "unzipper";
+import { errorMessage } from "../lib/errors.ts";
+import { WAD_ARCHIVER_CLI, WORKSPACE_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
-const BASE_FILES_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
-const MODDED_DIR = join(WORKSPACE_DIR, 'modded');
-const DR1_DATA_US_DIR = join(MODDED_DIR, 'dr1_data_us');
-const DR1_DATA_DIR = join(MODDED_DIR, 'dr1_data');
+const BASE_FILES_ZIP = join(WORKSPACE_DIR, "base_files.zip");
+const MODDED_DIR = join(WORKSPACE_DIR, "modded");
+const DR1_DATA_US_DIR = join(MODDED_DIR, "dr1_data_us");
+const DR1_DATA_DIR = join(MODDED_DIR, "dr1_data");
 
 async function extractWadFromZip(wadFileName: string): Promise<string> {
   console.log(`Extracting ${wadFileName} from base_files.zip...`);
@@ -45,14 +45,13 @@ async function extractWadFromZip(wadFileName: string): Promise<string> {
 async function extractWadContents(wadPath: string, outputDir: string): Promise<void> {
   console.log(`Extracting WAD contents to ${outputDir}...`);
 
-
   // Remove existing directory if it exists
   await rm(outputDir, { recursive: true, force: true });
   await mkdir(outputDir, { recursive: true });
 
   const { stdout, stderr } = await execAsync(
     `node "${WAD_ARCHIVER_CLI}" extract "${wadPath}" "${outputDir}"`,
-    { maxBuffer: 50 * 1024 * 1024 } // 50MB buffer for large output
+    { maxBuffer: 50 * 1024 * 1024 }, // 50MB buffer for large output
   );
 
   if (stdout) console.log(stdout);
@@ -60,29 +59,29 @@ async function extractWadContents(wadPath: string, outputDir: string): Promise<v
 }
 
 async function cleanup(tempWadPath: string): Promise<void> {
-  console.log('Cleaning up temporary files...');
+  console.log("Cleaning up temporary files...");
   await rm(tempWadPath, { force: true });
 }
 
 async function main(): Promise<void> {
   try {
-    console.log('Starting unpack-base-files...\n');
+    console.log("Starting unpack-base-files...\n");
 
     // Extract and process dr1_data_us.wad
-    console.log('Processing dr1_data_us.wad...');
-    const tempWadPathUs = await extractWadFromZip('dr1_data_us.wad');
+    console.log("Processing dr1_data_us.wad...");
+    const tempWadPathUs = await extractWadFromZip("dr1_data_us.wad");
     await extractWadContents(tempWadPathUs, DR1_DATA_US_DIR);
     await cleanup(tempWadPathUs);
-    console.log('✓ dr1_data_us.wad extracted to workspace/modded/dr1_data_us/\n');
+    console.log("✓ dr1_data_us.wad extracted to workspace/modded/dr1_data_us/\n");
 
     // Extract and process dr1_data.wad
-    console.log('Processing dr1_data.wad...');
-    const tempWadPath = await extractWadFromZip('dr1_data.wad');
+    console.log("Processing dr1_data.wad...");
+    const tempWadPath = await extractWadFromZip("dr1_data.wad");
     await extractWadContents(tempWadPath, DR1_DATA_DIR);
     await cleanup(tempWadPath);
-    console.log('✓ dr1_data.wad extracted to workspace/modded/dr1_data/\n');
+    console.log("✓ dr1_data.wad extracted to workspace/modded/dr1_data/\n");
 
-    console.log('\n✓ All files extracted successfully!');
+    console.log("\n✓ All files extracted successfully!");
   } catch (error) {
     console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);
