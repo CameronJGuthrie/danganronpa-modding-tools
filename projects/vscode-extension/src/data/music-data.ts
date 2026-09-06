@@ -118,7 +118,7 @@ export const musics: Readonly<{ [musicId: number]: MusicMeta }> = {
     sourcePath: "dr1_bgm_hca.awb.00031.ogg",
   },
   32: {
-    name: "Despair Syndrome (OST 2-04)",
+    name: "Despair Syndrome (OST 1-19)",
     sourcePath: "dr1_bgm_hca.awb.00032.ogg",
   },
   33: {
