@@ -121,6 +121,7 @@
     "@types/node": "~24.9.2",
     "@types/vscode": "^1.94.0",
     "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
     "typescript": "catalog:"
   }
