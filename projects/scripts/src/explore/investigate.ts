@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 
 import { readFile, readdir } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { errorMessage } from './errors.ts';
+import { join } from 'path';
+import { errorMessage } from '../lib/errors.ts';
+import { WORKSPACE_DIR } from '../lib/paths.ts';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = join(__dirname, '../../..');
-const LINSCRIPT_EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
+const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, 'linscript-exploration');
 
 type SortMode = 'frequency' | 'value';
 

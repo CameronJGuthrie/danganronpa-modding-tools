@@ -1,21 +1,17 @@
 #!/usr/bin/env node
 
-import { fileURLToPath } from 'url';
-import { dirname, join, basename } from 'path';
+import { join, basename } from 'path';
 import { readdir, stat } from 'fs/promises';
 import { existsSync } from 'fs';
 import { execSync } from 'child_process';
-import { getGameDirectoryOrThrow } from './steam-paths.ts';
-import { errorMessage } from './errors.ts';
+import { getGameDirectoryOrThrow } from '../lib/steam-paths.ts';
+import { errorMessage } from '../lib/errors.ts';
+import { PROJECT_ROOT, WORKSPACE_DIR, LIN_COMPILER_CLI as LIN_COMPILER, WAD_ARCHIVER_CLI as WAD_ARCHIVER } from '../lib/paths.ts';
 
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, '..', '..', '..');
-const MODS_DIR = join(PROJECT_ROOT, 'workspace', 'mod');
-const EXTRACTED_DIR = join(PROJECT_ROOT, 'workspace', 'modded');
-const WAD_ARCHIVER = join(PROJECT_ROOT, 'projects', 'scripts', 'src', 'wad-archiver.ts');
-const LIN_COMPILER = join(PROJECT_ROOT, 'projects', 'lin-compiler', 'src', 'cli.ts');
+const MODS_DIR = join(WORKSPACE_DIR, 'mod');
+const EXTRACTED_DIR = join(WORKSPACE_DIR, 'modded');
 
 interface CompileStats {
   succeeded: number;

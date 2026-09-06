@@ -123,7 +123,7 @@ new opcodes.
 TypeScript, run directly by Node's type stripping - there is no build step:
 
 ```bash
-node projects/scripts/src/validate-paks.ts    # same as: pnpm validate-paks
+node projects/scripts/src/setup/validate-paks.ts    # same as: pnpm validate-paks
 ```
 
 Typechecking is separate from running, and emits nothing:

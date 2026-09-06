@@ -76,12 +76,20 @@ Electron desktop app for browsing and editing Danganronpa assets. Features chara
 ## pak-archiver
 Utility for extracting, creating, and modifying PAK archive files. Handles nested archives and detects GMO/TGA file types.
 
-**Status:** Migrated to TypeScript (projects/scripts/src/pak-archiver.ts).
+**Status:** Migrated to TypeScript (projects/scripts/src/formats/pak-archiver.ts).
 
 ## scripts
-TypeScript automation scripts for common modding operations. Scripts are kept in `projects/scripts/src/*.ts`.
+TypeScript automation scripts for common modding operations, kept under `projects/scripts/src/` in subdirectories by purpose:
+- `lib/` - shared helpers with no side effects on import (`errors.ts`, `steam-paths.ts`, `paths.ts` for repo/workspace/CLI paths)
+- `formats/` - binary format libraries with a CLI tail (`wad-archiver`, `pak-archiver`, `spike-chunsoft-decompress`, `gxt-to-png`)
+- `setup/` - getting game data into the workspace (`zip-game-files`, `unpack-base-files`, `extract-linscript`, `extract-recursive`, `validate-paks`)
+- `mod/` - the edit/build/test loop (`select`, `verify`, `build`)
+- `game/` - Steam and Proton control (`launch-game`, `clear-proton`)
+- `explore/` - opcode research (`investigate`, `generator`)
 
-They are run directly by Node's type stripping - there is no build step, so `node projects/scripts/src/build.ts` just works (requires Node >= 22.18). Because Node strips types rather than transforming syntax, these files must stay erasable: no `enum`, no `namespace`, no constructor parameter properties. `tsc` enforces this via `erasableSyntaxOnly`. Local imports name the real `.ts` file (`./steam-paths.ts`), which is what Node resolves at runtime.
+Scripts resolve repository paths through `lib/paths.ts` rather than counting `..` segments, so they can move between subdirectories freely.
+
+They are run directly by Node's type stripping - there is no build step, so `node projects/scripts/src/mod/build.ts` just works (requires Node >= 22.18). Because Node strips types rather than transforming syntax, these files must stay erasable: no `enum`, no `namespace`, no constructor parameter properties. `tsc` enforces this via `erasableSyntaxOnly`. Local imports name the real `.ts` file (`../lib/steam-paths.ts`), which is what Node resolves at runtime.
 
 Typecheck with `pnpm --filter danganronpa-scripts run typecheck` (emits nothing).
 

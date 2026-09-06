@@ -9,17 +9,14 @@
 
 import { createWriteStream } from 'fs';
 import { stat } from 'fs/promises';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import archiver from 'archiver';
-import { getGameDirectoryOrThrow } from './steam-paths.ts';
-import { errorMessage } from './errors.ts';
+import { getGameDirectoryOrThrow } from '../lib/steam-paths.ts';
+import { errorMessage } from '../lib/errors.ts';
+import { WORKSPACE_DIR } from '../lib/paths.ts';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, '../../..');
 
 const GAME_DIR = getGameDirectoryOrThrow();
-const WORKSPACE_DIR = join(PROJECT_ROOT, 'workspace');
 const OUTPUT_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
 
 // The 4 .wad files to backup

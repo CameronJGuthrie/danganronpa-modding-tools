@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from 'child_process';
-import { findCompatDataDirectory } from './steam-paths.ts';
+import { findCompatDataDirectory } from '../lib/steam-paths.ts';
 
 function clearProtonCache(): void {
   if (process.platform !== 'linux') {

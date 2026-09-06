@@ -7,7 +7,7 @@ import { promisify } from 'util';
 import chalk from 'chalk';
 import { decompress as decompressSpike, isCompressed as isSpikeCompressed } from './spike-chunsoft-decompress.ts';
 import { convertGXT } from './gxt-to-png.ts';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
 
 const execAsync = promisify(exec);
 

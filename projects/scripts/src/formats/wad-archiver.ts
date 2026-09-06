@@ -2,7 +2,7 @@
 
 import { readdir, stat, open, mkdir, readFile, writeFile } from 'fs/promises';
 import { join, dirname, relative } from 'path';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
 
 // Data Structures
 

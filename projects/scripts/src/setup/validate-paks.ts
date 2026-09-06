@@ -2,13 +2,11 @@
 
 import { readFile, readdir, stat } from 'fs/promises';
 import type { Dirent } from 'fs';
-import { basename, dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { basename, join } from 'path';
 import { existsSync } from 'fs';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
+import { WORKSPACE_DIR } from '../lib/paths.ts';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = join(__dirname, '../../..');
 
 // ============================================================================
 // Binary I/O Helpers
@@ -230,7 +228,7 @@ interface CliArgs {
 function parseArgs(): CliArgs {
   const args = process.argv.slice(2);
   let maxDeviation = 10;
-  let searchPath = join(projectRoot, 'workspace/all');
+  let searchPath = join(WORKSPACE_DIR, 'all');
 
   for (const arg of args) {
     if (arg === '-h' || arg === '--help') {

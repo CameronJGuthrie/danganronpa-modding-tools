@@ -16,7 +16,7 @@
  */
 
 import { readFile, writeFile } from 'fs/promises';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
 
 const MAGIC = Buffer.from([0xFC, 0xAA, 0x55, 0xA7]);
 const BUFFER_SIZE = 0x1FFF;

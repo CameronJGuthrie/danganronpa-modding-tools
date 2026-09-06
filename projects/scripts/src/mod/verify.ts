@@ -2,19 +2,16 @@
 
 import { existsSync } from 'fs';
 import { mkdir, copyFile } from 'fs/promises';
-import { join, dirname, relative, basename, extname } from 'path';
-import { fileURLToPath } from 'url';
+import { join, relative, basename, extname } from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
+import { PROJECT_ROOT as projectRoot, LIN_COMPILER_CLI as LIN_COMPILER_PATH } from '../lib/paths.ts';
 
 const execAsync = promisify(exec);
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = join(__dirname, '../../..');
 
 const MODDED_DIR = join(projectRoot, 'workspace/modded/dr1_data_us');
 const VERIFY_DIR = join(projectRoot, 'workspace/verify');
-const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'src', 'cli.ts');
 
 function showUsage(): void {
   console.log(`Usage: pnpm verify <filepath>

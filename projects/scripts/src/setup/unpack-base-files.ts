@@ -9,18 +9,13 @@
 
 import { readFile, mkdir, rm, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import unzipper from 'unzipper';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
+import { WORKSPACE_DIR, WAD_ARCHIVER_CLI } from '../lib/paths.ts';
 
 const execAsync = promisify(exec);
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = join(__dirname, '../../..');
-
-const WORKSPACE_DIR = join(projectRoot, 'workspace');
 const BASE_FILES_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
 const MODDED_DIR = join(WORKSPACE_DIR, 'modded');
 const DR1_DATA_US_DIR = join(MODDED_DIR, 'dr1_data_us');
@@ -50,14 +45,13 @@ async function extractWadFromZip(wadFileName: string): Promise<string> {
 async function extractWadContents(wadPath: string, outputDir: string): Promise<void> {
   console.log(`Extracting WAD contents to ${outputDir}...`);
 
-  const wadArchiverPath = join(projectRoot, 'projects/scripts/src/wad-archiver.ts');
 
   // Remove existing directory if it exists
   await rm(outputDir, { recursive: true, force: true });
   await mkdir(outputDir, { recursive: true });
 
   const { stdout, stderr } = await execAsync(
-    `node "${wadArchiverPath}" extract "${wadPath}" "${outputDir}"`,
+    `node "${WAD_ARCHIVER_CLI}" extract "${wadPath}" "${outputDir}"`,
     { maxBuffer: 50 * 1024 * 1024 } // 50MB buffer for large output
   );
 

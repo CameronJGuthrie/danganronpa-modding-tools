@@ -1,23 +1,18 @@
 #!/usr/bin/env node
 
 import { readFile, mkdir, rm, writeFile, readdir, copyFile, chmod } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import { existsSync } from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import unzipper from 'unzipper';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
+import { PROJECT_ROOT, WORKSPACE_DIR, LIN_COMPILER_CLI, WAD_ARCHIVER_CLI } from '../lib/paths.ts';
 
 const execAsync = promisify(exec);
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = join(__dirname, '../../..');
-
-const WORKSPACE_DIR = join(projectRoot, 'workspace');
 const BASE_FILES_ZIP = join(WORKSPACE_DIR, 'base_files.zip');
 const TEMP_DIR = join(WORKSPACE_DIR, 'temp_extract');
-const LINSCRIPT_EXPLORATION_DIR = join(projectRoot, 'workspace', 'linscript-exploration');
-const LIN_COMPILER_PATH = join(projectRoot, 'projects', 'lin-compiler', 'src', 'cli.ts');
+const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, 'linscript-exploration');
 
 async function extractWadFromZip(): Promise<string> {
   console.log('Extracting dr1_data_us.wad from base_files.zip...');
@@ -43,13 +38,12 @@ async function extractWadFromZip(): Promise<string> {
 async function extractWadContents(wadPath: string): Promise<string> {
   console.log('Extracting WAD contents...');
 
-  const wadArchiverPath = join(projectRoot, 'projects/scripts/src/wad-archiver.ts');
   const extractDir = join(TEMP_DIR, 'extracted');
 
   await mkdir(extractDir, { recursive: true });
 
   await execAsync(
-    `node "${wadArchiverPath}" extract "${wadPath}" "${extractDir}" --silent`,
+    `node "${WAD_ARCHIVER_CLI}" extract "${wadPath}" "${extractDir}" --silent`,
     { maxBuffer: 50 * 1024 * 1024 }
   );
 
@@ -65,14 +59,14 @@ async function decompileLinFiles(extractDir: string, useHex = false): Promise<st
     throw new Error(`Script directory not found: ${scriptDir}`);
   }
 
-  if (!existsSync(LIN_COMPILER_PATH)) {
-    throw new Error(`lin-compiler entry point not found at ${LIN_COMPILER_PATH}`);
+  if (!existsSync(LIN_COMPILER_CLI)) {
+    throw new Error(`lin-compiler entry point not found at ${LIN_COMPILER_CLI}`);
   }
 
   // Run the lin-compiler in batch decompile mode
   const hexFlag = useHex ? '--hex' : '';
   await execAsync(
-    `node "${LIN_COMPILER_PATH}" -s -d ${hexFlag} "${scriptDir}"`,
+    `node "${LIN_COMPILER_CLI}" -s -d ${hexFlag} "${scriptDir}"`,
     { maxBuffer: 50 * 1024 * 1024 }
   );
 

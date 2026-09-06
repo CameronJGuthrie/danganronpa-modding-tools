@@ -50,10 +50,10 @@ The loop continues until output reaches the uncompressed size.
 
 ### Decompression Tool
 
-Use `projects/scripts/src/spike-chunsoft-decompress.js` to decompress files:
+Use `projects/scripts/src/formats/spike-chunsoft-decompress.ts` to decompress files:
 
 ```bash
-node projects/scripts/src/spike-chunsoft-decompress.js input.gxt output.gxt
+node projects/scripts/src/formats/spike-chunsoft-decompress.ts input.gxt output.gxt
 ```
 
 ## Raw GXT Format (PS Vita Standard)

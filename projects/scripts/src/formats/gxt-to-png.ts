@@ -12,7 +12,7 @@
 import { readFile, mkdir } from 'fs/promises';
 import { dirname, basename, join } from 'path';
 import sharp from 'sharp';
-import { errorMessage } from './errors.ts';
+import { errorMessage } from '../lib/errors.ts';
 
 // GXT Format constants
 const GXT_MAGIC = 'GXT\0';

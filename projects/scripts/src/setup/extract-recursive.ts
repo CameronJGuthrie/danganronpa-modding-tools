@@ -2,15 +2,13 @@
 
 import { readFile, writeFile, mkdir, readdir, stat, unlink } from 'fs/promises';
 import { basename, dirname, join, extname } from 'path';
-import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { extractPak } from './pak-archiver.ts';
-import { errorMessage } from './errors.ts';
+import { extractPak } from '../formats/pak-archiver.ts';
+import { errorMessage } from '../lib/errors.ts';
 
 const execAsync = promisify(exec);
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ============================================================================
 // WAD Archive Functions
