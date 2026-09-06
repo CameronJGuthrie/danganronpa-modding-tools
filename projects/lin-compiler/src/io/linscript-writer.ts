@@ -1,9 +1,9 @@
 import { writeFile } from "node:fs/promises";
 import { Opcode } from "../definitions/opcode.definition.ts";
 import type { Script } from "../definitions/script.definition.ts";
-import { planAutoText } from "../opcodes/autoTextOpcode.ts";
-import { formatRawBytes } from "../opcodes/baseOpcode.ts";
-import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
+import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
+import { AUTO_TEXT, planAutoText } from "../opcodes/autoText.ts";
+import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 
 export interface WriteSourceOptions {
   /** Spaces per indentation level. */
@@ -17,8 +17,7 @@ export const DEFAULT_INDENT_SPACES = 2;
 /** Decompiled files start with a UTF-8 BOM, matching the original C# tool byte for byte. */
 const UTF8_BOM = "\uFEFF";
 
-/** Opcodes that open an indented block; an argument of 255 closes it instead. */
-const BLOCK_OPCODES = new Set(["SetOption", "CheckObject", "CheckCharacter"]);
+/** A block opcode with this argument closes its block instead of opening one. */
 const BLOCK_CLOSE = 255;
 
 /** Render a script as `.linscript` source. */
@@ -38,7 +37,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     }
 
     const opcode = getOpcode(entry.opcode);
-    const block = opcode !== undefined && BLOCK_OPCODES.has(opcode.name) && entry.args.length > 0 ? opcode.name : null;
+    const block = opcode?.block && entry.args.length > 0 ? opcode.name : null;
     if (block !== null) {
       // A block opcode always ends the previous block of its kind before writing
       openBlocks.delete(block);
@@ -50,8 +49,8 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       name = hexOpcodeName(entry.opcode);
       args = formatRawBytes(entry.args);
     } else {
-      name = autoText.has(index) ? "AutoText" : options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
-      args = opcode.formatArgs(entry);
+      name = autoText.has(index) ? AUTO_TEXT : options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
+      args = formatArgs(opcode.args, entry);
     }
     lines.push(`${indent.repeat(openBlocks.size)}${name}(${args})`);
 

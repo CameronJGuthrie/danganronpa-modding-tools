@@ -2,7 +2,8 @@ import { readFile } from "node:fs/promises";
 import { OPCODE_MARKER, Opcode } from "../definitions/opcode.definition.ts";
 import { type Script, type ScriptEntry, ScriptType } from "../definitions/script.definition.ts";
 import { BinaryError } from "../errors.ts";
-import { getOpcode, hexOpcodeName } from "../opcodes/opcodeDictionary.ts";
+import { argByteCount } from "../opcodes/arguments.ts";
+import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 
 /**
  * Parse a compiled `.lin` file.
@@ -55,9 +56,10 @@ function readScriptData(bytes: Uint8Array, start: number, end: number): ScriptEn
     const id = bytes[pos + 1];
     pos += 2;
 
+    // Unknown and variadic opcodes have no fixed size: their arguments run to the next marker
     const opcode = getOpcode(id);
-    const argEnd =
-      opcode === undefined || opcode.variadic ? findNextMarker(bytes, pos, end) : pos + opcode.argByteCount;
+    const byteCount = opcode === undefined ? undefined : argByteCount(opcode.args);
+    const argEnd = byteCount === undefined ? findNextMarker(bytes, pos, end) : pos + byteCount;
 
     entries.push({ opcode: id, args: Array.from(bytes.subarray(pos, argEnd)) });
     pos = argEnd;

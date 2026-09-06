@@ -11,6 +11,6 @@ export {
   writeSourceFile,
   writeSourceText,
 } from "./io/linscript-writer.ts";
-export { BaseOpcode } from "./opcodes/baseOpcode.ts";
-export { getOpcode, hexOpcodeName } from "./opcodes/opcodeDictionary.ts";
+export { argByteCount, formatArgs, parseEntry } from "./opcodes/arguments.ts";
+export { getOpcode, hexOpcodeName, type OpcodeInfo } from "./opcodes/lookup.ts";
 export { decodeValue, encodeValue } from "./parameter.ts";

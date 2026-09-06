@@ -72,14 +72,17 @@ throws `SourceError` (with a 1-based `line`); malformed binaries throw `BinaryEr
 | `src/definitions/parameter.definition.ts` | `ParamType` argument encodings (`Byte`, `UInt16LE`, `UInt16BE`) |
 | `src/parameter.ts` | Encoding, decoding and decimal parsing of arguments |
 | `src/errors.ts` | `SourceError` and `BinaryError` |
-| `src/opcodes/` | Opcode table and the per-opcode behaviours |
+| `src/definitions/opcode.definition.ts` | The opcode table: id, argument spec and block flag per opcode |
+| `src/opcodes/arguments.ts` | Formatting and parsing of arguments for every argument spec kind |
+| `src/opcodes/lookup.ts` | Opcode lookup by id or name, `0xNN` naming |
+| `src/opcodes/autoText.ts` | AutoText sugar: expansion on compile, collapsing on decompile |
 | `test/` | `node:test` suites |
 
-To teach the compiler a new opcode, add an entry to `opcodeList` in
-`src/opcodes/opcodeDictionary.ts`. Opcodes needing custom argument formatting or source
-expansion subclass `BaseOpcode` and override `formatArgs` (decompile) and `parseSource` or
-`parseArgs` (compile); see `TextOpcode`, `AutoTextOpcode`, `EvaluateOpcode`. AutoText sugar is
-owned entirely by `src/opcodes/autoTextOpcode.ts`, which handles both expansion and collapsing.
+To teach the compiler a new opcode, add a row to `opcodes` in
+`src/definitions/opcode.definition.ts`. Each row names an `ArgumentSpec` kind (`fixed`, `repeat`,
+`variadic`, `text`, `type`); a new kind means a new union member there and a new case in each switch
+in `src/opcodes/arguments.ts`, which TypeScript enforces. AutoText is source-only sugar rather than
+an opcode; `src/opcodes/autoText.ts` handles both expansion and collapsing.
 
 Unknown opcodes decompile to `0xNN(bytes...)` and compile back from that form verbatim.
 

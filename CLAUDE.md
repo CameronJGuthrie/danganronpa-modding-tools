@@ -68,7 +68,7 @@ TypeScript CLI tool and library for compiling/decompiling Danganronpa script fil
 
 **Tests:** `pnpm --filter lin-compiler run test` runs the `node:test` suites in `projects/lin-compiler/test/`. The corpus test round-trips every `.lin` in `workspace/modded/dr1_data_us/Dr1/data/us/script` and is skipped if that directory is missing. Run it after any change to the reader, writer, or opcode table.
 
-Opcode definitions live in `projects/lin-compiler/src/opcodes/opcodeDictionary.ts` — add an entry to `opcodeList` to teach the compiler a new opcode. Opcodes needing custom argument handling subclass `BaseOpcode` and override `formatArgs` (decompile) and `parseSource`/`parseArgs` (compile). AutoText sugar (both expansion and collapsing) lives in `opcodes/autoTextOpcode.ts`. The library API is pure: readers return a `Script`, writers take one plus a `WriteSourceOptions` object; there is no global options state.
+Opcode definitions live in `projects/lin-compiler/src/definitions/opcode.definition.ts` — add a row to `opcodes` to teach the compiler a new opcode. Each row has an `ArgumentSpec` (`fixed`, `repeat`, `variadic`, `text`, `type`); all formatting and parsing for these kinds is in `src/opcodes/arguments.ts`, so a new kind is a union member plus a switch case there. AutoText is source-only sugar, not an opcode; both expansion and collapsing live in `src/opcodes/autoText.ts`. The library API is pure: readers return a `Script`, writers take one plus a `WriteSourceOptions` object; there is no global options state.
 
 ## gui
 Electron desktop app for browsing and editing Danganronpa assets. Features character sprite viewer, script viewer, and TGA image support.

@@ -1,6 +1,5 @@
 import { Opcode } from "../definitions/opcode.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
-import { parseQuotedString, TextOpcode } from "./textOpcode.ts";
 
 /**
  * AutoText is source-only sugar for the common dialogue shape
@@ -11,27 +10,19 @@ import { parseQuotedString, TextOpcode } from "./textOpcode.ts";
  *   first style also emitted before the Text itself
  * - a `WaitInput` closes the group
  *
- * This file owns both directions: `AutoTextOpcode.parseSource` expands the sugar when compiling
- * and `planAutoText` recognises collapsible groups when decompiling.
+ * This file owns both directions: `expandAutoText` expands the sugar when compiling and
+ * `planAutoText` recognises collapsible groups when decompiling. AutoText is not a binary opcode;
+ * the linscript reader and writer handle the name themselves.
  */
 
 /** Matches `<CLT N>` opening tags, `<CLT>` closing tags, and literal newlines. */
 const CLT_OR_NEWLINE = /<CLT\s+(\d+)>|<CLT>|\n/g;
 const HAS_CLT = /<CLT\s+\d+>|<CLT>/;
 
-export class AutoTextOpcode extends TextOpcode {
-  override readonly name = "AutoText";
+/** Source name of the sugar. */
+export const AUTO_TEXT = "AutoText";
 
-  constructor() {
-    super(Opcode.Text);
-  }
-
-  override parseSource(argsText: string, line: number): ScriptEntry[] {
-    return expandAutoText(parseQuotedString(argsText, line));
-  }
-}
-
-function expandAutoText(text: string): ScriptEntry[] {
+export function expandAutoText(text: string): ScriptEntry[] {
   const entries: ScriptEntry[] = [];
   const tokens = [...text.matchAll(CLT_OR_NEWLINE)];
   const first = tokens[0];
