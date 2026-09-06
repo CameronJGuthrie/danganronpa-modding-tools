@@ -1,0 +1,39 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [],
+      "project": []
+    },
+    "projects/lin-compiler": {
+      "entry": [
+        "src/index.ts",
+        "test/**/*.test.ts"
+      ],
+      "project": [
+        "src/**/*.ts",
+        "test/**/*.ts"
+      ]
+    },
+    "projects/scripts": {
+      "entry": [
+        "src/{formats,setup,mod,game,explore}/*.ts"
+      ],
+      "project": [
+        "src/**/*.ts"
+      ]
+    },
+    "projects/vscode-extension": {
+      "entry": [
+        "src/test/**/*.ts",
+        "src/syntaxes/tmlanguage-builder.ts"
+      ],
+      "project": [
+        "src/**/*.ts"
+      ]
+    }
+  },
+  "ignoreBinaries": [
+    "x-terminal-emulator"
+  ]
+}
