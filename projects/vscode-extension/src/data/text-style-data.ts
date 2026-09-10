@@ -1,4 +1,4 @@
-import type { TextStyle } from "../enum/text-style";
+import type { TextStyle } from "linscript-definitions";
 
 export const textStyleColor: Readonly<Record<TextStyle, string>> = {
   0: "#ffffff",

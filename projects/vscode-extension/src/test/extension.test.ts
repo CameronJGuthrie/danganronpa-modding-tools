@@ -1,5 +1,6 @@
 import * as assert from "node:assert";
-// Import the metadata array from metadata/index.ts to avoid drift
+import { Character, LinscriptInstructionName } from "linscript-definitions";
+// Import the metadata record from metadata/index.ts to avoid drift
 import { metadata } from "../metadata";
 import {
   createCompleteFunctionRegex,
@@ -156,24 +157,47 @@ suite("Extension Test Suite", () => {
     ]);
   });
 
-  test("no duplicate function names or opcodes", () => {
-    // Check for duplicate names
-    const nameMap = new Map<string, string>();
-    for (const meta of metadata) {
-      if (nameMap.has(meta.name)) {
-        assert.fail(
-          `Duplicate function name found: "${meta.name}" (opcode: ${meta.hexcode}) ` +
-            `conflicts with existing function (opcode: ${nameMap.get(meta.name)})`,
-        );
-      }
-      nameMap.set(meta.name, meta.hexcode);
+  test("named arguments match the call regexes and resolve to their values", () => {
+    assert.match("Speaker(Makoto)", createCompleteFunctionRegex("Speaker", 1));
+    assert.match("Speaker( Makoto )", createCompleteFunctionRegex("Speaker", 1));
+    assert.doesNotMatch("Speaker(Makoto, 1)", createCompleteFunctionRegex("Speaker", 1));
+    assert.doesNotMatch('Speaker("Makoto")', createCompleteFunctionRegex("Speaker", 1));
+
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("Speaker(Makoto)", [Character]), [
+      { stringIndex: 8, value: Character.Makoto },
+    ]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("Speaker(15)", [Character]), [
+      { stringIndex: 8, value: Character.Monokuma },
+    ]);
+    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Speaker(Nobody)", [Character])[0].value));
+    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Speaker(Makoto)")[0].value));
+  });
+
+  test("the Speaker decoration resolves a character name", () => {
+    const args = getArgumentsFromFunctionLike(
+      "Speaker(Makoto)",
+      metadata.Speaker.parameters.map((p) => p.names),
+    );
+    const decoration = metadata.Speaker.decorations?.(args.map((arg) => arg.value) as [number], "Speaker(Makoto)");
+    assert.ok(Array.isArray(decoration));
+    assert.strictEqual(decoration[0].contentText, "Speaker: Makoto");
+  });
+
+  test("metadata keys match their opcode names and opcodes are unique", () => {
+    for (const [key, meta] of Object.entries(metadata)) {
+      assert.strictEqual(meta.name, key, `Metadata registered under "${key}" is named "${meta.name}"`);
     }
 
     // Check for duplicate opcodes (skip empty opcodes)
     const opcodeMap = new Map<string, string>();
-    for (const meta of metadata) {
+    for (const meta of Object.values(metadata)) {
       if (meta.hexcode === "") {
         assert.fail(`Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`);
+      }
+
+      // AutoText is source-only sugar that compiles to Text, so it legitimately shares Text's opcode.
+      if (meta.name === LinscriptInstructionName.AutoText) {
+        continue;
       }
 
       if (opcodeMap.has(meta.hexcode)) {

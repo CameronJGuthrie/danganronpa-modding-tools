@@ -1,13 +1,11 @@
+import { FlagGroup, flagGroups, isCharacter, isFlagGroup, LinscriptInstructionName } from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import { flagDataByFlagGroup, RESET_FLAGS } from "../data/flag-data";
-import { isCharacter } from "../enum/character";
-import { FlagGroup, flagGroups, isFlagGroup } from "../enum/flag-group";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 // A better name for this would be setFlag
-export const setVar8Meta: OpcodeMeta = {
-  name: OpcodeName.SetVar8,
+export const setVar8Meta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.SetVar8,
   hexcode: "0x26",
   parameters: [
     {

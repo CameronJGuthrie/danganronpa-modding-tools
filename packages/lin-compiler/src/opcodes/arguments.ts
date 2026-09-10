@@ -1,14 +1,25 @@
 import type { ArgumentSpec } from "../definitions/opcode.definition.ts";
-import { ParameterType } from "../definitions/parameter.definition.ts";
+import {
+  nameOfValue,
+  type Parameter,
+  ParameterType,
+  parameterTypeOf,
+  valueOfName,
+} from "../definitions/parameter.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { SourceError } from "../errors.ts";
-import { decodeValue, parameterProperties, parseArg, splitArgs } from "../parameter.ts";
+import { decodeValue, encodeValue, parameterProperties, parseArg, splitArgs } from "../parameter.ts";
 import type { OpcodeInfo } from "./lookup.ts";
 
 /**
  * Argument handling for every `ArgumentSpec` kind. `formatArgs` renders an entry's bytes as
  * source and `parseEntry` compiles a source argument list back into an entry.
  */
+
+export interface FormatArgsOptions {
+  /** Write named parameter values (see `Parameter`) by name rather than number. Defaults to true. */
+  names?: boolean;
+}
 
 /** Total argument bytes, or undefined for variadic specs where the reader scans to the next marker. */
 export function argByteCount(spec: ArgumentSpec): number | undefined {
@@ -25,12 +36,13 @@ export function argByteCount(spec: ArgumentSpec): number | undefined {
 }
 
 /** Render `entry.args` as the comma-separated argument list used in source. */
-export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry): string {
+export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry, options: FormatArgsOptions = {}): string {
+  const names = options.names ?? true;
   switch (spec.kind) {
     case "fixed":
-      return formatFixed(spec.layout, entry.args);
+      return formatFixed(spec.layout, entry.args, names);
     case "type":
-      return formatFixed([ParameterType.UInt16LE], entry.args);
+      return formatFixed([ParameterType.UInt16LE], entry.args, names);
     case "text":
       return formatQuotedString("text" in entry ? entry.text : "");
     case "variadic":
@@ -41,7 +53,7 @@ export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry): string {
       if (chained < 0 || chained % tailBytes !== 0) {
         return formatRawBytes(entry.args);
       }
-      return formatByLayout(repeatLayout(spec.head, spec.tail, chained / tailBytes), entry.args);
+      return formatByLayout(repeatLayout(spec.head, spec.tail, chained / tailBytes), entry.args, names);
     }
   }
 }
@@ -88,11 +100,11 @@ export function parseEntry(opcode: OpcodeInfo, argsText: string, line: number): 
 // layouts
 // ---------------------------------------------------------------------------
 
-function layoutBytes(layout: readonly ParameterType[]): number {
-  return layout.reduce((total, type) => total + parameterProperties[type].size, 0);
+function layoutBytes(layout: readonly Parameter[]): number {
+  return layout.reduce((total, parameter) => total + parameterProperties[parameterTypeOf(parameter)].size, 0);
 }
 
-function repeatLayout(head: readonly ParameterType[], tail: readonly ParameterType[], count: number): ParameterType[] {
+function repeatLayout(head: readonly Parameter[], tail: readonly Parameter[], count: number): Parameter[] {
   const layout = [...head];
   for (let i = 0; i < count; i++) {
     layout.push(...tail);
@@ -100,12 +112,12 @@ function repeatLayout(head: readonly ParameterType[], tail: readonly ParameterTy
   return layout;
 }
 
-function formatFixed(layout: readonly ParameterType[], args: readonly number[]): string {
+function formatFixed(layout: readonly Parameter[], args: readonly number[], names: boolean): string {
   // Malformed entry: keep every byte visible rather than decoding garbage
-  return args.length === layoutBytes(layout) ? formatByLayout(layout, args) : formatRawBytes(args);
+  return args.length === layoutBytes(layout) ? formatByLayout(layout, args, names) : formatRawBytes(args);
 }
 
-function parseFixed(name: string, layout: readonly ParameterType[], argsText: string, line: number): number[] {
+function parseFixed(name: string, layout: readonly Parameter[], argsText: string, line: number): number[] {
   const values = splitArgs(argsText);
   if (values.length !== layout.length) {
     throw new SourceError(line, `${name} expects ${layout.length} argument(s), got ${values.length}`);
@@ -114,19 +126,39 @@ function parseFixed(name: string, layout: readonly ParameterType[], argsText: st
 }
 
 /** Decode `args` according to `layout` and join the values for source output. */
-function formatByLayout(layout: readonly ParameterType[], args: readonly number[]): string {
+function formatByLayout(layout: readonly Parameter[], args: readonly number[], names: boolean): string {
   const values: string[] = [];
   let offset = 0;
-  for (const type of layout) {
-    values.push(String(decodeValue(type, args, offset)));
+  for (const parameter of layout) {
+    const type = parameterTypeOf(parameter);
+    const value = decodeValue(type, args, offset);
+    // Values without a name (e.g. an unresearched speaker id) stay numeric so nothing is hidden
+    const name = names && typeof parameter !== "string" ? nameOfValue(parameter.names, value) : undefined;
+    values.push(name ?? String(value));
     offset += parameterProperties[type].size;
   }
   return values.join(", ");
 }
 
 /** Encode one source value per entry of `layout`. Callers check the counts match first. */
-function parseByLayout(layout: readonly ParameterType[], values: readonly string[], line: number): number[] {
-  return layout.flatMap((type, i) => parseArg(type, values[i], line));
+function parseByLayout(layout: readonly Parameter[], values: readonly string[], line: number): number[] {
+  return layout.flatMap((parameter, i) => parseParameter(parameter, values[i], line));
+}
+
+const IDENTIFIER = /^[A-Za-z_]\w*$/;
+
+/** Parse one source value: a name when the parameter has names, otherwise (or additionally) a number. */
+function parseParameter(parameter: Parameter, text: string, line: number): number[] {
+  const type = parameterTypeOf(parameter);
+  const trimmed = text.trim();
+  if (typeof parameter !== "string" && IDENTIFIER.test(trimmed)) {
+    const value = valueOfName(parameter.names, trimmed);
+    if (value === undefined) {
+      throw new SourceError(line, `unknown name '${trimmed}' for ${type} argument`);
+    }
+    return encodeValue(type, value);
+  }
+  return parseArg(type, text, line);
 }
 
 export function formatRawBytes(args: readonly number[]): string {

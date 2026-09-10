@@ -1,4 +1,4 @@
-import { TruthBullet } from "../enum/truth-bullet";
+import { TruthBullet } from "linscript-definitions";
 
 export const truthBulletFlags: Readonly<Record<TruthBullet, string>> = {
   // Chapter 1

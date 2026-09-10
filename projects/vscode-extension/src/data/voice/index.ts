@@ -1,5 +1,4 @@
-import type { Chapter } from "../../enum/chapter";
-import { Character } from "../../enum/character";
+import { type Chapter, Character } from "linscript-definitions";
 
 import { byakuyaVoiceLines } from "./byakuya-voice-lines";
 import { celesteVoiceLines } from "./celeste-voice-lines";

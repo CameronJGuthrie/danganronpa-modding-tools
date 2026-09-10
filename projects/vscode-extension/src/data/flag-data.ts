@@ -1,4 +1,4 @@
-import { FlagGroup } from "../enum/flag-group";
+import { FlagGroup } from "linscript-definitions";
 import { characterData } from "./character-data";
 
 export const RESET_FLAGS = 32;

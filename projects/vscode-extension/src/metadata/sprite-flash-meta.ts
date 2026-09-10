@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const spriteFlashMeta: OpcodeMeta = {
-  name: OpcodeName.SpriteFlash,
+export const spriteFlashMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.SpriteFlash,
   hexcode: "0x20",
   parameters: [
     {

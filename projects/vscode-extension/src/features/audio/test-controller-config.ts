@@ -1,5 +1,5 @@
 import type * as vscode from "vscode";
-import type { OpcodeMeta } from "../../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../../types/linscript-instruction-meta";
 
 /**
  * Configuration for creating an audio test controller
@@ -36,7 +36,7 @@ export type AudioTestConfig<TInfo> = {
 
 export type AudioTestConfigBuilder<TInfo> = {
   /** The opcode relating to this test configuration */
-  opcode: OpcodeMeta;
+  opcode: LinscriptInstructionMeta;
   /** And all other properties not derived from the opcode */
 } & Omit<
   AudioTestConfig<TInfo>,

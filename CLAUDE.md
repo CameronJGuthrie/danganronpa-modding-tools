@@ -2,6 +2,7 @@
 
 ## Repository layout
 Libraries and scripts live under `packages/`, applications under `projects/`:
+- `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`. Built to `dist/` (CommonJS) by the root `prepare` script so both Node type-stripping consumers and the VS Code extension host can load it
 - `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library
 - `projects/cli` - the `lin-compiler` command-line tool, a thin wrapper over the library; `pnpm --filter lin-compiler-cli run build` emits JavaScript to `projects/cli/out/`
 - `packages/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
@@ -9,7 +10,7 @@ Libraries and scripts live under `packages/`, applications under `projects/`:
 - `projects/gui` - Electron asset browser (standalone; not a workspace package, has its own lockfile)
 
 `docs/file-formats/` holds reverse-engineering notes; `workbench/` holds generated working files.
-The first four are pnpm workspace packages (see `pnpm-workspace.yaml`).
+All but `projects/gui` are pnpm workspace packages (see `pnpm-workspace.yaml`).
 
 ## Exploration Mode
 This is when I'm trying to discover what the opcodes do. You'll be helping me to understand patterns in the workbench/linscript-exploration/*.linscript files.
@@ -69,7 +70,7 @@ TypeScript library for compiling/decompiling Danganronpa script files between bi
 
 **Tests:** `pnpm --filter lin-compiler run test` runs the `node:test` suites in `packages/lin-compiler/test/`. The corpus test round-trips every `.lin` in `workbench/modded/dr1_data_us/Dr1/data/us/script` and is skipped if that directory is missing. Run it after any change to the reader, writer, or opcode table.
 
-Opcode definitions live in `packages/lin-compiler/src/definitions/opcode.definition.ts` — add a row to `opcodes` to teach the compiler a new opcode. Each row has an `ArgumentSpec` (`fixed`, `repeat`, `variadic`, `text`, `type`); all formatting and parsing for these kinds is in `src/opcodes/arguments.ts`, so a new kind is a union member plus a switch case there. AutoText is source-only sugar, not an opcode; both expansion and collapsing live in `src/opcodes/autoText.ts`. The library API is pure: readers return a `Script`, writers take one plus a `WriteSourceOptions` object; there is no global options state.
+Opcode definitions live in `packages/lin-compiler/src/definitions/opcode.definition.ts` — add a row to `opcodes` to teach the compiler a new opcode. Each row has an `ArgumentSpec` (`fixed`, `repeat`, `variadic`, `text`, `type`); all formatting and parsing for these kinds is in `src/opcodes/arguments.ts`, so a new kind is a union member plus a switch case there. A layout slot can be a named parameter (`named(Byte, Character)`) backed by an enum from `linscript-definitions`: known values decompile to their name (`Speaker(Makoto)`), compile accepts the name or the number, unknown values stay numeric, and `--hex` output is always numeric. AutoText is source-only sugar, not an opcode; both expansion and collapsing live in `src/opcodes/autoText.ts`. The library API is pure: readers return a `Script`, writers take one plus a `WriteSourceOptions` object; there is no global options state.
 
 ## gui
 Electron desktop app for browsing and editing Danganronpa assets. Features character sprite viewer, script viewer, and TGA image support.

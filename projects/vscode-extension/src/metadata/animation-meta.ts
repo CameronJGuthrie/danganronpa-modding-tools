@@ -1,9 +1,9 @@
+import { LinscriptInstructionName } from "linscript-definitions";
 import { backgrounds } from "../data/background-data";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const animationMeta: OpcodeMeta = {
-  name: OpcodeName.Animation,
+export const animationMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Animation,
   hexcode: "0x06",
   parameters: [
     {

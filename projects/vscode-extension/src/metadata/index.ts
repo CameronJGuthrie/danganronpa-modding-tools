@@ -1,6 +1,8 @@
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 import { animationMeta } from "./animation-meta";
+import { autoTextMeta } from "./auto-text-meta";
 import { cameraFlashMeta } from "./camera-flash-meta";
 import { changeUiMeta } from "./change-ui-meta";
 import { checkCharacterMeta } from "./check-character-opcode-meta";
@@ -38,60 +40,62 @@ import { stopScriptMeta } from "./stop-script-meta";
 import { studentRelationshipMeta } from "./student-relationship-meta";
 import { studentReportInfoMeta } from "./student-report-info-meta";
 import { studentTitleEntryMeta } from "./student-title-entry-meta";
+import { textMeta } from "./text-meta";
 import { textStyleMeta } from "./text-style-meta";
 import { trialCameraMeta } from "./trial-camera-meta";
 import { truthBulletFlagMeta } from "./truth-bullet-flag-meta";
-import { typeMeta } from "./type-meta";
 import { unlockSkillMeta } from "./unlock-still-meta";
 import { voiceMeta } from "./voice-meta";
 import { waitFrameMeta } from "./wait-frame-meta";
 import { waitInputMeta } from "./wait-input-meta";
 
-export const metadata: Readonly<OpcodeMeta>[] = [
-  animationMeta,
-  cameraFlashMeta,
-  changeUiMeta,
-  checkCharacterMeta,
-  checkObjectMeta,
-  endOfJumpMeta,
-  evaluateMeta,
-  evaluateFlagMeta,
-  evaluateFreeTimeEventMeta,
-  evaluateRelationshipMeta,
-  gotoMeta,
-  ifTrueMeta,
-  labelMeta,
-  loadMapMeta,
-  loadScriptMeta,
-  loadSpriteMeta,
-  movieMeta,
-  musicMeta,
-  objectStateMeta,
-  postProcessingEffectMeta,
-  presentMeta,
-  restartScriptMeta,
-  runScriptMeta,
-  screenFadeMeta,
-  screenFlashMeta,
-  setOptionMeta,
-  setVar8Meta,
-  setVar16Meta,
-  showBackgroundMeta,
-  soundMeta,
-  soundBMeta,
-  speakerMeta,
-  spriteMeta,
-  spriteFlashMeta,
-  stopScriptMeta,
-  studentRelationshipMeta,
-  studentReportInfoMeta,
-  studentTitleEntryMeta,
-  textStyleMeta,
-  trialCameraMeta,
-  truthBulletFlagMeta,
-  typeMeta,
-  unlockSkillMeta,
-  voiceMeta,
-  waitFrameMeta,
-  waitInputMeta,
-];
+/** Opcode metadata keyed by opcode name, so lookups are type-checked against the enum. */
+export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<LinscriptInstructionMeta>>> = {
+  [LinscriptInstructionName.Animation]: animationMeta,
+  [LinscriptInstructionName.AutoText]: autoTextMeta,
+  [LinscriptInstructionName.CameraFlash]: cameraFlashMeta,
+  [LinscriptInstructionName.ChangeUI]: changeUiMeta,
+  [LinscriptInstructionName.CheckCharacter]: checkCharacterMeta,
+  [LinscriptInstructionName.CheckObject]: checkObjectMeta,
+  [LinscriptInstructionName.EndOfJump]: endOfJumpMeta,
+  [LinscriptInstructionName.Evaluate]: evaluateMeta,
+  [LinscriptInstructionName.EvaluateFlag]: evaluateFlagMeta,
+  [LinscriptInstructionName.EvaluateFreeTimeEvent]: evaluateFreeTimeEventMeta,
+  [LinscriptInstructionName.EvaluateRelationship]: evaluateRelationshipMeta,
+  [LinscriptInstructionName.Goto]: gotoMeta,
+  [LinscriptInstructionName.IfTrue]: ifTrueMeta,
+  [LinscriptInstructionName.Label]: labelMeta,
+  [LinscriptInstructionName.LoadMap]: loadMapMeta,
+  [LinscriptInstructionName.LoadScript]: loadScriptMeta,
+  [LinscriptInstructionName.LoadSprite]: loadSpriteMeta,
+  [LinscriptInstructionName.Movie]: movieMeta,
+  [LinscriptInstructionName.Music]: musicMeta,
+  [LinscriptInstructionName.ObjectState]: objectStateMeta,
+  [LinscriptInstructionName.PostProcessingEffect]: postProcessingEffectMeta,
+  [LinscriptInstructionName.Present]: presentMeta,
+  [LinscriptInstructionName.RestartScript]: restartScriptMeta,
+  [LinscriptInstructionName.RunScript]: runScriptMeta,
+  [LinscriptInstructionName.ScreenFade]: screenFadeMeta,
+  [LinscriptInstructionName.ScreenFlash]: screenFlashMeta,
+  [LinscriptInstructionName.SetOption]: setOptionMeta,
+  [LinscriptInstructionName.SetVar16]: setVar16Meta,
+  [LinscriptInstructionName.SetVar8]: setVar8Meta,
+  [LinscriptInstructionName.ShowBackground]: showBackgroundMeta,
+  [LinscriptInstructionName.Sound]: soundMeta,
+  [LinscriptInstructionName.SoundB]: soundBMeta,
+  [LinscriptInstructionName.Speaker]: speakerMeta,
+  [LinscriptInstructionName.Sprite]: spriteMeta,
+  [LinscriptInstructionName.SpriteFlash]: spriteFlashMeta,
+  [LinscriptInstructionName.StopScript]: stopScriptMeta,
+  [LinscriptInstructionName.StudentRelationship]: studentRelationshipMeta,
+  [LinscriptInstructionName.StudentReportInfo]: studentReportInfoMeta,
+  [LinscriptInstructionName.StudentTitleEntry]: studentTitleEntryMeta,
+  [LinscriptInstructionName.Text]: textMeta,
+  [LinscriptInstructionName.TextStyle]: textStyleMeta,
+  [LinscriptInstructionName.TrialCamera]: trialCameraMeta,
+  [LinscriptInstructionName.TruthBulletFlag]: truthBulletFlagMeta,
+  [LinscriptInstructionName.UnlockSkill]: unlockSkillMeta,
+  [LinscriptInstructionName.Voice]: voiceMeta,
+  [LinscriptInstructionName.WaitFrame]: waitFrameMeta,
+  [LinscriptInstructionName.WaitInput]: waitInputMeta,
+};

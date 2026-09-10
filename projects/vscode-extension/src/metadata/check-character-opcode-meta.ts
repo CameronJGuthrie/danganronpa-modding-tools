@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const checkCharacterMeta: OpcodeMeta = {
-  name: OpcodeName.CheckCharacter,
+export const checkCharacterMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.CheckCharacter,
   hexcode: "0x27",
   parameters: [
     {

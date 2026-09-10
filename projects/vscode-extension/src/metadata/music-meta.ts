@@ -1,9 +1,9 @@
+import { LinscriptInstructionName } from "linscript-definitions";
 import { musics } from "../data/music-data";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const musicMeta: OpcodeMeta = {
-  name: OpcodeName.Music,
+export const musicMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Music,
   hexcode: "0x09",
   parameters: [
     {

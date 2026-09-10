@@ -1,6 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { OpcodeName } from "../enum/opcode";
+import { LinscriptInstructionName } from "linscript-definitions";
 
 type TmLanguagePattern = {
   match: string;
@@ -12,7 +12,7 @@ type TmLanguage = {
   patterns: TmLanguagePattern[];
 };
 
-const opcodeNames = Object.values(OpcodeName);
+const opcodeNames = Object.values(LinscriptInstructionName);
 
 const tmLanguage: TmLanguage = {
   scopeName: "source.linscript",
@@ -32,6 +32,11 @@ const tmLanguage: TmLanguage = {
     {
       match: `\\b(${opcodeNames.join("|")})\\b`,
       name: "entity.name.function.linscript",
+    },
+    {
+      // Named arguments such as Speaker(Makoto); listed after the opcodes so those win
+      match: "\\b[A-Za-z_]\\w*\\b",
+      name: "variable.other.enummember.linscript",
     },
   ],
 };

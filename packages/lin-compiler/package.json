@@ -17,6 +17,9 @@
     "lint": "tsc -p tsconfig.json",
     "test": "node --test 'test/**/*.test.ts'"
   },
+  "dependencies": {
+    "linscript-definitions": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "typescript": "catalog:"

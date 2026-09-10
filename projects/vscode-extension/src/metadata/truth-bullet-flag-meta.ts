@@ -1,10 +1,9 @@
+import { isTruthBullet, LinscriptInstructionName, TruthBullet } from "linscript-definitions";
 import { truthBulletFlags } from "../data/truth-bullet-data";
-import { OpcodeName } from "../enum/opcode";
-import { isTruthBullet, TruthBullet } from "../enum/truth-bullet";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const truthBulletFlagMeta: OpcodeMeta = {
-  name: OpcodeName.TruthBulletFlag,
+export const truthBulletFlagMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.TruthBulletFlag,
   hexcode: "0x0C",
   parameters: [
     {

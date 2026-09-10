@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const trialCameraMeta: OpcodeMeta = {
-  name: OpcodeName.TrialCamera,
+export const trialCameraMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.TrialCamera,
   hexcode: "0x14",
   parameters: [
     {

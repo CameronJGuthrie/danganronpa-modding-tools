@@ -1,5 +1,6 @@
 packages:
   - packages/lin-compiler
+  - packages/definitions
   - projects/cli
   - packages/scripts
   - projects/vscode-extension
@@ -7,6 +8,7 @@ packages:
 allowBuilds:
   '@vscode/vsce-sign': true
   canvas: true
+  esbuild: true
   keytar: true
 
 catalog:

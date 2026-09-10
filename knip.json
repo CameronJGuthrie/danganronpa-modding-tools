@@ -5,6 +5,11 @@
       "entry": [],
       "project": []
     },
+    "packages/definitions": {
+      "project": [
+        "src/**/*.ts"
+      ]
+    },
     "packages/lin-compiler": {
       "entry": [
         "test/**/*.test.ts"

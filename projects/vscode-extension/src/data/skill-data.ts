@@ -1,4 +1,4 @@
-import { Skill } from "../enum/skill";
+import { Skill } from "linscript-definitions";
 
 export const skills: Readonly<Record<Skill, string>> = {
   [Skill.InfluenceAttentive]: "InfluenceAttentive",

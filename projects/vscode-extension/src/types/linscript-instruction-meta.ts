@@ -1,8 +1,9 @@
+import type { LinscriptInstructionName } from "linscript-definitions";
 import type { ThemableDecorationAttachmentRenderOptions } from "vscode";
-import type { OpcodeName } from "../enum/opcode";
+import type { ArgumentNames } from "../util/string-util";
 
-export type OpcodeMeta<Parameters extends readonly ParameterMeta[] = ParameterMeta[]> = {
-  name: OpcodeName;
+export type LinscriptInstructionMeta<Parameters extends readonly ParameterMeta[] = ParameterMeta[]> = {
+  name: LinscriptInstructionName;
   // TODO: add a description to each opcode meta
   hexcode: string;
   description?: string;
@@ -36,6 +37,11 @@ export type ParameterMeta = {
    * Whether this parameter is understood
    */
   unknown?: true;
+  /**
+   * Enum whose member names may appear in source instead of the number, e.g. `Character` lets the
+   * decompiler write `Speaker(Makoto)`. The decorator resolves such names back to their value.
+   */
+  names?: ArgumentNames;
   /**
    * Map of numbers to LinscriptValue, can be a simple string but might also indicate typing for other params
    */

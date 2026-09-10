@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const showBackgroundMeta: OpcodeMeta = {
-  name: OpcodeName.ShowBackground,
+export const showBackgroundMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.ShowBackground,
   hexcode: "0x30",
   parameters: [
     {

@@ -1,5 +1,5 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 const overlays: { [color: number]: string } = {
   0: "loading",
@@ -14,8 +14,8 @@ const types: { [type: number]: string } = {
   101: "Block with", // Special? This seems to stop you from interacting with the game until the loading screen is cleared
 };
 
-export const screenFadeMeta: OpcodeMeta = {
-  name: OpcodeName.ScreenFade,
+export const screenFadeMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.ScreenFade,
   hexcode: "0x22",
   parameters: [
     {

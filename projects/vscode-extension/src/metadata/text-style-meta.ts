@@ -1,15 +1,14 @@
+import { isTextStyle, LinscriptInstructionName } from "linscript-definitions";
 import { textStyleColor } from "../data/text-style-data";
-import { OpcodeName } from "../enum/opcode";
-import { isTextStyle } from "../enum/text-style";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 /**
  * This is no longer required when using Text(""), as the compiler will insert them correctly automatically
  * E.g. when you use Text("<CLT 1>Pink Text<CLT>")
  * You may still insert extra TextStyle(n) calls if you want.
  */
-export const textStyleMeta: OpcodeMeta = {
-  name: OpcodeName.TextStyle,
+export const textStyleMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.TextStyle,
   hexcode: "0x03",
   parameters: [
     {

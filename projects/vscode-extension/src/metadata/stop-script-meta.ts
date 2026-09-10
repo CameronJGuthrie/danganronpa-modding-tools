@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const stopScriptMeta: OpcodeMeta = {
-  name: OpcodeName.StopScript,
+export const stopScriptMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.StopScript,
   hexcode: "0x1A",
   parameters: [] as const,
 };

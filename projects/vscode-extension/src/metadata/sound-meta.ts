@@ -1,9 +1,9 @@
+import { LinscriptInstructionName } from "linscript-definitions";
 import { sounds } from "../data/sound-data";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const soundMeta: OpcodeMeta = {
-  name: OpcodeName.Sound,
+export const soundMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Sound,
   hexcode: "0x0A",
   parameters: [
     {

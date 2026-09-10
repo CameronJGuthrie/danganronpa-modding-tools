@@ -1,12 +1,10 @@
+import { Character, isCharacter, LinscriptInstructionName } from "linscript-definitions";
 import { characterData } from "../data/character-data";
-
 import { sprites } from "../data/sprite";
-import { Character, isCharacter } from "../enum/character";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const spriteMeta: OpcodeMeta = {
-  name: OpcodeName.Sprite,
+export const spriteMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Sprite,
   hexcode: "0x1E",
   parameters: [
     {

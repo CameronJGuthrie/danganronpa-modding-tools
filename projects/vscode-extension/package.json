@@ -104,17 +104,21 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "pnpm run compile",
-    "compile": "tsc -p ./",
+    "vscode:prepublish": "pnpm run compile && pnpm run bundle",
+    "compile": "pnpm --filter linscript-definitions run build && tsc -p ./",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=out/extension.js",
     "build-grammar": "tsc -p ./ && node out/syntaxes/tmlanguage-builder.js",
     "typecheck": "pnpm run compile",
     "watch": "tsc -watch -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
-    "package": "vsce package --allow-missing-repository --",
+    "package": "vsce package --allow-missing-repository --no-dependencies --",
     "install-extension": "(code --uninstall-extension lindecompilerhelper || true) && pnpm package && code --install-extension lindecompilerhelper-0.0.1.vsix && rm lindecompilerhelper-0.0.1.vsix",
     "lint": "biome lint src",
     "format": "biome check src",
     "test": "vscode-test"
+  },
+  "dependencies": {
+    "linscript-definitions": "workspace:*"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.8",
@@ -123,6 +127,7 @@
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.2",
     "typescript": "catalog:"
   }
 }

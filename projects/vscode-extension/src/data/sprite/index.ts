@@ -1,4 +1,4 @@
-import { Character } from "../../enum/character";
+import { Character } from "linscript-definitions";
 import { alterEgoSprite } from "./alter-ego-sprite-data";
 import { byakuyaSprite } from "./byakuya-sprite-data";
 import { celesteSprite } from "./celeste-sprite-data";

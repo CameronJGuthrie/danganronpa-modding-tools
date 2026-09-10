@@ -1,4 +1,4 @@
-import { Chapter } from "../../enum/chapter";
+import { Chapter } from "linscript-definitions";
 import type { ChapterVoiceLines } from ".";
 
 export const chihiroVoiceLines: ChapterVoiceLines = {

@@ -23,7 +23,7 @@ function textlessFile(scriptData: number[]): Uint8Array {
 
 describe("compile and decompile", () => {
   test("fixed-length opcodes round-trip unchanged", () => {
-    const source = "Speaker(3)\nSound(513, 2)\nSetVar16(1, 2, 65535)\nStopScript()\n";
+    const source = "Speaker(Mondo)\nSound(513, 2)\nSetVar16(1, 2, 65535)\nStopScript()\n";
     assert.equal(roundTrip(source), source);
   });
 
@@ -48,7 +48,7 @@ describe("compile and decompile", () => {
   });
 
   test("text escapes survive a round trip", () => {
-    const source = 'Text("say \\"hi\\"\\nnext\\\\line")\nSpeaker(1)\n';
+    const source = 'Text("say \\"hi\\"\\nnext\\\\line")\nSpeaker(Taka)\n';
     assert.equal(roundTrip(source), source);
     const [entry] = readSource(source).entries;
     assert.ok("text" in entry);
@@ -57,7 +57,7 @@ describe("compile and decompile", () => {
 
   test("Evaluate chains round-trip through big-endian packing", () => {
     // Followed by another opcode so the variadic Evaluate does not absorb the alignment padding
-    const source = "Evaluate(258, 1, 772, 5, 1, 6, 2)\nSpeaker(1)\n";
+    const source = "Evaluate(258, 1, 772, 5, 1, 6, 2)\nSpeaker(Taka)\n";
     const entry = readSource(source).entries[0];
     assert.deepEqual(entry.args, [1, 2, 1, 3, 4, 5, 0, 1, 6, 0, 2]);
     assert.equal(roundTrip(source), source);
@@ -66,7 +66,7 @@ describe("compile and decompile", () => {
   test("unknown opcodes are written as hex with raw bytes and compile back", () => {
     const bytes = textlessFile([0x70, 0x07, 9, 8, 0x70, 0x21, 1]);
     const source = writeSourceText(readCompiled(bytes));
-    assert.equal(source, "0x07(9, 8)\nSpeaker(1)\n");
+    assert.equal(source, "0x07(9, 8)\nSpeaker(Taka)\n");
     assert.deepEqual(readSource(source).entries[0], { opcode: 0x07, args: [9, 8] });
   });
 
@@ -109,8 +109,33 @@ describe("AutoText sugar", () => {
   });
 
   test("a Text not closed by WaitInput stays a plain Text", () => {
-    const source = 'Text("hi")\nWaitFrame()\nSpeaker(1)\n';
+    const source = 'Text("hi")\nWaitFrame()\nSpeaker(Taka)\n';
     assert.equal(roundTrip(source), source);
+  });
+});
+
+describe("named arguments", () => {
+  test("a Speaker id is written as the character's name", () => {
+    const bytes = textlessFile([0x70, 0x21, 0, 0x70, 0x21, 15]);
+    assert.equal(writeSourceText(readCompiled(bytes)), "Speaker(Makoto)\nSpeaker(Monokuma)\n");
+  });
+
+  test("names and numbers compile to the same byte", () => {
+    assert.deepEqual(readSource("Speaker(Makoto)\n").entries[0], { opcode: 0x21, args: [0] });
+    assert.deepEqual(readSource("Speaker(0)\n").entries[0], { opcode: 0x21, args: [0] });
+    assert.equal(roundTrip("Speaker(0)\n"), "Speaker(Makoto)\n");
+  });
+
+  test("ids without a name stay numeric", () => {
+    assert.equal(roundTrip("Speaker(99)\n"), "Speaker(99)\n");
+  });
+
+  test("hexOpcodes output keeps every argument numeric", () => {
+    assert.equal(writeSourceText(readSource("Speaker(Makoto)\n"), { hexOpcodes: true }), "0x21(0)\n");
+  });
+
+  test("unknown names are rejected", () => {
+    assert.throws(() => readSource("Speaker(Nobody)\n"), /unknown name 'Nobody' for Byte argument/);
   });
 });
 
@@ -119,13 +144,13 @@ describe("block indentation", () => {
     const source = "SetOption(1)\nSpeaker(1)\nSetOption(2)\nSpeaker(2)\nSetOption(255)\nSpeaker(3)\n";
     assert.equal(
       writeSourceText(readSource(source)),
-      "SetOption(1)\n  Speaker(1)\nSetOption(2)\n  Speaker(2)\nSetOption(255)\nSpeaker(3)\n",
+      "SetOption(1)\n  Speaker(Taka)\nSetOption(2)\n  Speaker(Byakuya)\nSetOption(255)\nSpeaker(Mondo)\n",
     );
   });
 
   test("indent width is configurable and leading whitespace is ignored on compile", () => {
     const script = readSource("SetOption(1)\n        Speaker(1)\n");
-    assert.equal(writeSourceText(script, { indentSpaces: 4 }), "SetOption(1)\n    Speaker(1)\n");
+    assert.equal(writeSourceText(script, { indentSpaces: 4 }), "SetOption(1)\n    Speaker(Taka)\n");
   });
 });
 
@@ -153,7 +178,8 @@ describe("source errors", () => {
   test("out-of-range and malformed numbers are rejected", () => {
     assert.throws(() => readSource("Speaker(256)\n"), /invalid Byte argument '256'/);
     assert.throws(() => readSource("Label(70000)\n"), /invalid UInt16BE argument '70000'/);
-    assert.throws(() => readSource("Speaker(x)\n"), /invalid Byte argument 'x'/);
+    assert.throws(() => readSource("Speaker(x)\n"), /unknown name 'x' for Byte argument/);
+    assert.throws(() => readSource("Sound(x, 1)\n"), /invalid UInt16BE argument 'x'/);
     assert.throws(() => readSource("Text(hello)\n"), /expected a quoted string/);
     assert.throws(() => readSource("Type(Maybe)\n"), /Type expects 'Textless' or 'Text'/);
   });

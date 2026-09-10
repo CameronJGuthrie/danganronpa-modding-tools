@@ -1,12 +1,10 @@
+import { Character, isChapter, isCharacter, LinscriptInstructionName } from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import { voiceLinesByCharacterByChapter } from "../data/voice";
-import { isChapter } from "../enum/chapter";
-import { Character, isCharacter } from "../enum/character";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const voiceMeta: OpcodeMeta = {
-  name: OpcodeName.Voice,
+export const voiceMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Voice,
   hexcode: "0x08",
   parameters: [
     {

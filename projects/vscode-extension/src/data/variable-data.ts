@@ -1,4 +1,4 @@
-import { Variable } from "../enum/variable";
+import { Variable } from "linscript-definitions";
 import { flatMapProperty } from "../util/data-util";
 import { characterData } from "./character-data";
 

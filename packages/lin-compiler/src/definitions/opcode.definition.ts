@@ -1,4 +1,5 @@
-import { ParameterType } from "./parameter.definition.ts";
+import { Character } from "linscript-definitions";
+import { type NamedValues, type Parameter, ParameterType } from "./parameter.definition.ts";
 
 /** Every opcode in the compiled script data is introduced by this marker byte. */
 export const OPCODE_MARKER = 0x70;
@@ -9,9 +10,9 @@ export const OPCODE_MARKER = 0x70;
  */
 export type ArgumentSpec =
   /** A fixed layout of parameters. */
-  | { kind: "fixed"; layout: readonly ParameterType[] }
+  | { kind: "fixed"; layout: readonly Parameter[] }
   /** A `head` layout followed by any number of `tail` layouts, e.g. a chain of comparisons. */
-  | { kind: "repeat"; head: readonly ParameterType[]; tail: readonly ParameterType[] }
+  | { kind: "repeat"; head: readonly Parameter[]; tail: readonly Parameter[] }
   /** At least `min` plain bytes, shown verbatim because their structure is not understood. */
   | { kind: "variadic"; min: number }
   /** A text id in binary; the quoted string itself in source. */
@@ -28,8 +29,13 @@ export interface OpcodeRow {
 
 const { Byte, UInt16BE } = ParameterType;
 
-function fixed(layout: readonly ParameterType[]): ArgumentSpec {
+function fixed(layout: readonly Parameter[]): ArgumentSpec {
   return { kind: "fixed", layout };
+}
+
+/** A parameter whose values are written by name in source, e.g. `Speaker(Makoto)`. */
+function named(type: ParameterType, names: NamedValues): Parameter {
+  return { type, names };
 }
 
 function bytes(quantity: number): ArgumentSpec {
@@ -69,7 +75,7 @@ export const opcodes = {
   Sprite:                { id: 0x1e, args: bytes(5) },
   ScreenFlash:           { id: 0x1f, args: bytes(7) },
   SpriteFlash:           { id: 0x20, args: bytes(5) },
-  Speaker:               { id: 0x21, args: bytes(1) },
+  Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
   ScreenFade:            { id: 0x22, args: bytes(3) },
   ObjectState:           { id: 0x23, args: bytes(5) },
   ChangeUI:              { id: 0x25, args: bytes(2) },

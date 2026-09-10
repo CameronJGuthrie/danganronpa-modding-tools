@@ -7,6 +7,7 @@
     "node": ">=22.18"
   },
   "scripts": {
+    "prepare": "pnpm --filter linscript-definitions run build",
     "lint": "biome lint",
     "lint:fix": "biome check --fix --unsafe",
     "start": "pnpm run build && pnpm run game",

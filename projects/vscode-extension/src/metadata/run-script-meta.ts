@@ -1,10 +1,10 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 // This can point to scripts that don't seem to exist?
 // E.g. getting a Monocoin RunScript(8, 30, 0) for which there is no e08_030_000.lin
-export const runScriptMeta: OpcodeMeta = {
-  name: OpcodeName.RunScript,
+export const runScriptMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.RunScript,
   hexcode: "0x1B",
   parameters: [
     {

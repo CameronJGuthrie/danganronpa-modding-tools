@@ -1,12 +1,17 @@
+import {
+  comparisonOperatorSymbols,
+  flagGroups,
+  isFlagGroup,
+  isLogicalCompare,
+  isLogicalJoin,
+  joins,
+  LinscriptInstructionName,
+} from "linscript-definitions";
 import { flagDataByFlagGroup } from "../data/flag-data";
-import { flagGroups, isFlagGroup } from "../enum/flag-group";
-import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical-compare";
-import { isLogicalJoin, joins } from "../enum/logical-join";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const evaluateFlagMeta: OpcodeMeta = {
-  name: OpcodeName.EvaluateFlag,
+export const evaluateFlagMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.EvaluateFlag,
   hexcode: "0x35",
   varargs: true,
   parameters: [],

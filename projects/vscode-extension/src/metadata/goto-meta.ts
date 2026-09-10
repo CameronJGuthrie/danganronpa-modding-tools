@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const gotoMeta: OpcodeMeta = {
-  name: OpcodeName.Goto,
+export const gotoMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Goto,
   hexcode: "0x34",
   parameters: [
     {

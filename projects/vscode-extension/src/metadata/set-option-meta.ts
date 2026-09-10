@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const setOptionMeta: OpcodeMeta = {
-  name: OpcodeName.SetOption,
+export const setOptionMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.SetOption,
   hexcode: "0x2B",
   parameters: [
     {

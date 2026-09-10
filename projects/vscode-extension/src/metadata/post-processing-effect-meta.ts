@@ -1,9 +1,8 @@
-import { Filter, filterConfiguration, isFilter } from "../enum/filter";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { Filter, filterConfiguration, isFilter, LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const postProcessingEffectMeta: OpcodeMeta = {
-  name: OpcodeName.PostProcessingEffect,
+export const postProcessingEffectMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.PostProcessingEffect,
   hexcode: "0x04",
   parameters: [
     {

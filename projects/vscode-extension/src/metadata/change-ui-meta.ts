@@ -1,10 +1,9 @@
+import { LinscriptInstructionName, UserInterface } from "linscript-definitions";
 import { isUserInterface, userInterfaceConfiguration } from "../data/user-interface-data";
-import { OpcodeName } from "../enum/opcode";
-import { UserInterface } from "../enum/user-interface";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const changeUiMeta: OpcodeMeta = {
-  name: OpcodeName.ChangeUI,
+export const changeUiMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.ChangeUI,
   hexcode: "0x25",
   parameters: [
     {

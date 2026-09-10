@@ -14,8 +14,12 @@
       "name": "string.quoted.double.linscript"
     },
     {
-      "match": "\\b(Animation|AutoText|CameraFlash|ChangeUI|CheckCharacter|CheckObject|EndOfJump|Evaluate|EvaluateFlag|EvaluateFreeTimeEvent|EvaluateRelationship|Goto|IfTrue|Label|LoadMap|LoadScript|LoadSprite|Movie|Music|ObjectState|PostProcessingEffect|Present|RestartScript|RunScript|ScreenFade|ScreenFlash|Script|SetOption|SetVar16|SetVar8|ShowBackground|Sound|SoundB|Speaker|Sprite|SpriteFlash|StopScript|StudentRelationship|StudentReportInfo|StudentTitleEntry|Text|TextStyle|TrialCamera|TruthBulletFlag|Type|UnlockSkill|Voice|WaitFrame|WaitInput)\\b",
+      "match": "\\b(Animation|AutoText|CameraFlash|ChangeUI|CheckCharacter|CheckObject|EndOfJump|Evaluate|EvaluateFlag|EvaluateFreeTimeEvent|EvaluateRelationship|Goto|IfTrue|Label|LoadMap|LoadScript|LoadSprite|Movie|Music|ObjectState|PostProcessingEffect|Present|RestartScript|RunScript|ScreenFade|ScreenFlash|SetOption|SetVar16|SetVar8|ShowBackground|Sound|SoundB|Speaker|Sprite|SpriteFlash|StopScript|StudentRelationship|StudentReportInfo|StudentTitleEntry|Text|TextStyle|TrialCamera|TruthBulletFlag|UnlockSkill|Voice|WaitFrame|WaitInput)\\b",
       "name": "entity.name.function.linscript"
+    },
+    {
+      "match": "\\b[A-Za-z_]\\w*\\b",
+      "name": "variable.other.enummember.linscript"
     }
   ]
 }

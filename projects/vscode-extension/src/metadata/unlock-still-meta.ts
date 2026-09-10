@@ -1,10 +1,9 @@
+import { isSkill, LinscriptInstructionName, Skill } from "linscript-definitions";
 import { skills } from "../data/skill-data";
-import { OpcodeName } from "../enum/opcode";
-import { isSkill, Skill } from "../enum/skill";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const unlockSkillMeta: OpcodeMeta = {
-  name: OpcodeName.UnlockSkill,
+export const unlockSkillMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.UnlockSkill,
   hexcode: "0x0E",
   parameters: [
     {

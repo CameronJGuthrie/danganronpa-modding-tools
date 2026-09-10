@@ -1,8 +1,17 @@
+/**
+ * One source argument: a decimal number, or a bare identifier such as a character name
+ * (`Speaker(Makoto)`). Names are resolved to numbers by `getArgumentsFromFunctionLike`.
+ */
+const ARGUMENT = "(?:\\d+|[A-Za-z_]\\w*)";
+
+/** A numeric enum object (or similar table) mapping argument names to their values. */
+export type ArgumentNames = Readonly<Record<string, string | number>>;
+
 export function createIncompleteFunctionRegex(functionName: string, numArgs: number): RegExp {
   // Create the regex pattern for valid arguments with optional whitespace
   const argsPattern = Array(numArgs)
-    .fill("\\s*\\d+\\s*") // Allow for whitespace around numbers
-    .join(",\\s*"); // e.g., for 2 args: '\\s*\\d+\\s*,\\s*\\d+\\s*'
+    .fill(`\\s*${ARGUMENT}\\s*`) // Allow for whitespace around arguments
+    .join(",\\s*");
 
   // Match function calls ensuring the function name is a complete word
   const regexPattern = new RegExp(
@@ -15,7 +24,7 @@ export function createIncompleteFunctionRegex(functionName: string, numArgs: num
 
 export function createCompleteFunctionRegex(functionName: string, numArgs: number): RegExp {
   // Create the regex pattern based on the function name and the number of arguments
-  const argsPattern = Array(numArgs).fill("\\s*\\d+\\s*").join(",\\s*"); // e.g., for 2 args: '\\s*\\d+\\s*,\\s*\\d+\\s*'
+  const argsPattern = Array(numArgs).fill(`\\s*${ARGUMENT}\\s*`).join(",\\s*");
 
   // Use negative lookbehind to ensure we're not inside quotes
   // (?<![^"]*") means: not preceded by an odd number of quotes (i.e., not inside a string)
@@ -27,9 +36,9 @@ export function createCompleteFunctionRegex(functionName: string, numArgs: numbe
 }
 
 export function createVarargsRegex(functionName: string): RegExp {
-  // Match function name followed by parentheses with any number of comma-separated digits
-  // Pattern: FunctionName( digit [, digit]* )
-  const regexPattern = new RegExp(`${functionName}\\s*\\(\\s*\\d+(?:\\s*,\\s*\\d+)*\\s*\\)`, "g");
+  // Match function name followed by parentheses with any number of comma-separated arguments
+  // Pattern: FunctionName( arg [, arg]* )
+  const regexPattern = new RegExp(`${functionName}\\s*\\(\\s*${ARGUMENT}(?:\\s*,\\s*${ARGUMENT})*\\s*\\)`, "g");
 
   return regexPattern;
 }
@@ -47,7 +56,14 @@ export function getColorTextRegex(): RegExp {
   return new RegExp(regexPattern);
 }
 
-export function getArgumentsFromFunctionLike(functionLike: string) {
+/**
+ * Extract the arguments of a call such as `Speaker(Makoto)` or `Sound(219, 100)`.
+ *
+ * Each argument is returned with its offset in `functionLike` and its numeric value. A named
+ * argument is resolved through `names[argIndex]` when given; a name with no table (or one that is
+ * not in the table) yields `NaN`.
+ */
+export function getArgumentsFromFunctionLike(functionLike: string, names: readonly (ArgumentNames | undefined)[] = []) {
   const regex = /(\w+)\(([^)]*)\)/; // Match function calls
   const match = regex.exec(functionLike);
 
@@ -62,10 +78,10 @@ export function getArgumentsFromFunctionLike(functionLike: string) {
     const openParenIndex = functionLike.indexOf("(", match.index);
     let currentIndex = openParenIndex + 1;
 
-    params.forEach((param) => {
+    params.forEach((param, argIndex) => {
       const startIndex = functionLike.indexOf(param, currentIndex);
 
-      results.push({ stringIndex: startIndex, value: Number(param) });
+      results.push({ stringIndex: startIndex, value: resolveArgument(param, names[argIndex]) });
 
       currentIndex = startIndex + param.length;
     });
@@ -74,6 +90,14 @@ export function getArgumentsFromFunctionLike(functionLike: string) {
   }
 
   return []; // Return empty array if no match is found
+}
+
+function resolveArgument(text: string, names: ArgumentNames | undefined): number {
+  if (/^\d+$/.test(text)) {
+    return Number(text);
+  }
+  const value = names && Object.hasOwn(names, text) ? names[text] : undefined;
+  return typeof value === "number" ? value : Number.NaN;
 }
 
 export function countOccurances(needle: string, haystack: string) {

@@ -1,11 +1,14 @@
+import {
+  comparisonOperatorSymbols,
+  isCharacter,
+  isLogicalCompare,
+  LinscriptInstructionName,
+} from "linscript-definitions";
 import { characterData } from "../data/character-data";
-import { isCharacter } from "../enum/character";
-import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical-compare";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const evaluateRelationshipMeta: OpcodeMeta = {
-  name: OpcodeName.EvaluateRelationship,
+export const evaluateRelationshipMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.EvaluateRelationship,
   hexcode: "0x39",
   parameters: [
     {

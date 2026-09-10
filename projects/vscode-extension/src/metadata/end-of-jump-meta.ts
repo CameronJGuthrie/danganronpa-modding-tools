@@ -1,8 +1,8 @@
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const endOfJumpMeta: OpcodeMeta = {
-  name: OpcodeName.EndOfJump,
+export const endOfJumpMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.EndOfJump,
   hexcode: "0x2C",
   parameters: [
     {

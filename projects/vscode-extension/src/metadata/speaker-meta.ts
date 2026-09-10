@@ -1,14 +1,13 @@
+import { Character, isCharacter, LinscriptInstructionName } from "linscript-definitions";
 import { characterData } from "../data/character-data";
-import { isCharacter } from "../enum/character";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const speakerMeta: OpcodeMeta = {
-  name: OpcodeName.Speaker,
+export const speakerMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Speaker,
   hexcode: "0x21",
   parameters: [
     {
-      name: "characterId",
+      names: Character,
     },
   ] as const,
   decorations([character]) {

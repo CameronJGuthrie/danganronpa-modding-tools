@@ -8,7 +8,7 @@ import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 export interface WriteSourceOptions {
   /** Spaces per indentation level. */
   indentSpaces?: number;
-  /** Write every opcode as `0xNN` instead of its name. */
+  /** Write every opcode as `0xNN` instead of its name, and every argument as a number. */
   hexOpcodes?: boolean;
 }
 
@@ -50,7 +50,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       args = formatRawBytes(entry.args);
     } else {
       name = autoText.has(index) ? AUTO_TEXT : options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
-      args = formatArgs(opcode.args, entry);
+      args = formatArgs(opcode.args, entry, { names: !options.hexOpcodes });
     }
     lines.push(`${indent.repeat(openBlocks.size)}${name}(${args})`);
 

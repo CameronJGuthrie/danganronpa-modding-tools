@@ -1,9 +1,9 @@
+import { LinscriptInstructionName } from "linscript-definitions";
 import { movies } from "../data/movie-data";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const movieMeta: OpcodeMeta = {
-  name: OpcodeName.Movie,
+export const movieMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Movie,
   hexcode: "0x05",
   parameters: [
     {

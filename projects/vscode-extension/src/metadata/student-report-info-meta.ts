@@ -1,11 +1,16 @@
+import {
+  Arithmetic,
+  arithmaticConfiguraiton,
+  Character,
+  isArithmetic,
+  isCharacter,
+  LinscriptInstructionName,
+} from "linscript-definitions";
 import { characterData } from "../data/character-data";
-import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
-import { Character, isCharacter } from "../enum/character";
-import { OpcodeName } from "../enum/opcode";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const studentReportInfoMeta: OpcodeMeta = {
-  name: OpcodeName.StudentReportInfo,
+export const studentReportInfoMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.StudentReportInfo,
   hexcode: "0x10",
   parameters: [
     {

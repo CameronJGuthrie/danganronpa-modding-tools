@@ -1,4 +1,4 @@
-export enum OpcodeName {
+export enum LinscriptInstructionName {
   Animation = "Animation",
   AutoText = "AutoText", // Text opcode compilation can produce AutoText which combines some additional functionality
   CameraFlash = "CameraFlash",
@@ -25,7 +25,6 @@ export enum OpcodeName {
   RunScript = "RunScript",
   ScreenFade = "ScreenFade",
   ScreenFlash = "ScreenFlash",
-  Script = "Script",
   SetOption = "SetOption",
   SetVar16 = "SetVar16",
   SetVar8 = "SetVar8",
@@ -43,7 +42,6 @@ export enum OpcodeName {
   TextStyle = "TextStyle",
   TrialCamera = "TrialCamera",
   TruthBulletFlag = "TruthBulletFlag",
-  Type = "Type",
   UnlockSkill = "UnlockSkill",
   Voice = "Voice",
   WaitFrame = "WaitFrame",

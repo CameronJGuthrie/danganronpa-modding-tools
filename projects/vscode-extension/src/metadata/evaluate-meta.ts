@@ -1,11 +1,16 @@
-import { comparisonOperatorSymbols, isLogicalCompare } from "../enum/logical-compare";
-import { isLogicalJoin, joins } from "../enum/logical-join";
-import { OpcodeName } from "../enum/opcode";
-import { isVariable, variables } from "../enum/variable";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import {
+  comparisonOperatorSymbols,
+  isLogicalCompare,
+  isLogicalJoin,
+  isVariable,
+  joins,
+  LinscriptInstructionName,
+  variables,
+} from "linscript-definitions";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const evaluateMeta: OpcodeMeta = {
-  name: OpcodeName.Evaluate,
+export const evaluateMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.Evaluate,
   hexcode: "0x36",
   varargs: true,
   parameters: [],

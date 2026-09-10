@@ -1,11 +1,17 @@
+import {
+  Arithmetic,
+  arithmaticConfiguraiton,
+  isArithmetic,
+  isVariable,
+  LinscriptInstructionName,
+  Variable,
+  variables,
+} from "linscript-definitions";
 import { variableData } from "../data/variable-data";
-import { Arithmetic, arithmaticConfiguraiton, isArithmetic } from "../enum/arithmetic";
-import { OpcodeName } from "../enum/opcode";
-import { isVariable, Variable, variables } from "../enum/variable";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const setVar16Meta: OpcodeMeta = {
-  name: OpcodeName.SetVar16,
+export const setVar16Meta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.SetVar16,
   hexcode: "0x33",
   parameters: [
     {

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { textStyleColor } from "../data/text-style-data";
 import { metadata } from "../metadata";
 import { logDebug, logError, logWarning } from "../output";
-import type { OpcodeMeta } from "../types/opcode-meta";
+import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 import {
   createCompleteFunctionRegex,
   createVarargsRegex,
@@ -80,7 +80,7 @@ export function registerDecoration() {
       functionDecorationsByType.push([]);
     }
 
-    metadata.forEach((functionDetails) => {
+    Object.values(metadata).forEach((functionDetails) => {
       const completeFunctionRegex = functionDetails.varargs
         ? createVarargsRegex(functionDetails.name)
         : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length);
@@ -204,7 +204,7 @@ export function registerDecoration() {
 }
 
 function addParameterDecoration(
-  param: OpcodeMeta["parameters"][number],
+  param: LinscriptInstructionMeta["parameters"][number],
   rangePos: vscode.Position,
   hintDecorations: vscode.DecorationOptions[],
 ): number {
@@ -235,7 +235,7 @@ function addParameterDecoration(
 function enrichParameters(
   regexp: RegExp,
   documentText: string,
-  functionDetails: OpcodeMeta,
+  functionDetails: LinscriptInstructionMeta,
   document: vscode.TextDocument,
   hintDecorations: vscode.DecorationOptions[],
   functionDecorationsByType: vscode.DecorationOptions[][],
@@ -252,7 +252,10 @@ function enrichParameters(
       continue;
     }
 
-    const args = getArgumentsFromFunctionLike(match[0]);
+    const args = getArgumentsFromFunctionLike(
+      match[0],
+      functionDetails.parameters.map((parameter) => parameter.names),
+    );
     const argValues = args.map((arg) => arg.value);
 
     if (!functionDetails.varargs && args.length !== functionDetails.parameters.length) {
@@ -294,7 +297,7 @@ function enrichParameters(
 }
 
 function addFunctionDecoration(
-  functionDetails: OpcodeMeta,
+  functionDetails: LinscriptInstructionMeta,
   argValues: number[],
   documentText: string,
   matchEndIndex: number,

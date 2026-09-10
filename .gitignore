@@ -3,6 +3,7 @@ node_modules/
 
 # Compiled TypeScript output
 packages/lin-compiler/dist/
+packages/definitions/dist/
 projects/cli/out/
 
 # Workspace directory (working files)
