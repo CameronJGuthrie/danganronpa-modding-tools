@@ -2,14 +2,15 @@
 node_modules/
 
 # Compiled TypeScript output
-projects/lin-compiler/dist/
+packages/lin-compiler/dist/
+projects/cli/out/
 
 # Workspace directory (working files)
-workspace/*
-!workspace/.danganronpa-working-root
+workbench/*
+!workbench/.danganronpa-working-root
 
 # Really messy debug scripts
-projects/scripts/src/generator.ts
+packages/scripts/src/generator.ts
 
 # Python cache
 __pycache__/

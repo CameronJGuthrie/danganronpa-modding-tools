@@ -7,9 +7,10 @@
   },
   "files": {
     "includes": [
-      "projects/lin-compiler/src/**/*.ts",
-      "projects/lin-compiler/test/**/*.ts",
-      "projects/scripts/src/**/*.ts",
+      "packages/lin-compiler/src/**/*.ts",
+      "packages/lin-compiler/test/**/*.ts",
+      "projects/cli/src/**/*.ts",
+      "packages/scripts/src/**/*.ts",
       "projects/vscode-extension/src/**/*.ts"
     ]
   },

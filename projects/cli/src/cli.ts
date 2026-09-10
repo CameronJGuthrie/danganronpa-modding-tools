@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 import { readdir, stat } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
-import { readCompiledFile } from "./io/lin-reader.ts";
-import { writeCompiledFile } from "./io/lin-writer.ts";
-import { readSourceFile } from "./io/linscript-reader.ts";
-import { DEFAULT_INDENT_SPACES, type WriteSourceOptions, writeSourceFile } from "./io/linscript-writer.ts";
+import {
+  DEFAULT_INDENT_SPACES,
+  readCompiledFile,
+  readSourceFile,
+  writeCompiledFile,
+  type WriteSourceOptions,
+  writeSourceFile,
+} from "lin-compiler";
 
 const USAGE = `
 lin-compiler: danganronpa script (de)compiler

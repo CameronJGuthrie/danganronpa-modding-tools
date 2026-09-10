@@ -10,24 +10,24 @@ import { LIN_COMPILER_CLI as LIN_COMPILER_PATH, PROJECT_ROOT as projectRoot } fr
 
 const execAsync = promisify(exec);
 
-const MODDED_DIR = join(projectRoot, "workspace", "modded", "dr1_data_us");
-const MOD_DIR = join(projectRoot, "workspace", "mod", "dr1_data_us");
-const EXPLORATION_DIR = join(projectRoot, "workspace", "linscript-exploration");
+const MODDED_DIR = join(projectRoot, "workbench", "modded", "dr1_data_us");
+const MOD_DIR = join(projectRoot, "workbench", "mod", "dr1_data_us");
+const EXPLORATION_DIR = join(projectRoot, "workbench", "linscript-exploration");
 
 function showUsage(): void {
   console.log(`Usage: pnpm select <filepath>
 
 Two modes:
-1. .lin file: Decompiles from workspace/modded/ and places the .linscript in workspace/mod/
-2. .linscript file: Copies from workspace/linscript-exploration/ to workspace/mod/ with proper structure
+1. .lin file: Decompiles from workbench/modded/ and places the .linscript in workbench/mod/
+2. .linscript file: Copies from workbench/linscript-exploration/ to workbench/mod/ with proper structure
 
 Examples:
   pnpm select e01_004_135.lin
   pnpm select Dr1/data/us/script/e01_004_135.lin
-  pnpm select workspace/modded/dr1_data_us/Dr1/data/us/script/e01_004_135.lin
+  pnpm select workbench/modded/dr1_data_us/Dr1/data/us/script/e01_004_135.lin
 
   pnpm select e01_004_135.linscript
-  pnpm select workspace/linscript-exploration/e01_004_135.linscript`);
+  pnpm select workbench/linscript-exploration/e01_004_135.linscript`);
 }
 
 function resolveLinFilePath(inputPath: string): string {
@@ -40,7 +40,7 @@ function resolveLinFilePath(inputPath: string): string {
   }
 
   // If it's a relative path from project root
-  if (inputPath.startsWith("workspace/modded/")) {
+  if (inputPath.startsWith("workbench/modded/")) {
     return join(projectRoot, inputPath);
   }
 
@@ -68,7 +68,7 @@ function resolveLinscriptFilePath(inputPath: string): string {
   }
 
   // If it's a relative path from project root
-  if (inputPath.startsWith("workspace/linscript-exploration/")) {
+  if (inputPath.startsWith("workbench/linscript-exploration/")) {
     return join(projectRoot, inputPath);
   }
 
@@ -150,7 +150,7 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
   // Extract the base filename (e.g., e01_004_135 from e01_004_135.linscript)
   const baseFilename = basename(sourceFile, ".linscript");
 
-  // Find the corresponding .lin file in workspace/modded
+  // Find the corresponding .lin file in workbench/modded
   // All script files are in Dr1/data/us/script/ directory
   const correspondingLinFile = join(MODDED_DIR, "Dr1/data/us/script", `${baseFilename}.lin`);
 

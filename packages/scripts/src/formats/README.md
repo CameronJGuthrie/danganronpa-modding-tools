@@ -13,8 +13,8 @@ Binary format libraries for Danganronpa game data. Each file exports reader/writ
 
 - **WAD**: the outer archive. Holds a directory tree of files, including PAKs and LINs.
 - **PAK**: an index of offset/size entries with no filenames. Frequently nested.
-- **LIN**: the compiled script format. Handled by `projects/lin-compiler`, not by this directory.
-- **LINSCRIPT**: the human-readable source form of LIN produced and consumed by `projects/lin-compiler`.
+- **LIN**: the compiled script format. Handled by `packages/lin-compiler`, not by this directory.
+- **LINSCRIPT**: the human-readable source form of LIN produced and consumed by `packages/lin-compiler`.
 - **GXT**: PS Vita texture, often wrapped in Spike Chunsoft compression.
 
 ## Full documentation

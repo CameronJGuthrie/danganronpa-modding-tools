@@ -5,9 +5,8 @@
       "entry": [],
       "project": []
     },
-    "projects/lin-compiler": {
+    "packages/lin-compiler": {
       "entry": [
-        "src/index.ts",
         "test/**/*.test.ts"
       ],
       "project": [
@@ -15,7 +14,12 @@
         "test/**/*.ts"
       ]
     },
-    "projects/scripts": {
+    "projects/cli": {
+      "project": [
+        "src/**/*.ts"
+      ]
+    },
+    "packages/scripts": {
       "entry": [
         "src/{formats,setup,mod,game,explore}/*.ts"
       ],

@@ -5,7 +5,7 @@ import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { errorMessage } from "../lib/errors.ts";
-import { WORKSPACE_DIR } from "../lib/paths.ts";
+import { WORKBENCH_DIR } from "../lib/paths.ts";
 
 // ============================================================================
 // Binary I/O Helpers
@@ -205,13 +205,13 @@ Description:
 
 Options:
   --max-deviation=N    Maximum allowed size deviation percentage (default: 10)
-  --path=PATH          Path to search for PAK files (default: workspace/all)
+  --path=PATH          Path to search for PAK files (default: workbench/all)
   -h, --help           Show this help
 
 Examples:
   pnpm validate-paks
   pnpm validate-paks --max-deviation=5
-  pnpm validate-paks --path=workspace/all/dr1_data`);
+  pnpm validate-paks --path=workbench/all/dr1_data`);
 }
 
 interface CliArgs {
@@ -223,7 +223,7 @@ interface CliArgs {
 function parseArgs(): CliArgs {
   const args = process.argv.slice(2);
   let maxDeviation = 10;
-  let searchPath = join(WORKSPACE_DIR, "all");
+  let searchPath = join(WORKBENCH_DIR, "all");
 
   for (const arg of args) {
     if (arg === "-h" || arg === "--help") {

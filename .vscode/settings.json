@@ -1,6 +1,6 @@
 {
   "files.readonlyInclude": {
-    "workspace/linscript-exploration/**/*.linscript": true
+    "workbench/linscript-exploration/**/*.linscript": true
   },
   "editor.tabSize": 2,
   "editor.insertSpaces": true,

@@ -1,17 +1,18 @@
 # Danganronpa Modding Tools
 
 ## Repository layout
-All buildable projects live under `projects/`:
-- `projects/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler
-- `projects/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
+Libraries and scripts live under `packages/`, applications under `projects/`:
+- `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library
+- `projects/cli` - the `lin-compiler` command-line tool, a thin wrapper over the library
+- `packages/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
 - `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension
 - `projects/gui` - Electron asset browser (standalone; not a workspace package, has its own lockfile)
 
-`docs/file-formats/` holds reverse-engineering notes; `workspace/` holds generated working files.
-The first three are pnpm workspace packages (see `pnpm-workspace.yaml`).
+`docs/file-formats/` holds reverse-engineering notes; `workbench/` holds generated working files.
+The first four are pnpm workspace packages (see `pnpm-workspace.yaml`).
 
 ## Exploration Mode
-This is when I'm trying to discover what the opcodes do. You'll be helping me to understand patterns in the workspace/linscript-exploration/*.linscript files.
+This is when I'm trying to discover what the opcodes do. You'll be helping me to understand patterns in the workbench/linscript-exploration/*.linscript files.
 I document my findings in these typescript files at projects/vscode-extension/src/functions/*.ts with the names of the opcodes corresponding to the functions. E.g. Voice -> Voice.ts
 
 **Investigation Script:**
@@ -60,15 +61,15 @@ WAD → PAK → (GMO | TGA | PAK | ?)
 2. For PAK files: Extract using `unpak.py` to get individual files
 
 ## lin-compiler
-TypeScript CLI tool and library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `projects/lin-compiler/src/`.
+TypeScript library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `packages/lin-compiler/src/`; the command-line wrapper lives in `projects/cli/src/cli.ts` and imports the library by its package name.
 
-**Status:** Node.js/TypeScript (migrated from C#). No build step — it runs straight from source via Node's type stripping; entry point is `projects/lin-compiler/src/cli.ts`. `pnpm compile` typechecks it.
+**Status:** Node.js/TypeScript (migrated from C#). No build step — it runs straight from source via Node's type stripping; the CLI entry point is `projects/cli/src/cli.ts`. `pnpm --filter lin-compiler run typecheck` and `pnpm --filter lin-compiler-cli run typecheck` typecheck them.
 
-**Usage:** `node projects/lin-compiler/src/cli.ts -d input.lin output.linscript` (decompile) or `node projects/lin-compiler/src/cli.ts input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--hex` hex opcode names, `--indent-spaces N`.
+**Usage:** `node projects/cli/src/cli.ts -d input.lin output.linscript` (decompile) or `node projects/cli/src/cli.ts input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--hex` hex opcode names, `--indent-spaces N`.
 
-**Tests:** `pnpm --filter lin-compiler run test` runs the `node:test` suites in `projects/lin-compiler/test/`. The corpus test round-trips every `.lin` in `workspace/modded/dr1_data_us/Dr1/data/us/script` and is skipped if that directory is missing. Run it after any change to the reader, writer, or opcode table.
+**Tests:** `pnpm --filter lin-compiler run test` runs the `node:test` suites in `packages/lin-compiler/test/`. The corpus test round-trips every `.lin` in `workbench/modded/dr1_data_us/Dr1/data/us/script` and is skipped if that directory is missing. Run it after any change to the reader, writer, or opcode table.
 
-Opcode definitions live in `projects/lin-compiler/src/definitions/opcode.definition.ts` — add a row to `opcodes` to teach the compiler a new opcode. Each row has an `ArgumentSpec` (`fixed`, `repeat`, `variadic`, `text`, `type`); all formatting and parsing for these kinds is in `src/opcodes/arguments.ts`, so a new kind is a union member plus a switch case there. AutoText is source-only sugar, not an opcode; both expansion and collapsing live in `src/opcodes/autoText.ts`. The library API is pure: readers return a `Script`, writers take one plus a `WriteSourceOptions` object; there is no global options state.
+Opcode definitions live in `packages/lin-compiler/src/definitions/opcode.definition.ts` — add a row to `opcodes` to teach the compiler a new opcode. Each row has an `ArgumentSpec` (`fixed`, `repeat`, `variadic`, `text`, `type`); all formatting and parsing for these kinds is in `src/opcodes/arguments.ts`, so a new kind is a union member plus a switch case there. AutoText is source-only sugar, not an opcode; both expansion and collapsing live in `src/opcodes/autoText.ts`. The library API is pure: readers return a `Script`, writers take one plus a `WriteSourceOptions` object; there is no global options state.
 
 ## gui
 Electron desktop app for browsing and editing Danganronpa assets. Features character sprite viewer, script viewer, and TGA image support.
@@ -76,20 +77,20 @@ Electron desktop app for browsing and editing Danganronpa assets. Features chara
 ## pak-archiver
 Utility for extracting, creating, and modifying PAK archive files. Handles nested archives and detects GMO/TGA file types.
 
-**Status:** Migrated to TypeScript (projects/scripts/src/formats/pak-archiver.ts).
+**Status:** Migrated to TypeScript (packages/scripts/src/formats/pak-archiver.ts).
 
 ## scripts
-TypeScript automation scripts for common modding operations, kept under `projects/scripts/src/` in subdirectories by purpose:
-- `lib/` - shared helpers with no side effects on import (`errors.ts`, `steam-paths.ts`, `paths.ts` for repo/workspace/CLI paths)
+TypeScript automation scripts for common modding operations, kept under `packages/scripts/src/` in subdirectories by purpose:
+- `lib/` - shared helpers with no side effects on import (`errors.ts`, `steam-paths.ts`, `paths.ts` for repo/workbench/CLI paths)
 - `formats/` - binary format libraries with a CLI tail (`wad-archiver`, `pak-archiver`, `spike-chunsoft-decompress`, `gxt-to-png`)
-- `setup/` - getting game data into the workspace (`zip-game-files`, `unpack-base-files`, `extract-linscript`, `extract-recursive`, `validate-paks`)
+- `setup/` - getting game data into the workbench (`zip-game-files`, `unpack-base-files`, `extract-linscript`, `extract-recursive`, `validate-paks`)
 - `mod/` - the edit/build/test loop (`select`, `verify`, `build`)
 - `game/` - Steam and Proton control (`launch-game`, `clear-proton`)
 - `explore/` - opcode research (`investigate`, `generator`)
 
 Scripts resolve repository paths through `lib/paths.ts` rather than counting `..` segments, so they can move between subdirectories freely.
 
-They are run directly by Node's type stripping - there is no build step, so `node projects/scripts/src/mod/build.ts` just works (requires Node >= 22.18). Because Node strips types rather than transforming syntax, these files must stay erasable: no `enum`, no `namespace`, no constructor parameter properties. `tsc` enforces this via `erasableSyntaxOnly`. Local imports name the real `.ts` file (`../lib/steam-paths.ts`), which is what Node resolves at runtime.
+They are run directly by Node's type stripping - there is no build step, so `node packages/scripts/src/mod/build.ts` just works (requires Node >= 22.18). Because Node strips types rather than transforming syntax, these files must stay erasable: no `enum`, no `namespace`, no constructor parameter properties. `tsc` enforces this via `erasableSyntaxOnly`. Local imports name the real `.ts` file (`../lib/steam-paths.ts`), which is what Node resolves at runtime.
 
 Typecheck with `pnpm --filter danganronpa-scripts run typecheck` (emits nothing).
 

@@ -3,7 +3,7 @@
 /**
  * unpack-base-files.ts
  *
- * Extracts dr1_data_us.wad and dr1_data.wad from base_files.zip and unpacks all files to workspace/modded/
+ * Extracts dr1_data_us.wad and dr1_data.wad from base_files.zip and unpacks all files to workbench/modded/
  * This gives you a fresh copy of all base game files for modding.
  */
 
@@ -13,11 +13,11 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 import unzipper from "unzipper";
 import { errorMessage } from "../lib/errors.ts";
-import { WAD_ARCHIVER_CLI, WORKSPACE_DIR } from "../lib/paths.ts";
+import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
-const BASE_FILES_ZIP = join(WORKSPACE_DIR, "base_files.zip");
-const MODDED_DIR = join(WORKSPACE_DIR, "modded");
+const BASE_FILES_ZIP = join(WORKBENCH_DIR, "base_files.zip");
+const MODDED_DIR = join(WORKBENCH_DIR, "modded");
 const DR1_DATA_US_DIR = join(MODDED_DIR, "dr1_data_us");
 const DR1_DATA_DIR = join(MODDED_DIR, "dr1_data");
 
@@ -34,7 +34,7 @@ async function extractWadFromZip(wadFileName: string): Promise<string> {
   }
 
   const wadBuffer = await wadFile.buffer();
-  const tempWadPath = join(WORKSPACE_DIR, `temp_${wadFileName}`);
+  const tempWadPath = join(WORKBENCH_DIR, `temp_${wadFileName}`);
 
   await writeFile(tempWadPath, wadBuffer);
   console.log(`Extracted to ${tempWadPath}`);
@@ -72,14 +72,14 @@ async function main(): Promise<void> {
     const tempWadPathUs = await extractWadFromZip("dr1_data_us.wad");
     await extractWadContents(tempWadPathUs, DR1_DATA_US_DIR);
     await cleanup(tempWadPathUs);
-    console.log("✓ dr1_data_us.wad extracted to workspace/modded/dr1_data_us/\n");
+    console.log("✓ dr1_data_us.wad extracted to workbench/modded/dr1_data_us/\n");
 
     // Extract and process dr1_data.wad
     console.log("Processing dr1_data.wad...");
     const tempWadPath = await extractWadFromZip("dr1_data.wad");
     await extractWadContents(tempWadPath, DR1_DATA_DIR);
     await cleanup(tempWadPath);
-    console.log("✓ dr1_data.wad extracted to workspace/modded/dr1_data/\n");
+    console.log("✓ dr1_data.wad extracted to workbench/modded/dr1_data/\n");
 
     console.log("\n✓ All files extracted successfully!");
   } catch (error) {

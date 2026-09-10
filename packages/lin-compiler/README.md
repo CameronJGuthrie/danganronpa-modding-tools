@@ -10,16 +10,16 @@ pnpm --filter lin-compiler run typecheck   # or, from the repo root: pnpm compil
 pnpm --filter lin-compiler run test        # unit tests, plus a corpus round-trip when scripts are extracted
 ```
 
-There is no build output: Node runs the TypeScript sources directly via type stripping, with `src/cli.ts` as the entry point.
+There is no build output: Node runs the TypeScript sources directly via type stripping, with `projects/cli/src/cli.ts` (the `lin-compiler-cli` package) as the command-line entry point.
 
 The corpus test in `test/corpus.test.ts` decompiles and recompiles every `.lin` under
-`workspace/modded/dr1_data_us/Dr1/data/us/script` and checks the regenerated source is
+`workbench/modded/dr1_data_us/Dr1/data/us/script` and checks the regenerated source is
 identical. It is skipped when that directory has not been extracted with `pnpm unpack`.
 
 ## Usage
 
 ```bash
-node projects/lin-compiler/src/cli.ts [options] input [output]
+node projects/cli/src/cli.ts [options] input [output]
 ```
 
 | Option | Description |
@@ -33,9 +33,9 @@ node projects/lin-compiler/src/cli.ts [options] input [output]
 Examples:
 
 ```bash
-node projects/lin-compiler/src/cli.ts -d input.lin output.linscript   # decompile
-node projects/lin-compiler/src/cli.ts input.linscript output.lin      # compile
-node projects/lin-compiler/src/cli.ts -s -d path/to/scripts/          # batch decompile a directory
+node projects/cli/src/cli.ts -d input.lin output.linscript   # decompile
+node projects/cli/src/cli.ts input.linscript output.lin      # compile
+node projects/cli/src/cli.ts -s -d path/to/scripts/          # batch decompile a directory
 ```
 
 When `input` is a directory, every matching file in it is processed in place: `*.lin` →
@@ -63,7 +63,6 @@ throws `SourceError` (with a 1-based `line`); malformed binaries throw `BinaryEr
 
 | Path | Contents |
 | --- | --- |
-| `src/cli.ts` | Argument parsing, single-file and batch drivers, all console output |
 | `src/definitions/script.definition.ts` | `Script` / `ScriptEntry` model and `ScriptType` |
 | `src/io/lin-reader.ts` | Parsing of compiled `.lin` bytes |
 | `src/io/lin-writer.ts` | `.lin` serialisation |

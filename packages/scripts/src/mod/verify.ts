@@ -10,18 +10,18 @@ import { LIN_COMPILER_CLI as LIN_COMPILER_PATH, PROJECT_ROOT as projectRoot } fr
 
 const execAsync = promisify(exec);
 
-const MODDED_DIR = join(projectRoot, "workspace/modded/dr1_data_us");
-const VERIFY_DIR = join(projectRoot, "workspace/verify");
+const MODDED_DIR = join(projectRoot, "workbench/modded/dr1_data_us");
+const VERIFY_DIR = join(projectRoot, "workbench/verify");
 
 function showUsage(): void {
   console.log(`Usage: pnpm verify <filepath>
 
-Decompiles a .lin file from workspace/modded/ and places the .linscript in workspace/verify/
+Decompiles a .lin file from workbench/modded/ and places the .linscript in workbench/verify/
 
 Examples:
   pnpm verify e01_004_135.lin
   pnpm verify Dr1/data/us/script/e01_004_135.lin
-  pnpm verify workspace/modded/dr1_data_us/Dr1/data/us/script/e01_004_135.lin`);
+  pnpm verify workbench/modded/dr1_data_us/Dr1/data/us/script/e01_004_135.lin`);
 }
 
 function resolveLinFilePath(inputPath: string): string {
@@ -34,7 +34,7 @@ function resolveLinFilePath(inputPath: string): string {
   }
 
   // If it's a relative path from project root
-  if (inputPath.startsWith("workspace/modded/")) {
+  if (inputPath.startsWith("workbench/modded/")) {
     return join(projectRoot, inputPath);
   }
 

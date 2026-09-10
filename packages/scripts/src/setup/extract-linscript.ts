@@ -7,12 +7,12 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 import unzipper from "unzipper";
 import { errorMessage } from "../lib/errors.ts";
-import { LIN_COMPILER_CLI, WAD_ARCHIVER_CLI, WORKSPACE_DIR } from "../lib/paths.ts";
+import { LIN_COMPILER_CLI, WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
-const BASE_FILES_ZIP = join(WORKSPACE_DIR, "base_files.zip");
-const TEMP_DIR = join(WORKSPACE_DIR, "temp_extract");
-const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, "linscript-exploration");
+const BASE_FILES_ZIP = join(WORKBENCH_DIR, "base_files.zip");
+const TEMP_DIR = join(WORKBENCH_DIR, "temp_extract");
+const LINSCRIPT_EXPLORATION_DIR = join(WORKBENCH_DIR, "linscript-exploration");
 
 async function extractWadFromZip(): Promise<string> {
   console.log("Extracting dr1_data_us.wad from base_files.zip...");

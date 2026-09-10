@@ -9,14 +9,14 @@ import {
   LIN_COMPILER_CLI as LIN_COMPILER,
   PROJECT_ROOT,
   WAD_ARCHIVER_CLI as WAD_ARCHIVER,
-  WORKSPACE_DIR,
+  WORKBENCH_DIR,
 } from "../lib/paths.ts";
 import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
-const MODS_DIR = join(WORKSPACE_DIR, "mod");
-const EXTRACTED_DIR = join(WORKSPACE_DIR, "modded");
+const MODS_DIR = join(WORKBENCH_DIR, "mod");
+const EXTRACTED_DIR = join(WORKBENCH_DIR, "modded");
 
 interface CompileStats {
   succeeded: number;

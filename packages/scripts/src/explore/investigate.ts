@@ -3,9 +3,9 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { errorMessage } from "../lib/errors.ts";
-import { WORKSPACE_DIR } from "../lib/paths.ts";
+import { WORKBENCH_DIR } from "../lib/paths.ts";
 
-const LINSCRIPT_EXPLORATION_DIR = join(WORKSPACE_DIR, "linscript-exploration");
+const LINSCRIPT_EXPLORATION_DIR = join(WORKBENCH_DIR, "linscript-exploration");
 
 type SortMode = "frequency" | "value";
 

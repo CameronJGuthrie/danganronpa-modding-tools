@@ -11,7 +11,7 @@ import { readSource } from "../src/io/linscript-reader.ts";
 import { writeSourceText } from "../src/io/linscript-writer.ts";
 
 /** The game's script directory as extracted by `pnpm unpack`. */
-const CORPUS_DIR = fileURLToPath(new URL("../../../workspace/modded/dr1_data_us/Dr1/data/us/script", import.meta.url));
+const CORPUS_DIR = fileURLToPath(new URL("../../../workbench/modded/dr1_data_us/Dr1/data/us/script", import.meta.url));
 
 test("every game script round-trips through source and back", {
   skip: !existsSync(CORPUS_DIR) && "corpus not extracted",

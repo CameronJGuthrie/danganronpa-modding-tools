@@ -4,7 +4,7 @@
  * zip-game-files.ts
  *
  * Creates a backup zip of the 4 .wad files from the Steam game directory
- * and saves it as base_files.zip in the workspace directory.
+ * and saves it as base_files.zip in the workbench directory.
  */
 
 import { createWriteStream } from "node:fs";
@@ -12,11 +12,11 @@ import { stat } from "node:fs/promises";
 import { join } from "node:path";
 import archiver from "archiver";
 import { errorMessage } from "../lib/errors.ts";
-import { WORKSPACE_DIR } from "../lib/paths.ts";
+import { WORKBENCH_DIR } from "../lib/paths.ts";
 import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 const GAME_DIR = getGameDirectoryOrThrow();
-const OUTPUT_ZIP = join(WORKSPACE_DIR, "base_files.zip");
+const OUTPUT_ZIP = join(WORKBENCH_DIR, "base_files.zip");
 
 // The 4 .wad files to backup
 const WAD_FILES = ["dr1_data.wad", "dr1_data_us.wad", "dr1_data_keyboard_us.wad", "dr1_data_keyboard.wad"];

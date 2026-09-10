@@ -1,0 +1,27 @@
+{
+  "name": "lin-compiler-cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Command-line interface for the lin-compiler library",
+  "bin": {
+    "lin-compiler": "./out/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "clean": "rm -rf out"
+  },
+  "dependencies": {
+    "lin-compiler": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "catalog:"
+  },
+  "files": [
+    "out"
+  ]
+}

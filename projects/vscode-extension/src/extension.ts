@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Determine output file path
     const ext = path.extname(uri.fsPath);
     const basename = path.basename(uri.fsPath, ext);
-    const outputPath = path.join(rootDir, "workspace/mod/dr1_data_us/Dr1/data/us/script", `${basename}.linscript`);
+    const outputPath = path.join(rootDir, "workbench/mod/dr1_data_us/Dr1/data/us/script", `${basename}.linscript`);
 
     // Run the select command
     const terminal = vscode.window.createTerminal({
@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Extract the base filename
     const basename = path.basename(uri.fsPath, ".lin");
-    const outputPath = path.join(rootDir, "workspace/modded/verify", `${basename}.linscript`);
+    const outputPath = path.join(rootDir, "workbench/modded/verify", `${basename}.linscript`);
 
     // Run the verify command
     const terminal = vscode.window.createTerminal({
