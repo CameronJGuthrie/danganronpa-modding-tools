@@ -8,9 +8,30 @@
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { PROJECT_ROOT } from "./paths.ts";
 
 const GAME_NAME = "Danganronpa Trigger Happy Havoc";
 const GAME_APP_ID = "413410";
+
+/** Name of the environment variable that overrides Steam game directory detection. */
+const STEAM_DIR_ENV = "STEAM_DIR";
+
+// Load `.env` from the repository root so `STEAM_DIR=...` can be set without exporting it.
+// Variables already present in the environment take precedence over the file.
+try {
+  process.loadEnvFile(join(PROJECT_ROOT, ".env"));
+} catch {
+  // No .env file - fall back to platform defaults.
+}
+
+/**
+ * Returns the game directory from `STEAM_DIR` (environment or repository `.env`),
+ * or null if it is unset or empty.
+ */
+function getEnvGamePath(): string | null {
+  const value = process.env[STEAM_DIR_ENV]?.trim();
+  return value ? value : null;
+}
 
 /**
  * Returns an array of potential Steam game directory paths for all platforms.
@@ -62,13 +83,21 @@ function getPotentialCompatDataPaths(): string[] {
 }
 
 /**
+ * Returns the list of game directory candidates to check: the `STEAM_DIR`
+ * override if set, otherwise the platform defaults.
+ */
+function getGamePathCandidates(): string[] {
+  const envPath = getEnvGamePath();
+  return envPath ? [envPath] : getPotentialGamePaths();
+}
+
+/**
  * Finds and returns the Steam game directory path.
+ * Uses `STEAM_DIR` if set, otherwise searches the platform's default Steam locations.
  * Returns null if not found.
  */
 export function findGameDirectory(): string | null {
-  const paths = getPotentialGamePaths();
-
-  for (const dir of paths) {
+  for (const dir of getGamePathCandidates()) {
     if (existsSync(dir)) {
       return dir;
     }
@@ -101,9 +130,10 @@ export function getGameDirectoryOrThrow(): string {
 
   if (!gameDir) {
     const error = new Error(
-      `Game directory not found. Make sure "${GAME_NAME}" is installed via Steam.\n` +
+      `Game directory not found. Make sure "${GAME_NAME}" is installed via Steam, ` +
+        `or set ${STEAM_DIR_ENV} in the environment or the repository .env file.\n` +
         "Checked the following locations:\n" +
-        getPotentialGamePaths()
+        getGamePathCandidates()
           .map((p) => `  - ${p}`)
           .join("\n"),
     );
