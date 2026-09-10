@@ -22,7 +22,7 @@ Libraries and scripts live under `packages/`, applications under `projects/`:
 | Path | What it is |
 | --- | --- |
 | `packages/lin-compiler` | TypeScript (de)compiler library for the game's `.lin` scripts |
-| `projects/cli` | Command-line wrapper around `lin-compiler` |
+| `projects/cli` | Command-line wrapper around `lin-compiler`; builds to `projects/cli/out/` |
 | `packages/scripts` | TypeScript automation scripts behind the root `pnpm run ...` commands |
 | `projects/vscode-extension` | The VSCode extension (`lindecompilerhelper`) |
 | `projects/gui` | Electron asset browser (standalone, has its own lockfile) |

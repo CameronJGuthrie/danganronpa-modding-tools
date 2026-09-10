@@ -3,7 +3,7 @@
 ## Repository layout
 Libraries and scripts live under `packages/`, applications under `projects/`:
 - `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library
-- `projects/cli` - the `lin-compiler` command-line tool, a thin wrapper over the library
+- `projects/cli` - the `lin-compiler` command-line tool, a thin wrapper over the library; `pnpm --filter lin-compiler-cli run build` emits JavaScript to `projects/cli/out/`
 - `packages/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
 - `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension
 - `projects/gui` - Electron asset browser (standalone; not a workspace package, has its own lockfile)
