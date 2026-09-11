@@ -14,6 +14,7 @@ import {
   type FlowNode,
   type FlowNodeKind,
   firstNumber,
+  parseScriptLines,
   type ScriptLine,
 } from "../script/controlFlow";
 import { e00_002_000 } from "../script/e00_002_000";
@@ -116,8 +117,16 @@ export function ScriptBrowser() {
   const flow = useMemo(() => buildControlFlow(source, SCRIPT_NAME), [source]);
   const [selectedId, setSelectedId] = useState<string>(flow.root.id);
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
+  // "View All" shows every line of the script, indented, instead of one node's actions
+  const [viewAll, setViewAll] = useState(false);
+  const allLines = useMemo(() => (viewAll ? parseScriptLines(source) : []), [viewAll, source]);
 
   const selected = flow.nodesById.get(selectedId) ?? flow.root;
+
+  const selectNode = useCallback((id: string) => {
+    setViewAll(false);
+    setSelectedId(id);
+  }, []);
 
   const toggleCollapsed = useCallback((id: string) => {
     setCollapsed((previous) => {
@@ -135,6 +144,7 @@ export function ScriptBrowser() {
     (label: number) => {
       const ownerId = flow.labelOwners.get(label);
       if (ownerId) {
+        setViewAll(false);
         setSelectedId(ownerId);
       }
     },
@@ -151,20 +161,33 @@ export function ScriptBrowser() {
         <FlowTree
           node={flow.root}
           depth={0}
-          selectedId={selected.id}
+          selectedId={viewAll ? null : selected.id}
           collapsed={collapsed}
-          onSelect={setSelectedId}
+          onSelect={selectNode}
           onToggle={toggleCollapsed}
+          viewAll={viewAll}
+          onViewAll={() => setViewAll(true)}
         />
       </aside>
       <section className="flex-1 min-w-0 overflow-auto rounded bg-white dark:bg-slate-800 p-4 shadow-sm">
-        <NodeDetails
-          node={selected}
-          labelOwners={flow.labelOwners}
-          onSelect={setSelectedId}
-          onJump={jumpToLabel}
-          onEditLine={editLine}
-        />
+        {viewAll ? (
+          <AllLines
+            title={flow.root.title}
+            lines={allLines}
+            labelOwners={flow.labelOwners}
+            onSelect={selectNode}
+            onJump={jumpToLabel}
+            onEditLine={editLine}
+          />
+        ) : (
+          <NodeDetails
+            node={selected}
+            labelOwners={flow.labelOwners}
+            onSelect={selectNode}
+            onJump={jumpToLabel}
+            onEditLine={editLine}
+          />
+        )}
       </section>
     </div>
   );
@@ -173,16 +196,19 @@ export function ScriptBrowser() {
 type FlowTreeProps = {
   node: FlowNode;
   depth: number;
-  selectedId: string;
+  /** Null while "View All" is active so no node reads as selected. */
+  selectedId: string | null;
   collapsed: Set<string>;
   onSelect: (id: string) => void;
   onToggle: (id: string) => void;
+  viewAll?: boolean;
+  onViewAll?: () => void;
 };
 
-function FlowTree({ node, depth, selectedId, collapsed, onSelect, onToggle }: FlowTreeProps) {
+function FlowTree({ node, depth, selectedId, collapsed, onSelect, onToggle, viewAll, onViewAll }: FlowTreeProps) {
   const hasChildren = node.children.length > 0;
   const isCollapsed = collapsed.has(node.id);
-  const isSelected = node.id === selectedId;
+  const isSelected = node.id === selectedId || (node.kind === "script" && viewAll === true);
   const style = kindStyles[node.kind];
 
   return (
@@ -213,6 +239,16 @@ function FlowTree({ node, depth, selectedId, collapsed, onSelect, onToggle }: Fl
             <span className="truncate text-xs text-slate-500 dark:text-slate-400">{node.subtitle}</span>
           )}
         </button>
+        {node.kind === "script" && onViewAll && (
+          <button
+            type="button"
+            className={`ml-auto shrink-0 rounded px-1.5 text-xs ${viewAll ? "bg-blue-500 text-white" : "bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500"}`}
+            onClick={onViewAll}
+            title="Show every line of the script with indentation"
+          >
+            View All
+          </button>
+        )}
       </div>
       {hasChildren && !isCollapsed && (
         <div>
@@ -229,6 +265,46 @@ function FlowTree({ node, depth, selectedId, collapsed, onSelect, onToggle }: Fl
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+type AllLinesProps = {
+  title: string;
+  lines: readonly ScriptLine[];
+  labelOwners: Map<number, string>;
+  onSelect: (id: string) => void;
+  onJump: (label: number) => void;
+  onEditLine: (lineNumber: number, text: string) => void;
+};
+
+/** Every line of the script in source order, indented by its block depth. */
+function AllLines({ title, lines, labelOwners, onSelect, onJump, onEditLine }: AllLinesProps) {
+  return (
+    <div className="flex flex-col gap-3">
+      <header className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <span className={`rounded px-1.5 py-0.5 text-xs font-semibold uppercase ${kindStyles.script.badge}`}>
+            {kindStyles.script.label}
+          </span>
+          <h2 className="font-mono text-lg">{title}</h2>
+          <span className="text-xs text-slate-500 dark:text-slate-400">all lines</span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{lines.length} actions</p>
+      </header>
+      <ol className="flex flex-col font-mono text-sm">
+        {lines.map((line) => (
+          <ActionRow
+            key={`line-${line.lineNumber}`}
+            item={{ kind: "line", line }}
+            indent={line.depth}
+            labelOwners={labelOwners}
+            onSelect={onSelect}
+            onJump={onJump}
+            onEditLine={onEditLine}
+          />
+        ))}
+      </ol>
     </div>
   );
 }
@@ -284,13 +360,15 @@ function itemKey(item: FlowItem): string {
 
 type ActionRowProps = {
   item: FlowItem;
+  /** Extra indentation levels, used by the all-lines view to reproduce the source layout. */
+  indent?: number;
   labelOwners: Map<number, string>;
   onSelect: (id: string) => void;
   onJump: (label: number) => void;
   onEditLine: (lineNumber: number, text: string) => void;
 };
 
-function ActionRow({ item, labelOwners, onSelect, onJump, onEditLine }: ActionRowProps) {
+function ActionRow({ item, indent = 0, labelOwners, onSelect, onJump, onEditLine }: ActionRowProps) {
   if (item.kind === "node") {
     const child = item.node;
     const style = kindStyles[child.kind];
@@ -331,6 +409,7 @@ function ActionRow({ item, labelOwners, onSelect, onJump, onEditLine }: ActionRo
   return (
     <li className={`flex items-baseline gap-2 px-2 py-0.5 ${rowClass}`}>
       <span className="w-10 shrink-0 text-right text-slate-400 dark:text-slate-500">{line.lineNumber}</span>
+      {indent > 0 && <span className="shrink-0" style={{ width: `${indent * 1.5}rem` }} />}
       {editable ? (
         <ArgumentEditor line={line} spec={editable} onEditLine={onEditLine} />
       ) : (
