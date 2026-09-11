@@ -24,12 +24,12 @@ Use `pnpm run investigate` to analyze opcode usage patterns across all linscript
 pnpm run investigate <opcode> [x,x,x]
 
 # Filter by specific argument values (use 'x' for any value)
-pnpm run investigate SetVar8 [12,x,x]  # Find all SetVar8 with first arg = 12
-pnpm run investigate SetVar8 [x,0,x]   # Find all SetVar8 with second arg = 0
+pnpm run investigate SetFlag [12,x,x]  # Find all SetFlag with first arg = 12
+pnpm run investigate SetFlag [x,0,x]   # Find all SetFlag with second arg = 0
 
 # Sort results by value instead of frequency
 pnpm run investigate Speaker [x] --sort=value
-pnpm run investigate SetVar8 [x,x,x] --sort=frequency  # explicit default
+pnpm run investigate SetFlag [x,x,x] --sort=frequency  # explicit default
 ```
 
 **Sorting options:**
@@ -62,6 +62,8 @@ WAD → PAK → (GMO | TGA | PAK | ?)
 2. For PAK files: Extract using `unpak.py` to get individual files
 
 ## lin-compiler
+`.linscript` is not a live format. It is still being designed and has no external consumers, so opcode names and argument sugar can change freely; regenerate `workbench/` with `pnpm run reset` after a rename rather than keeping compatibility shims.
+
 TypeScript library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `packages/lin-compiler/src/`; the command-line wrapper lives in `projects/cli/src/cli.ts` and imports the library by its package name.
 
 **Status:** Node.js/TypeScript (migrated from C#). No build step — it runs straight from source via Node's type stripping; the CLI entry point is `projects/cli/src/cli.ts`. `pnpm --filter lin-compiler run typecheck` and `pnpm --filter lin-compiler-cli run typecheck` typecheck them.

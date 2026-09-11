@@ -29,9 +29,9 @@ function parseArgs(): InvestigateArgs {
     console.error("Usage: pnpm run investigate <opcode> [filter1,filter2,...] [--sort=frequency|value]");
     console.error('   Use "x" for any value');
     console.error('   --sort defaults to "frequency"');
-    console.error("Example: pnpm run investigate SetVar8 [x,x,x]");
-    console.error("         pnpm run investigate SetVar8 [12,x,x]");
-    console.error("         pnpm run investigate SetVar8 [x,x,x] --sort=value");
+    console.error("Example: pnpm run investigate SetFlag [x,x,x]");
+    console.error("         pnpm run investigate SetFlag [12,x,x]");
+    console.error("         pnpm run investigate SetFlag [x,x,x] --sort=value");
     process.exit(1);
   }
 

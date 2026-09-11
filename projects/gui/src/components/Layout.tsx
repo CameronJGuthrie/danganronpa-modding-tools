@@ -3,15 +3,12 @@ import { Button } from "./base/Button";
 import { TabLayout } from "./base/TabLayout";
 import { CharacterPreview } from "./CharacterPreview";
 import { ScriptBrowser } from "./ScriptBrowser";
-import { ScriptViewer } from "./ScriptViewer";
 
-type ExplorerTab = "Character" | "Script" | "ScriptBrowser" | "Instructions";
+type ExplorerTab = "Character" | "ScriptBrowser";
 
 const tabs: Record<ExplorerTab, string> = {
   Character: "Character",
-  Script: "Script",
   ScriptBrowser: "Script Browser",
-  Instructions: "Instructions",
 };
 
 export function Layout() {
@@ -40,9 +37,7 @@ export function Layout() {
         }
       >
         {activeTab === "Character" && <CharacterPreview />}
-        {activeTab === "Script" && <ScriptViewer />}
         {activeTab === "ScriptBrowser" && <ScriptBrowser />}
-        {/* {activeTab === "Instructions" && <InstructionDetails />} */}
       </TabLayout>
     </main>
   );

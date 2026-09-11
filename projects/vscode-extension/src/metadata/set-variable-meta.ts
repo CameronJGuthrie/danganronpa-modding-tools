@@ -10,8 +10,8 @@ import {
 import { variableData } from "../data/variable-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const setVar16Meta: LinscriptInstructionMeta = {
-  name: LinscriptInstructionName.SetVar16,
+export const setVariableMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.SetVariable,
   hexcode: "0x33",
   parameters: [
     {

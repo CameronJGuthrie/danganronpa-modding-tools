@@ -4,16 +4,14 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 import { animationMeta } from "./animation-meta";
 import { autoTextMeta } from "./auto-text-meta";
 import { cameraFlashMeta } from "./camera-flash-meta";
-import { changeUiMeta } from "./change-ui-meta";
 import { checkCharacterMeta } from "./check-character-opcode-meta";
 import { checkObjectMeta } from "./check-object-opcode-meta";
 import { endOfJumpMeta } from "./end-of-jump-meta";
-import { evaluateFlagMeta } from "./evaluate-flag-opcode-meta";
-import { evaluateFreeTimeEventMeta } from "./evaluate-free-time-event-meta";
-import { evaluateMeta } from "./evaluate-meta";
-import { evaluateRelationshipMeta } from "./evaluate-relationship-meta";
 import { gotoMeta } from "./goto-meta";
-import { ifTrueMeta } from "./if-true-meta";
+import { ifFlagMeta } from "./if-flag-meta";
+import { ifFreeTimeEventMeta } from "./if-free-time-event-meta";
+import { ifMeta } from "./if-meta";
+import { ifRelationshipMeta } from "./if-relationship-meta";
 import { labelMeta } from "./label-meta";
 import { loadMapMeta } from "./load-map-meta";
 import { loadScriptMeta } from "./load-script-meta";
@@ -27,9 +25,10 @@ import { restartScriptMeta } from "./restart-script-meta";
 import { runScriptMeta } from "./run-script-meta";
 import { screenFadeMeta } from "./screen-fade-meta";
 import { screenFlashMeta } from "./screen-flash-meta";
+import { setFlagMeta } from "./set-flag-meta";
 import { setOptionMeta } from "./set-option-meta";
-import { setVar8Meta } from "./set-var-8-meta";
-import { setVar16Meta } from "./set-var-16-meta";
+import { setUiMeta } from "./set-ui-meta";
+import { setVariableMeta } from "./set-variable-meta";
 import { showBackgroundMeta } from "./show-background-meta";
 import { soundBMeta } from "./sound-b-meta";
 import { soundMeta } from "./sound-meta";
@@ -42,6 +41,7 @@ import { studentReportInfoMeta } from "./student-report-info-meta";
 import { studentTitleEntryMeta } from "./student-title-entry-meta";
 import { textMeta } from "./text-meta";
 import { textStyleMeta } from "./text-style-meta";
+import { thenMeta } from "./then-meta";
 import { trialCameraMeta } from "./trial-camera-meta";
 import { truthBulletFlagMeta } from "./truth-bullet-flag-meta";
 import { unlockSkillMeta } from "./unlock-still-meta";
@@ -54,16 +54,14 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.Animation]: animationMeta,
   [LinscriptInstructionName.AutoText]: autoTextMeta,
   [LinscriptInstructionName.CameraFlash]: cameraFlashMeta,
-  [LinscriptInstructionName.ChangeUI]: changeUiMeta,
   [LinscriptInstructionName.CheckCharacter]: checkCharacterMeta,
   [LinscriptInstructionName.CheckObject]: checkObjectMeta,
   [LinscriptInstructionName.EndOfJump]: endOfJumpMeta,
-  [LinscriptInstructionName.Evaluate]: evaluateMeta,
-  [LinscriptInstructionName.EvaluateFlag]: evaluateFlagMeta,
-  [LinscriptInstructionName.EvaluateFreeTimeEvent]: evaluateFreeTimeEventMeta,
-  [LinscriptInstructionName.EvaluateRelationship]: evaluateRelationshipMeta,
   [LinscriptInstructionName.Goto]: gotoMeta,
-  [LinscriptInstructionName.IfTrue]: ifTrueMeta,
+  [LinscriptInstructionName.If]: ifMeta,
+  [LinscriptInstructionName.IfFlag]: ifFlagMeta,
+  [LinscriptInstructionName.IfFreeTimeEvent]: ifFreeTimeEventMeta,
+  [LinscriptInstructionName.IfRelationship]: ifRelationshipMeta,
   [LinscriptInstructionName.Label]: labelMeta,
   [LinscriptInstructionName.LoadMap]: loadMapMeta,
   [LinscriptInstructionName.LoadScript]: loadScriptMeta,
@@ -77,9 +75,10 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.RunScript]: runScriptMeta,
   [LinscriptInstructionName.ScreenFade]: screenFadeMeta,
   [LinscriptInstructionName.ScreenFlash]: screenFlashMeta,
+  [LinscriptInstructionName.SetFlag]: setFlagMeta,
   [LinscriptInstructionName.SetOption]: setOptionMeta,
-  [LinscriptInstructionName.SetVar16]: setVar16Meta,
-  [LinscriptInstructionName.SetVar8]: setVar8Meta,
+  [LinscriptInstructionName.SetUI]: setUiMeta,
+  [LinscriptInstructionName.SetVariable]: setVariableMeta,
   [LinscriptInstructionName.ShowBackground]: showBackgroundMeta,
   [LinscriptInstructionName.Sound]: soundMeta,
   [LinscriptInstructionName.SoundB]: soundBMeta,
@@ -92,6 +91,7 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.StudentTitleEntry]: studentTitleEntryMeta,
   [LinscriptInstructionName.Text]: textMeta,
   [LinscriptInstructionName.TextStyle]: textStyleMeta,
+  [LinscriptInstructionName.Then]: thenMeta,
   [LinscriptInstructionName.TrialCamera]: trialCameraMeta,
   [LinscriptInstructionName.TruthBulletFlag]: truthBulletFlagMeta,
   [LinscriptInstructionName.UnlockSkill]: unlockSkillMeta,

@@ -1,6 +1,15 @@
+import { Character } from "linscript-definitions";
 import { useCallback, useMemo, useState } from "react";
-import { buildControlFlow, type FlowItem, type FlowNode, type FlowNodeKind, firstNumber } from "../script/controlFlow";
+import {
+  buildControlFlow,
+  type FlowItem,
+  type FlowNode,
+  type FlowNodeKind,
+  firstNumber,
+  type ScriptLine,
+} from "../script/controlFlow";
 import { e00_002_000 } from "../script/e00_002_000";
+import { replaceLine } from "../script/editSource";
 
 const SCRIPT_NAME = "e00_002_000";
 
@@ -13,8 +22,13 @@ const kindStyles: Record<FlowNodeKind, { badge: string; label: string }> = {
   option: { badge: "bg-violet-100 text-violet-900", label: "Option" },
 };
 
+/** Character names in the order the enum declares them; numeric reverse-mapping keys are skipped. */
+const characterNames = Object.keys(Character).filter((key) => Number.isNaN(Number(key)));
+
 export function ScriptBrowser() {
-  const flow = useMemo(() => buildControlFlow(e00_002_000, SCRIPT_NAME), []);
+  const [source, setSource] = useState(e00_002_000);
+  // Node ids are assigned in source order, so an in-place line edit keeps the same tree and selection
+  const flow = useMemo(() => buildControlFlow(source, SCRIPT_NAME), [source]);
   const [selectedId, setSelectedId] = useState<string>(flow.root.id);
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
 
@@ -42,6 +56,10 @@ export function ScriptBrowser() {
     [flow],
   );
 
+  const editLine = useCallback((lineNumber: number, text: string) => {
+    setSource((previous) => replaceLine(previous, lineNumber, text));
+  }, []);
+
   return (
     <div className="flex gap-4 bg-slate-100 p-4 h-[calc(100vh-9rem)] min-h-0">
       <aside className="w-96 shrink-0 overflow-auto rounded bg-white p-2 shadow-sm">
@@ -55,7 +73,13 @@ export function ScriptBrowser() {
         />
       </aside>
       <section className="flex-1 min-w-0 overflow-auto rounded bg-white p-4 shadow-sm">
-        <NodeDetails node={selected} labelOwners={flow.labelOwners} onSelect={setSelectedId} onJump={jumpToLabel} />
+        <NodeDetails
+          node={selected}
+          labelOwners={flow.labelOwners}
+          onSelect={setSelectedId}
+          onJump={jumpToLabel}
+          onEditLine={editLine}
+        />
       </section>
     </div>
   );
@@ -127,9 +151,10 @@ type NodeDetailsProps = {
   labelOwners: Map<number, string>;
   onSelect: (id: string) => void;
   onJump: (label: number) => void;
+  onEditLine: (lineNumber: number, text: string) => void;
 };
 
-function NodeDetails({ node, labelOwners, onSelect, onJump }: NodeDetailsProps) {
+function NodeDetails({ node, labelOwners, onSelect, onJump, onEditLine }: NodeDetailsProps) {
   const style = kindStyles[node.kind];
   const lineCount = node.items.filter((item) => item.kind === "line").length;
 
@@ -151,7 +176,14 @@ function NodeDetails({ node, labelOwners, onSelect, onJump }: NodeDetailsProps) 
       ) : (
         <ol className="flex flex-col font-mono text-sm">
           {node.items.map((item) => (
-            <ActionRow key={itemKey(item)} item={item} labelOwners={labelOwners} onSelect={onSelect} onJump={onJump} />
+            <ActionRow
+              key={itemKey(item)}
+              item={item}
+              labelOwners={labelOwners}
+              onSelect={onSelect}
+              onJump={onJump}
+              onEditLine={onEditLine}
+            />
           ))}
         </ol>
       )}
@@ -168,9 +200,10 @@ type ActionRowProps = {
   labelOwners: Map<number, string>;
   onSelect: (id: string) => void;
   onJump: (label: number) => void;
+  onEditLine: (lineNumber: number, text: string) => void;
 };
 
-function ActionRow({ item, labelOwners, onSelect, onJump }: ActionRowProps) {
+function ActionRow({ item, labelOwners, onSelect, onJump, onEditLine }: ActionRowProps) {
   if (item.kind === "node") {
     const child = item.node;
     const style = kindStyles[child.kind];
@@ -191,9 +224,10 @@ function ActionRow({ item, labelOwners, onSelect, onJump }: ActionRowProps) {
   }
 
   const { line } = item;
+  const isSpeaker = line.functionName === "Speaker";
   const isLabel = line.functionName === "Label";
   const isGoto = line.functionName === "Goto";
-  const isBranch = line.functionName === "IfTrue" || line.functionName === "EvaluateFlag";
+  const isBranch = line.functionName === "Then" || line.functionName === "IfFlag";
   const target = isGoto ? firstNumber(line) : undefined;
   const canJump = target !== undefined && labelOwners.has(target);
 
@@ -209,7 +243,11 @@ function ActionRow({ item, labelOwners, onSelect, onJump }: ActionRowProps) {
   return (
     <li className={`flex items-baseline gap-2 px-2 py-0.5 ${rowClass}`}>
       <span className="w-10 shrink-0 text-right text-slate-400">{line.lineNumber}</span>
-      <span className="whitespace-pre-wrap break-all">{line.text}</span>
+      {isSpeaker ? (
+        <SpeakerEditor line={line} onEditLine={onEditLine} />
+      ) : (
+        <span className="whitespace-pre-wrap break-all">{line.text}</span>
+      )}
       {isGoto && (
         <button
           type="button"
@@ -223,4 +261,46 @@ function ActionRow({ item, labelOwners, onSelect, onJump }: ActionRowProps) {
       )}
     </li>
   );
+}
+
+type SpeakerEditorProps = {
+  line: ScriptLine;
+  onEditLine: (lineNumber: number, text: string) => void;
+};
+
+/** Renders `Speaker(...)` with the character as a dropdown; choosing one rewrites the line. */
+function SpeakerEditor({ line, onEditLine }: SpeakerEditorProps) {
+  const current = resolveCharacterName(line.args[0] ?? "");
+  const known = current !== undefined && characterNames.includes(current);
+  const value = current ?? line.args[0] ?? "";
+
+  return (
+    <span className="flex items-baseline">
+      <span>Speaker(</span>
+      <select
+        className="cursor-pointer rounded border border-slate-300 bg-white px-1 font-mono text-sm text-indigo-800 hover:bg-indigo-50"
+        value={value}
+        onChange={(event) => onEditLine(line.lineNumber, `Speaker(${event.target.value})`)}
+        title="Change speaker"
+      >
+        {!known && <option value={value}>{value || "?"}</option>}
+        {characterNames.map((name) => (
+          <option key={name} value={name}>
+            {name}
+          </option>
+        ))}
+      </select>
+      <span>)</span>
+    </span>
+  );
+}
+
+/** The character name for a source argument, which may already be a name or still a number. */
+function resolveCharacterName(arg: string): string | undefined {
+  if (arg in Character && Number.isNaN(Number(arg))) {
+    return arg;
+  }
+  const id = Number(arg);
+  const name = Character[id];
+  return typeof name === "string" ? name : undefined;
 }

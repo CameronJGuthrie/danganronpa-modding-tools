@@ -7,18 +7,18 @@ import {
 import { characterData } from "../data/character-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const evaluateRelationshipMeta: LinscriptInstructionMeta = {
-  name: LinscriptInstructionName.EvaluateRelationship,
-  hexcode: "0x39",
+export const ifFreeTimeEventMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.IfFreeTimeEvent,
+  hexcode: "0x38",
   parameters: [
     {
       name: "characterId",
     },
     {
-      name: "operand", // this is always 4 or 5
+      name: "operand",
     },
     {
-      name: "value", // this is either 0 or 20
+      name: "value",
     },
   ] as const,
   decorations([characterId, operand, value]) {
@@ -32,6 +32,6 @@ export const evaluateRelationshipMeta: LinscriptInstructionMeta = {
     }
     const characterName = characterData[characterId].name;
 
-    return `If ${characterName}'s relationship is ${operandSymbol} ${value}`;
+    return `If ${characterName}'s free time event counter is ${operandSymbol} ${value}`;
   },
 };

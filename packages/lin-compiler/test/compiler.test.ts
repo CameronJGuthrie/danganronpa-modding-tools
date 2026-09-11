@@ -23,7 +23,7 @@ function textlessFile(scriptData: number[]): Uint8Array {
 
 describe("compile and decompile", () => {
   test("fixed-length opcodes round-trip unchanged", () => {
-    const source = "Speaker(Mondo)\nSound(513, 2)\nSetVar16(1, 2, 65535)\nStopScript()\n";
+    const source = "Speaker(Mondo)\nSound(513, 2)\nSetVariable(1, 2, 65535)\nStopScript()\n";
     assert.equal(roundTrip(source), source);
   });
 
@@ -55,9 +55,9 @@ describe("compile and decompile", () => {
     assert.equal(entry.text, 'say "hi"\nnext\\line');
   });
 
-  test("Evaluate chains round-trip through big-endian packing", () => {
-    // Followed by another opcode so the variadic Evaluate does not absorb the alignment padding
-    const source = "Evaluate(258, 1, 772, 5, 1, 6, 2)\nSpeaker(Taka)\n";
+  test("If chains round-trip through big-endian packing", () => {
+    // Followed by another opcode so the variadic If does not absorb the alignment padding
+    const source = "If(258, 1, 772, 5, 1, 6, 2)\nSpeaker(Taka)\n";
     const entry = readSource(source).entries[0];
     assert.deepEqual(entry.args, [1, 2, 1, 3, 4, 5, 0, 1, 6, 0, 2]);
     assert.equal(roundTrip(source), source);
@@ -130,6 +130,14 @@ describe("named arguments", () => {
     assert.equal(roundTrip("Speaker(99)\n"), "Speaker(99)\n");
   });
 
+  test("SetUI names its hide/show argument and leaves other modes numeric", () => {
+    assert.equal(
+      roundTrip("SetUI(1, 0)\nSetUI(1, 1)\nSetUI(18, 3)\n"),
+      "SetUI(1, Hidden)\nSetUI(1, Shown)\nSetUI(18, 3)\n",
+    );
+    assert.deepEqual(readSource("SetUI(1, Shown)\n").entries[0], { opcode: 0x25, args: [1, 1] });
+  });
+
   test("hexOpcodes output keeps every argument numeric", () => {
     assert.equal(writeSourceText(readSource("Speaker(Makoto)\n"), { hexOpcodes: true }), "0x21(0)\n");
   });
@@ -171,8 +179,8 @@ describe("source errors", () => {
   test("wrong argument counts are rejected instead of silently truncated", () => {
     assert.throws(() => readSource("Speaker(1, 2, 3)\n"), /Speaker expects 1 argument\(s\), got 3/);
     assert.throws(() => readSource("Speaker()\n"), /Speaker expects 1 argument\(s\), got 0/);
-    assert.throws(() => readSource("Evaluate(1, 2)\n"), /Evaluate expects 3 \+ 4n arguments/);
-    assert.throws(() => readSource("EvaluateFlag(1, 2)\n"), /EvaluateFlag expects at least 4 arguments/);
+    assert.throws(() => readSource("If(1, 2)\n"), /If expects 3 \+ 4n arguments/);
+    assert.throws(() => readSource("IfFlag(1, 2)\n"), /IfFlag expects at least 4 arguments/);
   });
 
   test("out-of-range and malformed numbers are rejected", () => {
@@ -187,21 +195,21 @@ describe("source errors", () => {
 
 describe("binary edge cases", () => {
   test("a trailing variadic opcode stops at the end of the script data", () => {
-    // EvaluateFlag is the last record, followed only by zero padding
+    // IfFlag is the last record, followed only by zero padding
     const bytes = textlessFile([0x70, 0x21, 1, 0x70, 0x35, 1, 2, 3, 0, 0, 0, 0]);
     const { entries } = readCompiled(bytes);
     assert.equal(entries.length, 2);
     assert.equal(entries[1].opcode, 0x35);
   });
 
-  test("a short EvaluateFlag keeps every byte visible", () => {
+  test("a short IfFlag keeps every byte visible", () => {
     const source = writeSourceText({ entries: [{ opcode: 0x35, args: [7, 8] }] });
-    assert.equal(source, "EvaluateFlag(7, 8)\n");
+    assert.equal(source, "IfFlag(7, 8)\n");
   });
 
   test("a truncated fixed-length entry is shown as raw bytes", () => {
     const source = writeSourceText({ entries: [{ opcode: 0x33, args: [1, 2] }] });
-    assert.equal(source, "SetVar16(1, 2)\n");
+    assert.equal(source, "SetVariable(1, 2)\n");
   });
 
   test("non-zero bytes after the last record are an error", () => {

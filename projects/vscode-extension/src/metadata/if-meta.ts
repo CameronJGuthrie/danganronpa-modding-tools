@@ -9,8 +9,8 @@ import {
 } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const evaluateMeta: LinscriptInstructionMeta = {
-  name: LinscriptInstructionName.Evaluate,
+export const ifMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.If,
   hexcode: "0x36",
   varargs: true,
   parameters: [],

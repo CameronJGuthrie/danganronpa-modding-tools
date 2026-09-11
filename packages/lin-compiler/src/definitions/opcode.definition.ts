@@ -1,4 +1,4 @@
-import { Character } from "linscript-definitions";
+import { Character, UiVisibility } from "linscript-definitions";
 import { type NamedValues, type Parameter, ParameterType } from "./parameter.definition.ts";
 
 /** Every opcode in the compiled script data is introduced by this marker byte. */
@@ -78,8 +78,8 @@ export const opcodes = {
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
   ScreenFade:            { id: 0x22, args: bytes(3) },
   ObjectState:           { id: 0x23, args: bytes(5) },
-  ChangeUI:              { id: 0x25, args: bytes(2) },
-  SetVar8:               { id: 0x26, args: bytes(3) },
+  SetUI:                 { id: 0x25, args: fixed([Byte, named(Byte, UiVisibility)]) },
+  SetFlag:               { id: 0x26, args: bytes(3) },
   CheckCharacter:        { id: 0x27, args: bytes(1), block: true },
   CheckObject:           { id: 0x29, args: bytes(1), block: true },
   Label:                 { id: 0x2a, args: fixed([UInt16BE]) },
@@ -87,17 +87,17 @@ export const opcodes = {
   EndOfJump:             { id: 0x2c, args: bytes(2) },
   CameraFlash:           { id: 0x2e, args: bytes(2) },
   ShowBackground:        { id: 0x30, args: fixed([UInt16BE, Byte]) },
-  SetVar16:              { id: 0x33, args: fixed([Byte, Byte, UInt16BE]) },
+  SetVariable:           { id: 0x33, args: fixed([Byte, Byte, UInt16BE]) },
   Goto:                  { id: 0x34, args: fixed([UInt16BE]) },
   /** Three fixed bytes, a count byte, then flag-check bytes whose structure is not yet understood. */
-  EvaluateFlag:          { id: 0x35, args: { kind: "variadic", min: 4 } },
+  IfFlag:                { id: 0x35, args: { kind: "variadic", min: 4 } },
   /** `value1, operand, value2` followed by any number of `joiner, value1, operand, value2`. */
-  Evaluate:              { id: 0x36, args: { kind: "repeat", head: [UInt16BE, Byte, UInt16BE], tail: [Byte, UInt16BE, Byte, UInt16BE] } },
-  EvaluateFreeTimeEvent: { id: 0x38, args: fixed([UInt16BE, Byte, UInt16BE]) },
-  EvaluateRelationship:  { id: 0x39, args: fixed([UInt16BE, Byte, UInt16BE]) },
+  If:                    { id: 0x36, args: { kind: "repeat", head: [UInt16BE, Byte, UInt16BE], tail: [Byte, UInt16BE, Byte, UInt16BE] } },
+  IfFreeTimeEvent:       { id: 0x38, args: fixed([UInt16BE, Byte, UInt16BE]) },
+  IfRelationship:        { id: 0x39, args: fixed([UInt16BE, Byte, UInt16BE]) },
   WaitInput:             { id: 0x3a, args: none() },
   WaitFrame:             { id: 0x3b, args: none() },
-  IfTrue:                { id: 0x3c, args: none() },
+  Then:                  { id: 0x3c, args: none() },
 } as const satisfies Record<string, OpcodeRow>;
 
 /** A binary opcode's source name. */

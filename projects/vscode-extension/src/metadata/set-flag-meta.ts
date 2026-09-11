@@ -4,8 +4,8 @@ import { flagDataByFlagGroup, RESET_FLAGS } from "../data/flag-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 // A better name for this would be setFlag
-export const setVar8Meta: LinscriptInstructionMeta = {
-  name: LinscriptInstructionName.SetVar8,
+export const setFlagMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.SetFlag,
   hexcode: "0x26",
   parameters: [
     {

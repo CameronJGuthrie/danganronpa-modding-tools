@@ -30,3 +30,12 @@ export enum UserInterface {
   LogicDive = 71,
   SplitScreen = 72,
 }
+
+/**
+ * The second argument of `SetUI`. 0 and 1 are hide/show; a few interfaces accept larger mode
+ * values, which have no name and stay numeric in source.
+ */
+export enum UiVisibility {
+  Hidden = 0,
+  Shown = 1,
+}

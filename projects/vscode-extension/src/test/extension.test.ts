@@ -130,12 +130,12 @@ suite("Extension Test Suite", () => {
 
   test("argument extractor with no arguments", () => {
     // Empty parentheses should return empty array
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("IfTrue()"), []);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("Then()"), []);
 
     // Whitespace-only parentheses should return empty array
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("IfTrue( )"), []);
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("IfTrue(  )"), []);
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("IfTrue(   )"), []);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("Then( )"), []);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("Then(  )"), []);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("Then(   )"), []);
 
     // Hex opcode format with no arguments
     assert.deepStrictEqual(getArgumentsFromFunctionLike("0x3C()"), []);
@@ -143,10 +143,10 @@ suite("Extension Test Suite", () => {
   });
 
   test("argument extractor with single argument", () => {
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetVar8(12)"), [{ stringIndex: 8, value: 12 }]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetFlag(12)"), [{ stringIndex: 8, value: 12 }]);
 
     // With whitespace
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetVar8( 12 )"), [{ stringIndex: 9, value: 12 }]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetFlag( 12 )"), [{ stringIndex: 9, value: 12 }]);
   });
 
   test("argument extractor handles zero values", () => {

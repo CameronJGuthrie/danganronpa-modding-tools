@@ -2,16 +2,16 @@
 
 ### VS Code Extension
 
- - Confirm whether it is correct to show characters names in cases of `EvaluateFlag` (might be object ids)
+ - Confirm whether it is correct to show characters names in cases of `IfFlag` (might be object ids)
  - Investigate `ShowBackground` opcode 
  - Investigate `LoadSprite` opcode
  - Investigate `LoadMap` opcode (see Spiral, it had some more info)
  - Investigate `Sprite` opcode args (see Spiral, it had some more info)
  - Investigate `Background` opcode args
- - Investigate `ChangeUI` when args are 0,x
- - Investigate `ChangeUI` when args are 15,x,x (previously assumed to mean GameMode)
+ - Investigate `SetUI` when args are 0,x
+ - Investigate `SetUI` when args are 15,x,x (previously assumed to mean GameMode)
  - Improve printing for `ScreenFade`
- - Improve printing for `ChangeUI`
+ - Improve printing for `SetUI`
  - Improve printing for `Sprite`
  - Improve printing for TruthBulletFlag (add colors)
 

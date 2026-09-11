@@ -89,11 +89,11 @@ export function registerDecoration() {
         ? createVarargsRegex(functionDetails.hexcode)
         : createCompleteFunctionRegex(functionDetails.hexcode, functionDetails.parameters.length);
 
-      // Debug logging for Evaluate
-      if (functionDetails.name === "Evaluate") {
-        logDebug(`Evaluate regex: /${completeFunctionRegex.source}/`);
+      // Debug logging for If
+      if (functionDetails.name === "If") {
+        logDebug(`If regex: /${completeFunctionRegex.source}/`);
         const matches = documentText.match(completeFunctionRegex);
-        logDebug(`Evaluate matches found: ${matches ? matches.length : 0}`);
+        logDebug(`If matches found: ${matches ? matches.length : 0}`);
         if (matches && matches.length > 0) {
           logDebug(`First match: ${matches[0]}`);
         }

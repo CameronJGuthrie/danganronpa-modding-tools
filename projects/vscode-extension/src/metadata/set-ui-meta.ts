@@ -1,9 +1,9 @@
-import { LinscriptInstructionName, UserInterface } from "linscript-definitions";
+import { LinscriptInstructionName, UiVisibility, UserInterface } from "linscript-definitions";
 import { isUserInterface, userInterfaceConfiguration } from "../data/user-interface-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const changeUiMeta: LinscriptInstructionMeta = {
-  name: LinscriptInstructionName.ChangeUI,
+export const setUiMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.SetUI,
   hexcode: "0x25",
   parameters: [
     {
@@ -11,15 +11,17 @@ export const changeUiMeta: LinscriptInstructionMeta = {
       values: UserInterface,
     },
     {
-      name: "visible",
+      name: "state",
+      names: UiVisibility,
       values: {
-        0: "false",
-        1: "true",
+        [UiVisibility.Hidden]: "Hidden",
+        [UiVisibility.Shown]: "Shown",
       },
+      description: "Hidden or Shown; some interfaces accept larger numeric modes",
     },
   ] as const,
-  decorations([interfaceId, visible]) {
-    const visibility = visible ? "Show" : "Hide";
+  decorations([interfaceId, state]) {
+    const visibility = state === UiVisibility.Hidden ? "Hide" : state === UiVisibility.Shown ? "Show" : `Mode ${state}`;
     if (!isUserInterface(interfaceId)) {
       return [{ contentText: `${visibility} UI: ${interfaceId}` }];
     }

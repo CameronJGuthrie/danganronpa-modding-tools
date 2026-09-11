@@ -10,8 +10,8 @@ import {
 import { flagDataByFlagGroup } from "../data/flag-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const evaluateFlagMeta: LinscriptInstructionMeta = {
-  name: LinscriptInstructionName.EvaluateFlag,
+export const ifFlagMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.IfFlag,
   hexcode: "0x35",
   varargs: true,
   parameters: [],

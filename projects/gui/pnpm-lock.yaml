@@ -11,6 +11,9 @@ importers:
       electron-squirrel-startup:
         specifier: ^1.0.1
         version: 1.0.1(supports-color@8.1.1)
+      linscript-definitions:
+        specifier: link:../../packages/definitions
+        version: link:../../packages/definitions
       pngjs:
         specifier: ^7.0.0
         version: 7.0.0
