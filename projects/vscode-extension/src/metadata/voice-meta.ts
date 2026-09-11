@@ -1,6 +1,11 @@
-import { Character, isChapter, isCharacter, LinscriptInstructionName } from "linscript-definitions";
+import {
+  Character,
+  isChapter,
+  isCharacter,
+  LinscriptInstructionName,
+  voiceLinesByCharacterByChapter,
+} from "linscript-definitions";
 import { characterData } from "../data/character-data";
-import { voiceLinesByCharacterByChapter } from "../data/voice";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const voiceMeta: LinscriptInstructionMeta = {

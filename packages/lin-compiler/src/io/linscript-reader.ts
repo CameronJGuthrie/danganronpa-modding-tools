@@ -2,9 +2,10 @@ import { readFile } from "node:fs/promises";
 import { ParameterType } from "../definitions/parameter.definition.ts";
 import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { SourceError } from "../errors.ts";
-import { parseEntry, parseQuotedString } from "../opcodes/arguments.ts";
-import { AUTO_TEXT, expandAutoText } from "../opcodes/autoText.ts";
+import { parseEntry, parseTextArgument } from "../opcodes/arguments.ts";
 import { getOpcodeByName, parseHexOpcodeName } from "../opcodes/lookup.ts";
+import { expandText, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { expandWait, WAIT } from "../opcodes/wait.ts";
 import { parseArg, splitArgs } from "../parameter.ts";
 
 /** Matches `OpcodeName(args)` or `0xNN(args)`, capturing the name and the raw argument text. */
@@ -37,8 +38,11 @@ export async function readSourceFile(path: string): Promise<Script> {
 }
 
 function parseOpcodeLine(name: string, argsText: string, line: number): ScriptEntry[] {
-  if (name === AUTO_TEXT) {
-    return expandAutoText(parseQuotedString(argsText, line));
+  if (name === TEXT_SUGAR) {
+    return expandText(parseTextArgument(argsText, line));
+  }
+  if (name === WAIT) {
+    return [expandWait(argsText, line)];
   }
   const opcode = getOpcodeByName(name);
   if (opcode !== undefined) {

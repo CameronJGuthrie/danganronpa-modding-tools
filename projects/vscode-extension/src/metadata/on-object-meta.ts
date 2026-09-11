@@ -1,8 +1,8 @@
 import { LinscriptInstructionName } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-export const checkObjectMeta: LinscriptInstructionMeta = {
-  name: LinscriptInstructionName.CheckObject,
+export const onObjectMeta: LinscriptInstructionMeta = {
+  name: LinscriptInstructionName.OnObject,
   hexcode: "0x29",
   parameters: [
     {

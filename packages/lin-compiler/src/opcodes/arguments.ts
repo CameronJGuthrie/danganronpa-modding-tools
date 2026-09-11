@@ -1,6 +1,8 @@
 import type { ArgumentSpec } from "../definitions/opcode.definition.ts";
 import {
+  type NamedValues,
   nameOfValue,
+  namesFor,
   type Parameter,
   ParameterType,
   parameterTypeOf,
@@ -10,6 +12,7 @@ import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { SourceError } from "../errors.ts";
 import { decodeValue, encodeValue, parameterProperties, parseArg, splitArgs } from "../parameter.ts";
 import type { OpcodeInfo } from "./lookup.ts";
+import { formatStyledText, parseStyledText } from "./textStyles.ts";
 
 /**
  * Argument handling for every `ArgumentSpec` kind. `formatArgs` renders an entry's bytes as
@@ -17,7 +20,10 @@ import type { OpcodeInfo } from "./lookup.ts";
  */
 
 export interface FormatArgsOptions {
-  /** Write named parameter values (see `Parameter`) by name rather than number. Defaults to true. */
+  /**
+   * Write named parameter values (see `Parameter`) by name rather than number, and text style
+   * tags in their sugared form rather than raw `<CLT>`. Defaults to true.
+   */
   names?: boolean;
 }
 
@@ -44,7 +50,7 @@ export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry, options: Form
     case "type":
       return formatFixed([ParameterType.UInt16LE], entry.args, names);
     case "text":
-      return formatQuotedString("text" in entry ? entry.text : "");
+      return formatTextArgument("text" in entry ? entry.text : "", names);
     case "variadic":
       return formatRawBytes(entry.args);
     case "repeat": {
@@ -65,7 +71,7 @@ export function parseEntry(opcode: OpcodeInfo, argsText: string, line: number): 
     case "fixed":
       return { opcode: id, args: parseFixed(name, spec.layout, argsText, line) };
     case "text":
-      return { opcode: id, args: [0, 0], text: parseQuotedString(argsText, line) };
+      return { opcode: id, args: [0, 0], text: parseTextArgument(argsText, line) };
     case "type": {
       // The count is computed on compile; source only needs to name a valid type
       const value = argsText.trim().toLowerCase();
@@ -127,36 +133,51 @@ function parseFixed(name: string, layout: readonly Parameter[], argsText: string
 
 /** Decode `args` according to `layout` and join the values for source output. */
 function formatByLayout(layout: readonly Parameter[], args: readonly number[], names: boolean): string {
-  const values: string[] = [];
+  const rendered: string[] = [];
+  const decoded: number[] = [];
   let offset = 0;
-  for (const parameter of layout) {
+  layout.forEach((parameter, index) => {
     const type = parameterTypeOf(parameter);
     const value = decodeValue(type, args, offset);
+    decoded.push(value);
     // Values without a name (e.g. an unresearched speaker id) stay numeric so nothing is hidden
-    const name = names && typeof parameter !== "string" ? nameOfValue(parameter.names, value) : undefined;
-    values.push(name ?? String(value));
+    const table = names ? namesFor(parameter, index, decoded) : undefined;
+    const name = table === undefined ? undefined : nameOfValue(table, value);
+    rendered.push(name ?? String(value));
     offset += parameterProperties[type].size;
-  }
-  return values.join(", ");
+  });
+  return rendered.join(", ");
 }
 
 /** Encode one source value per entry of `layout`. Callers check the counts match first. */
 function parseByLayout(layout: readonly Parameter[], values: readonly string[], line: number): number[] {
-  return layout.flatMap((parameter, i) => parseParameter(parameter, values[i], line));
+  const bytes: number[] = [];
+  const decoded: number[] = [];
+  layout.forEach((parameter, index) => {
+    const type = parameterTypeOf(parameter);
+    const encoded = parseParameter(type, namesFor(parameter, index, decoded), values[index], line);
+    decoded.push(decodeValue(type, encoded, 0));
+    bytes.push(...encoded);
+  });
+  return bytes;
 }
 
 const IDENTIFIER = /^[A-Za-z_]\w*$/;
 
-/** Parse one source value: a name when the parameter has names, otherwise (or additionally) a number. */
-function parseParameter(parameter: Parameter, text: string, line: number): number[] {
-  const type = parameterTypeOf(parameter);
+/**
+ * Parse one source value. A named parameter accepts any entry of its name table (identifiers such
+ * as `Makoto`, or symbols such as `<=`) as well as the plain number.
+ */
+function parseParameter(type: ParameterType, names: NamedValues | undefined, text: string, line: number): number[] {
   const trimmed = text.trim();
-  if (typeof parameter !== "string" && IDENTIFIER.test(trimmed)) {
-    const value = valueOfName(parameter.names, trimmed);
-    if (value === undefined) {
+  if (names !== undefined) {
+    const value = valueOfName(names, trimmed);
+    if (value !== undefined) {
+      return encodeValue(type, value);
+    }
+    if (IDENTIFIER.test(trimmed)) {
       throw new SourceError(line, `unknown name '${trimmed}' for ${type} argument`);
     }
-    return encodeValue(type, value);
   }
   return parseArg(type, text, line);
 }
@@ -168,6 +189,16 @@ export function formatRawBytes(args: readonly number[]): string {
 // ---------------------------------------------------------------------------
 // quoted strings
 // ---------------------------------------------------------------------------
+
+/** Render game text as a quoted source string, with style tags sugared unless `names` is false. */
+export function formatTextArgument(text: string, names = true): string {
+  return formatQuotedString(names ? formatStyledText(text) : text);
+}
+
+/** Parse a quoted source string into game text, compiling style tag sugar back to `<CLT>`. */
+export function parseTextArgument(argsText: string, line: number): string {
+  return parseStyledText(parseQuotedString(argsText, line), line);
+}
 
 const BOM = "\uFEFF";
 const NUL = "\0";

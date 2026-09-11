@@ -1,5 +1,6 @@
 // Shared linscript enums and lookup tables. Consumed by the VS Code extension and free for other packages to use.
 export * from "./arithmetic.ts";
+export * from "./bool.ts";
 export * from "./chapter.ts";
 export * from "./character.ts";
 export * from "./compare.ts";
@@ -13,3 +14,7 @@ export * from "./text-style.ts";
 export * from "./truth-bullet.ts";
 export * from "./user-interface.ts";
 export * from "./variable.ts";
+export * from "./data/movie-data.ts";
+export * from "./data/music-data.ts";
+export * from "./data/sound-data.ts";
+export * from "./data/voice/index.ts";

@@ -29,3 +29,13 @@ export const comparisonOperatorSymbols: Readonly<Record<LogicalCompare, string>>
   [LogicalCompare.LessThan]: "<",
   [LogicalCompare.GreaterThan]: ">",
 };
+
+/**
+ * Comparison operators as a name table for `.linscript`: symbol -> value and value -> symbol, the
+ * same shape as a numeric enum object. `=` is accepted as an alias for `==` on compile.
+ */
+export const comparisonOperators: Readonly<Record<string, string | number>> = Object.freeze({
+  ...Object.fromEntries(Object.entries(comparisonOperatorSymbols).map(([value, symbol]) => [symbol, Number(value)])),
+  ...Object.fromEntries(Object.entries(comparisonOperatorSymbols).map(([value, symbol]) => [Number(value), symbol])),
+  "=": LogicalCompare.Equal,
+});

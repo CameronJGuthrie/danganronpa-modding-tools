@@ -1,6 +1,6 @@
 import * as path from "node:path";
+import { transitionSounds } from "linscript-definitions";
 import type * as vscode from "vscode";
-import { transitionSounds } from "../../../data/sound-data";
 import { soundBMeta } from "../../../metadata/sound-b-meta";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";

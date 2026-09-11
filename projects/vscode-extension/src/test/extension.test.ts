@@ -1,10 +1,12 @@
 import * as assert from "node:assert";
-import { Character, LinscriptInstructionName } from "linscript-definitions";
+import { Character, comparisonOperators } from "linscript-definitions";
 // Import the metadata record from metadata/index.ts to avoid drift
 import { metadata } from "../metadata";
 import {
   createCompleteFunctionRegex,
+  createVarargsRegex,
   getArgumentsFromFunctionLike,
+  getColorTextMatch,
   getColorTextRegex,
   getTextFunctionRegex,
   isInsideQuotes,
@@ -97,23 +99,21 @@ suite("Extension Test Suite", () => {
     assert.equal(getRegex().exec(`Text(""A B C"")`), `Text(""A B C"")`);
   });
 
-  test("color text regex", () => {
-    // Given
-    const getRegex = () => getColorTextRegex();
+  test("color text regex matches role wrappers, flat switches and raw CLT tags", () => {
+    const run = (text: string) => {
+      const match = getColorTextRegex().exec(text);
+      return match === null ? undefined : getColorTextMatch(match);
+    };
 
-    // When/ Then
-    assert.match(`<CLT 0><CLT>`, getRegex());
-    assert.match(`<CLT 2>AAA<CLT>`, getRegex());
-    assert.match(`<CLT 3><CLT>`, getRegex());
-    assert.match(`<CLT 3><CLT>`, getRegex());
-    assert.doesNotMatch(`CLT`, getRegex());
-    assert.doesNotMatch(`<CLT>`, getRegex());
-    assert.doesNotMatch(`<CLT><CLT>`, getRegex());
-
-    const result = getRegex().exec(`<CLT 0>ABC<CLT>`) as RegExpExecArray;
-    assert.equal(result[0], "<CLT 0>ABC<CLT>");
-    assert.equal(result[1], "0");
-    assert.equal(result[2], "ABC");
+    assert.deepStrictEqual(run('Text("<thought>Huh?</thought>")'), { styleId: 4, text: "Huh?", openTagLength: 9 });
+    assert.deepStrictEqual(run('Text("<cyan>Huh?</cyan>")'), { styleId: 4, text: "Huh?", openTagLength: 6 });
+    assert.deepStrictEqual(run('Text("<style 26>Stab!<style 0>")'), { styleId: 26, text: "Stab!", openTagLength: 10 });
+    assert.deepStrictEqual(run('Text("<CLT 3>key<CLT>")'), { styleId: 3, text: "key", openTagLength: 7 });
+    // An unclosed wrapper runs to the end of the string
+    assert.deepStrictEqual(run('Text("<thought>open")'), { styleId: 4, text: "open", openTagLength: 9 });
+    // Not a style tag
+    assert.strictEqual(run('Text("<(*-*<) ^(*-*)^ (>*-*)>")'), undefined);
+    assert.doesNotMatch("CLT", getColorTextRegex());
   });
 
   test("argument extractor", () => {
@@ -173,6 +173,38 @@ suite("Extension Test Suite", () => {
     assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Speaker(Makoto)")[0].value));
   });
 
+  test("comparison symbols match the call regexes and resolve through name tables", () => {
+    assert.match("If(0, <=, 5)", createVarargsRegex("If"));
+    assert.match("If(0, ==, 5, Or, 8, !=, 9)", createVarargsRegex("If"));
+    assert.match("IfRelationship(3, <, 20)", createCompleteFunctionRegex("IfRelationship", 3));
+    assert.deepStrictEqual(
+      getArgumentsFromFunctionLike("IfRelationship(3, <, 20)", [undefined, comparisonOperators, undefined]).map(
+        (a) => a.value,
+      ),
+      [3, 4, 20],
+    );
+    assert.deepStrictEqual(
+      metadata.If.decorations?.([0, 1, 5, 7, 8, 2, 9] as never, ""),
+      "If Time == 5 Or ScriptEntryContext <= 9",
+    );
+  });
+
+  test("dependent name tables resolve a character offset after a character flag group", () => {
+    const setFlagNames = metadata.SetFlag.parameters.map((p) => p.namesBy ?? p.names);
+    assert.deepStrictEqual(
+      getArgumentsFromFunctionLike("SetFlag(CharacterDead, Celeste, True)", setFlagNames).map((a) => a.value),
+      [16, 12, 1],
+    );
+    // Not a character group, so the same word does not resolve
+    assert.ok(
+      Number.isNaN(getArgumentsFromFunctionLike("SetFlag(ObjectInvestigated, Celeste, 1)", setFlagNames)[1].value),
+    );
+    assert.deepStrictEqual(
+      getArgumentsFromFunctionLike("SetFlag(ObjectInvestigated, 5, 1)", setFlagNames).map((a) => a.value),
+      [13, 5, 1],
+    );
+  });
+
   test("the Speaker decoration resolves a character name", () => {
     const args = getArgumentsFromFunctionLike(
       "Speaker(Makoto)",
@@ -195,8 +227,8 @@ suite("Extension Test Suite", () => {
         assert.fail(`Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`);
       }
 
-      // AutoText is source-only sugar that compiles to Text, so it legitimately shares Text's opcode.
-      if (meta.name === LinscriptInstructionName.AutoText) {
+      // Sugar such as Text and Wait compiles to another opcode, so it legitimately shares that hexcode.
+      if (meta.sugar) {
         continue;
       }
 

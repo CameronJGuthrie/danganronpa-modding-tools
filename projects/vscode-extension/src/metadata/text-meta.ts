@@ -2,12 +2,14 @@ import { LinscriptInstructionName } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 /**
- * Displays a line of dialogue. The argument is a quoted string rather than numbers, so the
- * numeric-argument decorations never match it; it is listed so that every opcode has metadata.
+ * Dialogue text. Source-only sugar: the compiler expands it into RawText plus the surrounding
+ * TextStyle / WaitFrame / WaitInput calls, so it shares RawText's hexcode.
  */
 export const textMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Text,
   hexcode: "0x02",
-  description: "Displays a line of text. Takes a quoted string in source; the compiler assigns the text id.",
+  sugar: true,
+  description:
+    "Displays a line of text and waits for input; expands to RawText with TextStyle, WaitFrame and WaitInput.",
   parameters: [] as const,
 };

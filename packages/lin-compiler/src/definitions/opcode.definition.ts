@@ -1,4 +1,12 @@
-import { Character, UiVisibility } from "linscript-definitions";
+import {
+  Bool,
+  Character,
+  comparisonOperators,
+  FlagGroup,
+  LogicalJoin,
+  UiVisibility,
+  UserInterface,
+} from "linscript-definitions";
 import { type NamedValues, type Parameter, ParameterType } from "./parameter.definition.ts";
 
 /** Every opcode in the compiled script data is introduced by this marker byte. */
@@ -46,12 +54,31 @@ function none(): ArgumentSpec {
   return { kind: "fixed", layout: [] };
 }
 
+/** A flag group byte, written by name (`CharacterInvestigated`); unknown groups stay numeric. */
+const flagGroup = named(Byte, FlagGroup);
+/**
+ * A flag offset byte. Its meaning depends on the flag group just before it: for the character
+ * groups it is a character id and is written by name; other groups keep the number.
+ */
+const flagOffset: Parameter = {
+  type: Byte,
+  dependsOn: -1,
+  namesBy: { [FlagGroup.CharacterInvestigated]: Character, [FlagGroup.CharacterDead]: Character },
+};
+/** A 0/1 byte, written as `False` / `True`. */
+const bool = named(Byte, Bool);
+/** A comparison operator byte, written as `==`, `!=`, `<`, `<=`, `>` or `>=`. */
+const compare = named(Byte, comparisonOperators);
+/** A condition joiner byte, written as `And` or `Or`. */
+const join = named(Byte, LogicalJoin);
+
 // biome-ignore format: keep the table columns aligned
 /** Every known binary opcode, keyed by source name. Add a row here to teach the compiler a new one. */
 export const opcodes = {
   Type:                  { id: 0x00, args: { kind: "type" } },
   LoadSprite:            { id: 0x01, args: bytes(3) },
-  Text:                  { id: 0x02, args: { kind: "text" } },
+  /** The binary text opcode. In source, `Text(...)` is sugar (see `textSugar.ts`); `RawText` is the escape hatch. */
+  RawText:               { id: 0x02, args: { kind: "text" } },
   TextStyle:             { id: 0x03, args: bytes(1) },
   PostProcessingEffect:  { id: 0x04, args: bytes(4) },
   Movie:                 { id: 0x05, args: bytes(2) },
@@ -78,10 +105,10 @@ export const opcodes = {
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
   ScreenFade:            { id: 0x22, args: bytes(3) },
   ObjectState:           { id: 0x23, args: bytes(5) },
-  SetUI:                 { id: 0x25, args: fixed([Byte, named(Byte, UiVisibility)]) },
-  SetFlag:               { id: 0x26, args: bytes(3) },
-  CheckCharacter:        { id: 0x27, args: bytes(1), block: true },
-  CheckObject:           { id: 0x29, args: bytes(1), block: true },
+  SetUI:                 { id: 0x25, args: fixed([named(Byte, UserInterface), named(Byte, UiVisibility)]) },
+  SetFlag:               { id: 0x26, args: fixed([flagGroup, flagOffset, bool]) },
+  OnCharacter:           { id: 0x27, args: bytes(1), block: true },
+  OnObject:              { id: 0x29, args: bytes(1), block: true },
   Label:                 { id: 0x2a, args: fixed([UInt16BE]) },
   SetOption:             { id: 0x2b, args: bytes(1), block: true },
   EndOfJump:             { id: 0x2c, args: bytes(2) },
@@ -89,12 +116,12 @@ export const opcodes = {
   ShowBackground:        { id: 0x30, args: fixed([UInt16BE, Byte]) },
   SetVariable:           { id: 0x33, args: fixed([Byte, Byte, UInt16BE]) },
   Goto:                  { id: 0x34, args: fixed([UInt16BE]) },
-  /** Three fixed bytes, a count byte, then flag-check bytes whose structure is not yet understood. */
-  IfFlag:                { id: 0x35, args: { kind: "variadic", min: 4 } },
+  /** `group, offset, operand, value` followed by any number of `joiner, group, offset, operand, value`. */
+  IfFlag:                { id: 0x35, args: { kind: "repeat", head: [flagGroup, flagOffset, compare, bool], tail: [join, flagGroup, flagOffset, compare, bool] } },
   /** `value1, operand, value2` followed by any number of `joiner, value1, operand, value2`. */
-  If:                    { id: 0x36, args: { kind: "repeat", head: [UInt16BE, Byte, UInt16BE], tail: [Byte, UInt16BE, Byte, UInt16BE] } },
-  IfFreeTimeEvent:       { id: 0x38, args: fixed([UInt16BE, Byte, UInt16BE]) },
-  IfRelationship:        { id: 0x39, args: fixed([UInt16BE, Byte, UInt16BE]) },
+  If:                    { id: 0x36, args: { kind: "repeat", head: [UInt16BE, compare, UInt16BE], tail: [join, UInt16BE, compare, UInt16BE] } },
+  IfFreeTimeEvent:       { id: 0x38, args: fixed([UInt16BE, compare, UInt16BE]) },
+  IfRelationship:        { id: 0x39, args: fixed([UInt16BE, compare, UInt16BE]) },
   WaitInput:             { id: 0x3a, args: none() },
   WaitFrame:             { id: 0x3b, args: none() },
   Then:                  { id: 0x3c, args: none() },
@@ -103,7 +130,7 @@ export const opcodes = {
 /** A binary opcode's source name. */
 export type OpcodeName = keyof typeof opcodes;
 
-/** Binary opcode ids by source name, e.g. `Opcode.Text`. */
+/** Binary opcode ids by source name, e.g. `Opcode.RawText`. */
 export const Opcode = Object.fromEntries(Object.entries(opcodes).map(([name, row]) => [name, row.id])) as {
   readonly [K in OpcodeName]: (typeof opcodes)[K]["id"];
 };

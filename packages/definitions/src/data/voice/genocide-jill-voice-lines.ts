@@ -1,5 +1,5 @@
-import { Chapter } from "linscript-definitions";
-import type { ChapterVoiceLines } from ".";
+import { Chapter } from "../../chapter.ts";
+import type { ChapterVoiceLines } from "./index.ts";
 
 export const genocideJillVoiceLines: ChapterVoiceLines = {
   [Chapter.Chapter_1]: undefined,

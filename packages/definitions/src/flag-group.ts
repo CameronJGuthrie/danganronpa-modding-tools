@@ -23,5 +23,5 @@ export const flagGroups: Readonly<Record<FlagGroup, string>> = {
   [FlagGroup.ObjectInvestigated]: "ObjectInvestigated",
   [FlagGroup.MapInvestigated]: "MapInvestigated",
   [FlagGroup.CharacterInvestigated]: "CharacterInvestigated",
-  [FlagGroup.CharacterDead]: "CharacterDeath",
+  [FlagGroup.CharacterDead]: "CharacterDead",
 };

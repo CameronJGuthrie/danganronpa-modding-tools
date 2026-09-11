@@ -1,5 +1,6 @@
 import {
   comparisonOperatorSymbols,
+  comparisonOperators,
   isCharacter,
   isLogicalCompare,
   LinscriptInstructionName,
@@ -16,6 +17,7 @@ export const ifFreeTimeEventMeta: LinscriptInstructionMeta = {
     },
     {
       name: "operand",
+      names: comparisonOperators,
     },
     {
       name: "value",

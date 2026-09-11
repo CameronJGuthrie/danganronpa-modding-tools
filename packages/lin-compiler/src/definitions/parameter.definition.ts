@@ -20,10 +20,40 @@ export type NamedValues = Readonly<Record<string, string | number>>;
  * Named slots are written by name in `.linscript` when the value is known, and accept either the
  * name or the number on compile.
  */
-export type Parameter = ParameterType | { readonly type: ParameterType; readonly names: NamedValues };
+export type Parameter =
+  | ParameterType
+  | { readonly type: ParameterType; readonly names: NamedValues }
+  | DependentParameter;
+
+/**
+ * A slot whose name table depends on the value of an earlier slot in the same layout, e.g. the
+ * flag offset of `SetFlag` is a character id only when the flag group is a character group.
+ * `dependsOn` is relative (-1 is the previous slot) so it also works inside repeated layouts.
+ */
+export type DependentParameter = {
+  readonly type: ParameterType;
+  readonly dependsOn: number;
+  readonly namesBy: Readonly<Record<number, NamedValues>>;
+};
 
 export function parameterTypeOf(parameter: Parameter): ParameterType {
   return typeof parameter === "string" ? parameter : parameter.type;
+}
+
+/** The name table that applies to `parameter` at `index`, given the values decoded so far. */
+export function namesFor(
+  parameter: Parameter,
+  index: number,
+  values: readonly (number | undefined)[],
+): NamedValues | undefined {
+  if (typeof parameter === "string") {
+    return undefined;
+  }
+  if ("names" in parameter) {
+    return parameter.names;
+  }
+  const controlling = values[index + parameter.dependsOn];
+  return controlling === undefined ? undefined : parameter.namesBy[controlling];
 }
 
 /** The name for `value` in `names`, if it has one. */

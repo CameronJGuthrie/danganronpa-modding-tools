@@ -5,9 +5,11 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const setUiMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.SetUI,
   hexcode: "0x25",
+  selfDescribing: true,
   parameters: [
     {
       name: "interfaceId",
+      names: UserInterface,
       values: UserInterface,
     },
     {

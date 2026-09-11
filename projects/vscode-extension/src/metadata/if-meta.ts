@@ -1,10 +1,12 @@
 import {
   comparisonOperatorSymbols,
+  comparisonOperators,
   isLogicalCompare,
   isLogicalJoin,
   isVariable,
   joins,
   LinscriptInstructionName,
+  LogicalJoin,
   variables,
 } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -13,6 +15,10 @@ export const ifMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.If,
   hexcode: "0x36",
   varargs: true,
+  varargNames: {
+    head: [undefined, comparisonOperators, undefined],
+    tail: [LogicalJoin, undefined, comparisonOperators, undefined],
+  },
   parameters: [],
   decorations: (args) => {
     // Format: 3 args (first expression) + n * 4 args (additional expressions)

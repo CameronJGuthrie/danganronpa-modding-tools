@@ -3,8 +3,8 @@
  *
  * The tree is derived from three conventions in the decompiled output:
  *  - `Label(n)` at the top level starts a new straight-line block.
- *  - `CheckCharacter(n)` / `CheckObject(n)` register interaction handlers; each handler's body is
- *    the indented lines that follow it, and the group is closed by `CheckObject(255)`.
+ *  - `OnCharacter(n)` / `OnObject(n)` register interaction handlers; each handler's body is
+ *    the indented lines that follow it, and the group is closed by `OnObject(255)`.
  *  - `SetOption(n)` registers a menu option; the body is the indented lines that follow it, and the
  *    menu is closed by `SetOption(255)`.
  *
@@ -140,7 +140,7 @@ export function previewText(line: ScriptLine, maxLength = 48): string | undefine
   }
   const text = arg
     .slice(1, -1)
-    .replace(/<CLT[^>]*>/g, "")
+    .replace(/<\/?[A-Za-z][A-Za-z0-9]*>|<style \d+>|<CLT[^>]*>/g, "")
     .replace(/\\n/g, " ")
     .replace(/\\"/g, '"')
     .replace(/\s+/g, " ")
@@ -219,7 +219,7 @@ class FlowBuilder {
     return root;
   }
 
-  /** Parses `CheckCharacter(...)` / `CheckObject(...)` registrations until `CheckObject(255)`. */
+  /** Parses `OnCharacter(...)` / `OnObject(...)` registrations until `OnObject(255)`. */
   private parseHandlerGroup(lines: ScriptLine[], start: number, depth: number): [FlowNode, number] {
     const group = this.createNode("handlerGroup", "Interaction handlers", lines[start].lineNumber);
     let i = start;
@@ -232,7 +232,7 @@ class FlowBuilder {
       if (target === TERMINATOR) {
         this.addLine(group, line);
         i += 1;
-        if (line.functionName === "CheckObject") {
+        if (line.functionName === "OnObject") {
           break;
         }
         continue;
@@ -305,7 +305,7 @@ class FlowBuilder {
 }
 
 function isHandlerRegistration(line: ScriptLine): boolean {
-  return line.functionName === "CheckObject" || line.functionName === "CheckCharacter";
+  return line.functionName === "OnObject" || line.functionName === "OnCharacter";
 }
 
 function finishBlock(block: FlowNode) {
@@ -339,7 +339,7 @@ function describeHandler(handler: FlowNode): string | undefined {
 
 function firstTextPreview(node: FlowNode): string | undefined {
   for (const item of node.items) {
-    if (item.kind === "line" && (item.line.functionName === "AutoText" || item.line.functionName === "Text")) {
+    if (item.kind === "line" && (item.line.functionName === "Text" || item.line.functionName === "RawText")) {
       const preview = previewText(item.line);
       if (preview) {
         return preview;

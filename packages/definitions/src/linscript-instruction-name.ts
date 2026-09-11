@@ -1,9 +1,6 @@
 export enum LinscriptInstructionName {
   Animation = "Animation",
-  AutoText = "AutoText", // Text opcode compilation can produce AutoText which combines some additional functionality
   CameraFlash = "CameraFlash",
-  CheckCharacter = "CheckCharacter",
-  CheckObject = "CheckObject",
   EndOfJump = "EndOfJump",
   Goto = "Goto",
   If = "If",
@@ -17,8 +14,11 @@ export enum LinscriptInstructionName {
   Movie = "Movie",
   Music = "Music",
   ObjectState = "ObjectState",
+  OnCharacter = "OnCharacter",
+  OnObject = "OnObject",
   PostProcessingEffect = "PostProcessingEffect",
   Present = "Present",
+  RawText = "RawText", // The binary text opcode; Text is sugar that adds WaitFrame/TextStyle/WaitInput
   RestartScript = "RestartScript",
   RunScript = "RunScript",
   ScreenFade = "ScreenFade",
@@ -44,6 +44,7 @@ export enum LinscriptInstructionName {
   TruthBulletFlag = "TruthBulletFlag",
   UnlockSkill = "UnlockSkill",
   Voice = "Voice",
+  Wait = "Wait", // Sugar for SetVariable(Wait, Assign, frames)
   WaitFrame = "WaitFrame",
   WaitInput = "WaitInput",
 }

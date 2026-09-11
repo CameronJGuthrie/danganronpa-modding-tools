@@ -1,5 +1,6 @@
 import {
   comparisonOperatorSymbols,
+  comparisonOperators,
   isCharacter,
   isLogicalCompare,
   LinscriptInstructionName,
@@ -16,6 +17,7 @@ export const ifRelationshipMeta: LinscriptInstructionMeta = {
     },
     {
       name: "operand", // this is always 4 or 5
+      names: comparisonOperators,
     },
     {
       name: "value", // this is either 0 or 20

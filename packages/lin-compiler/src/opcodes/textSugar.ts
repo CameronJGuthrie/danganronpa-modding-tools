@@ -2,17 +2,18 @@ import { Opcode } from "../definitions/opcode.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 
 /**
- * AutoText is source-only sugar for the common dialogue shape
- * `[TextStyle] Text WaitFrame* TextStyle* WaitInput`:
+ * `Text(...)` in source is sugar for the common dialogue shape
+ * `[TextStyle] RawText WaitFrame* TextStyle* WaitInput`:
  *
  * - each `\n` in the text expands to a `WaitFrame`
  * - `<CLT N>` and `<CLT>` colour tags expand to `TextStyle(N)` / `TextStyle(0)`, with the
- *   first style also emitted before the Text itself
+ *   first style also emitted before the RawText itself
  * - a `WaitInput` closes the group
  *
- * This file owns both directions: `expandAutoText` expands the sugar when compiling and
- * `planAutoText` recognises collapsible groups when decompiling. AutoText is not a binary opcode;
- * the linscript reader and writer handle the name themselves.
+ * This file owns both directions: `expandText` expands the sugar when compiling and
+ * `planTextSugar` recognises collapsible groups when decompiling. The sugar is not a binary
+ * opcode; the linscript reader and writer handle the name themselves. A text entry that the sugar
+ * cannot express (no closing WaitInput, or other opcodes before it) is written as `RawText(...)`.
  */
 
 /** Matches `<CLT N>` opening tags, `<CLT>` closing tags, and literal newlines. */
@@ -20,9 +21,9 @@ const CLT_OR_NEWLINE = /<CLT\s+(\d+)>|<CLT>|\n/g;
 const HAS_CLT = /<CLT\s+\d+>|<CLT>/;
 
 /** Source name of the sugar. */
-export const AUTO_TEXT = "AutoText";
+export const TEXT_SUGAR = "Text";
 
-export function expandAutoText(text: string): ScriptEntry[] {
+export function expandText(text: string): ScriptEntry[] {
   const entries: ScriptEntry[] = [];
   const tokens = [...text.matchAll(CLT_OR_NEWLINE)];
   const first = tokens[0];
@@ -32,7 +33,7 @@ export function expandAutoText(text: string): ScriptEntry[] {
     // and colour 0 otherwise. It is emitted before the Text so the colour applies from the start.
     entries.push(textStyle(first[1] === undefined ? 0 : Number(first[1])));
   }
-  entries.push({ opcode: Opcode.Text, args: [0, 0], text });
+  entries.push({ opcode: Opcode.RawText, args: [0, 0], text });
 
   for (const token of tokens) {
     if (token[0] === "\n") {
@@ -53,23 +54,23 @@ function textStyle(style: number): ScriptEntry {
   return { opcode: Opcode.TextStyle, args: [style & 0xff] };
 }
 
-interface AutoTextPlan {
-  /** Indices of Text entries to write as `AutoText(...)`. */
-  autoText: Set<number>;
-  /** Indices of entries absorbed into an AutoText and therefore not written. */
+interface TextSugarPlan {
+  /** Indices of RawText entries to write as `Text(...)`. */
+  sugared: Set<number>;
+  /** Indices of entries absorbed into a sugared Text and therefore not written. */
   skipped: Set<number>;
 }
 
 /**
- * Find Text entries that can be collapsed into AutoText: a Text followed only by WaitFrame
+ * Find text entries that can be collapsed into the sugar: a RawText followed only by WaitFrame
  * (and TextStyle, when the text carries CLT tags) and terminated by WaitInput.
  */
-export function planAutoText(entries: readonly ScriptEntry[]): AutoTextPlan {
-  const plan: AutoTextPlan = { autoText: new Set(), skipped: new Set() };
+export function planTextSugar(entries: readonly ScriptEntry[]): TextSugarPlan {
+  const plan: TextSugarPlan = { sugared: new Set(), skipped: new Set() };
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-    if (entry.opcode !== Opcode.Text || !("text" in entry)) {
+    if (entry.opcode !== Opcode.RawText || !("text" in entry)) {
       continue;
     }
     const hasCLT = HAS_CLT.test(entry.text);
@@ -79,7 +80,7 @@ export function planAutoText(entries: readonly ScriptEntry[]): AutoTextPlan {
       continue;
     }
 
-    plan.autoText.add(i);
+    plan.sugared.add(i);
     // A preceding TextStyle belongs to the CLT tags and is regenerated on compile
     if (hasCLT && i > 0 && entries[i - 1].opcode === Opcode.TextStyle) {
       plan.skipped.add(i - 1);
@@ -92,7 +93,7 @@ export function planAutoText(entries: readonly ScriptEntry[]): AutoTextPlan {
   return plan;
 }
 
-/** Index of the WaitInput closing a Text, if only sugar opcodes lie between `from` and it. */
+/** Index of the WaitInput closing a RawText, if only sugar opcodes lie between `from` and it. */
 function findClosingWaitInput(
   entries: readonly ScriptEntry[],
   from: number,

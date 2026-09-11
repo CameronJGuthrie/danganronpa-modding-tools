@@ -1,6 +1,6 @@
 import * as path from "node:path";
+import { sounds } from "linscript-definitions";
 import type * as vscode from "vscode";
-import { sounds } from "../../../data/sound-data";
 import { soundMeta } from "../../../metadata/sound-meta";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";

@@ -1,5 +1,4 @@
-import { LinscriptInstructionName } from "linscript-definitions";
-import { movies } from "../data/movie-data";
+import { LinscriptInstructionName, movies } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const movieMeta: LinscriptInstructionMeta = {

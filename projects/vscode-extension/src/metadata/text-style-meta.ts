@@ -1,10 +1,10 @@
-import { isTextStyle, LinscriptInstructionName } from "linscript-definitions";
+import { isTextStyle, LinscriptInstructionName, TextStyle } from "linscript-definitions";
 import { textStyleColor } from "../data/text-style-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 /**
  * This is no longer required when using Text(""), as the compiler will insert them correctly automatically
- * E.g. when you use Text("<CLT 1>Pink Text<CLT>")
+ * E.g. when you use Text("<choice>Pink Text</choice>")
  * You may still insert extra TextStyle(n) calls if you want.
  */
 export const textStyleMeta: LinscriptInstructionMeta = {
@@ -15,23 +15,20 @@ export const textStyleMeta: LinscriptInstructionMeta = {
       name: "styleId",
       description: `
         Sets the text style/color for subsequent text display.
-        Works in conjunction with <CLT N> tags embedded in text strings.
+        Works in conjunction with the <thought>...</thought> style tags embedded in text strings.
         StyleId 0 resets to default, other values apply different colors/fonts/sizes.
         `,
+      names: TextStyle,
       values: {
-        0: {
-          name: "Default/Reset",
-          description: "Reset to default text style",
-        },
-        1: { name: "Pink", description: "Pink text color" },
-        3: { name: "Yellow", description: "Yellow text color" },
-        4: { name: "Cyan", description: "Cyan text color" },
-        10: { name: "Light Green", description: "Light green text color" },
-        11: { name: "Orange", description: "Orange/coral text color" },
-        23: {
-          name: "Green (SFX)",
-          description: "Green text for sound effects",
-        },
+        [TextStyle.Default]: { name: "Default", description: "Reset to default (white) text" },
+        [TextStyle.Choice]: { name: "Choice", description: "Pink; selectable answer words in brackets" },
+        [TextStyle.Keyword]: { name: "Keyword", description: "Yellow; items, places and interface terms" },
+        [TextStyle.Thought]: { name: "Thought", description: "Cyan; Makoto's inner monologue" },
+        [TextStyle.Evidence]: { name: "Evidence", description: "Class trial weak point (unverified)" },
+        [TextStyle.PaleGreen]: { name: "Pale green" },
+        [TextStyle.Red]: { name: "Red" },
+        [TextStyle.System]: { name: "System", description: "Green; tutorial, narrator and sound effects" },
+        [TextStyle.Shout]: { name: "Shout", description: "Class trial outbursts (unverified)" },
       },
     },
   ] as const,

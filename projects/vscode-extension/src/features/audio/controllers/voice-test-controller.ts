@@ -1,8 +1,7 @@
 import * as path from "node:path";
-import { type Character, isChapter, isCharacter } from "linscript-definitions";
+import { type Character, isChapter, isCharacter, voiceLinesByCharacterByChapter } from "linscript-definitions";
 import type * as vscode from "vscode";
 import { characterData } from "../../../data/character-data";
-import { voiceLinesByCharacterByChapter } from "../../../data/voice";
 import { voiceMeta } from "../../../metadata/voice-meta";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";

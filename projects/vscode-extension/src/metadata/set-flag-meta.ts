@@ -1,22 +1,35 @@
-import { FlagGroup, flagGroups, isCharacter, isFlagGroup, LinscriptInstructionName } from "linscript-definitions";
+import {
+  Bool,
+  Character,
+  FlagGroup,
+  flagGroups,
+  isCharacter,
+  isFlagGroup,
+  LinscriptInstructionName,
+} from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import { flagDataByFlagGroup, RESET_FLAGS } from "../data/flag-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-// A better name for this would be setFlag
 export const setFlagMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.SetFlag,
   hexcode: "0x26",
   parameters: [
     {
       name: "flagGroup",
+      names: FlagGroup,
     },
     {
       name: "offset",
+      namesBy: {
+        argument: -1,
+        tables: { [FlagGroup.CharacterInvestigated]: Character, [FlagGroup.CharacterDead]: Character },
+      },
     },
     {
       name: "value",
-      description: "0 or 1",
+      names: Bool,
+      description: "True or False",
     },
   ] as const,
   decorations([group, offset, value]) {

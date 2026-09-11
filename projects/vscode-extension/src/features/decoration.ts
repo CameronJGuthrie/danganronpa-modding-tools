@@ -7,6 +7,7 @@ import {
   createCompleteFunctionRegex,
   createVarargsRegex,
   getArgumentsFromFunctionLike,
+  getColorTextMatch,
   getColorTextRegex,
   getTextFunctionRegex,
   isInsideQuotes,
@@ -143,20 +144,21 @@ export function registerDecoration() {
 
       const colorRegex = getColorTextRegex();
 
-      const colorMatch = colorRegex.exec(matchContent);
-      if (colorMatch?.[1] && colorMatch[2]) {
-        const colorId = Number(colorMatch[1]);
-        const coloredText = colorMatch[2];
+      for (const colorMatch of matchContent.matchAll(colorRegex)) {
+        const styled = getColorTextMatch(colorMatch);
+        if (styled === undefined || styled.text.length === 0) {
+          continue;
+        }
+        const textStart = match.index + colorMatch.index + styled.openTagLength;
+        const startPos = document.positionAt(textStart);
+        const endPos = document.positionAt(textStart + styled.text.length);
 
-        const startPos = document.positionAt(match.index + colorMatch.index + "<CLT n>".length);
-        const endPos = document.positionAt(match.index + colorMatch.index + "<CLT n>".length + coloredText.length);
-
-        if (highlightDecorationsMap[colorId]) {
-          highlightDecorationsMap[colorId].push({
+        if (highlightDecorationsMap[styled.styleId]) {
+          highlightDecorationsMap[styled.styleId].push({
             range: new vscode.Range(startPos, endPos),
           });
         } else {
-          logWarning(`Unknown color ID: ${colorId}`);
+          logWarning(`Unknown text style: ${styled.styleId}`);
         }
       }
     }
@@ -201,6 +203,19 @@ export function registerDecoration() {
   if (vscode.window.activeTextEditor) {
     updateDecorations(vscode.window.activeTextEditor);
   }
+}
+
+/** Name tables per argument position, expanding a varargs head/tail pattern to the actual count. */
+function argumentNames(functionDetails: LinscriptInstructionMeta, call: string) {
+  const { varargNames } = functionDetails;
+  if (!functionDetails.varargs || !varargNames) {
+    return functionDetails.parameters.map((parameter) => parameter.namesBy ?? parameter.names);
+  }
+  const count = getArgumentsFromFunctionLike(call).length;
+  const { head, tail } = varargNames;
+  return Array.from({ length: count }, (_, i) =>
+    i < head.length ? head[i] : tail.length === 0 ? undefined : tail[(i - head.length) % tail.length],
+  );
 }
 
 function addParameterDecoration(
@@ -252,10 +267,7 @@ function enrichParameters(
       continue;
     }
 
-    const args = getArgumentsFromFunctionLike(
-      match[0],
-      functionDetails.parameters.map((parameter) => parameter.names),
-    );
+    const args = getArgumentsFromFunctionLike(match[0], argumentNames(functionDetails, match[0]));
     const argValues = args.map((arg) => arg.value);
 
     if (!functionDetails.varargs && args.length !== functionDetails.parameters.length) {
@@ -271,8 +283,9 @@ function enrichParameters(
 
     let totalDecorationWidth = 0;
 
-    // Only add parameter decorations for non-varargs functions when enabled
-    if (!functionDetails.varargs && showParameterDecorations) {
+    // Only add parameter decorations for non-varargs functions when enabled, and not for
+    // instructions whose named arguments already describe themselves
+    if (!functionDetails.varargs && !functionDetails.selfDescribing && showParameterDecorations) {
       args.forEach(({ stringIndex }, argIndex) => {
         const param = functionDetails.parameters[argIndex];
         const rangePos = document.positionAt(matchIndex + stringIndex);

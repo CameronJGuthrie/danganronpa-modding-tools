@@ -1,5 +1,4 @@
-import { LinscriptInstructionName } from "linscript-definitions";
-import { musics } from "../data/music-data";
+import { LinscriptInstructionName, musics } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const musicMeta: LinscriptInstructionMeta = {

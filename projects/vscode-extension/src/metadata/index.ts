@@ -2,10 +2,7 @@ import { LinscriptInstructionName } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 import { animationMeta } from "./animation-meta";
-import { autoTextMeta } from "./auto-text-meta";
 import { cameraFlashMeta } from "./camera-flash-meta";
-import { checkCharacterMeta } from "./check-character-opcode-meta";
-import { checkObjectMeta } from "./check-object-opcode-meta";
 import { endOfJumpMeta } from "./end-of-jump-meta";
 import { gotoMeta } from "./goto-meta";
 import { ifFlagMeta } from "./if-flag-meta";
@@ -19,8 +16,11 @@ import { loadSpriteMeta } from "./load-sprite-meta";
 import { movieMeta } from "./movie-meta";
 import { musicMeta } from "./music-meta";
 import { objectStateMeta } from "./object-state-meta";
+import { onCharacterMeta } from "./on-character-meta";
+import { onObjectMeta } from "./on-object-meta";
 import { postProcessingEffectMeta } from "./post-processing-effect-meta";
 import { presentMeta } from "./present-meta";
+import { rawTextMeta } from "./raw-text-meta";
 import { restartScriptMeta } from "./restart-script-meta";
 import { runScriptMeta } from "./run-script-meta";
 import { screenFadeMeta } from "./screen-fade-meta";
@@ -48,14 +48,12 @@ import { unlockSkillMeta } from "./unlock-still-meta";
 import { voiceMeta } from "./voice-meta";
 import { waitFrameMeta } from "./wait-frame-meta";
 import { waitInputMeta } from "./wait-input-meta";
+import { waitMeta } from "./wait-meta";
 
 /** Opcode metadata keyed by opcode name, so lookups are type-checked against the enum. */
 export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<LinscriptInstructionMeta>>> = {
   [LinscriptInstructionName.Animation]: animationMeta,
-  [LinscriptInstructionName.AutoText]: autoTextMeta,
   [LinscriptInstructionName.CameraFlash]: cameraFlashMeta,
-  [LinscriptInstructionName.CheckCharacter]: checkCharacterMeta,
-  [LinscriptInstructionName.CheckObject]: checkObjectMeta,
   [LinscriptInstructionName.EndOfJump]: endOfJumpMeta,
   [LinscriptInstructionName.Goto]: gotoMeta,
   [LinscriptInstructionName.If]: ifMeta,
@@ -69,8 +67,11 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.Movie]: movieMeta,
   [LinscriptInstructionName.Music]: musicMeta,
   [LinscriptInstructionName.ObjectState]: objectStateMeta,
+  [LinscriptInstructionName.OnCharacter]: onCharacterMeta,
+  [LinscriptInstructionName.OnObject]: onObjectMeta,
   [LinscriptInstructionName.PostProcessingEffect]: postProcessingEffectMeta,
   [LinscriptInstructionName.Present]: presentMeta,
+  [LinscriptInstructionName.RawText]: rawTextMeta,
   [LinscriptInstructionName.RestartScript]: restartScriptMeta,
   [LinscriptInstructionName.RunScript]: runScriptMeta,
   [LinscriptInstructionName.ScreenFade]: screenFadeMeta,
@@ -96,6 +97,7 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.TruthBulletFlag]: truthBulletFlagMeta,
   [LinscriptInstructionName.UnlockSkill]: unlockSkillMeta,
   [LinscriptInstructionName.Voice]: voiceMeta,
+  [LinscriptInstructionName.Wait]: waitMeta,
   [LinscriptInstructionName.WaitFrame]: waitFrameMeta,
   [LinscriptInstructionName.WaitInput]: waitInputMeta,
 };

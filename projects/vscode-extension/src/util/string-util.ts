@@ -1,11 +1,24 @@
+import { textStyleForTag } from "linscript-definitions";
+
 /**
- * One source argument: a decimal number, or a bare identifier such as a character name
- * (`Speaker(Makoto)`). Names are resolved to numbers by `getArgumentsFromFunctionLike`.
+ * One source argument: a decimal number, a bare identifier such as a character name
+ * (`Speaker(Makoto)`), or a comparison operator (`If(0, <=, 5)`). Names are resolved to numbers by
+ * `getArgumentsFromFunctionLike`.
  */
-const ARGUMENT = "(?:\\d+|[A-Za-z_]\\w*)";
+const ARGUMENT = "(?:\\d+|[A-Za-z_]\\w*|[<>!=]=?)";
 
 /** A numeric enum object (or similar table) mapping argument names to their values. */
 export type ArgumentNames = Readonly<Record<string, string | number>>;
+
+/** A name table selected by the resolved value of a nearby argument (`argument` is a relative index). */
+export type DependentNames = { argument: number; tables: Readonly<Record<number, ArgumentNames>> };
+
+/** How to resolve one argument position: a fixed table, a dependent table, or nothing. */
+export type ArgumentNameSource = ArgumentNames | DependentNames | undefined;
+
+function isDependent(source: ArgumentNameSource): source is DependentNames {
+  return source !== undefined && "tables" in source;
+}
 
 export function createIncompleteFunctionRegex(functionName: string, numArgs: number): RegExp {
   // Create the regex pattern for valid arguments with optional whitespace
@@ -50,10 +63,29 @@ export function getTextFunctionRegex(): RegExp {
   return regexPattern;
 }
 
+/**
+ * Matches one styled run inside a Text/RawText string in any of the source forms:
+ * `<thought>...</thought>` (group 1 = tag name), `<style 4>...<style 0>` (group 3 = id) or raw
+ * `<CLT 4>...<CLT>` (group 5 = id). The styled text is group 2, 4 or 6 respectively. A wrapper
+ * left open at the end of the string is matched up to the closing quote.
+ */
 export function getColorTextRegex(): RegExp {
-  const regexPattern = /<CLT (\d+)>(.*?)<CLT>/g;
+  return /<([A-Za-z][A-Za-z0-9]*)>(.*?)(?:<\/\1>|(?="\)))|<style (\d+)>(.*?)(?:<style 0>|(?="\)))|<CLT (\d+)>(.*?)(?:<CLT>|(?="\)))/g;
+}
 
-  return new RegExp(regexPattern);
+/** The style id and styled text of a `getColorTextRegex` match, or undefined for a non-style tag. */
+export function getColorTextMatch(
+  match: RegExpExecArray,
+): { styleId: number; text: string; openTagLength: number } | undefined {
+  const [whole, tag, tagText, styleArg, styleText, cltArg, cltText] = match;
+  if (tag !== undefined) {
+    const styleId = textStyleForTag(tag);
+    return styleId === undefined ? undefined : { styleId, text: tagText, openTagLength: tag.length + 2 };
+  }
+  if (styleArg !== undefined) {
+    return { styleId: Number(styleArg), text: styleText, openTagLength: whole.indexOf(">") + 1 };
+  }
+  return { styleId: Number(cltArg), text: cltText, openTagLength: whole.indexOf(">") + 1 };
 }
 
 /**
@@ -63,7 +95,7 @@ export function getColorTextRegex(): RegExp {
  * argument is resolved through `names[argIndex]` when given; a name with no table (or one that is
  * not in the table) yields `NaN`.
  */
-export function getArgumentsFromFunctionLike(functionLike: string, names: readonly (ArgumentNames | undefined)[] = []) {
+export function getArgumentsFromFunctionLike(functionLike: string, names: readonly ArgumentNameSource[] = []) {
   const regex = /(\w+)\(([^)]*)\)/; // Match function calls
   const match = regex.exec(functionLike);
 
@@ -81,7 +113,9 @@ export function getArgumentsFromFunctionLike(functionLike: string, names: readon
     params.forEach((param, argIndex) => {
       const startIndex = functionLike.indexOf(param, currentIndex);
 
-      results.push({ stringIndex: startIndex, value: resolveArgument(param, names[argIndex]) });
+      const source = names[argIndex];
+      const table = isDependent(source) ? source.tables[results[argIndex + source.argument]?.value] : source;
+      results.push({ stringIndex: startIndex, value: resolveArgument(param, table) });
 
       currentIndex = startIndex + param.length;
     });
@@ -93,11 +127,11 @@ export function getArgumentsFromFunctionLike(functionLike: string, names: readon
 }
 
 function resolveArgument(text: string, names: ArgumentNames | undefined): number {
-  if (/^\d+$/.test(text)) {
-    return Number(text);
-  }
   const value = names && Object.hasOwn(names, text) ? names[text] : undefined;
-  return typeof value === "number" ? value : Number.NaN;
+  if (typeof value === "number") {
+    return value;
+  }
+  return /^\d+$/.test(text) ? Number(text) : Number.NaN;
 }
 
 export function countOccurances(needle: string, haystack: string) {

@@ -2,8 +2,9 @@ import { writeFile } from "node:fs/promises";
 import { Opcode } from "../definitions/opcode.definition.ts";
 import type { Script } from "../definitions/script.definition.ts";
 import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
-import { AUTO_TEXT, planAutoText } from "../opcodes/autoText.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
+import { planTextSugar, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 
 export interface WriteSourceOptions {
   /** Spaces per indentation level. */
@@ -24,7 +25,7 @@ const BLOCK_CLOSE = 255;
 export function writeSourceText(script: Script, options: WriteSourceOptions = {}): string {
   const indent = " ".repeat(options.indentSpaces ?? DEFAULT_INDENT_SPACES);
   const { entries } = script;
-  const { autoText, skipped } = planAutoText(entries);
+  const { sugared, skipped } = planTextSugar(entries);
 
   const lines: string[] = [];
   // Each block opcode indents independently; nesting depth is the number currently open
@@ -48,8 +49,11 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     if (opcode === undefined) {
       name = hexOpcodeName(entry.opcode);
       args = formatRawBytes(entry.args);
+    } else if (!options.hexOpcodes && isWait(entry)) {
+      name = WAIT;
+      args = formatWait(entry);
     } else {
-      name = autoText.has(index) ? AUTO_TEXT : options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
+      name = sugared.has(index) ? TEXT_SUGAR : options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
       args = formatArgs(opcode.args, entry, { names: !options.hexOpcodes });
     }
     lines.push(`${indent.repeat(openBlocks.size)}${name}(${args})`);

@@ -11,7 +11,7 @@ import { encodeValue } from "../parameter.ts";
  */
 export function writeCompiledBytes(script: Script): Buffer {
   const texts = script.entries
-    .filter((entry) => entry.opcode === Opcode.Text)
+    .filter((entry) => entry.opcode === Opcode.RawText)
     .map((entry) => ("text" in entry ? entry.text : ""));
   const type = texts.length > 0 ? ScriptType.Text : ScriptType.Textless;
   const file = new ByteWriter();
@@ -29,7 +29,7 @@ export function writeCompiledBytes(script: Script): Buffer {
     if (entry.opcode === Opcode.Type) {
       continue;
     }
-    const args = entry.opcode === Opcode.Text ? encodeValue(ParameterType.UInt16BE, nextTextId++) : entry.args;
+    const args = entry.opcode === Opcode.RawText ? encodeValue(ParameterType.UInt16BE, nextTextId++) : entry.args;
     writeRecord(file, entry.opcode, args);
   }
   file.padTo4();

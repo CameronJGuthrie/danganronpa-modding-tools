@@ -94,7 +94,7 @@ function attachTextEntries(entries: ScriptEntry[], bytes: Uint8Array, textBlockP
   const buffer = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
   entries.forEach((entry, index) => {
-    if (entry.opcode !== Opcode.Text) {
+    if (entry.opcode !== Opcode.RawText) {
       return;
     }
     const textId = (entry.args[0] << 8) | entry.args[1];

@@ -4,15 +4,15 @@ import { TabLayout } from "./base/TabLayout";
 import { CharacterPreview } from "./CharacterPreview";
 import { ScriptBrowser } from "./ScriptBrowser";
 
-type ExplorerTab = "Character" | "ScriptBrowser";
+type ExplorerTab = "ScriptBrowser" | "Character";
 
 const tabs: Record<ExplorerTab, string> = {
-  Character: "Character",
   ScriptBrowser: "Script Browser",
+  Character: "Character",
 };
 
 export function Layout() {
-  const [activeTab, setActiveTab] = useState<ExplorerTab>("Character");
+  const [activeTab, setActiveTab] = useState<ExplorerTab>("ScriptBrowser");
   const [assetDirectory, setAssetDirectory] = useState<string | null>(null);
 
   const handleChooseAssetDirectory = useCallback(() => {
@@ -36,8 +36,8 @@ export function Layout() {
           </Button>
         }
       >
-        {activeTab === "Character" && <CharacterPreview />}
         {activeTab === "ScriptBrowser" && <ScriptBrowser />}
+        {activeTab === "Character" && <CharacterPreview />}
       </TabLayout>
     </main>
   );

@@ -1,24 +1,25 @@
-import { type Chapter, Character } from "linscript-definitions";
+import { type Chapter } from "../../chapter.ts";
+import { Character } from "../../character.ts";
 
-import { byakuyaVoiceLines } from "./byakuya-voice-lines";
-import { celesteVoiceLines } from "./celeste-voice-lines";
-import { chihiroVoiceLines } from "./chihiro-voice-lines";
-import { genocideJillVoiceLines } from "./genocide-jill-voice-lines";
-import { hifumiVoiceLines } from "./hifumi-voice-lines";
-import { hinaVoiceLines } from "./hina-voice-lines";
-import { hiroVoiceLines } from "./hiro-voice-lines";
-import { junkoVoiceLines } from "./junko-voice-lines";
-import { kyokoVoiceLines } from "./kyoko-voice-lines";
-import { leonVoiceLines } from "./leon-voice-lines";
-import { makotoVoiceLines } from "./makoto-voice-lines";
-import { mondoVoiceLines } from "./mondo-voice-lines";
-import { monokumaVoiceLines } from "./monokuma-voice-lines";
-import { mukuroVoiceLines } from "./mukuro-voice-lines";
-import { sakuraVoiceLines } from "./sakura-voice-lines";
-import { sayakaVoiceLines } from "./sayaka-voice-lines";
-import { takaVoiceLines } from "./taka-voice-lines";
-import { tokoVoiceLines } from "./toko-voice-lines";
-import { usamiVoiceLines } from "./usami-voice-lines";
+import { byakuyaVoiceLines } from "./byakuya-voice-lines.ts";
+import { celesteVoiceLines } from "./celeste-voice-lines.ts";
+import { chihiroVoiceLines } from "./chihiro-voice-lines.ts";
+import { genocideJillVoiceLines } from "./genocide-jill-voice-lines.ts";
+import { hifumiVoiceLines } from "./hifumi-voice-lines.ts";
+import { hinaVoiceLines } from "./hina-voice-lines.ts";
+import { hiroVoiceLines } from "./hiro-voice-lines.ts";
+import { junkoVoiceLines } from "./junko-voice-lines.ts";
+import { kyokoVoiceLines } from "./kyoko-voice-lines.ts";
+import { leonVoiceLines } from "./leon-voice-lines.ts";
+import { makotoVoiceLines } from "./makoto-voice-lines.ts";
+import { mondoVoiceLines } from "./mondo-voice-lines.ts";
+import { monokumaVoiceLines } from "./monokuma-voice-lines.ts";
+import { mukuroVoiceLines } from "./mukuro-voice-lines.ts";
+import { sakuraVoiceLines } from "./sakura-voice-lines.ts";
+import { sayakaVoiceLines } from "./sayaka-voice-lines.ts";
+import { takaVoiceLines } from "./taka-voice-lines.ts";
+import { tokoVoiceLines } from "./toko-voice-lines.ts";
+import { usamiVoiceLines } from "./usami-voice-lines.ts";
 
 export const voiceLinesByCharacterByChapter: CharacterVoiceLinesByChapter = {
   [Character.Makoto]: makotoVoiceLines,

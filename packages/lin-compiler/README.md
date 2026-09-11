@@ -67,21 +67,21 @@ throws `SourceError` (with a 1-based `line`); malformed binaries throw `BinaryEr
 | `src/io/lin-reader.ts` | Parsing of compiled `.lin` bytes |
 | `src/io/lin-writer.ts` | `.lin` serialisation |
 | `src/io/linscript-reader.ts` | Parsing of `.linscript` source |
-| `src/io/linscript-writer.ts` | `.linscript` emission (indentation, AutoText collapsing) |
+| `src/io/linscript-writer.ts` | `.linscript` emission (indentation, Text sugar collapsing) |
 | `src/definitions/parameter.definition.ts` | `ParamType` argument encodings (`Byte`, `UInt16LE`, `UInt16BE`) |
 | `src/parameter.ts` | Encoding, decoding and decimal parsing of arguments |
 | `src/errors.ts` | `SourceError` and `BinaryError` |
 | `src/definitions/opcode.definition.ts` | The opcode table: id, argument spec and block flag per opcode |
 | `src/opcodes/arguments.ts` | Formatting and parsing of arguments for every argument spec kind |
 | `src/opcodes/lookup.ts` | Opcode lookup by id or name, `0xNN` naming |
-| `src/opcodes/autoText.ts` | AutoText sugar: expansion on compile, collapsing on decompile |
+| `src/opcodes/textSugar.ts` | `Text(...)` sugar: expansion on compile, collapsing on decompile; `RawText` is the escape hatch |
 | `test/` | `node:test` suites |
 
 To teach the compiler a new opcode, add a row to `opcodes` in
 `src/definitions/opcode.definition.ts`. Each row names an `ArgumentSpec` kind (`fixed`, `repeat`,
 `variadic`, `text`, `type`); a new kind means a new union member there and a new case in each switch
-in `src/opcodes/arguments.ts`, which TypeScript enforces. AutoText is source-only sugar rather than
-an opcode; `src/opcodes/autoText.ts` handles both expansion and collapsing.
+in `src/opcodes/arguments.ts`, which TypeScript enforces. `Text(...)` is source-only sugar rather than
+an opcode; `src/opcodes/textSugar.ts` handles both expansion and collapsing.
 
 Unknown opcodes decompile to `0xNN(bytes...)` and compile back from that form verbatim.
 
