@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useTheme } from "../hooks/useTheme";
 import { Button } from "./base/Button";
 import { TabLayout } from "./base/TabLayout";
 import { CharacterPreview } from "./CharacterPreview";
@@ -14,6 +15,7 @@ const tabs: Record<ExplorerTab, string> = {
 export function Layout() {
   const [activeTab, setActiveTab] = useState<ExplorerTab>("ScriptBrowser");
   const [assetDirectory, setAssetDirectory] = useState<string | null>(null);
+  const [theme, toggleTheme] = useTheme();
 
   const handleChooseAssetDirectory = useCallback(() => {
     window.electron.openDirectoryDialog().then((result) => {
@@ -31,9 +33,14 @@ export function Layout() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         actions={
-          <Button color="green" onClick={handleChooseAssetDirectory}>
-            {assetDirectory ? `Assets: ${assetDirectory}` : "Choose Asset Directory"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button color="green" onClick={handleChooseAssetDirectory}>
+              {assetDirectory ? `Assets: ${assetDirectory}` : "Choose Asset Directory"}
+            </Button>
+            <Button onClick={toggleTheme} title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+              {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+            </Button>
+          </div>
         }
       >
         {activeTab === "ScriptBrowser" && <ScriptBrowser />}

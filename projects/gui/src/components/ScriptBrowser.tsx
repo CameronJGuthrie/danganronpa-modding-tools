@@ -23,12 +23,12 @@ import { lineComment } from "../script/lineComment";
 const SCRIPT_NAME = "e00_002_000";
 
 const kindStyles: Record<FlowNodeKind, { badge: string; label: string }> = {
-  script: { badge: "bg-slate-700 text-white", label: "Script" },
-  block: { badge: "bg-slate-300 text-slate-900", label: "Block" },
-  handlerGroup: { badge: "bg-amber-200 text-amber-900", label: "Handlers" },
-  handler: { badge: "bg-amber-100 text-amber-900", label: "Handler" },
-  menu: { badge: "bg-violet-200 text-violet-900", label: "Menu" },
-  option: { badge: "bg-violet-100 text-violet-900", label: "Option" },
+  script: { badge: "bg-slate-700 dark:bg-slate-200 text-white dark:text-slate-900", label: "Script" },
+  block: { badge: "bg-slate-300 dark:bg-slate-600 text-slate-900 dark:text-slate-100", label: "Block" },
+  handlerGroup: { badge: "bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100", label: "Handlers" },
+  handler: { badge: "bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-100", label: "Handler" },
+  menu: { badge: "bg-violet-200 dark:bg-violet-800 text-violet-900 dark:text-violet-100", label: "Menu" },
+  option: { badge: "bg-violet-100 dark:bg-violet-900 text-violet-900 dark:text-violet-100", label: "Option" },
 };
 
 /** A numeric enum object whose member names may stand in for an argument. */
@@ -146,8 +146,8 @@ export function ScriptBrowser() {
   }, []);
 
   return (
-    <div className="flex gap-4 bg-slate-100 p-4 h-[calc(100vh-9rem)] min-h-0">
-      <aside className="w-96 shrink-0 overflow-auto rounded bg-white p-2 shadow-sm">
+    <div className="flex gap-4 bg-slate-100 dark:bg-slate-900 p-4 h-[calc(100vh-9rem)] min-h-0">
+      <aside className="w-96 shrink-0 overflow-auto rounded bg-white dark:bg-slate-800 p-2 shadow-sm">
         <FlowTree
           node={flow.root}
           depth={0}
@@ -157,7 +157,7 @@ export function ScriptBrowser() {
           onToggle={toggleCollapsed}
         />
       </aside>
-      <section className="flex-1 min-w-0 overflow-auto rounded bg-white p-4 shadow-sm">
+      <section className="flex-1 min-w-0 overflow-auto rounded bg-white dark:bg-slate-800 p-4 shadow-sm">
         <NodeDetails
           node={selected}
           labelOwners={flow.labelOwners}
@@ -188,12 +188,12 @@ function FlowTree({ node, depth, selectedId, collapsed, onSelect, onToggle }: Fl
   return (
     <div>
       <div
-        className={`flex items-center gap-1 rounded pr-2 ${isSelected ? "bg-blue-200" : "hover:bg-slate-100"}`}
+        className={`flex items-center gap-1 rounded pr-2 ${isSelected ? "bg-blue-200 dark:bg-blue-900" : "hover:bg-slate-100 dark:hover:bg-slate-700"}`}
         style={{ paddingLeft: `${depth * 0.75}rem` }}
       >
         <button
           type="button"
-          className="w-5 shrink-0 text-slate-500"
+          className="w-5 shrink-0 text-slate-500 dark:text-slate-400"
           onClick={() => onToggle(node.id)}
           disabled={!hasChildren}
           aria-label={isCollapsed ? "Expand" : "Collapse"}
@@ -209,7 +209,9 @@ function FlowTree({ node, depth, selectedId, collapsed, onSelect, onToggle }: Fl
             {style.label}
           </span>
           <span className="shrink-0 font-mono text-sm">{node.title}</span>
-          {node.subtitle && <span className="truncate text-xs text-slate-500">{node.subtitle}</span>}
+          {node.subtitle && (
+            <span className="truncate text-xs text-slate-500 dark:text-slate-400">{node.subtitle}</span>
+          )}
         </button>
       </div>
       {hasChildren && !isCollapsed && (
@@ -250,14 +252,14 @@ function NodeDetails({ node, labelOwners, onSelect, onJump, onEditLine }: NodeDe
           <span className={`rounded px-1.5 py-0.5 text-xs font-semibold uppercase ${style.badge}`}>{style.label}</span>
           <h2 className="font-mono text-lg">{node.title}</h2>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Lines {node.startLine}–{node.endLine} · {lineCount} action{lineCount === 1 ? "" : "s"}
           {node.children.length > 0 && ` · ${node.children.length} nested`}
         </p>
       </header>
 
       {node.items.length === 0 ? (
-        <p className="text-sm text-slate-500">No actions.</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">No actions.</p>
       ) : (
         <ol className="flex flex-col font-mono text-sm">
           {node.items.map((item) => (
@@ -293,8 +295,8 @@ function ActionRow({ item, labelOwners, onSelect, onJump, onEditLine }: ActionRo
     const child = item.node;
     const style = kindStyles[child.kind];
     return (
-      <li className="flex items-baseline gap-2 border-l-4 border-slate-300 bg-slate-50 px-2 py-1">
-        <span className="w-10 shrink-0 text-right text-slate-400">{child.startLine}</span>
+      <li className="flex items-baseline gap-2 border-l-4 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/60 px-2 py-1">
+        <span className="w-10 shrink-0 text-right text-slate-400 dark:text-slate-500">{child.startLine}</span>
         <button
           type="button"
           className="flex items-baseline gap-2 text-left hover:underline"
@@ -302,7 +304,7 @@ function ActionRow({ item, labelOwners, onSelect, onJump, onEditLine }: ActionRo
         >
           <span className={`rounded px-1 text-[10px] font-semibold uppercase ${style.badge}`}>{style.label}</span>
           <span>{child.title}</span>
-          {child.subtitle && <span className="text-xs text-slate-500">{child.subtitle}</span>}
+          {child.subtitle && <span className="text-xs text-slate-500 dark:text-slate-400">{child.subtitle}</span>}
         </button>
       </li>
     );
@@ -317,28 +319,30 @@ function ActionRow({ item, labelOwners, onSelect, onJump, onEditLine }: ActionRo
   const target = isGoto ? firstNumber(line) : undefined;
   const canJump = target !== undefined && labelOwners.has(target);
 
-  let rowClass = "hover:bg-slate-50";
+  let rowClass = "hover:bg-slate-50 dark:hover:bg-slate-700";
   if (isLabel) {
-    rowClass = "bg-emerald-50 text-emerald-900";
+    rowClass = "bg-emerald-50 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200";
   } else if (isGoto) {
-    rowClass = "bg-sky-50 text-sky-900";
+    rowClass = "bg-sky-50 dark:bg-sky-950 text-sky-900 dark:text-sky-200";
   } else if (isBranch) {
-    rowClass = "bg-orange-50 text-orange-900";
+    rowClass = "bg-orange-50 dark:bg-orange-950 text-orange-900 dark:text-orange-200";
   }
 
   return (
     <li className={`flex items-baseline gap-2 px-2 py-0.5 ${rowClass}`}>
-      <span className="w-10 shrink-0 text-right text-slate-400">{line.lineNumber}</span>
+      <span className="w-10 shrink-0 text-right text-slate-400 dark:text-slate-500">{line.lineNumber}</span>
       {editable ? (
         <ArgumentEditor line={line} spec={editable} onEditLine={onEditLine} />
       ) : (
         <span className="whitespace-pre-wrap break-all">{line.text}</span>
       )}
-      {comment !== undefined && <span className="shrink-0 pl-2 text-slate-400 italic"># {comment}</span>}
+      {comment !== undefined && (
+        <span className="shrink-0 pl-2 text-slate-400 dark:text-slate-500 italic"># {comment}</span>
+      )}
       {isGoto && (
         <button
           type="button"
-          className="ml-auto shrink-0 rounded bg-sky-200 px-1.5 text-xs disabled:opacity-40"
+          className="ml-auto shrink-0 rounded bg-sky-200 dark:bg-sky-800 px-1.5 text-xs disabled:opacity-40"
           disabled={!canJump}
           onClick={() => target !== undefined && onJump(target)}
           title={canJump ? `Go to Label(${target})` : "Label not found in this script"}
@@ -412,7 +416,7 @@ function NamedArgumentSelect({ value, values, onChange }: NamedArgumentSelectPro
 
   return (
     <select
-      className="cursor-pointer rounded border border-slate-300 bg-white px-1 font-mono text-sm text-indigo-800 hover:bg-indigo-50"
+      className="cursor-pointer rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-1 font-mono text-sm text-indigo-800 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950"
       value={current}
       onChange={(event) => event.target.value !== "" && onChange(event.target.value)}
       title="Change value"

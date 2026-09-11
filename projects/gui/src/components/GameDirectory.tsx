@@ -16,9 +16,11 @@ const GameDirectory: React.FC = () => {
     <div className="flex gap-3">
       <div>
         <span className="text-sm">Game Directory</span>
-        <div className="p-1 px-3 bg-slate-100 border-slate-300 border-2">{gameDirectory ?? "None"}</div>
+        <div className="p-1 px-3 bg-slate-100 border-slate-300 border-2 dark:bg-slate-800 dark:border-slate-600">
+          {gameDirectory ?? "None"}
+        </div>
       </div>
-      <button type="button" className="p-1 px-3 bg-slate-300" onClick={handleSelectDirectory}>
+      <button type="button" className="p-1 px-3 bg-slate-300 dark:bg-slate-600" onClick={handleSelectDirectory}>
         Browse
       </button>
     </div>
