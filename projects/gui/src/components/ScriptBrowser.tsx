@@ -119,6 +119,8 @@ export function ScriptBrowser() {
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   // "View All" shows every line of the script, indented, instead of one node's actions
   const [viewAll, setViewAll] = useState(false);
+  // Read-only disables every dropdown so the script cannot be edited by accident
+  const [readOnly, setReadOnly] = useState(false);
   const allLines = useMemo(() => (viewAll ? parseScriptLines(source) : []), [viewAll, source]);
 
   const selected = flow.nodesById.get(selectedId) ?? flow.root;
@@ -169,26 +171,59 @@ export function ScriptBrowser() {
           onViewAll={() => setViewAll(true)}
         />
       </aside>
-      <section className="flex-1 min-w-0 overflow-auto rounded bg-white dark:bg-slate-800 p-4 shadow-sm">
-        {viewAll ? (
-          <AllLines
-            title={flow.root.title}
-            lines={allLines}
-            labelOwners={flow.labelOwners}
-            onSelect={selectNode}
-            onJump={jumpToLabel}
-            onEditLine={editLine}
-          />
-        ) : (
-          <NodeDetails
-            node={selected}
-            labelOwners={flow.labelOwners}
-            onSelect={selectNode}
-            onJump={jumpToLabel}
-            onEditLine={editLine}
-          />
-        )}
+      <section className="relative flex-1 min-w-0 rounded bg-white dark:bg-slate-800 shadow-sm">
+        <ActionPanel readOnly={readOnly} onToggleReadOnly={() => setReadOnly((previous) => !previous)} />
+        <div className="h-full overflow-auto p-4">
+          {viewAll ? (
+            <AllLines
+              title={flow.root.title}
+              lines={allLines}
+              labelOwners={flow.labelOwners}
+              readOnly={readOnly}
+              onSelect={selectNode}
+              onJump={jumpToLabel}
+              onEditLine={editLine}
+            />
+          ) : (
+            <NodeDetails
+              node={selected}
+              labelOwners={flow.labelOwners}
+              readOnly={readOnly}
+              onSelect={selectNode}
+              onJump={jumpToLabel}
+              onEditLine={editLine}
+            />
+          )}
+        </div>
       </section>
+    </div>
+  );
+}
+
+type ActionPanelProps = {
+  readOnly: boolean;
+  onToggleReadOnly: () => void;
+};
+
+/** Floating controls pinned to the top-right corner of the script pane, above the scrolling content. */
+function ActionPanel({ readOnly, onToggleReadOnly }: ActionPanelProps) {
+  return (
+    <div className="absolute top-2 right-6 z-10 flex gap-1 rounded-md border border-slate-200 dark:border-slate-600 bg-white/90 dark:bg-slate-700/90 p-1 shadow backdrop-blur">
+      <button
+        type="button"
+        className={`rounded px-2 py-0.5 text-xs font-semibold ${
+          readOnly
+            ? "bg-amber-300 text-amber-950 dark:bg-amber-500 dark:text-amber-950"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-600 dark:text-slate-100 dark:hover:bg-slate-500"
+        }`}
+        onClick={onToggleReadOnly}
+        aria-pressed={readOnly}
+        title={
+          readOnly ? "Editing is disabled; click to allow edits" : "Disable all dropdowns so nothing can be edited"
+        }
+      >
+        {readOnly ? "🔒 readonly" : "readonly"}
+      </button>
     </div>
   );
 }
@@ -273,13 +308,14 @@ type AllLinesProps = {
   title: string;
   lines: readonly ScriptLine[];
   labelOwners: Map<number, string>;
+  readOnly: boolean;
   onSelect: (id: string) => void;
   onJump: (label: number) => void;
   onEditLine: (lineNumber: number, text: string) => void;
 };
 
 /** Every line of the script in source order, indented by its block depth. */
-function AllLines({ title, lines, labelOwners, onSelect, onJump, onEditLine }: AllLinesProps) {
+function AllLines({ title, lines, labelOwners, readOnly, onSelect, onJump, onEditLine }: AllLinesProps) {
   return (
     <div className="flex flex-col gap-3">
       <header className="flex flex-col gap-1">
@@ -299,6 +335,7 @@ function AllLines({ title, lines, labelOwners, onSelect, onJump, onEditLine }: A
             item={{ kind: "line", line }}
             indent={line.depth}
             labelOwners={labelOwners}
+            readOnly={readOnly}
             onSelect={onSelect}
             onJump={onJump}
             onEditLine={onEditLine}
@@ -312,12 +349,13 @@ function AllLines({ title, lines, labelOwners, onSelect, onJump, onEditLine }: A
 type NodeDetailsProps = {
   node: FlowNode;
   labelOwners: Map<number, string>;
+  readOnly: boolean;
   onSelect: (id: string) => void;
   onJump: (label: number) => void;
   onEditLine: (lineNumber: number, text: string) => void;
 };
 
-function NodeDetails({ node, labelOwners, onSelect, onJump, onEditLine }: NodeDetailsProps) {
+function NodeDetails({ node, labelOwners, readOnly, onSelect, onJump, onEditLine }: NodeDetailsProps) {
   const style = kindStyles[node.kind];
   const lineCount = node.items.filter((item) => item.kind === "line").length;
 
@@ -343,6 +381,7 @@ function NodeDetails({ node, labelOwners, onSelect, onJump, onEditLine }: NodeDe
               key={itemKey(item)}
               item={item}
               labelOwners={labelOwners}
+              readOnly={readOnly}
               onSelect={onSelect}
               onJump={onJump}
               onEditLine={onEditLine}
@@ -363,12 +402,13 @@ type ActionRowProps = {
   /** Extra indentation levels, used by the all-lines view to reproduce the source layout. */
   indent?: number;
   labelOwners: Map<number, string>;
+  readOnly?: boolean;
   onSelect: (id: string) => void;
   onJump: (label: number) => void;
   onEditLine: (lineNumber: number, text: string) => void;
 };
 
-function ActionRow({ item, indent = 0, labelOwners, onSelect, onJump, onEditLine }: ActionRowProps) {
+function ActionRow({ item, indent = 0, labelOwners, readOnly = false, onSelect, onJump, onEditLine }: ActionRowProps) {
   if (item.kind === "node") {
     const child = item.node;
     const style = kindStyles[child.kind];
@@ -411,7 +451,7 @@ function ActionRow({ item, indent = 0, labelOwners, onSelect, onJump, onEditLine
       <span className="w-10 shrink-0 text-right text-slate-400 dark:text-slate-500">{line.lineNumber}</span>
       {indent > 0 && <span className="shrink-0" style={{ width: `${indent * 1.5}rem` }} />}
       {editable ? (
-        <ArgumentEditor line={line} spec={editable} onEditLine={onEditLine} />
+        <ArgumentEditor line={line} spec={editable} readOnly={readOnly} onEditLine={onEditLine} />
       ) : (
         <span className="whitespace-pre-wrap break-all">{line.text}</span>
       )}
@@ -436,6 +476,7 @@ function ActionRow({ item, indent = 0, labelOwners, onSelect, onJump, onEditLine
 type ArgumentEditorProps = {
   line: ScriptLine;
   spec: EditableArguments;
+  readOnly: boolean;
   onEditLine: (lineNumber: number, text: string) => void;
 };
 
@@ -443,7 +484,7 @@ type ArgumentEditorProps = {
  * Renders an instruction with each named argument as a dropdown; choosing a value rewrites the
  * line. Arguments without a table, and values the table has no name for, are shown as-is.
  */
-function ArgumentEditor({ line, spec, onEditLine }: ArgumentEditorProps) {
+function ArgumentEditor({ line, spec, readOnly, onEditLine }: ArgumentEditorProps) {
   const setArgument = (index: number, value: string) => {
     const args = line.args.map((arg, i) => {
       if (i === index) {
@@ -470,7 +511,12 @@ function ArgumentEditor({ line, spec, onEditLine }: ArgumentEditorProps) {
           <span key={key} className="flex items-baseline">
             {index > 0 && <span className="pr-1">,</span>}
             {values ? (
-              <NamedArgumentSelect value={arg} values={values} onChange={(next) => setArgument(index, next)} />
+              <NamedArgumentSelect
+                value={arg}
+                values={values}
+                disabled={readOnly}
+                onChange={(next) => setArgument(index, next)}
+              />
             ) : (
               <span>{arg}</span>
             )}
@@ -485,17 +531,19 @@ function ArgumentEditor({ line, spec, onEditLine }: ArgumentEditorProps) {
 type NamedArgumentSelectProps = {
   value: string;
   values: NamedValues;
+  disabled?: boolean;
   onChange: (value: string) => void;
 };
 
-function NamedArgumentSelect({ value, values, onChange }: NamedArgumentSelectProps) {
+function NamedArgumentSelect({ value, values, disabled = false, onChange }: NamedArgumentSelectProps) {
   const names = enumNames(values);
   const current = resolveName(values, value) ?? value;
   const known = names.includes(current);
 
   return (
     <select
-      className="cursor-pointer rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-1 font-mono text-sm text-indigo-800 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+      className="cursor-pointer rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-1 font-mono text-sm text-indigo-800 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950 disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-inherit disabled:opacity-90"
+      disabled={disabled}
       value={current}
       onChange={(event) => event.target.value !== "" && onChange(event.target.value)}
       title="Change value"
