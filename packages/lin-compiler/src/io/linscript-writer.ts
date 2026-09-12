@@ -3,6 +3,7 @@ import { Opcode } from "../definitions/opcode.definition.ts";
 import type { Script } from "../definitions/script.definition.ts";
 import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
+import { formatPresent, isPresent } from "../opcodes/present.ts";
 import { planTextSugar, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 
@@ -52,6 +53,8 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     } else if (!options.hexOpcodes && isWait(entry)) {
       name = WAIT;
       args = formatWait(entry);
+    } else if (!options.hexOpcodes && isPresent(entry)) {
+      ({ name, args } = formatPresent(entry));
     } else {
       name = sugared.has(index) ? TEXT_SUGAR : options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
       args = formatArgs(opcode.args, entry, { names: !options.hexOpcodes });

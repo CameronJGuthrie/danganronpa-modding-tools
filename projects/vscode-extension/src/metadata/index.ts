@@ -4,6 +4,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 import { animationMeta } from "./animation-meta";
 import { cameraFlashMeta } from "./camera-flash-meta";
 import { endOfJumpMeta } from "./end-of-jump-meta";
+import { givePresentMeta } from "./give-present-meta";
 import { gotoMeta } from "./goto-meta";
 import { ifFlagMeta } from "./if-flag-meta";
 import { ifFreeTimeEventMeta } from "./if-free-time-event-meta";
@@ -19,7 +20,7 @@ import { objectStateMeta } from "./object-state-meta";
 import { onCharacterMeta } from "./on-character-meta";
 import { onObjectMeta } from "./on-object-meta";
 import { postProcessingEffectMeta } from "./post-processing-effect-meta";
-import { presentMeta } from "./present-meta";
+import { receivePresentMeta } from "./receive-present-meta";
 import { rawTextMeta } from "./raw-text-meta";
 import { restartScriptMeta } from "./restart-script-meta";
 import { runScriptMeta } from "./run-script-meta";
@@ -55,6 +56,7 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.Animation]: animationMeta,
   [LinscriptInstructionName.CameraFlash]: cameraFlashMeta,
   [LinscriptInstructionName.EndOfJump]: endOfJumpMeta,
+  [LinscriptInstructionName.GivePresent]: givePresentMeta,
   [LinscriptInstructionName.Goto]: gotoMeta,
   [LinscriptInstructionName.If]: ifMeta,
   [LinscriptInstructionName.IfFlag]: ifFlagMeta,
@@ -70,8 +72,8 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.OnCharacter]: onCharacterMeta,
   [LinscriptInstructionName.OnObject]: onObjectMeta,
   [LinscriptInstructionName.PostProcessingEffect]: postProcessingEffectMeta,
-  [LinscriptInstructionName.Present]: presentMeta,
   [LinscriptInstructionName.RawText]: rawTextMeta,
+  [LinscriptInstructionName.ReceivePresent]: receivePresentMeta,
   [LinscriptInstructionName.RestartScript]: restartScriptMeta,
   [LinscriptInstructionName.RunScript]: runScriptMeta,
   [LinscriptInstructionName.ScreenFade]: screenFadeMeta,

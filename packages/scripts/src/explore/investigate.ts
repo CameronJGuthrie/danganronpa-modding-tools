@@ -64,7 +64,8 @@ function parseArgs(): InvestigateArgs {
 
 function parseLinscriptFile(content: string, opcode: string, filters: string[]): string[][] {
   const lines = content.split("\n");
-  const pattern = new RegExp(`^${opcode}\\((.+)\\)\\s*$`);
+  // Leading whitespace is allowed so instructions inside SetOption and other blocks are counted
+  const pattern = new RegExp(`^\\s*${opcode}\\((.+)\\)\\s*$`);
   const matches: string[][] = [];
   const numArgs = filters.length;
 

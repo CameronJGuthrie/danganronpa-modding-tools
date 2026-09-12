@@ -33,6 +33,11 @@ export interface OpcodeRow {
   args: ArgumentSpec;
   /** Opens an indented block in source; an argument of 255 closes it instead. */
   block?: true;
+  /**
+   * Not writable by name in source: the opcode only appears through sugar, so bytes the sugar
+   * cannot express surface as errors instead of a raw fallback.
+   */
+  hidden?: true;
 }
 
 const { Byte, UInt16BE } = ParameterType;
@@ -88,7 +93,7 @@ export const opcodes = {
   Sound:                 { id: 0x0a, args: fixed([UInt16BE, Byte]) },
   SoundB:                { id: 0x0b, args: bytes(2) },
   TruthBulletFlag:       { id: 0x0c, args: bytes(2) },
-  Present:               { id: 0x0d, args: bytes(3) },
+  Present:               { id: 0x0d, args: bytes(3), hidden: true }, // GivePresent / ReceivePresent sugar
   UnlockSkill:           { id: 0x0e, args: bytes(2) },
   StudentTitleEntry:     { id: 0x0f, args: bytes(3) },
   StudentReportInfo:     { id: 0x10, args: bytes(3) },

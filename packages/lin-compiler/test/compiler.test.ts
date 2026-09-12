@@ -65,16 +65,13 @@ describe("compile and decompile", () => {
     assert.equal(roundTrip(source), source);
   });
 
-  test("unknown opcodes are written as hex with raw bytes and compile back", () => {
+  test("unknown opcodes are written as hex with raw bytes, which source cannot compile", () => {
     const bytes = textlessFile([0x70, 0x07, 9, 8, 0x70, 0x21, 1]);
     const source = writeSourceText(readCompiled(bytes));
     assert.equal(source, "0x07(9, 8)\nSpeaker(Taka)\n");
-    assert.deepEqual(readSource(source).entries[0], { opcode: 0x07, args: [9, 8] });
-  });
-
-  test("hex names for known opcodes use the opcode's definition", () => {
-    assert.deepEqual(readSource("0x21(4)\n").entries[0], { opcode: 0x21, args: [4] });
-    assert.throws(() => readSource("0x21(4, 5)\n"), SourceError);
+    assert.throws(() => readSource(source), /unknown opcode '0x07'/);
+    // Hex names are not accepted for known opcodes either
+    assert.throws(() => readSource("0x21(4)\n"), /unknown opcode '0x21'/);
   });
 
   test("hexOpcodes option renders every known opcode as hex", () => {
@@ -277,6 +274,39 @@ describe("Wait sugar", () => {
 
   test("hex mode writes the raw SetVariable", () => {
     assert.equal(writeSourceText(readSource("Wait(60)\n"), { hexOpcodes: true }), "0x33(6, 0, 60)\n");
+  });
+});
+
+describe("Present sugar", () => {
+  test("GivePresent and ReceivePresent compile to Present(id, mode, 1)", () => {
+    assert.deepEqual(readSource("GivePresent(MineralWater)\n").entries[0], { opcode: 0x0d, args: [0, 2, 1] });
+    assert.deepEqual(readSource("ReceivePresent(SchoolCrest)\n").entries[0], { opcode: 0x0d, args: [92, 1, 1] });
+    assert.throws(() => readSource("GivePresent()\n"), /GivePresent expects 1 argument/);
+    assert.throws(() => readSource("GivePresent(Bogus)\n"), /unknown present 'Bogus'/);
+    // Only names are accepted, so a typo cannot silently become another item
+    assert.throws(() => readSource("ReceivePresent(5)\n"), /unknown present '5'/);
+  });
+
+  test("Present is not a source instruction", () => {
+    assert.throws(() => readSource("Present(0, 2, 1)\n"), /'Present' is not a source instruction/);
+  });
+
+  test("Present entries decompile as sugar and round-trip", () => {
+    const present = (args: number[]) => ({ entries: [{ opcode: 0x0d, args }] });
+    assert.equal(writeSourceText(present([0, 2, 1])), "GivePresent(MineralWater)\n");
+    assert.equal(writeSourceText(present([114, 1, 1])), "ReceivePresent(Unknown)\n");
+    assert.equal(roundTrip("GivePresent(ColaCola)\n"), "GivePresent(ColaCola)\n");
+  });
+
+  test("bytes the sugar cannot express are an error", () => {
+    const present = (args: number[]) => ({ entries: [{ opcode: 0x0d, args }] });
+    assert.throws(() => writeSourceText(present([0, 0, 1])), /arithmetic mode 0/);
+    assert.throws(() => writeSourceText(present([0, 2, 3])), /quantity 3/);
+    assert.throws(() => writeSourceText(present([200, 2, 1])), /unknown present id 200/);
+  });
+
+  test("hex mode writes the raw Present bytes", () => {
+    assert.equal(writeSourceText(readSource("GivePresent(MineralWater)\n"), { hexOpcodes: true }), "0x0D(0, 2, 1)\n");
   });
 });
 
