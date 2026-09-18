@@ -7,6 +7,7 @@ export const onObjectMeta: LinscriptInstructionMeta = {
   parameters: [
     {
       name: "objectId",
+      scope: "Object",
     },
   ] as const,
   decorations([objectId]) {

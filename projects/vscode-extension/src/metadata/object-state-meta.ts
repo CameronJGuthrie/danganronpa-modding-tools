@@ -6,8 +6,8 @@ export const objectStateMeta: LinscriptInstructionMeta = {
   hexcode: "0x23",
   parameters: [
     {
-      unknown: true, // you would think this would be the objectId, but the object doesn't seem to be used within the script
-      // it might be part of the map
+      name: "objectId",
+      scope: "Object", // shares the OnObject id space: a file's ids are used by one or the other, never both
     },
     {
       unknown: true, // likely combined 2 and 3. Always 0 or 1

@@ -223,6 +223,11 @@ suite("Extension Test Suite", () => {
     // Check for duplicate opcodes (skip empty opcodes)
     const opcodeMap = new Map<string, string>();
     for (const meta of Object.values(metadata)) {
+      // Annotations such as Meta and Object have no binary form and so no opcode
+      if (meta.annotation) {
+        assert.strictEqual(meta.hexcode, "", `Annotation "${meta.name}" must not claim an opcode`);
+        continue;
+      }
       if (meta.hexcode === "") {
         assert.fail(`Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`);
       }

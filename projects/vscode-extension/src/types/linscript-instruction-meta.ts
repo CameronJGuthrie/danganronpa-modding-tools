@@ -8,6 +8,8 @@ export type LinscriptInstructionMeta<Parameters extends readonly ParameterMeta[]
   hexcode: string;
   /** Source-only sugar that the compiler expands into the opcode whose hexcode this shares. */
   sugar?: true;
+  /** Source-only annotation with no binary form at all, such as the `Meta()` block; `hexcode` is empty. */
+  annotation?: true;
   selfDescribing?: boolean;
   description?: string;
   varargs?: boolean;
@@ -56,6 +58,11 @@ export type ParameterMeta = {
    * on context, e.g. SetFlag's offset is a character id only for the character flag groups.
    */
   namesBy?: DependentNames;
+  /**
+   * Name table declared by the document itself rather than a shared enum: `Object` resolves names
+   * from the file's `Meta()` block (`Object(20, Monitor)` lets the body say `OnObject(Monitor)`).
+   */
+  scope?: "Object";
   /**
    * Map of numbers to LinscriptValue, can be a simple string but might also indicate typing for other params
    */

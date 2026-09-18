@@ -160,6 +160,70 @@ describe("Text sugar", () => {
   });
 });
 
+describe("Meta block", () => {
+  const source = [
+    "OnObject(Monitor)",
+    "  ObjectState(Camera, 1, 0, 0, 0)",
+    "OnObject(254)",
+    "  Speaker(Makoto)",
+    "OnObject(255)",
+    "",
+    "Meta()",
+    "  Object(20, Monitor)",
+    "  Object(21, Camera)",
+    "",
+  ].join("\n");
+
+  test("object names resolve to their ids and survive a source round trip", () => {
+    const script = readSource(source);
+    assert.deepEqual(script.meta, { objects: { 20: "Monitor", 21: "Camera" } });
+    assert.deepEqual(
+      script.entries.map((e) => [e.opcode, ...e.args]),
+      [[Opcode.OnObject, 20], [Opcode.ObjectState, 21, 1, 0, 0, 0], [Opcode.OnObject, 254], [Opcode.Speaker, 0], [Opcode.OnObject, 255]],
+    );
+    assert.equal(writeSourceText(script), source);
+  });
+
+  test("numbers are accepted for named objects and unnamed ids stay numeric", () => {
+    const script = readSource("OnObject(20)\nOnObject(22)\nMeta()\n  Object(20, Monitor)\n");
+    assert.equal(writeSourceText(script), "OnObject(Monitor)\nOnObject(22)\n\nMeta()\n  Object(20, Monitor)\n");
+  });
+
+  test("the block is dropped by the binary and by hex output", () => {
+    const script = readSource(source);
+    assert.equal(readCompiled(writeCompiledBytes(script)).meta, undefined);
+    assert.equal(writeSourceText(readCompiled(writeCompiledBytes(script))), source.replace(/\n\nMeta[^]*$/, "\n").replace("Monitor", "20").replace("Camera", "21"));
+    assert.equal(writeSourceText(script, { hexOpcodes: true }), "0x29(20)\n  0x23(21, 1, 0, 0, 0)\n0x29(254)\n  0x21(0)\n0x29(255)\n");
+  });
+
+  test("a script without a Meta block reads without meta and writes none", () => {
+    const script = readSource("OnObject(20)\n");
+    assert.equal(script.meta, undefined);
+    assert.equal(writeSourceText(script), "OnObject(20)\n");
+  });
+
+  test("malformed blocks are rejected with the offending line", () => {
+    const cases: [string, RegExp][] = [
+      ["OnObject(Monitor)\n", /unknown name 'Monitor'/],
+      ["Meta()\n  Speaker(Makoto)\n", /only Object\(id, Name\) entries/],
+      ["Meta()\n  Object(20)\n", /expects 2 arguments/],
+      ["Meta()\n  Object(255, Close)\n", /0 to 254/],
+      ["Meta()\n  Object(20, 12)\n", /must be an identifier/],
+      ["Meta()\n  Object(20, A)\n  Object(20, B)\n", /already named 'A'/],
+      ["Meta()\n  Object(20, A)\n  Object(21, A)\n", /already used/],
+      ["Meta(1)\n", /takes no arguments/],
+    ];
+    for (const [text, message] of cases) {
+      assert.throws(() => readSource(text), message, text);
+    }
+    assert.throws(() => readSource("Speaker(Makoto)\nMeta()\n  Object(20, A)\n  Object(x, B)\n"), (error: unknown) => {
+      assert.ok(error instanceof SourceError);
+      assert.equal(error.line, 4);
+      return true;
+    });
+  });
+});
+
 describe("named arguments", () => {
   test("a Speaker id is written as the character's name", () => {
     const bytes = textlessFile([0x70, 0x21, 0, 0x70, 0x21, 15]);

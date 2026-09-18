@@ -23,7 +23,23 @@ export type NamedValues = Readonly<Record<string, string | number>>;
 export type Parameter =
   | ParameterType
   | { readonly type: ParameterType; readonly names: NamedValues }
-  | DependentParameter;
+  | DependentParameter
+  | ScopedParameter;
+
+/**
+ * Name tables that are not fixed by the opcode table but supplied per script, e.g. the object names
+ * a `.linscript` file declares in its `Meta()` block.
+ */
+export type ParameterScope = "Object";
+
+/** A slot whose names come from the script being read or written (see `ParameterScope`). */
+export type ScopedParameter = {
+  readonly type: ParameterType;
+  readonly scope: ParameterScope;
+};
+
+/** The name tables in effect for each scope while reading or writing one script. */
+export type ScopeTables = Partial<Readonly<Record<ParameterScope, NamedValues>>>;
 
 /**
  * A slot whose name table depends on the value of an earlier slot in the same layout, e.g. the
@@ -40,17 +56,24 @@ export function parameterTypeOf(parameter: Parameter): ParameterType {
   return typeof parameter === "string" ? parameter : parameter.type;
 }
 
-/** The name table that applies to `parameter` at `index`, given the values decoded so far. */
+/**
+ * The name table that applies to `parameter` at `index`, given the values decoded so far and the
+ * script's scoped tables.
+ */
 export function namesFor(
   parameter: Parameter,
   index: number,
   values: readonly (number | undefined)[],
+  scopes: ScopeTables = {},
 ): NamedValues | undefined {
   if (typeof parameter === "string") {
     return undefined;
   }
   if ("names" in parameter) {
     return parameter.names;
+  }
+  if ("scope" in parameter) {
+    return scopes[parameter.scope];
   }
   const controlling = values[index + parameter.dependsOn];
   return controlling === undefined ? undefined : parameter.namesBy[controlling];

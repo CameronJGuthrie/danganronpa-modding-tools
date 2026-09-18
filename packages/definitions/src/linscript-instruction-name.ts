@@ -11,8 +11,10 @@ export enum LinscriptInstructionName {
   LoadMap = "LoadMap",
   LoadScript = "LoadScript",
   LoadSprite = "LoadSprite",
+  Meta = "Meta", // Source-only: opens the block of per-script annotations at the bottom of a file
   Movie = "Movie",
   Music = "Music",
+  Object = "Object", // Source-only: `Object(id, Name)` inside Meta() names an object id for the file
   ObjectState = "ObjectState",
   OnCharacter = "OnCharacter",
   OnObject = "OnObject",

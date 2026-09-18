@@ -70,3 +70,16 @@ export function insertDocumentBlankLine(document: ScriptDocument, lineNumber: nu
   lineIds.splice(index, 0, nextLineId++);
   return { source, lineIds };
 }
+
+/**
+ * Replace the whole source, e.g. after rewriting the `Meta()` block. Lines keep their ids by
+ * position, so rows above an edit that only changes the bottom of the file are not rebuilt.
+ */
+export function replaceDocumentSource(document: ScriptDocument, source: string): ScriptDocument {
+  const count = lineCount(source);
+  const lineIds = document.lineIds.slice(0, count);
+  while (lineIds.length < count) {
+    lineIds.push(nextLineId++);
+  }
+  return { source, lineIds };
+}

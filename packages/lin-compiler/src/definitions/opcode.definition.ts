@@ -70,6 +70,8 @@ const flagOffset: Parameter = {
   dependsOn: -1,
   namesBy: { [FlagGroup.CharacterInvestigated]: Character, [FlagGroup.CharacterDead]: Character },
 };
+/** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
+const objectId: Parameter = { type: Byte, scope: "Object" };
 /** A 0/1 byte, written as `False` / `True`. */
 const bool = named(Byte, Bool);
 /** A comparison operator byte, written as `==`, `!=`, `<`, `<=`, `>` or `>=`. */
@@ -109,11 +111,11 @@ export const opcodes = {
   SpriteFlash:           { id: 0x20, args: bytes(5) },
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
   ScreenFade:            { id: 0x22, args: bytes(3) },
-  ObjectState:           { id: 0x23, args: bytes(5) },
+  ObjectState:           { id: 0x23, args: fixed([objectId, Byte, Byte, Byte, Byte]) },
   SetUI:                 { id: 0x25, args: fixed([named(Byte, UserInterface), named(Byte, UiVisibility)]) },
   SetFlag:               { id: 0x26, args: fixed([flagGroup, flagOffset, bool]) },
   OnCharacter:           { id: 0x27, args: bytes(1), block: true },
-  OnObject:              { id: 0x29, args: bytes(1), block: true },
+  OnObject:              { id: 0x29, args: fixed([objectId]), block: true },
   Label:                 { id: 0x2a, args: fixed([UInt16BE]) },
   SetOption:             { id: 0x2b, args: bytes(1), block: true },
   EndOfJump:             { id: 0x2c, args: bytes(2) },

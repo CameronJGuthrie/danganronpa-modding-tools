@@ -7,6 +7,8 @@
  *    the indented lines that follow it, and the group is closed by `OnObject(255)`.
  *  - `SetOption(n)` registers a menu option; the body is the indented lines that follow it, and the
  *    menu is closed by `SetOption(255)`.
+ *  - `Meta()` at the top level starts the per-script annotations (object names) that run to the end
+ *    of the file.
  *
  * `Goto(n)` lines are resolved against the labels so the UI can offer jump navigation.
  */
@@ -28,7 +30,7 @@ export function isBlank(line: ScriptLine): boolean {
   return line.text === "";
 }
 
-export type FlowNodeKind = "script" | "block" | "handlerGroup" | "handler" | "menu" | "option";
+export type FlowNodeKind = "script" | "block" | "handlerGroup" | "handler" | "menu" | "option" | "meta";
 
 export type FlowItem = { kind: "line"; line: ScriptLine } | { kind: "node"; node: FlowNode };
 
@@ -194,6 +196,14 @@ class FlowBuilder {
     while (i < lines.length) {
       const line = lines[i];
 
+      if (line.functionName === "Meta") {
+        // Everything from here on is annotation, not script
+        flushBlock();
+        this.addChild(root, this.parseMeta(lines, i));
+        block = this.createNode("block", "", line.lineNumber);
+        break;
+      }
+
       if (isHandlerRegistration(line)) {
         flushBlock();
         const [group, next] = this.parseHandlerGroup(lines, i, line.depth);
@@ -220,6 +230,17 @@ class FlowBuilder {
     flushBlock();
     root.endLine = lines[lines.length - 1]?.lineNumber ?? root.startLine;
     return root;
+  }
+
+  /** Collects the `Meta()` line and everything after it. */
+  private parseMeta(lines: ScriptLine[], start: number): FlowNode {
+    const meta = this.createNode("meta", "Meta", lines[start].lineNumber);
+    for (const line of lines.slice(start)) {
+      this.addLine(meta, line);
+    }
+    const objects = meta.items.filter((item) => item.kind === "line" && item.line.functionName === "Object").length;
+    meta.subtitle = `${objects} object name${objects === 1 ? "" : "s"}`;
+    return meta;
   }
 
   /** Parses `OnCharacter(...)` / `OnObject(...)` registrations until `OnObject(255)`. */

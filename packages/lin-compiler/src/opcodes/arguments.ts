@@ -6,6 +6,7 @@ import {
   type Parameter,
   ParameterType,
   parameterTypeOf,
+  type ScopeTables,
   valueOfName,
 } from "../definitions/parameter.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
@@ -25,6 +26,8 @@ export interface FormatArgsOptions {
    * tags in their sugared form rather than raw `<CLT>`. Defaults to true.
    */
   names?: boolean;
+  /** Per-script name tables for scoped parameters, e.g. the object names from a `Meta()` block. */
+  scopes?: ScopeTables;
 }
 
 /** Total argument bytes, or undefined for variadic specs where the reader scans to the next marker. */
@@ -44,11 +47,12 @@ export function argByteCount(spec: ArgumentSpec): number | undefined {
 /** Render `entry.args` as the comma-separated argument list used in source. */
 export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry, options: FormatArgsOptions = {}): string {
   const names = options.names ?? true;
+  const scopes = options.scopes ?? {};
   switch (spec.kind) {
     case "fixed":
-      return formatFixed(spec.layout, entry.args, names);
+      return formatFixed(spec.layout, entry.args, names, scopes);
     case "type":
-      return formatFixed([ParameterType.UInt16LE], entry.args, names);
+      return formatFixed([ParameterType.UInt16LE], entry.args, names, scopes);
     case "text":
       return formatTextArgument("text" in entry ? entry.text : "", names);
     case "variadic":
@@ -59,17 +63,17 @@ export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry, options: Form
       if (chained < 0 || chained % tailBytes !== 0) {
         return formatRawBytes(entry.args);
       }
-      return formatByLayout(repeatLayout(spec.head, spec.tail, chained / tailBytes), entry.args, names);
+      return formatByLayout(repeatLayout(spec.head, spec.tail, chained / tailBytes), entry.args, names, scopes);
     }
   }
 }
 
 /** Compile a source argument list into the entry for `opcode`. */
-export function parseEntry(opcode: OpcodeInfo, argsText: string, line: number): ScriptEntry {
+export function parseEntry(opcode: OpcodeInfo, argsText: string, line: number, scopes: ScopeTables = {}): ScriptEntry {
   const { id, name, args: spec } = opcode;
   switch (spec.kind) {
     case "fixed":
-      return { opcode: id, args: parseFixed(name, spec.layout, argsText, line) };
+      return { opcode: id, args: parseFixed(name, spec.layout, argsText, line, scopes) };
     case "text":
       return { opcode: id, args: [0, 0], text: parseTextArgument(argsText, line) };
     case "type": {
@@ -97,7 +101,7 @@ export function parseEntry(opcode: OpcodeInfo, argsText: string, line: number): 
         );
       }
       const layout = repeatLayout(spec.head, spec.tail, chained / spec.tail.length);
-      return { opcode: id, args: parseByLayout(layout, values, line) };
+      return { opcode: id, args: parseByLayout(layout, values, line, scopes) };
     }
   }
 }
@@ -118,21 +122,32 @@ function repeatLayout(head: readonly Parameter[], tail: readonly Parameter[], co
   return layout;
 }
 
-function formatFixed(layout: readonly Parameter[], args: readonly number[], names: boolean): string {
+function formatFixed(layout: readonly Parameter[], args: readonly number[], names: boolean, scopes: ScopeTables): string {
   // Malformed entry: keep every byte visible rather than decoding garbage
-  return args.length === layoutBytes(layout) ? formatByLayout(layout, args, names) : formatRawBytes(args);
+  return args.length === layoutBytes(layout) ? formatByLayout(layout, args, names, scopes) : formatRawBytes(args);
 }
 
-function parseFixed(name: string, layout: readonly Parameter[], argsText: string, line: number): number[] {
+function parseFixed(
+  name: string,
+  layout: readonly Parameter[],
+  argsText: string,
+  line: number,
+  scopes: ScopeTables,
+): number[] {
   const values = splitArgs(argsText);
   if (values.length !== layout.length) {
     throw new SourceError(line, `${name} expects ${layout.length} argument(s), got ${values.length}`);
   }
-  return parseByLayout(layout, values, line);
+  return parseByLayout(layout, values, line, scopes);
 }
 
 /** Decode `args` according to `layout` and join the values for source output. */
-function formatByLayout(layout: readonly Parameter[], args: readonly number[], names: boolean): string {
+function formatByLayout(
+  layout: readonly Parameter[],
+  args: readonly number[],
+  names: boolean,
+  scopes: ScopeTables,
+): string {
   const rendered: string[] = [];
   const decoded: number[] = [];
   let offset = 0;
@@ -141,7 +156,7 @@ function formatByLayout(layout: readonly Parameter[], args: readonly number[], n
     const value = decodeValue(type, args, offset);
     decoded.push(value);
     // Values without a name (e.g. an unresearched speaker id) stay numeric so nothing is hidden
-    const table = names ? namesFor(parameter, index, decoded) : undefined;
+    const table = names ? namesFor(parameter, index, decoded, scopes) : undefined;
     const name = table === undefined ? undefined : nameOfValue(table, value);
     rendered.push(name ?? String(value));
     offset += parameterProperties[type].size;
@@ -150,12 +165,17 @@ function formatByLayout(layout: readonly Parameter[], args: readonly number[], n
 }
 
 /** Encode one source value per entry of `layout`. Callers check the counts match first. */
-function parseByLayout(layout: readonly Parameter[], values: readonly string[], line: number): number[] {
+function parseByLayout(
+  layout: readonly Parameter[],
+  values: readonly string[],
+  line: number,
+  scopes: ScopeTables,
+): number[] {
   const bytes: number[] = [];
   const decoded: number[] = [];
   layout.forEach((parameter, index) => {
     const type = parameterTypeOf(parameter);
-    const encoded = parseParameter(type, namesFor(parameter, index, decoded), values[index], line);
+    const encoded = parseParameter(type, namesFor(parameter, index, decoded, scopes), values[index], line);
     decoded.push(decodeValue(type, encoded, 0));
     bytes.push(...encoded);
   });

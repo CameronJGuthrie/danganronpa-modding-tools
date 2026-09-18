@@ -14,8 +14,10 @@ import { labelMeta } from "./label-meta";
 import { loadMapMeta } from "./load-map-meta";
 import { loadScriptMeta } from "./load-script-meta";
 import { loadSpriteMeta } from "./load-sprite-meta";
+import { metaMeta } from "./meta-meta";
 import { movieMeta } from "./movie-meta";
 import { musicMeta } from "./music-meta";
+import { objectMeta } from "./object-meta";
 import { objectStateMeta } from "./object-state-meta";
 import { onCharacterMeta } from "./on-character-meta";
 import { onObjectMeta } from "./on-object-meta";
@@ -66,8 +68,10 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.LoadMap]: loadMapMeta,
   [LinscriptInstructionName.LoadScript]: loadScriptMeta,
   [LinscriptInstructionName.LoadSprite]: loadSpriteMeta,
+  [LinscriptInstructionName.Meta]: metaMeta,
   [LinscriptInstructionName.Movie]: movieMeta,
   [LinscriptInstructionName.Music]: musicMeta,
+  [LinscriptInstructionName.Object]: objectMeta,
   [LinscriptInstructionName.ObjectState]: objectStateMeta,
   [LinscriptInstructionName.OnCharacter]: onCharacterMeta,
   [LinscriptInstructionName.OnObject]: onObjectMeta,

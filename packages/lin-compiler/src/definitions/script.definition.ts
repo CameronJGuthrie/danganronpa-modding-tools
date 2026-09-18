@@ -16,6 +16,16 @@ type ScriptEntryText = ScriptEntryCommon & {
 
 export type ScriptEntry = ScriptEntryCommon | ScriptEntryText;
 
+/**
+ * Source-only annotations kept at the bottom of a `.linscript` file in its `Meta()` block. They
+ * have no binary form: compiling drops them and decompiling a `.lin` yields none.
+ */
+export interface ScriptMeta {
+  /** Names for this script's object ids, as used by `OnObject` and `ObjectState`. */
+  objects: Readonly<Record<number, string>>;
+}
+
 export interface Script {
   entries: ScriptEntry[];
+  meta?: ScriptMeta;
 }

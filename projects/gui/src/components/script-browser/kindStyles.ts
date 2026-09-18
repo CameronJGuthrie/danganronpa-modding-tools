@@ -8,4 +8,5 @@ export const kindStyles: Record<FlowNodeKind, { badge: string; label: string }> 
   handler: { badge: "bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-100", label: "Handler" },
   menu: { badge: "bg-violet-200 dark:bg-violet-800 text-violet-900 dark:text-violet-100", label: "Menu" },
   option: { badge: "bg-violet-100 dark:bg-violet-900 text-violet-900 dark:text-violet-100", label: "Option" },
+  meta: { badge: "bg-teal-200 dark:bg-teal-800 text-teal-900 dark:text-teal-100", label: "Meta" },
 };

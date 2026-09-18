@@ -3,6 +3,7 @@ import { textStyleColor } from "../data/text-style-data";
 import { metadata } from "../metadata";
 import { logDebug, logError, logWarning } from "../output";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
+import { objectNamesFromDocument } from "../util/script-meta";
 import {
   createCompleteFunctionRegex,
   createVarargsRegex,
@@ -205,11 +206,16 @@ export function registerDecoration() {
   }
 }
 
-/** Name tables per argument position, expanding a varargs head/tail pattern to the actual count. */
-function argumentNames(functionDetails: LinscriptInstructionMeta, call: string) {
+/**
+ * Name tables per argument position, expanding a varargs head/tail pattern to the actual count.
+ * Parameters scoped to the document (object ids) take their table from its `Meta()` block.
+ */
+function argumentNames(functionDetails: LinscriptInstructionMeta, call: string, documentText: string) {
   const { varargNames } = functionDetails;
   if (!functionDetails.varargs || !varargNames) {
-    return functionDetails.parameters.map((parameter) => parameter.namesBy ?? parameter.names);
+    return functionDetails.parameters.map((parameter) =>
+      parameter.scope === "Object" ? objectNamesFromDocument(documentText) : (parameter.namesBy ?? parameter.names),
+    );
   }
   const count = getArgumentsFromFunctionLike(call).length;
   const { head, tail } = varargNames;
@@ -267,7 +273,7 @@ function enrichParameters(
       continue;
     }
 
-    const args = getArgumentsFromFunctionLike(match[0], argumentNames(functionDetails, match[0]));
+    const args = getArgumentsFromFunctionLike(match[0], argumentNames(functionDetails, match[0], documentText));
     const argValues = args.map((arg) => arg.value);
 
     if (!functionDetails.varargs && args.length !== functionDetails.parameters.length) {

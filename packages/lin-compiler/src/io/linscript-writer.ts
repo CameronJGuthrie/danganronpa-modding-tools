@@ -3,6 +3,7 @@ import { Opcode } from "../definitions/opcode.definition.ts";
 import type { Script } from "../definitions/script.definition.ts";
 import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
+import { formatMeta, scopeTables } from "../opcodes/meta.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
 import { planTextSugar, stripImplicitNewline, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
@@ -27,6 +28,9 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
   const indent = " ".repeat(options.indentSpaces ?? DEFAULT_INDENT_SPACES);
   const { entries } = script;
   const { sugared, skipped } = planTextSugar(entries);
+  // Hex output is the raw view, so per-script names are left out of it along with the Meta block
+  const names = !options.hexOpcodes;
+  const scopes = names ? scopeTables(script.meta) : {};
 
   const lines: string[] = [];
   // Each block opcode indents independently; nesting depth is the number currently open
@@ -59,10 +63,10 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       name = TEXT_SUGAR;
       // The plan only sugars entries whose text carries the implicit newline
       const text = stripImplicitNewline(entry.text) ?? entry.text;
-      args = formatArgs(opcode.args, { ...entry, text }, { names: !options.hexOpcodes });
+      args = formatArgs(opcode.args, { ...entry, text }, { names, scopes });
     } else {
-      name = options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
-      args = formatArgs(opcode.args, entry, { names: !options.hexOpcodes });
+      name = names ? opcode.name : hexOpcodeName(entry.opcode);
+      args = formatArgs(opcode.args, entry, { names, scopes });
     }
     lines.push(`${indent.repeat(openBlocks.size)}${name}(${args})`);
 
@@ -70,6 +74,13 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       openBlocks.add(block);
     }
   });
+
+  if (names) {
+    const meta = formatMeta(script.meta, indent);
+    if (meta.length > 0) {
+      lines.push("", ...meta);
+    }
+  }
 
   return lines.map((line) => `${line}\n`).join("");
 }
