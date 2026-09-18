@@ -9,4 +9,9 @@ contextBridge.exposeInMainWorld("electron", {
   openFileDialog: () => ipcRenderer.invoke("choose-file"),
   openDirectoryDialog: () => ipcRenderer.invoke("choose-directory"),
   getDefaultGameDirectory: () => ipcRenderer.invoke("get-default-game-directory"),
+  getDefaultScriptDirectory: () => ipcRenderer.invoke("get-default-script-directory"),
+  listScriptFiles: (directory: string) => ipcRenderer.invoke("list-linscript-files", directory),
+  saveScript: (filePath: string, source: string) => ipcRenderer.invoke("save-script", filePath, source),
+  listModifiedScripts: () => ipcRenderer.invoke("list-modified-scripts"),
+  loadScript: (filePath: string) => ipcRenderer.invoke("load-script", filePath),
 });

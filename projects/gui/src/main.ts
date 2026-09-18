@@ -4,6 +4,13 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { loadFile } from "./main/file";
+import {
+  defaultScriptDirectory,
+  listLinscriptFiles,
+  listModifiedScripts,
+  loadScript,
+  saveScript,
+} from "./main/scripts";
 import { convertTgaToPngDataUrl } from "./main/tga";
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
@@ -87,6 +94,18 @@ ipcMain.handle("get-default-game-directory", () => {
 
   return null;
 });
+
+ipcMain.handle("get-default-script-directory", () => defaultScriptDirectory(app.getAppPath()));
+
+ipcMain.handle("list-linscript-files", async (_event, directory: string) => listLinscriptFiles(directory));
+
+ipcMain.handle("load-script", async (_event, filePath: string) => loadScript(app.getAppPath(), filePath));
+
+ipcMain.handle("list-modified-scripts", async () => listModifiedScripts(app.getAppPath()));
+
+ipcMain.handle("save-script", async (_event, filePath: string, source: string) =>
+  saveScript(app.getAppPath(), filePath, source),
+);
 
 ipcMain.handle("tga-file-to-base-64-png", async (_event, filePath: string) => {
   return convertTgaToPngDataUrl(filePath);
