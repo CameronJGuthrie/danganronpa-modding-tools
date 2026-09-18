@@ -4,7 +4,7 @@ import type { Script } from "../definitions/script.definition.ts";
 import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
-import { planTextSugar, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { planTextSugar, stripImplicitNewline, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 
 export interface WriteSourceOptions {
@@ -55,8 +55,13 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       args = formatWait(entry);
     } else if (!options.hexOpcodes && isPresent(entry)) {
       ({ name, args } = formatPresent(entry));
+    } else if (sugared.has(index) && "text" in entry) {
+      name = TEXT_SUGAR;
+      // The plan only sugars entries whose text carries the implicit newline
+      const text = stripImplicitNewline(entry.text) ?? entry.text;
+      args = formatArgs(opcode.args, { ...entry, text }, { names: !options.hexOpcodes });
     } else {
-      name = sugared.has(index) ? TEXT_SUGAR : options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
+      name = options.hexOpcodes ? hexOpcodeName(entry.opcode) : opcode.name;
       args = formatArgs(opcode.args, entry, { names: !options.hexOpcodes });
     }
     lines.push(`${indent.repeat(openBlocks.size)}${name}(${args})`);

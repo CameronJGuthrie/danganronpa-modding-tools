@@ -5,6 +5,8 @@ import type { ScriptEntry } from "../definitions/script.definition.ts";
  * `Text(...)` in source is sugar for the common dialogue shape
  * `[TextStyle] RawText WaitFrame* TextStyle* WaitInput`:
  *
+ * - the text implicitly ends with a newline: `Text("hi")` is the bytes `hi\n`, with the newline
+ *   placed before any closing `<CLT>` tags so `<thought>hi</thought>` is `<CLT 4>hi\n<CLT>`
  * - each `\n` in the text expands to a `WaitFrame`
  * - `<CLT N>` and `<CLT>` colour tags expand to `TextStyle(N)` / `TextStyle(0)`, with the
  *   first style also emitted before the RawText itself
@@ -13,17 +15,24 @@ import type { ScriptEntry } from "../definitions/script.definition.ts";
  * This file owns both directions: `expandText` expands the sugar when compiling and
  * `planTextSugar` recognises collapsible groups when decompiling. The sugar is not a binary
  * opcode; the linscript reader and writer handle the name themselves. A text entry that the sugar
- * cannot express (no closing WaitInput, or other opcodes before it) is written as `RawText(...)`.
+ * cannot express (no trailing newline, no closing WaitInput, or other opcodes before it) is written
+ * as `RawText(...)`.
  */
 
 /** Matches `<CLT N>` opening tags, `<CLT>` closing tags, and literal newlines. */
 const CLT_OR_NEWLINE = /<CLT\s+(\d+)>|<CLT>|\n/g;
 const HAS_CLT = /<CLT\s+\d+>|<CLT>/;
 
+/** The point where the implicit newline is inserted on compile: before any closing tags. */
+const TRAILING_CLOSERS = /(?:<CLT>)*$/;
+/** The implicit newline as it appears in raw text: before closing tags and null terminators. */
+const IMPLICIT_NEWLINE = /^(.*)\n((?:<CLT>)*)\0*$/s;
+
 /** Source name of the sugar. */
 export const TEXT_SUGAR = "Text";
 
-export function expandText(text: string): ScriptEntry[] {
+export function expandText(source: string): ScriptEntry[] {
+  const text = addImplicitNewline(source);
   const entries: ScriptEntry[] = [];
   const tokens = [...text.matchAll(CLT_OR_NEWLINE)];
   const first = tokens[0];
@@ -50,6 +59,26 @@ export function expandText(text: string): ScriptEntry[] {
   return entries;
 }
 
+/** Insert the implicit trailing newline before any closing `<CLT>` tags. */
+function addImplicitNewline(source: string): string {
+  const closers = TRAILING_CLOSERS.exec(source)?.[0] ?? "";
+  return `${source.slice(0, source.length - closers.length)}\n${closers}`;
+}
+
+/**
+ * The source form of a sugared text entry's raw text: the implicit trailing newline removed.
+ * Returns undefined when the text has no such newline, or when re-adding it would not reproduce
+ * the same bytes (e.g. `a<CLT>\n<CLT>`), so the entry cannot be written as `Text(...)`.
+ */
+export function stripImplicitNewline(text: string): string | undefined {
+  const match = IMPLICIT_NEWLINE.exec(text);
+  if (match === null) {
+    return undefined;
+  }
+  const stripped = match[1] + match[2];
+  return addImplicitNewline(stripped) === text.replace(/\0*$/, "") ? stripped : undefined;
+}
+
 function textStyle(style: number): ScriptEntry {
   return { opcode: Opcode.TextStyle, args: [style & 0xff] };
 }
@@ -62,15 +91,16 @@ interface TextSugarPlan {
 }
 
 /**
- * Find text entries that can be collapsed into the sugar: a RawText followed only by WaitFrame
- * (and TextStyle, when the text carries CLT tags) and terminated by WaitInput.
+ * Find text entries that can be collapsed into the sugar: a RawText ending in the implicit newline,
+ * followed only by WaitFrame (and TextStyle, when the text carries CLT tags) and terminated by
+ * WaitInput.
  */
 export function planTextSugar(entries: readonly ScriptEntry[]): TextSugarPlan {
   const plan: TextSugarPlan = { sugared: new Set(), skipped: new Set() };
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-    if (entry.opcode !== Opcode.RawText || !("text" in entry)) {
+    if (entry.opcode !== Opcode.RawText || !("text" in entry) || stripImplicitNewline(entry.text) === undefined) {
       continue;
     }
     const hasCLT = HAS_CLT.test(entry.text);

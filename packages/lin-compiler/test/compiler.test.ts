@@ -53,7 +53,7 @@ describe("compile and decompile", () => {
     assert.equal(roundTrip(source), source);
     const [entry] = readSource(source).entries;
     assert.ok("text" in entry);
-    assert.equal(entry.text, 'say "hi"\nnext\\line');
+    assert.equal(entry.text, 'say "hi"\nnext\\line\n');
   });
 
   test("If chains round-trip through big-endian packing", () => {
@@ -85,15 +85,38 @@ describe("Text sugar", () => {
     const { entries } = readSource('Text("one\\ntwo\\nthree")');
     assert.deepEqual(
       entries.map((e) => e.opcode),
-      [Opcode.RawText, Opcode.WaitFrame, Opcode.WaitFrame, Opcode.WaitInput],
+      // Three explicit-or-implicit newlines: two in the text plus the implicit trailing one
+      [Opcode.RawText, Opcode.WaitFrame, Opcode.WaitFrame, Opcode.WaitFrame, Opcode.WaitInput],
     );
+  });
+
+  test("the text gains an implicit trailing newline", () => {
+    const [entry] = readSource('Text("hi")').entries;
+    assert.ok("text" in entry);
+    assert.equal(entry.text, "hi\n");
+  });
+
+  test("the implicit newline goes before closing style tags", () => {
+    const [, entry] = readSource('Text("<thought>hi</thought>")').entries;
+    assert.ok("text" in entry);
+    assert.equal(entry.text, "<CLT 4>hi\n<CLT>");
+    const [, keyword] = readSource('Text("say <keyword>hi</keyword>")').entries;
+    assert.ok("text" in keyword);
+    assert.equal(keyword.text, "say <CLT 3>hi\n<CLT>");
   });
 
   test("CLT colour tags expand to TextStyle opcodes", () => {
     const { entries } = readSource('Text("<keyword>red</keyword> plain <style 5>blue")');
     assert.deepEqual(
       entries.map((e) => [e.opcode, ...e.args]),
-      [[Opcode.TextStyle, 3], [Opcode.RawText, 0, 0], [Opcode.TextStyle, 0], [Opcode.TextStyle, 5], [Opcode.WaitInput]],
+      [
+        [Opcode.TextStyle, 3],
+        [Opcode.RawText, 0, 0],
+        [Opcode.TextStyle, 0],
+        [Opcode.TextStyle, 5],
+        [Opcode.WaitFrame],
+        [Opcode.WaitInput],
+      ],
     );
   });
 
@@ -102,23 +125,36 @@ describe("Text sugar", () => {
       'Text("one\\ntwo")\n',
       'Text("<keyword>red</keyword> plain")\n',
       'Text("a\\n<style 2>b")\n',
+      'Text("<thought>hi</thought>")\n',
+      // An explicit trailing newline is a blank line and survives on top of the implicit one
+      'Text("hi\\n")\n',
     ]) {
       assert.equal(roundTrip(source), source);
     }
   });
 
+  test("a text entry without the trailing newline is written as RawText", () => {
+    const source = 'RawText("*Ding dong*")\nWaitInput()\n';
+    assert.equal(roundTrip(source), source);
+    // A newline between closing tags is not where the sugar would put it, so the bytes stay raw
+    const between = 'TextStyle(4)\nRawText("<style 4>a<style 0>\\n<style 0>")\nTextStyle(0)\nWaitFrame()\nTextStyle(0)\nWaitInput()\n';
+    assert.equal(roundTrip(between), between);
+    const styled = 'TextStyle(23)\nRawText("<system>*Ding dong*</system>")\nTextStyle(0)\nWaitInput()\n';
+    assert.equal(roundTrip(styled), styled);
+  });
+
   test("a text entry not closed by WaitInput is written as RawText", () => {
-    const source = 'RawText("hi")\nWaitFrame()\nSpeaker(Taka)\n';
+    const source = 'RawText("hi\\n")\nWaitFrame()\nSpeaker(Taka)\n';
     assert.equal(roundTrip(source), source);
     // Menu option labels are the common case: a text with a WaitFrame but no WaitInput
     const option = 'SetOption(1)\n  RawText("Yes\\n")\n  WaitFrame()\n  Goto(1)\nSetOption(255)\n';
     assert.equal(roundTrip(option), option);
   });
 
-  test("RawText compiles to exactly one entry", () => {
+  test("RawText compiles to exactly one entry with no implicit newline", () => {
     assert.deepEqual(readSource('RawText("hi\\n")\n').entries, [{ opcode: 0x02, args: [0, 0], text: "hi\n" }]);
     assert.deepEqual(
-      readSource('Text("hi\\n")\n').entries.map((e) => e.opcode),
+      readSource('Text("hi")\n').entries.map((e) => e.opcode),
       [Opcode.RawText, Opcode.WaitFrame, Opcode.WaitInput],
     );
   });

@@ -10,6 +10,6 @@ export const textMeta: LinscriptInstructionMeta = {
   hexcode: "0x02",
   sugar: true,
   description:
-    "Displays a line of text and waits for input; expands to RawText with TextStyle, WaitFrame and WaitInput.",
+    "Displays a line of text and waits for input; expands to RawText with TextStyle, WaitFrame and WaitInput. The text implicitly ends with a newline.",
   parameters: [] as const,
 };
