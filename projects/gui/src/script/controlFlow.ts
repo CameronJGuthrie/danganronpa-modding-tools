@@ -19,9 +19,14 @@ export type ScriptLine = {
   functionName: string;
   /** Raw argument text between the parentheses, split on top-level commas. */
   args: string[];
-  /** The trimmed source text of the line. */
+  /** The trimmed source text of the line; empty for a blank line. */
   text: string;
 };
+
+/** True for a blank source line, which is kept so the editor can show and fill it. */
+export function isBlank(line: ScriptLine): boolean {
+  return line.text === "";
+}
 
 export type FlowNodeKind = "script" | "block" | "handlerGroup" | "handler" | "menu" | "option";
 
@@ -55,9 +60,7 @@ export function parseScriptLines(source: string): ScriptLine[] {
   const rawLines = source.replace(/^﻿/, "").split(/\r?\n/);
 
   rawLines.forEach((raw, index) => {
-    if (raw.trim() === "") {
-      return;
-    }
+    // Blank lines are kept (with their indentation) so they render as editable rows
     const leading = raw.length - raw.trimStart().length;
     const text = raw.trim();
     const match = text.match(/^(\w+)\((.*)\)$/s);
@@ -208,7 +211,7 @@ class FlowBuilder {
         blockHasBody = false;
       }
 
-      if (line.functionName !== "Label") {
+      if (line.functionName !== "Label" && !isBlank(line)) {
         blockHasBody = true;
       }
       this.addLine(block, line);
@@ -321,7 +324,7 @@ function finishBlock(block: FlowNode) {
     block.title = `${block.title} (${labels.join(", ")})`;
   }
 
-  const lineCount = block.items.filter((item) => item.kind === "line").length;
+  const lineCount = block.items.filter((item) => item.kind === "line" && !isBlank(item.line)).length;
   const preview = firstTextPreview(block);
   block.subtitle = preview ?? `${lineCount} instruction${lineCount === 1 ? "" : "s"}`;
 }

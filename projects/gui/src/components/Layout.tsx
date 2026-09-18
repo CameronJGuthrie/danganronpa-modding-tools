@@ -3,7 +3,7 @@ import { useTheme } from "../hooks/useTheme";
 import { Button } from "./base/Button";
 import { TabLayout } from "./base/TabLayout";
 import { CharacterPreview } from "./CharacterPreview";
-import { ScriptBrowser } from "./ScriptBrowser";
+import { ScriptBrowser } from "./script-browser/ScriptBrowser";
 
 type ExplorerTab = "ScriptBrowser" | "Character";
 
