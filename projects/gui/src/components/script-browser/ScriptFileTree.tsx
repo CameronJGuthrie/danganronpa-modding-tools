@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { buildScriptTree, containsModified, filterScriptTree, type ScriptTreeNode } from "../../script/scriptTree";
+import { ScriptSearchInput, ScriptSearchResults, useScriptSearch } from "./ScriptSearch";
 
 type ScriptFileTreeProps = {
   /** Absolute folder whose `.linscript` files are listed; null until one is known. */
@@ -8,7 +9,8 @@ type ScriptFileTreeProps = {
   selectedPath: string | null;
   /** Basenames of scripts that have a modified copy in the mod directory; starred in the tree. */
   modified: ReadonlySet<string>;
-  onSelect: (relativePath: string) => void;
+  /** Opens a script; a line number (from a search hit) is scrolled to once it is open. */
+  onSelect: (relativePath: string, lineNumber?: number) => void;
   onChooseDirectory: () => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
@@ -32,6 +34,10 @@ export function ScriptFileTree({
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<Set<string>>(() => new Set());
+  // Free-text search across every file; while it has a query the results replace the tree
+  const [searchQuery, setSearchQuery] = useState("");
+  const search = useScriptSearch(directory, searchQuery);
+  const searching = searchQuery.trim() !== "";
 
   useEffect(() => {
     if (directory === null) {
@@ -134,7 +140,11 @@ export function ScriptFileTree({
           ★ {modified.size}
         </button>
       </div>
+      <ScriptSearchInput query={searchQuery} onQueryChange={setSearchQuery} />
       <div className="min-h-0 flex-1 overflow-auto font-mono text-sm">
+        {searching && directory !== null && (
+          <ScriptSearchResults state={search} query={searchQuery} onSelect={onSelect} />
+        )}
         {directory === null && (
           <p className="p-1 text-xs text-slate-500 dark:text-slate-400">
             No script folder. Run <code>pnpm run reset</code> to generate the workbench, or choose a folder.
@@ -144,24 +154,25 @@ export function ScriptFileTree({
         {directory !== null && error === null && files.length === 0 && (
           <p className="p-1 text-xs text-slate-500 dark:text-slate-400">No .linscript files here.</p>
         )}
-        {files.length > 0 && visible.length === 0 && (
+        {!searching && files.length > 0 && visible.length === 0 && (
           <p className="p-1 text-xs text-slate-500 dark:text-slate-400">
             {modifiedOnly ? "No modified scripts match." : "No scripts match."}
           </p>
         )}
-        {visible.map((node) => (
-          <TreeNode
-            key={node.path}
-            node={node}
-            depth={0}
-            open={open}
-            forceOpen={filtering}
-            selectedPath={selectedPath}
-            modified={modified}
-            onSelect={onSelect}
-            onToggle={toggleFolder}
-          />
-        ))}
+        {!searching &&
+          visible.map((node) => (
+            <TreeNode
+              key={node.path}
+              node={node}
+              depth={0}
+              open={open}
+              forceOpen={filtering}
+              selectedPath={selectedPath}
+              modified={modified}
+              onSelect={onSelect}
+              onToggle={toggleFolder}
+            />
+          ))}
       </div>
     </aside>
   );

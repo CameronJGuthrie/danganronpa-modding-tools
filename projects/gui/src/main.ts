@@ -1,15 +1,17 @@
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
-import started from "electron-squirrel-startup";
 import fs from "node:fs";
 import path from "node:path";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import started from "electron-squirrel-startup";
 
 import { loadFile } from "./main/file";
+import { runGame } from "./main/game";
 import {
   defaultScriptDirectory,
   listLinscriptFiles,
   listModifiedScripts,
   loadScript,
   saveScript,
+  searchScripts,
 } from "./main/scripts";
 import { convertTgaToPngDataUrl } from "./main/tga";
 
@@ -83,7 +85,10 @@ ipcMain.handle("get-default-game-directory", () => {
     path.join(process.env.HOME || "", ".steam/steam/steamapps/common/Danganronpa Trigger Happy Havoc"),
     path.join(process.env.HOME || "", ".local/share/Steam/steamapps/common/Danganronpa Trigger Happy Havoc"),
     // macOS Steam
-    path.join(process.env.HOME || "", "Library/Application Support/Steam/steamapps/common/Danganronpa Trigger Happy Havoc"),
+    path.join(
+      process.env.HOME || "",
+      "Library/Application Support/Steam/steamapps/common/Danganronpa Trigger Happy Havoc",
+    ),
   ];
 
   for (const dir of commonPaths) {
@@ -102,6 +107,10 @@ ipcMain.handle("list-linscript-files", async (_event, directory: string) => list
 ipcMain.handle("load-script", async (_event, filePath: string) => loadScript(app.getAppPath(), filePath));
 
 ipcMain.handle("list-modified-scripts", async () => listModifiedScripts(app.getAppPath()));
+
+ipcMain.handle("search-scripts", async (_event, directory: string, query: string) => searchScripts(directory, query));
+
+ipcMain.handle("run-game", async () => runGame(app.getAppPath()));
 
 ipcMain.handle("save-script", async (_event, filePath: string, source: string) =>
   saveScript(app.getAppPath(), filePath, source),

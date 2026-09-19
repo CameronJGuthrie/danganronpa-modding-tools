@@ -1,8 +1,7 @@
 import { type FlowNode, isBlank } from "../../script/controlFlow";
-import { ActionRow, canJumpFrom } from "./ActionRow";
-import { InsertLineRow } from "./InsertLineButton";
 import { kindStyles } from "./kindStyles";
 import type { LineEditing } from "./LineEditing";
+import { VirtualActionList } from "./VirtualActionList";
 
 type NodeDetailsProps = {
   node: FlowNode;
@@ -20,8 +19,8 @@ export function NodeDetails({ node, lineIds, labelOwners, editing, editingLine, 
   const lineCount = node.items.filter((item) => item.kind === "line" && !isBlank(item.line)).length;
 
   return (
-    <div className="flex flex-col gap-3">
-      <header className="flex flex-col gap-1">
+    <div className="flex h-full min-h-0 flex-col gap-3">
+      <header className="flex shrink-0 flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className={`rounded px-1.5 py-0.5 text-xs font-semibold uppercase ${style.badge}`}>{style.label}</span>
           <h2 className="font-mono text-lg">{node.title}</h2>
@@ -33,20 +32,16 @@ export function NodeDetails({ node, lineIds, labelOwners, editing, editingLine, 
       </header>
 
       {node.items.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No actions.</p>}
-      <ol className="flex flex-col pt-2 font-mono text-sm">
-        {node.items.map((item) => (
-          <ActionRow
-            key={item.kind === "line" ? `line-${lineIds[item.line.lineNumber - 1]}` : `node-${item.node.id}`}
-            item={item}
-            isEditing={item.kind === "line" && editingLine === item.line.lineNumber}
-            canJump={item.kind === "line" && canJumpFrom(item.line, labelOwners)}
-            editing={editing}
-            onSelect={onSelect}
-            onJump={onJump}
-          />
-        ))}
-        <InsertLineRow lineNumber={node.endLine + 1} editing={editing} />
-      </ol>
+      <VirtualActionList
+        items={node.items}
+        lineIds={lineIds}
+        labelOwners={labelOwners}
+        editing={editing}
+        editingLine={editingLine}
+        trailingInsertLine={node.endLine + 1}
+        onSelect={onSelect}
+        onJump={onJump}
+      />
     </div>
   );
 }

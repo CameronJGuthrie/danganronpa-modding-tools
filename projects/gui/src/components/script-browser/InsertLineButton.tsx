@@ -30,8 +30,8 @@ export function InsertLineButton({ lineNumber, editing }: InsertLineButtonProps)
 /** A zero-height final row so the last boundary of a list also gets an insert button. */
 export function InsertLineRow({ lineNumber, editing }: InsertLineButtonProps) {
   return (
-    <li className="relative h-0">
+    <div className="relative h-0">
       <InsertLineButton lineNumber={lineNumber} editing={editing} />
-    </li>
+    </div>
   );
 }

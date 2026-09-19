@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ScriptEditor } from "./ScriptEditor";
 import { ScriptFileTree } from "./ScriptFileTree";
 
@@ -29,6 +29,28 @@ export function ScriptBrowser() {
   const [loadError, setLoadError] = useState<string | null>(null);
   // Scripts with a copy in the mod directory, starred in the tree; refreshed after every save
   const [modified, setModified] = useState<ReadonlySet<string>>(() => new Set());
+  // A line to scroll to in the open script, set when a search hit is picked; a fresh object each time
+  const [reveal, setReveal] = useState<{ line: number } | null>(null);
+
+  // The open editor's save-if-dirty step, so switching scripts never drops edits
+  const flush = useRef<(() => Promise<boolean>) | null>(null);
+  const registerFlush = useCallback((step: () => Promise<boolean>) => {
+    flush.current = step;
+    return () => {
+      if (flush.current === step) {
+        flush.current = null;
+      }
+    };
+  }, []);
+
+  const selectScript = useCallback(async (relativePath: string, line?: number) => {
+    // Save the current script first; a failed save keeps it open so nothing is lost
+    if (flush.current !== null && !(await flush.current())) {
+      return;
+    }
+    setSelectedPath(relativePath);
+    setReveal(line === undefined ? null : { line });
+  }, []);
 
   const refreshModified = useCallback(() => {
     window.electron
@@ -85,6 +107,9 @@ export function ScriptBrowser() {
   const chooseDirectory = useCallback(async () => {
     const result = await window.electron.openDirectoryDialog();
     if (!result.canceled && result.filePaths.length > 0) {
+      if (flush.current !== null && !(await flush.current())) {
+        return;
+      }
       setDirectory(result.filePaths[0]);
       setSelectedPath(null);
       setScript(null);
@@ -99,7 +124,7 @@ export function ScriptBrowser() {
         directory={directory}
         selectedPath={selectedPath}
         modified={modified}
-        onSelect={setSelectedPath}
+        onSelect={(relativePath, line) => void selectScript(relativePath, line)}
         onChooseDirectory={chooseDirectory}
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed((previous) => !previous)}
@@ -112,6 +137,8 @@ export function ScriptBrowser() {
           scriptName={scriptName(open.path)}
           initialSource={open.source}
           onSaved={refreshModified}
+          registerFlush={registerFlush}
+          reveal={reveal}
         />
       ) : (
         <section className="flex flex-1 items-center justify-center rounded bg-white dark:bg-slate-800 shadow-sm">

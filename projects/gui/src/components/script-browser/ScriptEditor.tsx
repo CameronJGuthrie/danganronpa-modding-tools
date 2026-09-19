@@ -8,6 +8,7 @@ import {
   replaceDocumentSource,
 } from "../../script/editSource";
 import { applyObjectNames, parseObjectNames, referencedObjectIds } from "../../script/objectNames";
+import { useBeforeRunGame } from "../../state/RunGameContext";
 import { ActionPanel } from "./ActionPanel";
 import { AllLines } from "./AllLines";
 import { FlowTree } from "./FlowTree";
@@ -28,13 +29,28 @@ type ScriptEditorProps = {
   initialSource: string;
   /** Called after a successful save, e.g. so the file tree can refresh its modified markers. */
   onSaved?: () => void;
+  /**
+   * Registers the step that saves pending edits (a no-op when clean), so the browser can flush the
+   * script before switching to another. Returns the unregister function.
+   */
+  registerFlush?: (flush: () => Promise<boolean>) => () => void;
+  /** A line to scroll to and mark in the all-lines view, e.g. a search hit; a new object re-triggers it. */
+  reveal?: { line: number } | null;
 };
 
 /**
  * Two-pane script viewer and editor: a control-flow tree on the left, the selected node's lines on
  * the right. Mount it with a `key` per script so opening another file starts from fresh state.
  */
-export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSource, onSaved }: ScriptEditorProps) {
+export function ScriptEditor({
+  filePath,
+  fromMod = false,
+  scriptName,
+  initialSource,
+  onSaved,
+  registerFlush,
+  reveal = null,
+}: ScriptEditorProps) {
   const [document, setDocument] = useState(() => createDocument(initialSource));
   const { source, lineIds } = document;
   // What is on disk, as far as this editor knows; the source is dirty when it differs
@@ -49,6 +65,12 @@ export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSou
   // "View All" shows every line of the script, indented, instead of one node's actions. It is the
   // starting view; picking a node in the tree switches to that node's actions.
   const [viewAll, setViewAll] = useState(true);
+  // A revealed line lives in the all-lines view, so showing one switches back to it
+  useEffect(() => {
+    if (reveal !== null) {
+      setViewAll(true);
+    }
+  }, [reveal]);
   // Read-only disables every dropdown so the script cannot be edited by accident
   const [readOnly, setReadOnly] = useState(false);
   // The line whose text is open in an inline text field; null when nothing is being edited
@@ -60,6 +82,8 @@ export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSou
   // Latest values for callbacks that must keep their identity across renders
   const sourceRef = useRef(source);
   sourceRef.current = source;
+  const savedSourceRef = useRef(savedSource);
+  savedSourceRef.current = savedSource;
   const flowRef = useRef(flow);
   flowRef.current = flow;
 
@@ -116,7 +140,7 @@ export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSou
 
   const cancelEdit = useCallback(() => setEditingLine(null), []);
 
-  const save = useCallback(async () => {
+  const save = useCallback(async (): Promise<boolean> => {
     const text = sourceRef.current;
     setSaving(true);
     try {
@@ -134,10 +158,20 @@ export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSou
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setSaveStatus({ kind: "error", text: "Save failed", detail: message });
+      return false;
     } finally {
       setSaving(false);
     }
+    return true;
   }, [filePath, onSaved]);
+
+  // Pending edits are saved before the game is built and run, and before another script is opened
+  const saveIfDirty = useCallback(
+    () => (sourceRef.current === savedSourceRef.current ? Promise.resolve(true) : save()),
+    [save],
+  );
+  useBeforeRunGame(saveIfDirty);
+  useEffect(() => registerFlush?.(saveIfDirty), [registerFlush, saveIfDirty]);
 
   // Ctrl+S / Cmd+S saves from anywhere in the editor, including an open line text field
   useEffect(() => {
@@ -182,18 +216,16 @@ export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSou
   return (
     <>
       <aside className="flex w-96 shrink-0 flex-col gap-2 rounded bg-white dark:bg-slate-800 p-2 shadow-sm">
-        <div className="min-h-0 flex-1 overflow-auto">
-          <FlowTree
-            node={flow.root}
-            depth={0}
-            selectedId={viewAll ? null : selected.id}
-            collapsed={collapsed}
-            onSelect={selectNode}
-            onToggle={toggleCollapsed}
-            viewAll={viewAll}
-            onViewAll={() => setViewAll(true)}
-          />
-        </div>
+        <FlowTree
+          className="min-h-0 flex-1"
+          root={flow.root}
+          selectedId={viewAll ? null : selected.id}
+          collapsed={collapsed}
+          onSelect={selectNode}
+          onToggle={toggleCollapsed}
+          viewAll={viewAll}
+          onViewAll={() => setViewAll(true)}
+        />
         <div className="max-h-[40%] shrink-0 overflow-auto">
           <ObjectNamesPanel names={objectNames} uses={objectUses} readOnly={readOnly} onRename={renameObject} />
         </div>
@@ -208,7 +240,7 @@ export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSou
           status={saveStatus}
           fromMod={fromMod}
         />
-        <div className="h-full overflow-auto p-4">
+        <div className="flex h-full min-h-0 flex-col p-4">
           {viewAll ? (
             <AllLines
               title={flow.root.title}
@@ -217,6 +249,7 @@ export function ScriptEditor({ filePath, fromMod = false, scriptName, initialSou
               labelOwners={flow.labelOwners}
               editing={editing}
               editingLine={editingLine}
+              reveal={reveal}
               onSelect={selectNode}
               onJump={jumpToLabel}
             />

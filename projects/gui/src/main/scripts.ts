@@ -119,3 +119,45 @@ export async function loadScript(appPath: string, filePath: string): Promise<Loa
   const source = await fs.promises.readFile(target, "utf8");
   return { path: target, source, fromMod: useMod };
 }
+
+export type ScriptSearchHit = {
+  /** Forward-slash path relative to the searched directory. */
+  path: string;
+  /** 1-based line number of the hit. */
+  lineNumber: number;
+  /** The matching line, trimmed. */
+  text: string;
+};
+
+export type ScriptSearchResult = {
+  hits: ScriptSearchHit[];
+  /** How many files were searched. */
+  fileCount: number;
+  /** True when more lines matched than `hits` holds. */
+  truncated: boolean;
+};
+
+/** Case-insensitive substring search of every `.linscript` under `directory`, at most `limit` hits. */
+export async function searchScripts(directory: string, query: string, limit = 500): Promise<ScriptSearchResult> {
+  const needle = query.toLowerCase();
+  const files = await listLinscriptFiles(directory);
+  const hits: ScriptSearchHit[] = [];
+  let truncated = false;
+  if (needle === "") {
+    return { hits, fileCount: files.length, truncated };
+  }
+  for (const file of files) {
+    const source = await fs.promises.readFile(path.join(directory, file), "utf8");
+    const lines = source.split("\n");
+    for (let index = 0; index < lines.length; index++) {
+      if (lines[index].toLowerCase().includes(needle)) {
+        if (hits.length >= limit) {
+          truncated = true;
+          return { hits, fileCount: files.length, truncated };
+        }
+        hits.push({ path: file, lineNumber: index + 1, text: lines[index].trim() });
+      }
+    }
+  }
+  return { hits, fileCount: files.length, truncated };
+}

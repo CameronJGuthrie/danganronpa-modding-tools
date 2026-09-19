@@ -14,6 +14,15 @@ declare global {
       getDefaultScriptDirectory: () => Promise<string | null>;
       /** Every `.linscript` under `directory`, as forward-slash paths relative to it, sorted. */
       listScriptFiles: (directory: string) => Promise<string[]>;
+      /** Case-insensitive text search of every `.linscript` under `directory`, capped at 500 hits. */
+      searchScripts: (
+        directory: string,
+        query: string,
+      ) => Promise<{
+        hits: { path: string; lineNumber: number; text: string }[];
+        fileCount: number;
+        truncated: boolean;
+      }>;
       /**
        * Write `source` back to `filePath` (unless it is read-only) and copy it into the mod script
        * directory. Resolves with the paths written and the read-only original, if it was skipped.
@@ -23,6 +32,8 @@ declare global {
       listModifiedScripts: () => Promise<string[]>;
       /** Read a script for editing, preferring its copy in the mod script directory when one exists. */
       loadScript: (filePath: string) => Promise<{ path: string; source: string; fromMod: boolean }>;
+      /** Build every mod with the repository's build script, then launch the game through Steam. */
+      runGame: () => Promise<{ ok: boolean; output: string }>;
     };
   }
 }

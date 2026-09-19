@@ -75,7 +75,7 @@ function ActionRowInner({ item, indent = 0, isEditing, canJump, editing, onSelec
     const child = item.node;
     const style = kindStyles[child.kind];
     return (
-      <li
+      <div
         className={`relative flex items-baseline gap-2 border-l-4 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/60 ${GUTTER_CLASS} pr-2 py-1`}
       >
         <InsertLineButton lineNumber={child.startLine} editing={editing} />
@@ -89,7 +89,7 @@ function ActionRowInner({ item, indent = 0, isEditing, canJump, editing, onSelec
           <span>{child.title}</span>
           {child.subtitle && <span className="text-xs text-slate-500 dark:text-slate-400">{child.subtitle}</span>}
         </button>
-      </li>
+      </div>
     );
   }
 
@@ -111,7 +111,7 @@ function ActionRowInner({ item, indent = 0, isEditing, canJump, editing, onSelec
   }
 
   // Clicking the row opens the text field, unless the click landed on a control that has its own job
-  const startEdit = (event: MouseEvent<HTMLLIElement>) => {
+  const startEdit = (event: MouseEvent<HTMLDivElement>) => {
     if (readOnly || isEditing || (event.target as HTMLElement).closest("button, select, input")) {
       return;
     }
@@ -120,7 +120,8 @@ function ActionRowInner({ item, indent = 0, isEditing, canJump, editing, onSelec
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: the row is a click target for opening the text field; the field itself is keyboard-operable
-    <li
+    // biome-ignore lint/a11y/noStaticElementInteractions: same as above
+    <div
       className={`relative flex items-baseline gap-2 ${GUTTER_CLASS} pr-2 py-0.5 ${rowClass} ${readOnly || isEditing ? "" : "cursor-text"}`}
       onClick={startEdit}
     >
@@ -148,6 +149,6 @@ function ActionRowInner({ item, indent = 0, isEditing, canJump, editing, onSelec
           jump →
         </button>
       )}
-    </li>
+    </div>
   );
 }
