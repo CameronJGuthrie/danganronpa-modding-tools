@@ -1,10 +1,10 @@
 import {
   Arithmetic,
   arithmaticConfiguraiton,
-  Character,
   isArithmetic,
-  isCharacter,
+  isStudent,
   LinscriptInstructionName,
+  Student,
 } from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -14,21 +14,22 @@ export const studentTitleEntryMeta: LinscriptInstructionMeta = {
   hexcode: "0x0F",
   parameters: [
     {
-      name: "characterId",
-      values: Character,
+      name: "student",
+      description: "The student whose title entry changes; only ids 0-15 have a report card",
+      names: Student,
     },
     {
       name: "operation",
-      values: Arithmetic,
+      names: Arithmetic,
     },
     {
       name: "value",
       description: "The value to set, add, or remove from the student title",
     },
   ] as const,
-  decorations([character, op, value]) {
-    if (!isCharacter(character)) {
-      return `Unknown character: ${character}`;
+  decorations([student, op, value]) {
+    if (!isStudent(student)) {
+      return `Unknown student: ${student} (valid ids are 0-15)`;
     }
     if (!isArithmetic(op)) {
       return `Unknown arithmetic: ${op}`;
@@ -40,8 +41,8 @@ export const studentTitleEntryMeta: LinscriptInstructionMeta = {
         contentText: `${arithmaticConfiguraiton[op].name} ${value} ${joiner} `,
       },
       {
-        contentText: characterData[character].name,
-        color: characterData[character].color,
+        contentText: characterData[student].name,
+        color: characterData[student].color,
       },
       { contentText: ` student title entry` },
     ];

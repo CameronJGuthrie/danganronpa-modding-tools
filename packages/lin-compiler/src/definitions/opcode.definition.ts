@@ -1,11 +1,18 @@
 import {
+  Arithmetic,
   Bool,
+  Chapter,
   Character,
+  CharacterSprite,
   comparisonOperators,
   FlagGroup,
   LogicalJoin,
+  SpriteSheet,
+  Student,
   UiVisibility,
   UserInterface,
+  Variable,
+  VoiceCharacter,
 } from "linscript-definitions";
 import { type NamedValues, type Parameter, ParameterType } from "./parameter.definition.ts";
 
@@ -78,26 +85,28 @@ const bool = named(Byte, Bool);
 const compare = named(Byte, comparisonOperators);
 /** A condition joiner byte, written as `And` or `Or`. */
 const join = named(Byte, LogicalJoin);
+/** A variable id, written by name (`Scene`) when the variable is known; the value it is compared with stays numeric. */
+const variable = named(UInt16BE, Variable);
 
 // biome-ignore format: keep the table columns aligned
 /** Every known binary opcode, keyed by source name. Add a row here to teach the compiler a new one. */
 export const opcodes = {
   Type:                  { id: 0x00, args: { kind: "type" } },
-  LoadSprite:            { id: 0x01, args: bytes(3) },
+  LoadSprite:            { id: 0x01, args: fixed([Byte, named(Byte, SpriteSheet), Byte]) },
   /** The binary text opcode. In source, `Text(...)` is sugar (see `textSugar.ts`); `RawText` is the escape hatch. */
   RawText:               { id: 0x02, args: { kind: "text" } },
   TextStyle:             { id: 0x03, args: bytes(1) },
   PostProcessingEffect:  { id: 0x04, args: bytes(4) },
   Movie:                 { id: 0x05, args: bytes(2) },
   Animation:             { id: 0x06, args: fixed([UInt16BE, Byte, Byte, Byte, Byte, Byte, Byte]) },
-  Voice:                 { id: 0x08, args: fixed([Byte, Byte, UInt16BE, Byte]) },
+  Voice:                 { id: 0x08, args: fixed([named(Byte, VoiceCharacter), named(Byte, Chapter), UInt16BE, Byte]) },
   Music:                 { id: 0x09, args: bytes(3) },
   Sound:                 { id: 0x0a, args: fixed([UInt16BE, Byte]) },
   SoundB:                { id: 0x0b, args: bytes(2) },
   TruthBulletFlag:       { id: 0x0c, args: bytes(2) },
   Present:               { id: 0x0d, args: bytes(3), hidden: true }, // GivePresent / ReceivePresent sugar
   UnlockSkill:           { id: 0x0e, args: bytes(2) },
-  StudentTitleEntry:     { id: 0x0f, args: bytes(3) },
+  StudentTitleEntry:     { id: 0x0f, args: fixed([named(Byte, Student), named(Byte, Arithmetic), Byte]) },
   StudentReportInfo:     { id: 0x10, args: bytes(3) },
   StudentRelationship:   { id: 0x11, args: bytes(4) },
   TrialCamera:           { id: 0x14, args: fixed([Byte, UInt16BE]) },
@@ -106,7 +115,7 @@ export const opcodes = {
   StopScript:            { id: 0x1a, args: bytes(0) },
   RunScript:             { id: 0x1b, args: bytes(3) },
   RestartScript:         { id: 0x1c, args: bytes(0) },
-  Sprite:                { id: 0x1e, args: bytes(5) },
+  Sprite:                { id: 0x1e, args: fixed([Byte, named(Byte, CharacterSprite), Byte, Byte, Byte]) },
   ScreenFlash:           { id: 0x1f, args: bytes(7) },
   SpriteFlash:           { id: 0x20, args: bytes(5) },
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
@@ -121,12 +130,12 @@ export const opcodes = {
   EndOfJump:             { id: 0x2c, args: bytes(2) },
   CameraFlash:           { id: 0x2e, args: bytes(2) },
   ShowBackground:        { id: 0x30, args: fixed([UInt16BE, Byte]) },
-  SetVariable:           { id: 0x33, args: fixed([Byte, Byte, UInt16BE]) },
+  SetVariable:           { id: 0x33, args: fixed([named(Byte, Variable), named(Byte, Arithmetic), UInt16BE]) },
   Goto:                  { id: 0x34, args: fixed([UInt16BE]) },
   /** `group, offset, operand, value` followed by any number of `joiner, group, offset, operand, value`. */
   IfFlag:                { id: 0x35, args: { kind: "repeat", head: [flagGroup, flagOffset, compare, bool], tail: [join, flagGroup, flagOffset, compare, bool] } },
   /** `value1, operand, value2` followed by any number of `joiner, value1, operand, value2`. */
-  If:                    { id: 0x36, args: { kind: "repeat", head: [UInt16BE, compare, UInt16BE], tail: [join, UInt16BE, compare, UInt16BE] } },
+  If:                    { id: 0x36, args: { kind: "repeat", head: [variable, compare, UInt16BE], tail: [join, variable, compare, UInt16BE] } },
   IfFreeTimeEvent:       { id: 0x38, args: fixed([UInt16BE, compare, UInt16BE]) },
   IfRelationship:        { id: 0x39, args: fixed([UInt16BE, compare, UInt16BE]) },
   WaitInput:             { id: 0x3a, args: none() },

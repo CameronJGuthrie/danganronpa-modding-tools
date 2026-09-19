@@ -60,5 +60,8 @@ export const voiceLinesByCharacterByChapter: CharacterVoiceLinesByChapter = {
 export type VoiceMeta = {
   index: number;
 };
-export type ChapterVoiceLines = Record<Chapter, { [voiceLineId: number]: string; metadata: VoiceMeta } | undefined>;
+/** Voice lines by chapter; chapters with no transcribed lines yet may be left out. */
+export type ChapterVoiceLines = Partial<
+  Record<Chapter, { [voiceLineId: number]: string; metadata: VoiceMeta } | undefined>
+>;
 export type CharacterVoiceLinesByChapter = Record<Character, ChapterVoiceLines | undefined>;

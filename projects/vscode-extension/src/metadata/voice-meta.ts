@@ -1,8 +1,9 @@
 import {
-  Character,
+  Chapter,
   isChapter,
-  isCharacter,
+  isVoiceCharacter,
   LinscriptInstructionName,
+  VoiceCharacter,
   voiceLinesByCharacterByChapter,
 } from "linscript-definitions";
 import { characterData } from "../data/character-data";
@@ -13,12 +14,14 @@ export const voiceMeta: LinscriptInstructionMeta = {
   hexcode: "0x08",
   parameters: [
     {
-      name: "characterId",
-      values: Character,
+      name: "character",
+      description: "The speaker; only the students, Junko, Genocide Jill and Usami have voice lines",
+      names: VoiceCharacter,
     },
     {
       name: "chapter",
-      description: "chapter (or 99 as N/A)",
+      description: "Chapter the line belongs to (Chapter_99 when not tied to one)",
+      names: Chapter,
     },
     {
       name: "voiceId",
@@ -30,8 +33,8 @@ export const voiceMeta: LinscriptInstructionMeta = {
     },
   ] as const,
   decorations([character, chapter, voiceId, _volume]) {
-    if (!isCharacter(character)) {
-      return [{ contentText: `CharacterID ${character}`, color: "gray" }];
+    if (!isVoiceCharacter(character)) {
+      return [{ contentText: `Unknown voice character ${character}`, color: "gray" }];
     }
     if (!isChapter(chapter)) {
       return "Unknown Chapter";

@@ -5,6 +5,9 @@ export enum Chapter {
   Chapter_4 = 4,
   Chapter_5 = 5,
   Chapter_6 = 6,
+  /** The bonus-mode scripts (e10_*). */
+  Chapter_10 = 10,
+  /** Not tied to a chapter, e.g. voice lines shared across the game. */
   Chapter_99 = 99,
 }
 

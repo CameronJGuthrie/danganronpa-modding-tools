@@ -1,11 +1,18 @@
 import {
+  Arithmetic,
   Bool,
+  Chapter,
   Character,
+  CharacterSprite,
   comparisonOperators,
   FlagGroup,
   LogicalJoin,
+  SpriteSheet,
+  Student,
   UiVisibility,
   UserInterface,
+  Variable,
+  VoiceCharacter,
 } from "linscript-definitions";
 
 /** A numeric enum object whose member names may stand in for an argument. */
@@ -31,15 +38,23 @@ const characterOffset: DependentValues = {
  */
 export const editableArguments: Readonly<Record<string, EditableArguments>> = {
   Speaker: { head: [Character] },
+  // Only the sixteen students (ids 0-15) have a report card, so the wider Character table is not offered
+  StudentTitleEntry: { head: [Student, Arithmetic, undefined] },
+  // Only the characters that have bust-up sprites
+  Sprite: { head: [undefined, CharacterSprite] },
+  LoadSprite: { head: [undefined, SpriteSheet] },
+  Voice: { head: [VoiceCharacter, Chapter] },
+  SetVariable: { head: [Variable, Arithmetic, undefined] },
   SetUI: { head: [UserInterface, UiVisibility] },
   SetFlag: { head: [FlagGroup, characterOffset, Bool] },
   IfFlag: {
     head: [FlagGroup, characterOffset, comparisonOperators, Bool],
     tail: [LogicalJoin, FlagGroup, characterOffset, comparisonOperators, Bool],
   },
+  // The first operand is a variable; the value it is compared with is a plain number
   If: {
-    head: [undefined, comparisonOperators, undefined],
-    tail: [LogicalJoin, undefined, comparisonOperators, undefined],
+    head: [Variable, comparisonOperators, undefined],
+    tail: [LogicalJoin, Variable, comparisonOperators, undefined],
   },
   IfFreeTimeEvent: { head: [undefined, comparisonOperators, undefined] },
   IfRelationship: { head: [undefined, comparisonOperators, undefined] },

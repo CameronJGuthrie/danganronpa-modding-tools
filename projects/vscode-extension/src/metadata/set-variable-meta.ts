@@ -16,11 +16,11 @@ export const setVariableMeta: LinscriptInstructionMeta = {
   parameters: [
     {
       name: "address",
-      values: Variable,
+      names: Variable,
     },
     {
       name: "arithmetic",
-      values: Arithmetic,
+      names: Arithmetic,
     },
     {
       name: "value",

@@ -24,8 +24,65 @@ function textlessFile(scriptData: number[]): Uint8Array {
 
 describe("compile and decompile", () => {
   test("fixed-length opcodes round-trip unchanged", () => {
-    const source = "Speaker(Mondo)\nSound(513, 2)\nSetVariable(1, 2, 65535)\nStopScript()\n";
+    const source = "Speaker(Mondo)\nSound(513, 2)\nSetVariable(1, Subtract, 65535)\nStopScript()\n";
     assert.equal(roundTrip(source), source);
+  });
+
+  test("StudentTitleEntry names the student and operation; only ids 0-15 are students", () => {
+    const script = readSource(
+      "StudentTitleEntry(Sayaka, Add, 1)\nStudentTitleEntry(15, 0, 0)\nStudentTitleEntry(16, 0, 0)\n",
+    );
+    assert.equal(
+      writeSourceText(script),
+      "StudentTitleEntry(Sayaka, Add, 1)\nStudentTitleEntry(Monokuma, Assign, 0)\nStudentTitleEntry(16, Assign, 0)\n",
+    );
+    assert.throws(() => readSource("StudentTitleEntry(Junko, Add, 1)\n"), SourceError);
+  });
+
+  test("Sprite names its character; only characters with sprites are accepted by name", () => {
+    const script = readSource("Sprite(0, Usami, 34, 6, 3)\nSprite(0, 17, 1, 1, 2)\nSprite(0, 19, 0, 0, 0)\n");
+    assert.equal(
+      writeSourceText(script),
+      "Sprite(0, Usami, 34, 6, 3)\nSprite(0, AlterEgo, 1, 1, 2)\nSprite(0, 19, 0, 0, 0)\n",
+    );
+    assert.throws(() => readSource("Sprite(0, Headmaster, 0, 0, 0)\n"), SourceError);
+  });
+
+  test("LoadSprite names its sprite sheet, with placeholders for the unidentified sheets", () => {
+    const script = readSource(
+      "LoadSprite(135, 8, 1)\nLoadSprite(119, 20, 1)\nLoadSprite(1, SpriteSheet_29, 1)\nLoadSprite(1, 16, 1)\n",
+    );
+    assert.equal(
+      writeSourceText(script),
+      "LoadSprite(135, Kyoko, 1)\nLoadSprite(119, SpriteSheet_20, 1)\nLoadSprite(1, SpriteSheet_29, 1)\nLoadSprite(1, 16, 1)\n",
+    );
+    assert.throws(() => readSource("LoadSprite(1, Junko, 1)\n"), SourceError);
+  });
+
+  test("Voice names its character and chapter", () => {
+    const script = readSource(
+      "Voice(18, 2, 71, 100)\nVoice(Usami, Chapter_99, 2, 100)\nVoice(0, 10, 5, 100)\nVoice(17, 7, 1, 100)\n",
+    );
+    assert.equal(
+      writeSourceText(script),
+      "Voice(GenocideJill, Chapter_2, 71, 100)\nVoice(Usami, Chapter_99, 2, 100)\nVoice(Makoto, Chapter_10, 5, 100)\nVoice(17, 7, 1, 100)\n",
+    );
+    assert.throws(() => readSource("Voice(AlterEgo, Chapter_1, 1, 100)\n"), SourceError);
+  });
+
+  test("If names the variable it tests but keeps the compared value numeric", () => {
+    const script = readSource("If(20, !=, 21)\nIf(Scene, !=, 16, Or, 20, !=, 17)\nIf(49, !=, 0)\n");
+    assert.equal(writeSourceText(script), "If(Scene, !=, 21)\nIf(Scene, !=, 16, Or, Scene, !=, 17)\nIf(49, !=, 0)\n");
+    assert.throws(() => readSource("If(Scene, !=, Monocoin)\n"), SourceError);
+  });
+
+  test("SetVariable names the variable and the operation", () => {
+    const script = readSource("SetVariable(20, 0, 3)\nSetVariable(Monocoin, Add, 5)\nSetVariable(14, 0, 0)\n");
+    assert.equal(
+      writeSourceText(script),
+      "SetVariable(Scene, Assign, 3)\nSetVariable(Monocoin, Add, 5)\nSetVariable(14, Assign, 0)\n",
+    );
+    assert.throws(() => readSource("SetVariable(Scene, Assign, Monocoin)\n"), SourceError);
   });
 
   test("textless and text scripts get the right header", () => {
@@ -253,7 +310,7 @@ describe("named arguments", () => {
     // Trailing Speaker keeps the variadic If from absorbing the alignment padding
     assert.equal(
       roundTrip("If(0, 0, 5)\nIf(0, 1, 5, 6, 8, 2, 9, 7, 8, 3, 9)\nSpeaker(Taka)\n"),
-      "If(0, !=, 5)\nIf(0, ==, 5, And, 8, <=, 9, Or, 8, >=, 9)\nSpeaker(Taka)\n",
+      "If(Time, !=, 5)\nIf(Time, ==, 5, And, ScriptEntryContext, <=, 9, Or, ScriptEntryContext, >=, 9)\nSpeaker(Taka)\n",
     );
     assert.equal(
       roundTrip("IfRelationship(3, 4, 20)\nIfFreeTimeEvent(3, 5, 0)\n"),
@@ -368,7 +425,7 @@ describe("Wait sugar", () => {
     // Other variables and other arithmetic modes are left alone
     assert.equal(
       roundTrip("SetVariable(6, 1, 60)\nSetVariable(0, 0, 60)\n"),
-      "SetVariable(6, 1, 60)\nSetVariable(0, 0, 60)\n",
+      "SetVariable(Wait, Add, 60)\nSetVariable(Time, Assign, 60)\n",
     );
   });
 

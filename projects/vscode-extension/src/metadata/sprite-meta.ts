@@ -1,4 +1,4 @@
-import { Character, isCharacter, LinscriptInstructionName } from "linscript-definitions";
+import { CharacterSprite, isCharacterSprite, LinscriptInstructionName } from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import { sprites } from "../data/sprite";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -11,8 +11,9 @@ export const spriteMeta: LinscriptInstructionMeta = {
       name: "objectId",
     },
     {
-      name: "characterId",
-      values: Character,
+      name: "character",
+      description: "The character whose sprite is shown; only the students, Junko, Alter Ego and Usami have sprites",
+      names: CharacterSprite,
     },
     {
       name: "spriteId",
@@ -47,8 +48,8 @@ export const spriteMeta: LinscriptInstructionMeta = {
     },
   ] as const,
   decorations([_, character, spriteId, animation, position]) {
-    if (!isCharacter(character)) {
-      return [{ contentText: `Unknown character`, color: "gray" }];
+    if (!isCharacterSprite(character)) {
+      return [{ contentText: `Unknown sprite character ${character}`, color: "gray" }];
     }
 
     const { name, color } = characterData[character];

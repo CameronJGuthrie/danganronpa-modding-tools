@@ -7,6 +7,7 @@ import {
   joins,
   LinscriptInstructionName,
   LogicalJoin,
+  Variable,
   variables,
 } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -16,8 +17,8 @@ export const ifMeta: LinscriptInstructionMeta = {
   hexcode: "0x36",
   varargs: true,
   varargNames: {
-    head: [undefined, comparisonOperators, undefined],
-    tail: [LogicalJoin, undefined, comparisonOperators, undefined],
+    head: [Variable, comparisonOperators, undefined],
+    tail: [LogicalJoin, Variable, comparisonOperators, undefined],
   },
   parameters: [],
   decorations: (args) => {

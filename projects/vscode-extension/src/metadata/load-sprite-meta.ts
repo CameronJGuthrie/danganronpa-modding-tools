@@ -1,5 +1,4 @@
-import { isCharacter, LinscriptInstructionName } from "linscript-definitions";
-import { characterData } from "../data/character-data";
+import { LinscriptInstructionName, SpriteSheet, spriteSheetName } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const loadSpriteMeta: LinscriptInstructionMeta = {
@@ -11,20 +10,16 @@ export const loadSpriteMeta: LinscriptInstructionMeta = {
       description: "objectId ? mapId ?",
     },
     {
-      name: "characterId",
-      description: "sometimes characterId",
+      name: "spriteSheet",
+      description: "The sprite sheet to load: a student's, or one of the unidentified SpriteSheet_N sheets",
+      names: SpriteSheet,
     },
     {
       unknown: true,
       description: "visibility?",
     },
   ] as const,
-  decorations([object, character, visibility]) {
-    let characterText = `${character}`;
-    if (isCharacter(character)) {
-      characterText = characterData[character].name;
-    }
-
-    return `${object} ${characterText} ${visibility}`;
+  decorations([object, sheet, visibility]) {
+    return `${object} ${spriteSheetName(sheet) ?? `unknown sheet ${sheet}`} ${visibility}`;
   },
 };
