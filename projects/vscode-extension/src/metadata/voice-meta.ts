@@ -29,7 +29,8 @@ export const voiceMeta: LinscriptInstructionMeta = {
     },
     {
       name: "volume",
-      description: "volume is always 100",
+      description: "Volume; every game script uses 100, so source normally omits it",
+      defaultValue: 100,
     },
   ] as const,
   decorations([character, chapter, voiceId, _volume]) {

@@ -13,8 +13,10 @@ export type AudioTestConfig<TInfo> = {
   runProfileLabel: string;
   /** Playback channel; only one process plays per channel at a time */
   channel: string;
-  /** Function patterns to match (e.g., ["Voice", "0x08"]) */
-  functionPatterns: Array<{ name: string; paramCount: number }>;
+  /** Function patterns to match (e.g., ["Voice", "0x08"]); calls may omit trailing optional arguments */
+  functionPatterns: Array<{ name: string; paramCount: number; requiredParamCount: number }>;
+  /** Default for every argument position, used where a call omits a trailing optional argument */
+  defaults: Array<number | undefined>;
   /**
    * True when these arguments mean "stop this channel" rather than "play something".
    * For example Music(255, ...) stops the current music. Omit if the opcode has no stop value.
@@ -40,11 +42,12 @@ export type AudioTestConfigBuilder<TInfo> = {
   /** And all other properties not derived from the opcode */
 } & Omit<
   AudioTestConfig<TInfo>,
-  "controllerId" | "controllerLabel" | "runProfileLabel" | "channel" | "functionPatterns"
+  "controllerId" | "controllerLabel" | "runProfileLabel" | "channel" | "functionPatterns" | "defaults"
 >;
 
 export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): AudioTestConfig<T> {
   const { opcode, ...rest } = builder;
+  const requiredParamCount = opcode.parameters.filter((param) => param.defaultValue === undefined).length;
 
   return {
     controllerId: `${opcode.name}-playback-controller`,
@@ -55,12 +58,15 @@ export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): Audi
       {
         name: opcode.name,
         paramCount: opcode.parameters.length,
+        requiredParamCount,
       },
       {
         name: opcode.hexcode,
         paramCount: opcode.parameters.length,
+        requiredParamCount,
       },
     ],
+    defaults: opcode.parameters.map((param) => param.defaultValue),
     ...rest,
   };
 }

@@ -14,6 +14,16 @@ suite("Voice Test Controller Test Suite", () => {
     assert.doesNotMatch("Voice", createCompleteFunctionRegex("Voice", 4)); // No params
   });
 
+  test("Voice regex accepts an omitted optional volume", () => {
+    const regex = () => createCompleteFunctionRegex("Voice", 4, 3);
+    assert.match("Voice(1, 1, 100)", regex());
+    assert.match("Voice(Makoto, Chapter_1, 100)", regex());
+    assert.match("Voice(1, 1, 100, 80)", regex());
+    assert.doesNotMatch("Voice(1, 1)", regex()); // Only 2 params
+    assert.doesNotMatch("Voice(1, 1, 100, 80, 5)", regex()); // 5 params
+    assert.strictEqual("Voice(1, 1, 100)\nVoice(2, 2, 200, 80)".match(regex())?.length, 2);
+  });
+
   test("0x08 opcode regex matches correctly", () => {
     // Should match valid 0x08 calls with 4 parameters
     assert.match("0x08(1, 1, 100, 100)", createCompleteFunctionRegex("0x08", 4));

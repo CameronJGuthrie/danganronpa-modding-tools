@@ -60,14 +60,33 @@ describe("compile and decompile", () => {
   });
 
   test("Voice names its character and chapter", () => {
-    const script = readSource(
-      "Voice(18, 2, 71, 100)\nVoice(Usami, Chapter_99, 2, 100)\nVoice(0, 10, 5, 100)\nVoice(17, 7, 1, 100)\n",
-    );
+    const script = readSource("Voice(18, 2, 71)\nVoice(Usami, Chapter_99, 2)\nVoice(0, 10, 5)\nVoice(17, 7, 1)\n");
     assert.equal(
       writeSourceText(script),
-      "Voice(GenocideJill, Chapter_2, 71, 100)\nVoice(Usami, Chapter_99, 2, 100)\nVoice(Makoto, Chapter_10, 5, 100)\nVoice(17, 7, 1, 100)\n",
+      "Voice(GenocideJill, Chapter_2, 71)\nVoice(Usami, Chapter_99, 2)\nVoice(Makoto, Chapter_10, 5)\nVoice(17, 7, 1)\n",
     );
-    assert.throws(() => readSource("Voice(AlterEgo, Chapter_1, 1, 100)\n"), SourceError);
+    assert.throws(() => readSource("Voice(AlterEgo, Chapter_1, 1)\n"), SourceError);
+  });
+
+  test("an omitted volume compiles to 100 and a volume of 100 decompiles to nothing", () => {
+    const script = readSource("Voice(Makoto, Chapter_1, 5)\nVoice(Makoto, Chapter_1, 5, 100)\nSound(7)\nSoundB(3, 100)\n");
+    assert.deepEqual(
+      script.entries.map((entry) => entry.args),
+      [[0, 1, 0, 5, 100], [0, 1, 0, 5, 100], [0, 7, 100], [3, 100]],
+    );
+    assert.equal(writeSourceText(script), "Voice(Makoto, Chapter_1, 5)\nVoice(Makoto, Chapter_1, 5)\nSound(7)\nSoundB(3)\n");
+    assert.equal(writeSourceText(script, { hexOpcodes: true }), "0x08(0, 1, 5, 100)\n0x08(0, 1, 5, 100)\n0x0A(7, 100)\n0x0B(3, 100)\n");
+  });
+
+  test("a volume other than 100 round-trips explicitly", () => {
+    const script = readSource("Sound(7, 80)\nVoice(Makoto, Chapter_1, 5, 0)\nSoundB(3, 50)\n");
+    assert.deepEqual(
+      script.entries.map((entry) => entry.args),
+      [[0, 7, 80], [0, 1, 0, 5, 0], [3, 50]],
+    );
+    assert.equal(writeSourceText(script), "Sound(7, 80)\nVoice(Makoto, Chapter_1, 5, 0)\nSoundB(3, 50)\n");
+    assert.throws(() => readSource("Sound(7, 80, 1)\n"), SourceError);
+    assert.throws(() => readSource("Sound()\n"), SourceError);
   });
 
   test("If names the variable it tests but keeps the compared value numeric", () => {

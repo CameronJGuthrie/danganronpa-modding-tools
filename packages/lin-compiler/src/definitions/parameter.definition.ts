@@ -24,7 +24,22 @@ export type Parameter =
   | ParameterType
   | { readonly type: ParameterType; readonly names: NamedValues }
   | DependentParameter
-  | ScopedParameter;
+  | ScopedParameter
+  | OptionalParameter;
+
+/**
+ * A slot that source may leave out, e.g. the volume byte of `Voice`, which is 100 in every game
+ * script. The compiler fills in `defaultValue` when the argument is absent and the decompiler
+ * omits the argument when it holds that value. Optional slots must come last in their layout.
+ */
+export type OptionalParameter = {
+  readonly type: ParameterType;
+  readonly defaultValue: number;
+};
+
+export function isOptional(parameter: Parameter): parameter is OptionalParameter {
+  return typeof parameter !== "string" && "defaultValue" in parameter;
+}
 
 /**
  * Name tables that are not fixed by the opcode table but supplied per script, e.g. the object names
@@ -74,6 +89,9 @@ export function namesFor(
   }
   if ("scope" in parameter) {
     return scopes[parameter.scope];
+  }
+  if ("defaultValue" in parameter) {
+    return undefined;
   }
   const controlling = values[index + parameter.dependsOn];
   return controlling === undefined ? undefined : parameter.namesBy[controlling];

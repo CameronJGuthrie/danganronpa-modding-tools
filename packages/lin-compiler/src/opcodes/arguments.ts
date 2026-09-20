@@ -1,5 +1,6 @@
 import type { ArgumentSpec } from "../definitions/opcode.definition.ts";
 import {
+  isOptional,
   type NamedValues,
   nameOfValue,
   namesFor,
@@ -114,6 +115,11 @@ function layoutBytes(layout: readonly Parameter[]): number {
   return layout.reduce((total, parameter) => total + parameterProperties[parameterTypeOf(parameter)].size, 0);
 }
 
+/** How many leading slots of `layout` source must always write, i.e. all but the optional ones. */
+function requiredSlots(layout: readonly Parameter[]): number {
+  return layout.filter((parameter) => !isOptional(parameter)).length;
+}
+
 function repeatLayout(head: readonly Parameter[], tail: readonly Parameter[], count: number): Parameter[] {
   const layout = [...head];
   for (let i = 0; i < count; i++) {
@@ -135,13 +141,18 @@ function parseFixed(
   scopes: ScopeTables,
 ): number[] {
   const values = splitArgs(argsText);
-  if (values.length !== layout.length) {
-    throw new SourceError(line, `${name} expects ${layout.length} argument(s), got ${values.length}`);
+  const required = requiredSlots(layout);
+  if (values.length < required || values.length > layout.length) {
+    const expected = required === layout.length ? `${required}` : `${required} to ${layout.length}`;
+    throw new SourceError(line, `${name} expects ${expected} argument(s), got ${values.length}`);
   }
   return parseByLayout(layout, values, line, scopes);
 }
 
-/** Decode `args` according to `layout` and join the values for source output. */
+/**
+ * Decode `args` according to `layout` and join the values for source output. Trailing optional
+ * slots holding their default are left out unless `names` is off (the raw `--hex` form).
+ */
 function formatByLayout(
   layout: readonly Parameter[],
   args: readonly number[],
@@ -161,10 +172,21 @@ function formatByLayout(
     rendered.push(name ?? String(value));
     offset += parameterProperties[type].size;
   });
-  return rendered.join(", ");
+  let count = rendered.length;
+  while (names && count > 0) {
+    const parameter = layout[count - 1];
+    if (!isOptional(parameter) || decoded[count - 1] !== parameter.defaultValue) {
+      break;
+    }
+    count--;
+  }
+  return rendered.slice(0, count).join(", ");
 }
 
-/** Encode one source value per entry of `layout`. Callers check the counts match first. */
+/**
+ * Encode one source value per entry of `layout`, filling omitted trailing optional slots with
+ * their defaults. Callers check the counts match first.
+ */
 function parseByLayout(
   layout: readonly Parameter[],
   values: readonly string[],
@@ -175,7 +197,10 @@ function parseByLayout(
   const decoded: number[] = [];
   layout.forEach((parameter, index) => {
     const type = parameterTypeOf(parameter);
-    const encoded = parseParameter(type, namesFor(parameter, index, decoded, scopes), values[index], line);
+    const encoded =
+      index >= values.length && isOptional(parameter)
+        ? encodeValue(type, parameter.defaultValue)
+        : parseParameter(type, namesFor(parameter, index, decoded, scopes), values[index], line);
     decoded.push(decodeValue(type, encoded, 0));
     bytes.push(...encoded);
   });

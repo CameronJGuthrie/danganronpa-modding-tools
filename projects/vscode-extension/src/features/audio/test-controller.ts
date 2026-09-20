@@ -41,8 +41,8 @@ export function createAudioTestController<TInfo>(
     const lineStarts = computeLineStarts(text);
 
     for (const pattern of config.functionPatterns) {
-      const regex = createCompleteFunctionRegex(pattern.name, pattern.paramCount);
-      children.push(...collectMatches(regex, text, lineStarts, uri, testController, config, pattern.paramCount));
+      const regex = createCompleteFunctionRegex(pattern.name, pattern.paramCount, pattern.requiredParamCount);
+      children.push(...collectMatches(regex, text, lineStarts, uri, testController, config, pattern));
     }
 
     if (children.length === 0) {
@@ -249,7 +249,7 @@ function collectMatches<TInfo>(
   uri: vscode.Uri,
   testController: vscode.TestController,
   config: AudioTestConfig<TInfo>,
-  expectedParamCount: number,
+  pattern: { paramCount: number; requiredParamCount: number },
 ): vscode.TestItem[] {
   const items: vscode.TestItem[] = [];
 
@@ -260,10 +260,14 @@ function collectMatches<TInfo>(
       continue;
     }
 
-    const args = getArgumentsFromFunctionLike(match[0]);
-    if (args.length !== expectedParamCount) {
+    const written = getArgumentsFromFunctionLike(match[0]);
+    if (written.length < pattern.requiredParamCount || written.length > pattern.paramCount) {
       continue;
     }
+    // Fill omitted trailing optional arguments (e.g. a volume) with their defaults
+    const args = config.defaults.map(
+      (defaultValue, index) => written[index] ?? { stringIndex: -1, value: defaultValue ?? 0 },
+    );
 
     const info = config.parseInfoFromArgs(args);
     if (!info) {

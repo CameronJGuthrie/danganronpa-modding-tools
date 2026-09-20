@@ -83,13 +83,14 @@ export function registerDecoration() {
     }
 
     Object.values(metadata).forEach((functionDetails) => {
+      const required = requiredParameterCount(functionDetails);
       const completeFunctionRegex = functionDetails.varargs
         ? createVarargsRegex(functionDetails.name)
-        : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length);
+        : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length, required);
 
       const opcodeFunctionRegex = functionDetails.varargs
         ? createVarargsRegex(functionDetails.hexcode)
-        : createCompleteFunctionRegex(functionDetails.hexcode, functionDetails.parameters.length);
+        : createCompleteFunctionRegex(functionDetails.hexcode, functionDetails.parameters.length, required);
 
       // Debug logging for If
       if (functionDetails.name === "If") {
@@ -274,9 +275,15 @@ function enrichParameters(
     }
 
     const args = getArgumentsFromFunctionLike(match[0], argumentNames(functionDetails, match[0], documentText));
-    const argValues = args.map((arg) => arg.value);
+    // Omitted optional arguments take their defaults so decorations see the compiled values
+    const argValues = functionDetails.varargs
+      ? args.map((arg) => arg.value)
+      : functionDetails.parameters.map((param, index) => args[index]?.value ?? param.defaultValue ?? 0);
 
-    if (!functionDetails.varargs && args.length !== functionDetails.parameters.length) {
+    if (
+      !functionDetails.varargs &&
+      (args.length < requiredParameterCount(functionDetails) || args.length > functionDetails.parameters.length)
+    ) {
       const lineNumber = document.positionAt(matchIndex).line + 1;
       const matchedText = match[0];
       logError(
@@ -374,4 +381,9 @@ function addFunctionDecoration(
       }
     });
   }
+}
+
+/** Leading parameters that source must always write, i.e. all but those with a `defaultValue`. */
+function requiredParameterCount(functionDetails: LinscriptInstructionMeta): number {
+  return functionDetails.parameters.filter((param) => param.defaultValue === undefined).length;
 }

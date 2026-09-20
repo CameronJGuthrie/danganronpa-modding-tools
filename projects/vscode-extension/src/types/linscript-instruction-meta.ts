@@ -48,6 +48,11 @@ export type ParameterMeta = {
    */
   unknown?: true;
   /**
+   * Source may omit this (trailing) argument; the compiler then uses this value, e.g. the volume
+   * of `Voice`, `Sound` and `SoundB` defaults to 100. The decorator fills it in the same way.
+   */
+  defaultValue?: number;
+  /**
    * Enum whose member names may appear in source instead of the number, e.g. `Character` lets the
    * decompiler write `Speaker(Makoto)`. The decorator resolves such names back to their value.
    */

@@ -35,9 +35,18 @@ export function createIncompleteFunctionRegex(functionName: string, numArgs: num
   return regexPattern;
 }
 
-export function createCompleteFunctionRegex(functionName: string, numArgs: number): RegExp {
+/**
+ * Match a complete call with between `requiredArgs` and `numArgs` arguments (all `numArgs` are
+ * required unless told otherwise), e.g. `Voice(a, b, c)` or `Voice(a, b, c, d)`.
+ */
+export function createCompleteFunctionRegex(functionName: string, numArgs: number, requiredArgs = numArgs): RegExp {
   // Create the regex pattern based on the function name and the number of arguments
-  const argsPattern = Array(numArgs).fill(`\\s*${ARGUMENT}\\s*`).join(",\\s*");
+  const required = Array(requiredArgs).fill(`\\s*${ARGUMENT}\\s*`).join(",\\s*");
+  // Each optional argument is a further ", value" group that may be absent (none is ever the first argument)
+  const optional = Array(numArgs - requiredArgs)
+    .fill(`(?:,\\s*${ARGUMENT}\\s*)?`)
+    .join("");
+  const argsPattern = `${required}${optional}`;
 
   // Use negative lookbehind to ensure we're not inside quotes
   // (?<![^"]*") means: not preceded by an odd number of quotes (i.e., not inside a string)

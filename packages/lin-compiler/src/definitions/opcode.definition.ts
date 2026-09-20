@@ -58,6 +58,11 @@ function named(type: ParameterType, names: NamedValues): Parameter {
   return { type, names };
 }
 
+/** A trailing slot source may omit; absent arguments compile to `defaultValue` (see `OptionalParameter`). */
+function optional(type: ParameterType, defaultValue: number): Parameter {
+  return { type, defaultValue };
+}
+
 function bytes(quantity: number): ArgumentSpec {
   return { kind: "fixed", layout: new Array<ParameterType>(quantity).fill(Byte) };
 }
@@ -85,6 +90,8 @@ const bool = named(Byte, Bool);
 const compare = named(Byte, comparisonOperators);
 /** A condition joiner byte, written as `And` or `Or`. */
 const join = named(Byte, LogicalJoin);
+/** A volume byte that defaults to 100 when source leaves it out. */
+const volume = optional(Byte, 100);
 /** A variable id, written by name (`Scene`) when the variable is known; the value it is compared with stays numeric. */
 const variable = named(UInt16BE, Variable);
 
@@ -99,10 +106,11 @@ export const opcodes = {
   PostProcessingEffect:  { id: 0x04, args: bytes(4) },
   Movie:                 { id: 0x05, args: bytes(2) },
   Animation:             { id: 0x06, args: fixed([UInt16BE, Byte, Byte, Byte, Byte, Byte, Byte]) },
-  Voice:                 { id: 0x08, args: fixed([named(Byte, VoiceCharacter), named(Byte, Chapter), UInt16BE, Byte]) },
+  // The volume byte of Voice, Sound and SoundB is 100 in nearly every game script, so source may omit it
+  Voice:                 { id: 0x08, args: fixed([named(Byte, VoiceCharacter), named(Byte, Chapter), UInt16BE, volume]) },
   Music:                 { id: 0x09, args: bytes(3) },
-  Sound:                 { id: 0x0a, args: fixed([UInt16BE, Byte]) },
-  SoundB:                { id: 0x0b, args: bytes(2) },
+  Sound:                 { id: 0x0a, args: fixed([UInt16BE, volume]) },
+  SoundB:                { id: 0x0b, args: fixed([Byte, volume]) },
   TruthBulletFlag:       { id: 0x0c, args: bytes(2) },
   Present:               { id: 0x0d, args: bytes(3), hidden: true }, // GivePresent / ReceivePresent sugar
   UnlockSkill:           { id: 0x0e, args: bytes(2) },
