@@ -1,7 +1,7 @@
 import type { ArgumentNames } from "./string-util";
 
 /** Option ids every script can name without declaring them; mirrors `DEFAULT_OPTION_NAMES` in lin-compiler. */
-export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = { 1: "Yes", 2: "No", 18: "Exit_1", 19: "Exit_2" };
+export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = { 18: "Exit_1", 19: "Exit_2" };
 
 /**
  * The object names a `.linscript` file declares in its `Meta()` block, as a two-way table like an

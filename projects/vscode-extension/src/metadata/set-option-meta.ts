@@ -8,7 +8,7 @@ export const setOptionMeta: LinscriptInstructionMeta = {
     {
       name: "option",
       description:
-        "Menu option id: 1/2 (Yes/No) are the choices, 18/19 (Exit_1/Exit_2) the back-out handlers, 255 closes the menu",
+        "Menu option id: 1, 2, ... are the choices (named per script in Meta(), e.g. Option(1, Yes)), 18/19 (Exit_1/Exit_2) the back-out handlers, 255 closes the menu",
       scope: "Option",
     },
   ] as const,

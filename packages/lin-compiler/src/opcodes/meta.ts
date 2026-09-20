@@ -30,12 +30,12 @@ export const META_OBJECT = "Object";
 export const META_OPTION = "Option";
 
 /**
- * Option ids every script can name without declaring them. 1 and 2 are the usual two choices of a
- * menu; 18 and 19 register the handlers that run when the player backs out of it.
+ * Option ids every script can name without declaring them: 18 and 19 register the handlers that
+ * run when the player backs out of a menu. The choices themselves (1, 2, ...) mean something
+ * different in every script, so their names are declared per file in the `Meta()` block, e.g.
+ * `Option(1, Yes)`.
  */
 export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = {
-  1: "Yes",
-  2: "No",
   18: "Exit_1",
   19: "Exit_2",
 };

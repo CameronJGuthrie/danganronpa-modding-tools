@@ -30,6 +30,8 @@ export function isBlank(line: ScriptLine): boolean {
   return line.text === "";
 }
 
+import { describeScript } from "../data/room";
+
 export type FlowNodeKind = "script" | "block" | "handlerGroup" | "handler" | "menu" | "option" | "meta";
 
 export type FlowItem = { kind: "line"; line: ScriptLine } | { kind: "node"; node: FlowNode };
@@ -194,6 +196,7 @@ class FlowBuilder {
 
   parseTopLevel(lines: ScriptLine[], scriptName: string): FlowNode {
     const root = this.createNode("script", scriptName, lines[0]?.lineNumber ?? 1);
+    root.subtitle = describeScript(scriptName);
     let block = this.createNode("block", "Entry", root.startLine);
     let blockHasBody = false;
 

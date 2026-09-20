@@ -66,7 +66,8 @@ export function createVarargsRegex(functionName: string): RegExp {
 }
 
 export function getTextFunctionRegex(): RegExp {
-  // A Text call is its string plus any trailing instruction calls: Text("...", Wait(10), SetUI(Rumble, Hidden))
+  // A Text call is its string plus any trailing instruction calls: Text("...", Wait(10), SetUI(Rumble, Hidden)).
+  // The trailing calls may each sit on their own line, so the separators allow newlines.
   const regexPattern = /Text\(".*?"(?:\s*,\s*\w+\([^()]*\))*\s*\)/g;
 
   return regexPattern;

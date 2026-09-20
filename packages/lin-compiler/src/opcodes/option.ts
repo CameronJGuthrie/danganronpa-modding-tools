@@ -11,7 +11,7 @@ import { getOpcodeByName, type OpcodeInfo } from "./lookup.ts";
  * has exactly this shape, and the label ends with a newline, which the sugar makes implicit like
  * `Text(...)` does. `SetOption` stays a block opener, so the option's body is indented under the
  * `Option(...)` line just as it is under `SetOption(...)`. The id is a `SetOption` argument, so it
- * may be written by name (`Option(Yes, "Yes")`, see `DEFAULT_OPTION_NAMES` and the `Meta()` block).
+ * may be written by name (`Option(Yes, "Yes")` with `Option(1, Yes)` declared in the `Meta()` block, see `DEFAULT_OPTION_NAMES`).
  *
  * Only a SetOption whose label immediately follows collapses; the handler registrations
  * (`SetOption(18)`, `SetOption(19)`), the closing `SetOption(255)` and options with anything

@@ -260,8 +260,12 @@ function collectMatches<TInfo>(
       continue;
     }
 
-    const written = getArgumentsFromFunctionLike(match[0]);
+    const written = getArgumentsFromFunctionLike(match[0], config.argumentNames);
     if (written.length < pattern.requiredParamCount || written.length > pattern.paramCount) {
+      continue;
+    }
+    // A name that is not in its table (e.g. a misspelt character) has no audio to play
+    if (written.some((arg) => Number.isNaN(arg.value))) {
       continue;
     }
     // Fill omitted trailing optional arguments (e.g. a volume) with their defaults

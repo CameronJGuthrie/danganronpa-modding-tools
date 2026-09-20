@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { describeScript, roomName } from "../../data/room";
 import { buildControlFlow, parseScriptLines } from "../../script/controlFlow";
 import {
   createDocument,
@@ -216,6 +217,12 @@ export function ScriptEditor({
   return (
     <>
       <aside className="flex w-96 shrink-0 flex-col gap-2 rounded bg-white dark:bg-slate-800 p-2 shadow-sm">
+        <header className="flex items-baseline gap-2 border-b border-slate-200 px-1 pb-1 dark:border-slate-700">
+          <h2 className="font-mono text-sm font-semibold">{scriptName}</h2>
+          <span className="truncate text-sm text-slate-600 dark:text-slate-300" title={describeScript(scriptName)}>
+            {roomName(scriptName) ?? describeScript(scriptName)}
+          </span>
+        </header>
         <FlowTree
           className="min-h-0 flex-1"
           root={flow.root}

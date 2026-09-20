@@ -96,6 +96,22 @@ describe("compile and decompile", () => {
     assert.equal(writeSourceText(readCompiled(writeCompiledBytes(script))), source);
   });
 
+  test("Text may spread its trailing instructions over several lines", () => {
+    const multiLine = 'Text("Hi",\n  Wait(10),\n  # a comment inside is ignored\n  SetUI(Rumble, Hidden))\nSpeaker(Makoto)\n';
+    const script = readSource(multiLine);
+    assert.equal(writeSourceText(script), 'Text("Hi", Wait(10), SetUI(Rumble, Hidden))\nSpeaker(Makoto)\n');
+    // A closing paren inside the string does not end the statement
+    assert.equal(
+      writeSourceText(readSource('Text("a)",\n  Wait(1))\n')),
+      writeSourceText(readSource('Text("a)", Wait(1))\n')),
+    );
+    // Errors in a continued statement point at its first line
+    assert.throws(() => readSource('Speaker(Makoto)\nText("a",\n  Goto(1))\n'), (error: SourceError) => error.line === 2);
+    assert.throws(() => readSource('Text("a",\n  Wait(1)\n'), (error: SourceError) => error.line === 1);
+    // Only Text continues: any other unbalanced line is still an error on its own
+    assert.throws(() => readSource('Speaker(Makoto\n)\n'), SourceError);
+  });
+
   test("Text refuses trailing instructions the sugar cannot absorb", () => {
     assert.throws(() => readSource('Text("a", Goto(1))\n'), SourceError);
     assert.throws(() => readSource('Text("a", Text("b"))\n'), SourceError);
@@ -116,7 +132,7 @@ describe("compile and decompile", () => {
   });
 
   test("Option(n, label) stands for SetOption plus its RawText label and WaitFrame", () => {
-    const source = 'Option(Yes, "Yes")\n  Goto(5)\nOption(No, "No")\n  Goto(6)\nSetOption(Exit_1)\nSetOption(255)\n';
+    const source = 'Option(1, "Yes")\n  Goto(5)\nOption(2, "No")\n  Goto(6)\nSetOption(Exit_1)\nSetOption(255)\n';
     const script = readSource(
       'Option(1, "Yes")\n  Goto(5)\nOption(2, "No")\n  Goto(6)\nSetOption(18)\nSetOption(255)\n',
     );
@@ -146,7 +162,7 @@ describe("compile and decompile", () => {
 
   test("a SetOption whose label does not follow directly stays plain", () => {
     const source =
-      'SetOption(Yes)\n  Speaker(Makoto)\n  RawText("Yes\\n")\n  WaitFrame()\nSetOption(No)\n  RawText("No")\n  WaitFrame()\n';
+      'SetOption(1)\n  Speaker(Makoto)\n  RawText("Yes\\n")\n  WaitFrame()\nSetOption(2)\n  RawText("No")\n  WaitFrame()\n';
     assert.equal(writeSourceText(readSource(source)), source);
   });
 
@@ -326,7 +342,7 @@ describe("Text sugar", () => {
     assert.equal(roundTrip(source), source);
     // A menu label written the long way collapses to the Option sugar on decompile
     const option = 'SetOption(1)\n  RawText("Yes\\n")\n  WaitFrame()\n  Goto(1)\nSetOption(255)\n';
-    assert.equal(roundTrip(option), 'Option(Yes, "Yes")\n  Goto(1)\nSetOption(255)\n');
+    assert.equal(roundTrip(option), 'Option(1, "Yes")\n  Goto(1)\nSetOption(255)\n');
   });
 
   test("RawText compiles to exactly one entry with no implicit newline", () => {
@@ -389,20 +405,25 @@ describe("Meta block", () => {
     );
   });
 
-  test("option ids have default names and Meta() can add or override them", () => {
+  test("exit option ids have default names and Meta() names the choices or overrides a default", () => {
     const source =
-      'Option(Yes, "Sure")\n  Goto(1)\nOption(No, "Nope")\n  Goto(2)\nOption(Leave, "Leave")\n  Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n  Option(3, Leave)\n';
+      'Option(Yes, "Sure")\n  Goto(1)\nOption(No, "Nope")\n  Goto(2)\nOption(Leave, "Leave")\n  Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n  Option(1, Yes)\n  Option(2, No)\n  Option(3, Leave)\n';
     const script = readSource(source);
-    assert.deepEqual(script.meta, { objects: {}, options: { 3: "Leave" } });
+    assert.deepEqual(script.meta, { objects: {}, options: { 1: "Yes", 2: "No", 3: "Leave" } });
     assert.deepEqual(
       script.entries.filter((e) => e.opcode === Opcode.SetOption).map((e) => e.args[0]),
       [1, 2, 3, 18, 19, 255],
     );
     assert.equal(writeSourceText(script), source);
-    // Without a Meta block the defaults still apply and undeclared ids stay numeric
+    // Without a Meta block only the exit defaults apply; 1 and 2 are not named Yes/No everywhere
     assert.equal(
       writeSourceText(readSource("SetOption(1)\nSetOption(3)\nSetOption(18)\n")),
-      "SetOption(Yes)\nSetOption(3)\nSetOption(Exit_1)\n",
+      "SetOption(1)\nSetOption(3)\nSetOption(Exit_1)\n",
+    );
+    assert.throws(() => readSource("SetOption(Yes)\n"), /unknown name 'Yes'/);
+    assert.equal(
+      writeSourceText(readSource("SetOption(18)\nMeta()\n  Option(18, Back)\n")),
+      "SetOption(Back)\n\nMeta()\n  Option(18, Back)\n",
     );
     assert.equal(
       writeSourceText(readSource("SetOption(2)\nMeta()\n  Option(2, Decline)\n")),
@@ -421,7 +442,7 @@ describe("Meta block", () => {
     const cases: [string, RegExp][] = [
       ["OnObject(Monitor)\n", /unknown name 'Monitor'/],
       ["Meta()\n  Speaker(Makoto)\n", /only Object\(id, Name\) and Option\(id, Name\) entries/],
-      ["Meta()\n  Option(3, Yes)\n", /already used by default option 1/],
+      ["Meta()\n  Option(3, Exit_1)\n", /already used by default option 18/],
       ["Meta()\n  Option(3, Leave)\n  Option(4, Leave)\n", /already used/],
       ["SetOption(Leave)\n", /unknown name 'Leave'/],
       ["Meta()\n  Object(20)\n", /expects 2 arguments/],
@@ -633,16 +654,16 @@ describe("Present sugar", () => {
 
 describe("block indentation", () => {
   test("block opcodes indent their contents until a 255 closes them", () => {
-    const source = "SetOption(Yes)\nSpeaker(1)\nSetOption(No)\nSpeaker(2)\nSetOption(255)\nSpeaker(3)\n";
+    const source = "SetOption(1)\nSpeaker(1)\nSetOption(2)\nSpeaker(2)\nSetOption(255)\nSpeaker(3)\n";
     assert.equal(
       writeSourceText(readSource(source)),
-      "SetOption(Yes)\n  Speaker(Taka)\nSetOption(No)\n  Speaker(Byakuya)\nSetOption(255)\nSpeaker(Mondo)\n",
+      "SetOption(1)\n  Speaker(Taka)\nSetOption(2)\n  Speaker(Byakuya)\nSetOption(255)\nSpeaker(Mondo)\n",
     );
   });
 
   test("indent width is configurable and leading whitespace is ignored on compile", () => {
-    const script = readSource("SetOption(Yes)\n        Speaker(1)\n");
-    assert.equal(writeSourceText(script, { indentSpaces: 4 }), "SetOption(Yes)\n    Speaker(Taka)\n");
+    const script = readSource("SetOption(1)\n        Speaker(1)\n");
+    assert.equal(writeSourceText(script, { indentSpaces: 4 }), "SetOption(1)\n    Speaker(Taka)\n");
   });
 });
 

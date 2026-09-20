@@ -1,5 +1,6 @@
 import type * as vscode from "vscode";
 import type { LinscriptInstructionMeta } from "../../types/linscript-instruction-meta";
+import type { ArgumentNameSource } from "../../util/string-util";
 
 /**
  * Configuration for creating an audio test controller
@@ -17,6 +18,8 @@ export type AudioTestConfig<TInfo> = {
   functionPatterns: Array<{ name: string; paramCount: number; requiredParamCount: number }>;
   /** Default for every argument position, used where a call omits a trailing optional argument */
   defaults: Array<number | undefined>;
+  /** Name table for every argument position, so `Voice(Toko, Chapter_99, 16)` resolves to numbers */
+  argumentNames: readonly ArgumentNameSource[];
   /**
    * True when these arguments mean "stop this channel" rather than "play something".
    * For example Music(255, ...) stops the current music. Omit if the opcode has no stop value.
@@ -42,7 +45,13 @@ export type AudioTestConfigBuilder<TInfo> = {
   /** And all other properties not derived from the opcode */
 } & Omit<
   AudioTestConfig<TInfo>,
-  "controllerId" | "controllerLabel" | "runProfileLabel" | "channel" | "functionPatterns" | "defaults"
+  | "controllerId"
+  | "controllerLabel"
+  | "runProfileLabel"
+  | "channel"
+  | "functionPatterns"
+  | "defaults"
+  | "argumentNames"
 >;
 
 export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): AudioTestConfig<T> {
@@ -67,6 +76,7 @@ export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): Audi
       },
     ],
     defaults: opcode.parameters.map((param) => param.defaultValue),
+    argumentNames: opcode.parameters.map((param) => param.namesBy ?? param.names),
     ...rest,
   };
 }

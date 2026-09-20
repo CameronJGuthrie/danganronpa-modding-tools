@@ -97,6 +97,8 @@ suite("Extension Test Suite", () => {
 
     assert.equal(getRegex().exec(`Text("A B C")`), `Text("A B C")`);
     assert.equal(getRegex().exec(`Text(""A B C"")`), `Text(""A B C"")`);
+    const multiLine = `Text("Hello",\n  Wait(10),\n  SetUI(Rumble, Hidden))`;
+    assert.equal(getRegex().exec(multiLine)?.[0], multiLine);
   });
 
   test("color text regex matches role wrappers, flat switches and raw CLT tags", () => {

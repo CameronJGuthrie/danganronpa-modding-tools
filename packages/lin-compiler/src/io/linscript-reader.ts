@@ -13,18 +13,69 @@ import { expandWait, WAIT } from "../opcodes/wait.ts";
 /** Matches `OpcodeName(args)`, capturing the name and the raw argument text. */
 const OPCODE_LINE = /^(\w+)\s*\((.*)\)$/;
 
+/** The start of a `Text(...)` statement, the only one that may continue onto further lines. */
+const TEXT_SUGAR_OPEN = new RegExp(`^${TEXT_SUGAR}\\s*\\(`);
+
+/** Open parentheses minus closed ones, ignoring those inside quoted strings. */
+function parenDepth(text: string): number {
+  let depth = 0;
+  let inString = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (inString) {
+      if (char === "\\") {
+        i++;
+      } else if (char === '"') {
+        inString = false;
+      }
+    } else if (char === '"') {
+      inString = true;
+    } else if (char === "(") {
+      depth++;
+    } else if (char === ")") {
+      depth--;
+    }
+  }
+  return depth;
+}
+
 /**
  * Parse `.linscript` source text. Blank lines and `#` comments are ignored. A `Meta()` block ends
  * the instructions; it is read first so the names it declares can be used above it.
+ *
+ * Every instruction is one line, except that `Text(...)` may spread its trailing instructions
+ * over the following lines until its parentheses close:
+ *
+ *     Text("Hello",
+ *       Wait(10),
+ *       SetUI(Rumble, Hidden))
+ *
+ * Such a statement is reported under the line number of its `Text(`.
  */
 export function readSource(source: string): Script {
   const lines: SourceLine[] = [];
+  let open: SourceLine | undefined;
   splitLines(source).forEach((rawLine, index) => {
     const text = rawLine.trim();
-    if (text.length > 0 && !text.startsWith("#")) {
-      lines.push({ line: index + 1, text });
+    if (text.length === 0 || text.startsWith("#")) {
+      return;
+    }
+    if (open !== undefined) {
+      open.text += ` ${text}`;
+      if (parenDepth(open.text) <= 0) {
+        open = undefined;
+      }
+      return;
+    }
+    const line = { line: index + 1, text };
+    lines.push(line);
+    if (TEXT_SUGAR_OPEN.test(text) && parenDepth(text) > 0) {
+      open = line;
     }
   });
+  if (open !== undefined) {
+    throw new SourceError(open.line, `unterminated ${TEXT_SUGAR}(...)`);
+  }
 
   const metaIndex = lines.findIndex(({ text }) => /^Meta\s*\(\s*\)$/.test(text));
   const meta = metaIndex === -1 ? undefined : parseMeta(lines.slice(metaIndex + 1));

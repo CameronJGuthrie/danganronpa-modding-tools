@@ -5,6 +5,8 @@
  * scripts do not land in one endless list.
  */
 
+import { roomName } from "../data/room";
+
 export type ScriptTreeNode =
   | { kind: "folder"; name: string; path: string; children: ScriptTreeNode[] }
   | { kind: "file"; name: string; path: string };
@@ -67,8 +69,8 @@ function groupLargeFolders(folder: ScriptTreeNode & { kind: "folder" }): ScriptT
 }
 
 /**
- * The tree with only the files whose path contains `query` (case-insensitive) and that pass
- * `keep`, plus the folders leading to them.
+ * The tree with only the files whose path or room name contains `query` (case-insensitive) and
+ * that pass `keep`, plus the folders leading to them.
  */
 export function filterScriptTree(
   nodes: readonly ScriptTreeNode[],
@@ -79,7 +81,8 @@ export function filterScriptTree(
   const result: ScriptTreeNode[] = [];
   for (const node of nodes) {
     if (node.kind === "file") {
-      if (node.path.toLowerCase().includes(needle) && keep(node)) {
+      const room = roomName(node.name)?.toLowerCase() ?? "";
+      if ((node.path.toLowerCase().includes(needle) || room.includes(needle)) && keep(node)) {
         result.push(node);
       }
     } else {

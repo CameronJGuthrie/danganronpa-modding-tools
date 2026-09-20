@@ -1,4 +1,7 @@
 import * as assert from "node:assert";
+import { Chapter, VoiceCharacter } from "linscript-definitions";
+import { createConfiguration } from "../features/audio/test-controller-config";
+import { voiceMeta } from "../metadata/voice-meta";
 import { createCompleteFunctionRegex, getArgumentsFromFunctionLike, isInsideQuotes } from "../util/string-util";
 
 suite("Voice Test Controller Test Suite", () => {
@@ -65,6 +68,25 @@ Text("This has Voice(3, 2, 300, 100) in it")`;
     assert.strictEqual(args[1].value, 2, "Second param (chapter) should be 2");
     assert.strictEqual(args[2].value, 300, "Third param (voiceId) should be 300");
     assert.strictEqual(args[3].value, 100, "Fourth param (volume) should be 100");
+  });
+
+  test("Named Voice arguments resolve through the opcode's name tables", () => {
+    const config = createConfiguration({
+      opcode: voiceMeta,
+      parseInfoFromTest: () => null,
+      getAudioFilePath: () => null,
+      formatTestLabel: () => "",
+      formatDisplayName: () => "",
+      createTestId: () => "",
+      parseInfoFromArgs: () => null,
+    });
+    const args = getArgumentsFromFunctionLike("Voice(Toko, Chapter_99, 16)", config.argumentNames);
+
+    assert.deepStrictEqual(
+      args.map((arg) => arg.value),
+      [VoiceCharacter.Toko, Chapter.Chapter_99, 16],
+    );
+    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Voice(Nobody, 99, 16)", config.argumentNames)[0].value));
   });
 
   test("Multiple Voice lines are detected in document", () => {

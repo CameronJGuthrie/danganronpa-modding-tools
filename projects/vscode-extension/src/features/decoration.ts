@@ -340,12 +340,16 @@ function addFunctionDecoration(
     return;
   }
 
-  const rangePos = document.positionAt(matchEndIndex);
   const functionDecorations = functionDetails.decorations(argValues, documentText);
 
-  // Calculate current visual column: end position + parameter decorations
-  const matchEndPos = document.positionAt(matchEndIndex);
-  const currentColumn = matchEndPos.character + totalParameterDecorationWidth;
+  // The decoration sits at the end of the line the call ends on (before any trailing
+  // whitespace), so a trailing `Wait(10),` inside a multi-line Text(...) is decorated after
+  // its comma rather than between the call and the comma
+  const endLine = document.lineAt(document.positionAt(matchEndIndex).line);
+  const rangePos = new vscode.Position(endLine.lineNumber, endLine.text.trimEnd().length);
+
+  // Calculate current visual column: end of line + parameter decorations
+  const currentColumn = rangePos.character + totalParameterDecorationWidth;
 
   // Get target column from settings
   const targetColumn = getDecorationAlignmentColumn();

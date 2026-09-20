@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { roomName } from "../../data/room";
 import { buildScriptTree, containsModified, filterScriptTree, type ScriptTreeNode } from "../../script/scriptTree";
 import { ScriptSearchInput, ScriptSearchResults, useScriptSearch } from "./ScriptSearch";
 
@@ -204,6 +205,7 @@ function TreeNode({ node, depth, open, forceOpen, selectedPath, modified, onSele
 
   if (node.kind === "file") {
     const selected = node.path === selectedPath;
+    const room = roomName(node.name);
     return (
       <button
         type="button"
@@ -212,9 +214,12 @@ function TreeNode({ node, depth, open, forceOpen, selectedPath, modified, onSele
         }`}
         style={padding}
         onClick={() => onSelect(node.path)}
-        title={node.path}
+        title={room === undefined ? node.path : `${node.path} — ${room}`}
       >
-        <span className="truncate">{node.name.replace(/\.linscript$/, "")}</span>
+        <span className="shrink-0">{node.name.replace(/\.linscript$/, "")}</span>
+        {room !== undefined && (
+          <span className="truncate font-sans text-xs text-slate-500 dark:text-slate-400">{room}</span>
+        )}
         <Star shown={starred} title="Modified: has a copy in the mod directory" />
       </button>
     );
