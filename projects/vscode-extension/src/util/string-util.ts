@@ -66,8 +66,8 @@ export function createVarargsRegex(functionName: string): RegExp {
 }
 
 export function getTextFunctionRegex(): RegExp {
-  // Create the regex pattern based on the function name and the number of arguments
-  const regexPattern = /Text\(".*?"\)/g;
+  // A Text call is its string plus any trailing instruction calls: Text("...", Wait(10), SetUI(Rumble, Hidden))
+  const regexPattern = /Text\(".*?"(?:\s*,\s*\w+\([^()]*\))*\s*\)/g;
 
   return regexPattern;
 }

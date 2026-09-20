@@ -84,6 +84,8 @@ const flagOffset: Parameter = {
 };
 /** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
 const objectId: Parameter = { type: Byte, scope: "Object" };
+/** A menu option id byte, written by name: the defaults (`Yes`, `No`, `Exit_1`, `Exit_2`) or the script's `Meta()` entries. */
+const optionId: Parameter = { type: Byte, scope: "Option" };
 /** A 0/1 byte, written as `False` / `True`. */
 const bool = named(Byte, Bool);
 /** A comparison operator byte, written as `==`, `!=`, `<`, `<=`, `>` or `>=`. */
@@ -134,7 +136,7 @@ export const opcodes = {
   OnCharacter:           { id: 0x27, args: bytes(1), block: true },
   OnObject:              { id: 0x29, args: fixed([objectId]), block: true },
   Label:                 { id: 0x2a, args: fixed([UInt16BE]) },
-  SetOption:             { id: 0x2b, args: bytes(1), block: true },
+  SetOption:             { id: 0x2b, args: fixed([optionId]), block: true },
   EndOfJump:             { id: 0x2c, args: bytes(2) },
   CameraFlash:           { id: 0x2e, args: bytes(2) },
   ShowBackground:        { id: 0x30, args: fixed([UInt16BE, Byte]) },

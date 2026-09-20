@@ -6,7 +6,8 @@
  *
  * With a name declared, the body writes `OnObject(Monitor)` and `ObjectState(Monitor, ...)` in
  * place of the id. This module reads the block out of source text and writes an edited set of
- * names back, renaming the body's references to match. Mirrors `opcodes/meta.ts` in lin-compiler.
+ * names back, renaming the body's references to match. Other entries in the block, such as
+ * `Option(id, Name)`, are kept as written. Mirrors `opcodes/meta.ts` in lin-compiler.
  */
 
 export type ObjectNames = ReadonlyMap<number, string>;
@@ -95,6 +96,11 @@ export function applyObjectNames(source: string, names: ObjectNames): string {
   const previous = parseObjectNames(source);
   const metaStart = findMetaStart(lines);
   const body = metaStart === -1 ? [...lines] : lines.slice(0, metaStart);
+  // Entries of other kinds (Option names) stay in the block untouched
+  const otherEntries =
+    metaStart === -1
+      ? []
+      : lines.slice(metaStart + 1).filter((line) => line.trim() !== "" && !OBJECT_ENTRY.test(line.trim()));
 
   const rewritten = body.map((line) => {
     const match = OBJECT_REFERENCE.exec(line);
@@ -113,9 +119,9 @@ export function applyObjectNames(source: string, names: ObjectNames): string {
   while (rewritten.length > 0 && rewritten[rewritten.length - 1].trim() === "") {
     rewritten.pop();
   }
-  if (names.size > 0) {
+  if (names.size > 0 || otherEntries.length > 0) {
     const ids = [...names.keys()].sort((a, b) => a - b);
-    rewritten.push("", "Meta()", ...ids.map((id) => `  Object(${id}, ${names.get(id)})`));
+    rewritten.push("", "Meta()", ...ids.map((id) => `  Object(${id}, ${names.get(id)})`), ...otherEntries);
   }
   return rewritten.join("\n") + (trailingNewline ? "\n" : "");
 }

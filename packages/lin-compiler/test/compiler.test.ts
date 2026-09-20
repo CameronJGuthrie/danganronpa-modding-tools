@@ -68,21 +68,120 @@ describe("compile and decompile", () => {
     assert.throws(() => readSource("Voice(AlterEgo, Chapter_1, 1)\n"), SourceError);
   });
 
+  test("Text absorbs the instructions between the printed text and its WaitInput", () => {
+    const source =
+      'Text("Hi\\nthere", Wait(10), SetUI(Rumble, Hidden))\nText("<thought>x</thought>", Music(3, 100, 0))\nText("plain")\n';
+    const script = readSource(source);
+    assert.deepEqual(
+      script.entries.map((entry) => entry.opcode),
+      [
+        Opcode.RawText,
+        Opcode.WaitFrame,
+        Opcode.WaitFrame,
+        Opcode.SetVariable,
+        Opcode.SetUI,
+        Opcode.WaitInput,
+        Opcode.TextStyle,
+        Opcode.RawText,
+        Opcode.WaitFrame,
+        Opcode.TextStyle,
+        Opcode.Music,
+        Opcode.WaitInput,
+        Opcode.RawText,
+        Opcode.WaitFrame,
+        Opcode.WaitInput,
+      ],
+    );
+    assert.equal(writeSourceText(script), source);
+    assert.equal(writeSourceText(readCompiled(writeCompiledBytes(script))), source);
+  });
+
+  test("Text refuses trailing instructions the sugar cannot absorb", () => {
+    assert.throws(() => readSource('Text("a", Goto(1))\n'), SourceError);
+    assert.throws(() => readSource('Text("a", Text("b"))\n'), SourceError);
+    assert.throws(() => readSource('Text("a", OnObject(1))\n'), SourceError);
+    assert.throws(() => readSource('Text("a", WaitInput())\n'), SourceError);
+    assert.throws(() => readSource('Text("a" Wait(1))\n'), SourceError);
+    assert.throws(() => readSource('Text("a", Wait(1)\n'), SourceError);
+  });
+
+  test("a text group whose WaitFrames do not match its newlines stays RawText", () => {
+    const script = readSource(
+      'RawText("one\\n")\nWaitFrame()\nWaitFrame()\nWaitInput()\nRawText("two\\n")\nGoto(1)\nWaitInput()\n',
+    );
+    assert.equal(
+      writeSourceText(script),
+      'RawText("one\\n")\nWaitFrame()\nWaitFrame()\nWaitInput()\nRawText("two\\n")\nGoto(1)\nWaitInput()\n',
+    );
+  });
+
+  test("Option(n, label) stands for SetOption plus its RawText label and WaitFrame", () => {
+    const source = 'Option(Yes, "Yes")\n  Goto(5)\nOption(No, "No")\n  Goto(6)\nSetOption(Exit_1)\nSetOption(255)\n';
+    const script = readSource(
+      'Option(1, "Yes")\n  Goto(5)\nOption(2, "No")\n  Goto(6)\nSetOption(18)\nSetOption(255)\n',
+    );
+    assert.deepEqual(
+      script.entries.map((entry) => [entry.opcode, ...entry.args]),
+      [
+        [Opcode.SetOption, 1],
+        [Opcode.RawText, 0, 0],
+        [Opcode.WaitFrame],
+        [Opcode.Goto, 0, 5],
+        [Opcode.SetOption, 2],
+        [Opcode.RawText, 0, 0],
+        [Opcode.WaitFrame],
+        [Opcode.Goto, 0, 6],
+        [Opcode.SetOption, 18],
+        [Opcode.SetOption, 255],
+      ],
+    );
+    assert.ok("text" in script.entries[1]);
+    assert.equal(script.entries[1].text, "Yes\n");
+    assert.equal(writeSourceText(script), source);
+    assert.equal(writeSourceText(readCompiled(writeCompiledBytes(script))), source);
+    assert.match(writeSourceText(script, { hexOpcodes: true }), /^0x2B\(1\)\n\s+0x02\("Yes\\n"\)\n\s+0x3B\(\)\n/);
+    assert.throws(() => readSource("Option(1)\n"), SourceError);
+    assert.throws(() => readSource("Option(1, 2)\n"), SourceError);
+  });
+
+  test("a SetOption whose label does not follow directly stays plain", () => {
+    const source =
+      'SetOption(Yes)\n  Speaker(Makoto)\n  RawText("Yes\\n")\n  WaitFrame()\nSetOption(No)\n  RawText("No")\n  WaitFrame()\n';
+    assert.equal(writeSourceText(readSource(source)), source);
+  });
+
   test("an omitted volume compiles to 100 and a volume of 100 decompiles to nothing", () => {
-    const script = readSource("Voice(Makoto, Chapter_1, 5)\nVoice(Makoto, Chapter_1, 5, 100)\nSound(7)\nSoundB(3, 100)\n");
+    const script = readSource(
+      "Voice(Makoto, Chapter_1, 5)\nVoice(Makoto, Chapter_1, 5, 100)\nSound(7)\nSoundB(3, 100)\n",
+    );
     assert.deepEqual(
       script.entries.map((entry) => entry.args),
-      [[0, 1, 0, 5, 100], [0, 1, 0, 5, 100], [0, 7, 100], [3, 100]],
+      [
+        [0, 1, 0, 5, 100],
+        [0, 1, 0, 5, 100],
+        [0, 7, 100],
+        [3, 100],
+      ],
     );
-    assert.equal(writeSourceText(script), "Voice(Makoto, Chapter_1, 5)\nVoice(Makoto, Chapter_1, 5)\nSound(7)\nSoundB(3)\n");
-    assert.equal(writeSourceText(script, { hexOpcodes: true }), "0x08(0, 1, 5, 100)\n0x08(0, 1, 5, 100)\n0x0A(7, 100)\n0x0B(3, 100)\n");
+    assert.equal(
+      writeSourceText(script),
+      "Voice(Makoto, Chapter_1, 5)\nVoice(Makoto, Chapter_1, 5)\nSound(7)\nSoundB(3)\n",
+    );
+    assert.equal(
+      writeSourceText(script, { hexOpcodes: true }),
+      "0x08(0, 1, 5, 100)\n0x08(0, 1, 5, 100)\n0x0A(7, 100)\n0x0B(3, 100)\n",
+    );
   });
 
   test("a volume other than 100 round-trips explicitly", () => {
     const script = readSource("Sound(7, 80)\nVoice(Makoto, Chapter_1, 5, 0)\nSoundB(3, 50)\n");
     assert.deepEqual(
       script.entries.map((entry) => entry.args),
-      [[0, 7, 80], [0, 1, 0, 5, 0], [3, 50]],
+      [
+        [0, 7, 80],
+        [0, 1, 0, 5, 0],
+        [3, 50],
+      ],
     );
     assert.equal(writeSourceText(script), "Sound(7, 80)\nVoice(Makoto, Chapter_1, 5, 0)\nSoundB(3, 50)\n");
     assert.throws(() => readSource("Sound(7, 80, 1)\n"), SourceError);
@@ -176,9 +275,11 @@ describe("Text sugar", () => {
     const [, entry] = readSource('Text("<thought>hi</thought>")').entries;
     assert.ok("text" in entry);
     assert.equal(entry.text, "<CLT 4>hi\n<CLT>");
-    const [, keyword] = readSource('Text("say <keyword>hi</keyword>")').entries;
+    // Text that opens plain has no TextStyle ahead of it, so the text entry comes first
+    const [keyword, style] = readSource('Text("say <keyword>hi</keyword>")').entries;
     assert.ok("text" in keyword);
     assert.equal(keyword.text, "say <CLT 3>hi\n<CLT>");
+    assert.deepEqual([style.opcode, ...style.args], [Opcode.TextStyle, 3]);
   });
 
   test("CLT colour tags expand to TextStyle opcodes", () => {
@@ -213,7 +314,8 @@ describe("Text sugar", () => {
     const source = 'RawText("*Ding dong*")\nWaitInput()\n';
     assert.equal(roundTrip(source), source);
     // A newline between closing tags is not where the sugar would put it, so the bytes stay raw
-    const between = 'TextStyle(4)\nRawText("<style 4>a<style 0>\\n<style 0>")\nTextStyle(0)\nWaitFrame()\nTextStyle(0)\nWaitInput()\n';
+    const between =
+      'TextStyle(4)\nRawText("<style 4>a<style 0>\\n<style 0>")\nTextStyle(0)\nWaitFrame()\nTextStyle(0)\nWaitInput()\n';
     assert.equal(roundTrip(between), between);
     const styled = 'TextStyle(23)\nRawText("<system>*Ding dong*</system>")\nTextStyle(0)\nWaitInput()\n';
     assert.equal(roundTrip(styled), styled);
@@ -222,9 +324,9 @@ describe("Text sugar", () => {
   test("a text entry not closed by WaitInput is written as RawText", () => {
     const source = 'RawText("hi\\n")\nWaitFrame()\nSpeaker(Taka)\n';
     assert.equal(roundTrip(source), source);
-    // Menu option labels are the common case: a text with a WaitFrame but no WaitInput
+    // A menu label written the long way collapses to the Option sugar on decompile
     const option = 'SetOption(1)\n  RawText("Yes\\n")\n  WaitFrame()\n  Goto(1)\nSetOption(255)\n';
-    assert.equal(roundTrip(option), option);
+    assert.equal(roundTrip(option), 'Option(Yes, "Yes")\n  Goto(1)\nSetOption(255)\n');
   });
 
   test("RawText compiles to exactly one entry with no implicit newline", () => {
@@ -252,10 +354,16 @@ describe("Meta block", () => {
 
   test("object names resolve to their ids and survive a source round trip", () => {
     const script = readSource(source);
-    assert.deepEqual(script.meta, { objects: { 20: "Monitor", 21: "Camera" } });
+    assert.deepEqual(script.meta, { objects: { 20: "Monitor", 21: "Camera" }, options: {} });
     assert.deepEqual(
       script.entries.map((e) => [e.opcode, ...e.args]),
-      [[Opcode.OnObject, 20], [Opcode.ObjectState, 21, 1, 0, 0, 0], [Opcode.OnObject, 254], [Opcode.Speaker, 0], [Opcode.OnObject, 255]],
+      [
+        [Opcode.OnObject, 20],
+        [Opcode.ObjectState, 21, 1, 0, 0, 0],
+        [Opcode.OnObject, 254],
+        [Opcode.Speaker, 0],
+        [Opcode.OnObject, 255],
+      ],
     );
     assert.equal(writeSourceText(script), source);
   });
@@ -268,8 +376,39 @@ describe("Meta block", () => {
   test("the block is dropped by the binary and by hex output", () => {
     const script = readSource(source);
     assert.equal(readCompiled(writeCompiledBytes(script)).meta, undefined);
-    assert.equal(writeSourceText(readCompiled(writeCompiledBytes(script))), source.replace(/\n\nMeta[^]*$/, "\n").replace("Monitor", "20").replace("Camera", "21"));
-    assert.equal(writeSourceText(script, { hexOpcodes: true }), "0x29(20)\n  0x23(21, 1, 0, 0, 0)\n0x29(254)\n  0x21(0)\n0x29(255)\n");
+    assert.equal(
+      writeSourceText(readCompiled(writeCompiledBytes(script))),
+      source
+        .replace(/\n\nMeta[^]*$/, "\n")
+        .replace("Monitor", "20")
+        .replace("Camera", "21"),
+    );
+    assert.equal(
+      writeSourceText(script, { hexOpcodes: true }),
+      "0x29(20)\n  0x23(21, 1, 0, 0, 0)\n0x29(254)\n  0x21(0)\n0x29(255)\n",
+    );
+  });
+
+  test("option ids have default names and Meta() can add or override them", () => {
+    const source =
+      'Option(Yes, "Sure")\n  Goto(1)\nOption(No, "Nope")\n  Goto(2)\nOption(Leave, "Leave")\n  Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n  Option(3, Leave)\n';
+    const script = readSource(source);
+    assert.deepEqual(script.meta, { objects: {}, options: { 3: "Leave" } });
+    assert.deepEqual(
+      script.entries.filter((e) => e.opcode === Opcode.SetOption).map((e) => e.args[0]),
+      [1, 2, 3, 18, 19, 255],
+    );
+    assert.equal(writeSourceText(script), source);
+    // Without a Meta block the defaults still apply and undeclared ids stay numeric
+    assert.equal(
+      writeSourceText(readSource("SetOption(1)\nSetOption(3)\nSetOption(18)\n")),
+      "SetOption(Yes)\nSetOption(3)\nSetOption(Exit_1)\n",
+    );
+    assert.equal(
+      writeSourceText(readSource("SetOption(2)\nMeta()\n  Option(2, Decline)\n")),
+      "SetOption(Decline)\n\nMeta()\n  Option(2, Decline)\n",
+    );
+    assert.equal(writeSourceText(readSource("SetOption(1)\n"), { hexOpcodes: true }), "0x2B(1)\n");
   });
 
   test("a script without a Meta block reads without meta and writes none", () => {
@@ -281,7 +420,10 @@ describe("Meta block", () => {
   test("malformed blocks are rejected with the offending line", () => {
     const cases: [string, RegExp][] = [
       ["OnObject(Monitor)\n", /unknown name 'Monitor'/],
-      ["Meta()\n  Speaker(Makoto)\n", /only Object\(id, Name\) entries/],
+      ["Meta()\n  Speaker(Makoto)\n", /only Object\(id, Name\) and Option\(id, Name\) entries/],
+      ["Meta()\n  Option(3, Yes)\n", /already used by default option 1/],
+      ["Meta()\n  Option(3, Leave)\n  Option(4, Leave)\n", /already used/],
+      ["SetOption(Leave)\n", /unknown name 'Leave'/],
       ["Meta()\n  Object(20)\n", /expects 2 arguments/],
       ["Meta()\n  Object(255, Close)\n", /0 to 254/],
       ["Meta()\n  Object(20, 12)\n", /must be an identifier/],
@@ -292,11 +434,14 @@ describe("Meta block", () => {
     for (const [text, message] of cases) {
       assert.throws(() => readSource(text), message, text);
     }
-    assert.throws(() => readSource("Speaker(Makoto)\nMeta()\n  Object(20, A)\n  Object(x, B)\n"), (error: unknown) => {
-      assert.ok(error instanceof SourceError);
-      assert.equal(error.line, 4);
-      return true;
-    });
+    assert.throws(
+      () => readSource("Speaker(Makoto)\nMeta()\n  Object(20, A)\n  Object(x, B)\n"),
+      (error: unknown) => {
+        assert.ok(error instanceof SourceError);
+        assert.equal(error.line, 4);
+        return true;
+      },
+    );
   });
 });
 
@@ -488,16 +633,16 @@ describe("Present sugar", () => {
 
 describe("block indentation", () => {
   test("block opcodes indent their contents until a 255 closes them", () => {
-    const source = "SetOption(1)\nSpeaker(1)\nSetOption(2)\nSpeaker(2)\nSetOption(255)\nSpeaker(3)\n";
+    const source = "SetOption(Yes)\nSpeaker(1)\nSetOption(No)\nSpeaker(2)\nSetOption(255)\nSpeaker(3)\n";
     assert.equal(
       writeSourceText(readSource(source)),
-      "SetOption(1)\n  Speaker(Taka)\nSetOption(2)\n  Speaker(Byakuya)\nSetOption(255)\nSpeaker(Mondo)\n",
+      "SetOption(Yes)\n  Speaker(Taka)\nSetOption(No)\n  Speaker(Byakuya)\nSetOption(255)\nSpeaker(Mondo)\n",
     );
   });
 
   test("indent width is configurable and leading whitespace is ignored on compile", () => {
-    const script = readSource("SetOption(1)\n        Speaker(1)\n");
-    assert.equal(writeSourceText(script, { indentSpaces: 4 }), "SetOption(1)\n    Speaker(Taka)\n");
+    const script = readSource("SetOption(Yes)\n        Speaker(1)\n");
+    assert.equal(writeSourceText(script, { indentSpaces: 4 }), "SetOption(Yes)\n    Speaker(Taka)\n");
   });
 });
 

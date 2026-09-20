@@ -14,7 +14,7 @@
       "name": "string.quoted.double.linscript"
     },
     {
-      "match": "\\b(Animation|CameraFlash|EndOfJump|Goto|If|IfFlag|IfFreeTimeEvent|IfRelationship|Label|LoadMap|LoadScript|LoadSprite|Meta|Movie|Music|Object|ObjectState|OnCharacter|OnObject|PostProcessingEffect|GivePresent|ReceivePresent|RawText|RestartScript|RunScript|ScreenFade|ScreenFlash|SetFlag|SetOption|SetUI|SetVariable|ShowBackground|Sound|SoundB|Speaker|Sprite|SpriteFlash|StopScript|StudentRelationship|StudentReportInfo|StudentTitleEntry|Text|TextStyle|Then|TrialCamera|TruthBulletFlag|UnlockSkill|Voice|Wait|WaitFrame|WaitInput)\\b",
+      "match": "\\b(Animation|CameraFlash|EndOfJump|Goto|If|IfFlag|IfFreeTimeEvent|IfRelationship|Label|LoadMap|LoadScript|LoadSprite|Meta|Movie|Music|Object|ObjectState|OnCharacter|OnObject|Option|PostProcessingEffect|GivePresent|ReceivePresent|RawText|RestartScript|RunScript|ScreenFade|ScreenFlash|SetFlag|SetOption|SetUI|SetVariable|ShowBackground|Sound|SoundB|Speaker|Sprite|SpriteFlash|StopScript|StudentRelationship|StudentReportInfo|StudentTitleEntry|Text|TextStyle|Then|TrialCamera|TruthBulletFlag|UnlockSkill|Voice|Wait|WaitFrame|WaitInput)\\b",
       "name": "entity.name.function.linscript"
     },
     {

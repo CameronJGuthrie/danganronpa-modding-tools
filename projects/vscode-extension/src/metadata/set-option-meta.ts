@@ -6,7 +6,10 @@ export const setOptionMeta: LinscriptInstructionMeta = {
   hexcode: "0x2B",
   parameters: [
     {
-      unknown: true,
+      name: "option",
+      description:
+        "Menu option id: 1/2 (Yes/No) are the choices, 18/19 (Exit_1/Exit_2) the back-out handlers, 255 closes the menu",
+      scope: "Option",
     },
   ] as const,
 };

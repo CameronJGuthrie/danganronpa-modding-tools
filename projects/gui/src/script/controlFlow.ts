@@ -5,9 +5,9 @@
  *  - `Label(n)` at the top level starts a new straight-line block.
  *  - `OnCharacter(n)` / `OnObject(n)` register interaction handlers; each handler's body is
  *    the indented lines that follow it, and the group is closed by `OnObject(255)`.
- *  - `SetOption(n)` registers a menu option; the body is the indented lines that follow it, and the
- *    menu is closed by `SetOption(255)`.
- *  - `Meta()` at the top level starts the per-script annotations (object names) that run to the end
+ *  - `SetOption(n)` (or its labelled sugar `Option(n, "label")`) registers a menu option; the body
+ *    is the indented lines that follow it, and the menu is closed by `SetOption(255)`.
+ *  - `Meta()` at the top level starts the per-script annotations (object and option names) that run to the end
  *    of the file.
  *
  * `Goto(n)` lines are resolved against the labels so the UI can offer jump navigation.
@@ -81,7 +81,10 @@ export function parseScriptLines(source: string): ScriptLine[] {
   return lines;
 }
 
-/** Split on commas that are not inside a string literal. */
+/**
+ * Split on commas that are not inside a string literal or a nested call, so the trailing
+ * instructions of `Text("...", SetUI(Rumble, Hidden))` stay whole.
+ */
 function splitArgs(argText: string): string[] {
   if (argText.trim() === "") {
     return [];
@@ -89,12 +92,17 @@ function splitArgs(argText: string): string[] {
   const args: string[] = [];
   let current = "";
   let inString = false;
+  let depth = 0;
   for (let i = 0; i < argText.length; i++) {
     const char = argText[i];
     if (char === '"' && argText[i - 1] !== "\\") {
       inString = !inString;
+    } else if (!inString && char === "(") {
+      depth++;
+    } else if (!inString && char === ")") {
+      depth--;
     }
-    if (char === "," && !inString) {
+    if (char === "," && !inString && depth === 0) {
       args.push(current.trim());
       current = "";
       continue;
@@ -137,9 +145,13 @@ export function firstNumber(line: ScriptLine): number | undefined {
   return Number.isNaN(value) ? undefined : value;
 }
 
-/** Strip a linscript string literal down to readable text for use in tree subtitles. */
-export function previewText(line: ScriptLine, maxLength = 48): string | undefined {
-  const arg = line.args[0];
+function isOptionRegistration(line: ScriptLine): boolean {
+  return line.functionName === "SetOption" || line.functionName === "Option";
+}
+
+/** Strip a linscript string literal (argument `argIndex`) down to readable text for use in tree subtitles. */
+export function previewText(line: ScriptLine, maxLength = 48, argIndex = 0): string | undefined {
+  const arg = line.args[argIndex];
   if (!arg?.startsWith('"')) {
     return undefined;
   }
@@ -238,8 +250,15 @@ class FlowBuilder {
     for (const line of lines.slice(start)) {
       this.addLine(meta, line);
     }
-    const objects = meta.items.filter((item) => item.kind === "line" && item.line.functionName === "Object").length;
-    meta.subtitle = `${objects} object name${objects === 1 ? "" : "s"}`;
+    const count = (name: string) =>
+      meta.items.filter((item) => item.kind === "line" && item.line.functionName === name).length;
+    const objects = count("Object");
+    const options = count("Option");
+    const parts = [`${objects} object name${objects === 1 ? "" : "s"}`];
+    if (options > 0) {
+      parts.push(`${options} option name${options === 1 ? "" : "s"}`);
+    }
+    meta.subtitle = parts.join(", ");
     return meta;
   }
 
@@ -279,7 +298,7 @@ class FlowBuilder {
     const menu = this.createNode("menu", "Menu", lines[start].lineNumber);
     let i = start;
 
-    while (i < lines.length && lines[i].depth === depth && lines[i].functionName === "SetOption") {
+    while (i < lines.length && lines[i].depth === depth && isOptionRegistration(lines[i])) {
       const line = lines[i];
       const target = firstNumber(line);
 
@@ -291,7 +310,8 @@ class FlowBuilder {
 
       const option = this.createNode("option", line.text, line.lineNumber);
       const [bodyEnd] = this.parseBody(lines, i + 1, depth + 1, option);
-      option.subtitle = firstTextPreview(option);
+      // Option(n, "label") carries its label; a bare SetOption is described by its first text line
+      option.subtitle = line.functionName === "Option" ? previewText(line, 48, 1) : firstTextPreview(option);
       this.addChild(menu, option);
       i = bodyEnd;
     }
@@ -307,7 +327,7 @@ class FlowBuilder {
     while (i < lines.length && lines[i].depth >= depth) {
       const line = lines[i];
 
-      if (line.depth === depth && line.functionName === "SetOption") {
+      if (line.depth === depth && isOptionRegistration(line)) {
         const [menu, next] = this.parseMenu(lines, i, depth);
         this.addChild(parent, menu);
         i = next;

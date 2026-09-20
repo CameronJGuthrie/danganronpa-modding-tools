@@ -23,6 +23,11 @@ export type ScriptEntry = ScriptEntryCommon | ScriptEntryText;
 export interface ScriptMeta {
   /** Names for this script's object ids, as used by `OnObject` and `ObjectState`. */
   objects: Readonly<Record<number, string>>;
+  /**
+   * Names for this script's menu option ids, as used by `SetOption` and `Option`. These are the
+   * declared entries only; `DEFAULT_OPTION_NAMES` in `opcodes/meta.ts` applies underneath them.
+   */
+  options: Readonly<Record<number, string>>;
 }
 
 export interface Script {

@@ -1,9 +1,10 @@
 import { writeFile } from "node:fs/promises";
 import { Opcode } from "../definitions/opcode.definition.ts";
-import type { Script } from "../definitions/script.definition.ts";
+import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
+import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
 import { planTextSugar, stripImplicitNewline, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
@@ -27,10 +28,32 @@ const BLOCK_CLOSE = 255;
 export function writeSourceText(script: Script, options: WriteSourceOptions = {}): string {
   const indent = " ".repeat(options.indentSpaces ?? DEFAULT_INDENT_SPACES);
   const { entries } = script;
-  const { sugared, skipped } = planTextSugar(entries);
+  const { sugared, skipped, trailing } = planTextSugar(entries);
   // Hex output is the raw view, so per-script names are left out of it along with the Meta block
   const names = !options.hexOpcodes;
+  const optionSugared = names ? planOptionSugar(entries) : new Set<number>();
+  for (const index of optionSugared) {
+    skipped.add(index + 1);
+    skipped.add(index + 2);
+  }
   const scopes = names ? scopeTables(script.meta) : {};
+
+  /** One instruction as `Name(args)`, applying the Wait and Present sugar and named arguments. */
+  const formatEntry = (entry: ScriptEntry): string => {
+    const opcode = getOpcode(entry.opcode);
+    if (opcode === undefined) {
+      return `${hexOpcodeName(entry.opcode)}(${formatRawBytes(entry.args)})`;
+    }
+    if (names && isWait(entry)) {
+      return `${WAIT}(${formatWait(entry)})`;
+    }
+    if (names && isPresent(entry)) {
+      const { name, args } = formatPresent(entry);
+      return `${name}(${args})`;
+    }
+    const name = names ? opcode.name : hexOpcodeName(entry.opcode);
+    return `${name}(${formatArgs(opcode.args, entry, { names, scopes })})`;
+  };
 
   const lines: string[] = [];
   // Each block opcode indents independently; nesting depth is the number currently open
@@ -49,26 +72,21 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       openBlocks.delete(block);
     }
 
-    let name: string;
-    let args: string;
-    if (opcode === undefined) {
-      name = hexOpcodeName(entry.opcode);
-      args = formatRawBytes(entry.args);
-    } else if (!options.hexOpcodes && isWait(entry)) {
-      name = WAIT;
-      args = formatWait(entry);
-    } else if (!options.hexOpcodes && isPresent(entry)) {
-      ({ name, args } = formatPresent(entry));
-    } else if (sugared.has(index) && "text" in entry) {
-      name = TEXT_SUGAR;
+    let call: string;
+    if (optionSugared.has(index)) {
+      call = `${OPTION}(${formatOption(entries, index, names, scopes)})`;
+    } else if (opcode !== undefined && sugared.has(index) && "text" in entry) {
       // The plan only sugars entries whose text carries the implicit newline
       const text = stripImplicitNewline(entry.text) ?? entry.text;
-      args = formatArgs(opcode.args, { ...entry, text }, { names, scopes });
+      const args = [
+        formatArgs(opcode.args, { ...entry, text }, { names, scopes }),
+        ...(trailing.get(index) ?? []).map((i) => formatEntry(entries[i])),
+      ];
+      call = `${TEXT_SUGAR}(${args.join(", ")})`;
     } else {
-      name = names ? opcode.name : hexOpcodeName(entry.opcode);
-      args = formatArgs(opcode.args, entry, { names, scopes });
+      call = formatEntry(entry);
     }
-    lines.push(`${indent.repeat(openBlocks.size)}${name}(${args})`);
+    lines.push(`${indent.repeat(openBlocks.size)}${call}`);
 
     if (block !== null && entry.args[0] !== BLOCK_CLOSE) {
       openBlocks.add(block);

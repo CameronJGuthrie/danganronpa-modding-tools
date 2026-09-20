@@ -21,9 +21,10 @@ import { objectMeta } from "./object-meta";
 import { objectStateMeta } from "./object-state-meta";
 import { onCharacterMeta } from "./on-character-meta";
 import { onObjectMeta } from "./on-object-meta";
+import { optionMeta } from "./option-meta";
 import { postProcessingEffectMeta } from "./post-processing-effect-meta";
-import { receivePresentMeta } from "./receive-present-meta";
 import { rawTextMeta } from "./raw-text-meta";
+import { receivePresentMeta } from "./receive-present-meta";
 import { restartScriptMeta } from "./restart-script-meta";
 import { runScriptMeta } from "./run-script-meta";
 import { screenFadeMeta } from "./screen-fade-meta";
@@ -75,6 +76,7 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.ObjectState]: objectStateMeta,
   [LinscriptInstructionName.OnCharacter]: onCharacterMeta,
   [LinscriptInstructionName.OnObject]: onObjectMeta,
+  [LinscriptInstructionName.Option]: optionMeta,
   [LinscriptInstructionName.PostProcessingEffect]: postProcessingEffectMeta,
   [LinscriptInstructionName.RawText]: rawTextMeta,
   [LinscriptInstructionName.ReceivePresent]: receivePresentMeta,
