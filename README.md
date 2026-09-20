@@ -140,5 +140,3 @@ Node strips types rather than transforming syntax, so these files must stay *era
 ## Linux Users
 
 I used Proton version 10 to test most of these changes.
-
-I'm not certain if it does anything, but you can run `pnpm run clear-proton` to clear the game's proton files.

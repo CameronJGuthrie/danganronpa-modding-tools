@@ -21,7 +21,6 @@
     "select": "node packages/scripts/src/mod/select.ts",
     "verify": "node packages/scripts/src/mod/verify.ts",
     "build": "node packages/scripts/src/mod/build.ts",
-    "clear-proton": "node packages/scripts/src/game/clear-proton.ts",
     "copy": "node packages/scripts/src/explore/generator.ts",
     "game": "node packages/scripts/src/game/launch-game.ts",
     "investigate": "node packages/scripts/src/explore/investigate.ts",

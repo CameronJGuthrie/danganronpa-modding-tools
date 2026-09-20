@@ -167,10 +167,6 @@ async function buildMods(): Promise<void> {
   console.log(`WADs failed: ${errorCount}`);
   console.log(`Linscripts compiled: ${totalLinscriptsCompiled}`);
 
-  if (successCount > 0) {
-    console.log('\nTip: Run "pnpm clear-proton" if the game doesn\'t see your changes');
-  }
-
   if (errorCount > 0) {
     process.exit(1);
   }

@@ -99,7 +99,7 @@ TypeScript automation scripts for common modding operations, kept under `package
 - `formats/` - binary format libraries with a CLI tail (`wad-archiver`, `pak-archiver`, `spike-chunsoft-decompress`, `gxt-to-png`)
 - `setup/` - getting game data into the workbench (`zip-game-files`, `unpack-base-files`, `extract-linscript`, `extract-recursive`, `validate-paks`)
 - `mod/` - the edit/build/test loop (`select`, `verify`, `build`)
-- `game/` - Steam and Proton control (`launch-game`, `clear-proton`)
+- `game/` - Steam control (`launch-game`)
 - `explore/` - opcode research (`investigate`, `generator`)
 
 Scripts resolve repository paths through `lib/paths.ts` rather than counting `..` segments, so they can move between subdirectories freely.
