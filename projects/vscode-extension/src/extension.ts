@@ -42,15 +42,18 @@ export function activate(context: vscode.ExtensionContext) {
     const path = require("node:path");
     const fs = require("node:fs");
 
+    // The marker lives in workbench/; the pnpm scripts run from the repository root above it
+    const repoRoot = path.dirname(rootDir);
+
     // Determine output file path
     const ext = path.extname(uri.fsPath);
     const basename = path.basename(uri.fsPath, ext);
-    const outputPath = path.join(rootDir, "workbench/mod/dr1_data_us/Dr1/data/us/script", `${basename}.linscript`);
+    const outputPath = path.join(rootDir, "mod/dr1_data_us/Dr1/data/us/script", `${basename}.linscript`);
 
     // Run the select command
     const terminal = vscode.window.createTerminal({
       name: "Select Script",
-      cwd: rootDir,
+      cwd: repoRoot,
     });
     terminal.sendText(`pnpm select ${uri.fsPath}`);
     terminal.show();
@@ -82,14 +85,17 @@ export function activate(context: vscode.ExtensionContext) {
     const path = require("node:path");
     const fs = require("node:fs");
 
+    // The marker lives in workbench/; the pnpm scripts run from the repository root above it
+    const repoRoot = path.dirname(rootDir);
+
     // Extract the base filename
     const basename = path.basename(uri.fsPath, ".lin");
-    const outputPath = path.join(rootDir, "workbench/modded/verify", `${basename}.linscript`);
+    const outputPath = path.join(rootDir, "verify", `${basename}.linscript`);
 
     // Run the verify command
     const terminal = vscode.window.createTerminal({
       name: "Verify File",
-      cwd: rootDir,
+      cwd: repoRoot,
     });
     terminal.sendText(`pnpm verify ${uri.fsPath}`);
     terminal.show();
