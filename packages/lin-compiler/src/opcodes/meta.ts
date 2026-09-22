@@ -11,11 +11,14 @@ import { splitArgs } from "../parameter.ts";
  *     Meta()
  *       Object(20, Monitor)
  *       Object(21, Camera)
+ *       Character(0, Sayaka)
  *       Option(3, Leave)
  *
  * `Object(id, Name)` names an object id, so the body can say `OnObject(Monitor)` instead of
- * `OnObject(20)`. `Option(id, Name)` names a menu option id the same way for `SetOption` and the
- * `Option(id, "label")` sugar. Every script starts with `DEFAULT_OPTION_NAMES`, which a declared
+ * `OnObject(20)`. `Character(id, Name)` names a placed-character slot the same way for
+ * `OnCharacter`; the id is the first argument of the `Sprite(...)` that placed the character, not the
+ * `Character` enum, so the same student can hold a different slot in every script. `Option(id, Name)`
+ * names a menu option id for `SetOption` and the `Option(id, "label")` sugar. Every script starts with `DEFAULT_OPTION_NAMES`, which a declared
  * entry may override; only declared entries are written back. Names are identifiers, unique within
  * the file per kind, and each id is named once. The block is terminated by the end of the file;
  * nothing but these entries, blank lines and comments may follow it. Compiling to `.lin` drops
@@ -26,6 +29,8 @@ import { splitArgs } from "../parameter.ts";
 export const META = "Meta";
 /** Source name of an object-name entry inside the block. */
 export const META_OBJECT = "Object";
+/** Source name of a character-slot-name entry inside the block. */
+export const META_CHARACTER = "Character";
 /** Source name of an option-name entry inside the block (the same word as the body sugar). */
 export const META_OPTION = "Option";
 
@@ -47,6 +52,7 @@ const MAX_ID = 254;
 /** The entry kinds the block accepts, each filling one scope's name table. */
 const ENTRIES: Readonly<Record<string, { scope: ParameterScope; key: keyof ScriptMeta; noun: string }>> = {
   [META_OBJECT]: { scope: "Object", key: "objects", noun: "object" },
+  [META_CHARACTER]: { scope: "Character", key: "characters", noun: "character" },
   [META_OPTION]: { scope: "Option", key: "options", noun: "option" },
 };
 
@@ -61,8 +67,8 @@ export interface SourceLine {
  * `lines` are the non-blank, non-comment lines after it.
  */
 export function parseMeta(lines: readonly SourceLine[]): ScriptMeta {
-  const meta: { objects: Record<number, string>; options: Record<number, string> } = { objects: {}, options: {} };
-  const seen: Record<keyof ScriptMeta, Set<string>> = { objects: new Set(), options: new Set() };
+  const meta: Record<keyof ScriptMeta, Record<number, string>> = { objects: {}, characters: {}, options: {} };
+  const seen: Record<keyof ScriptMeta, Set<string>> = { objects: new Set(), characters: new Set(), options: new Set() };
 
   for (const { line, text } of lines) {
     const match = /^(\w+)\s*\((.*)\)$/.exec(text);
@@ -70,7 +76,7 @@ export function parseMeta(lines: readonly SourceLine[]): ScriptMeta {
     if (match === null || entry === undefined) {
       throw new SourceError(
         line,
-        `only ${META_OBJECT}(id, Name) and ${META_OPTION}(id, Name) entries may follow ${META}()`,
+        `only ${META_OBJECT}(id, Name), ${META_CHARACTER}(id, Name) and ${META_OPTION}(id, Name) entries may follow ${META}()`,
       );
     }
     const values = splitArgs(match[2]);
@@ -128,12 +134,13 @@ export function formatMeta(meta: ScriptMeta | undefined, indent: string): string
 
 /**
  * The scoped name tables a script's meta provides for reading and writing its arguments. A script
- * without meta still gets the default option names and an empty object table, so a stray name is
+ * without meta still gets the default option names and empty object and character tables, so a stray name is
  * reported as unknown rather than as a malformed number.
  */
 export function scopeTables(meta: ScriptMeta | undefined): ScopeTables {
   return {
     Object: twoWay(meta?.objects ?? {}),
+    Character: twoWay(meta?.characters ?? {}),
     Option: twoWay({ ...DEFAULT_OPTION_NAMES, ...(meta?.options ?? {}) }),
   };
 }

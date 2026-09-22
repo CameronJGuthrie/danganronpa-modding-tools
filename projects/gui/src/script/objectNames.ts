@@ -7,7 +7,7 @@
  * With a name declared, the body writes `OnObject(Monitor)` and `ObjectState(Monitor, ...)` in
  * place of the id. This module reads the block out of source text and writes an edited set of
  * names back, renaming the body's references to match. Other entries in the block, such as
- * `Option(id, Name)`, are kept as written. Mirrors `opcodes/meta.ts` in lin-compiler.
+ * `Character(id, Name)` and `Option(id, Name)`, are kept as written. Mirrors `opcodes/meta.ts` in lin-compiler.
  */
 
 export type ObjectNames = ReadonlyMap<number, string>;
@@ -96,7 +96,7 @@ export function applyObjectNames(source: string, names: ObjectNames): string {
   const previous = parseObjectNames(source);
   const metaStart = findMetaStart(lines);
   const body = metaStart === -1 ? [...lines] : lines.slice(0, metaStart);
-  // Entries of other kinds (Option names) stay in the block untouched
+  // Entries of other kinds (Character and Option names) stay in the block untouched
   const otherEntries =
     metaStart === -1
       ? []

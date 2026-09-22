@@ -20,6 +20,10 @@ say so in the report.
 
 Note `Speaker(Mukuro)` in chapter one is Junko in disguise: use Junko's section.
 
+The game is set in 2010, before smartphones and social media were widespread. Jokes must fit
+that: no followers, feeds, scrolling, selfies, apps, streaming or influencers. Flip phones, texting,
+forums, magazines, TV and DVDs are fine.
+
 ## 2. Read the script and decide what is dialogue
 
 Run the helper to list every text line with its speaker and object handler:
@@ -79,6 +83,11 @@ file and replace the numeric references with the name. Conventions from existing
   line before it. Keep any existing `Option(...)` rows.
 - Object ids and option ids are separate namespaces; only add `Option(n, Name)` when the
   script's own labels make the meaning unambiguous (`"Yes"`/`"No"` → `Yes`/`No`).
+
+Also name the characters the script places for investigation: every setup `Sprite(N, Name, 0, 0, spot)`
+line (fourth argument 0) that has an `OnCharacter(N)` handler gets `Character(N, Name)`, and the
+handler is written `OnCharacter(Name)`. Use the student's first name as the identifier (`Taka`,
+`Mukuro` for `Speaker(Mukuro)`); leave 254/255 and slots with no `Sprite` numeric.
 
 Recompile after editing Meta() (step 4 again).
 

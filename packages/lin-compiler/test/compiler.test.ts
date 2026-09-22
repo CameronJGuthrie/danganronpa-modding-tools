@@ -370,7 +370,7 @@ describe("Meta block", () => {
 
   test("object names resolve to their ids and survive a source round trip", () => {
     const script = readSource(source);
-    assert.deepEqual(script.meta, { objects: { 20: "Monitor", 21: "Camera" }, options: {} });
+    assert.deepEqual(script.meta, { objects: { 20: "Monitor", 21: "Camera" }, characters: {}, options: {} });
     assert.deepEqual(
       script.entries.map((e) => [e.opcode, ...e.args]),
       [
@@ -382,6 +382,19 @@ describe("Meta block", () => {
       ],
     );
     assert.equal(writeSourceText(script), source);
+  });
+
+  test("Character(id, Name) names OnCharacter slots separately from object ids", () => {
+    const source =
+      "OnCharacter(Sayaka)\n  Goto(1)\nOnCharacter(3)\nOnCharacter(255)\nOnObject(Sayaka_Seat)\nOnObject(255)\n\nMeta()\n  Object(0, Sayaka_Seat)\n  Character(0, Sayaka)\n";
+    const script = readSource(source);
+    assert.deepEqual(script.meta, { objects: { 0: "Sayaka_Seat" }, characters: { 0: "Sayaka" }, options: {} });
+    assert.deepEqual(
+      script.entries.filter((entry) => entry.opcode === Opcode.OnCharacter).map((entry) => entry.args),
+      [[0], [3], [255]],
+    );
+    assert.equal(writeSourceText(script), source);
+    assert.equal(roundTrip(source), source.slice(0, source.indexOf("\n\nMeta()")).replace("OnCharacter(Sayaka)", "OnCharacter(0)").replace("OnObject(Sayaka_Seat)", "OnObject(0)") + "\n");
   });
 
   test("numbers are accepted for named objects and unnamed ids stay numeric", () => {
@@ -409,7 +422,7 @@ describe("Meta block", () => {
     const source =
       'Option(Yes, "Sure")\n  Goto(1)\nOption(No, "Nope")\n  Goto(2)\nOption(Leave, "Leave")\n  Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n  Option(1, Yes)\n  Option(2, No)\n  Option(3, Leave)\n';
     const script = readSource(source);
-    assert.deepEqual(script.meta, { objects: {}, options: { 1: "Yes", 2: "No", 3: "Leave" } });
+    assert.deepEqual(script.meta, { objects: {}, characters: {}, options: { 1: "Yes", 2: "No", 3: "Leave" } });
     assert.deepEqual(
       script.entries.filter((e) => e.opcode === Opcode.SetOption).map((e) => e.args[0]),
       [1, 2, 3, 18, 19, 255],
@@ -441,7 +454,9 @@ describe("Meta block", () => {
   test("malformed blocks are rejected with the offending line", () => {
     const cases: [string, RegExp][] = [
       ["OnObject(Monitor)\n", /unknown name 'Monitor'/],
-      ["Meta()\n  Speaker(Makoto)\n", /only Object\(id, Name\) and Option\(id, Name\) entries/],
+      ["Meta()\n  Speaker(Makoto)\n", /only Object\(id, Name\), Character\(id, Name\) and Option\(id, Name\) entries/],
+      ["OnCharacter(Sayaka)\n", /unknown name 'Sayaka'/],
+      ["Meta()\n  Character(0, Sayaka)\n  Character(1, Sayaka)\n", /already used/],
       ["Meta()\n  Option(3, Exit_1)\n", /already used by default option 18/],
       ["Meta()\n  Option(3, Leave)\n  Option(4, Leave)\n", /already used/],
       ["SetOption(Leave)\n", /unknown name 'Leave'/],

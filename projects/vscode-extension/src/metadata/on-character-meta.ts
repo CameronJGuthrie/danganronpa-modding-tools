@@ -6,18 +6,19 @@ export const onCharacterMeta: LinscriptInstructionMeta = {
   hexcode: "0x27",
   parameters: [
     {
-      name: "objectId",
+      name: "characterId",
+      scope: "Character",
     },
   ] as const,
-  decorations([objectId]) {
-    if (objectId === 254) {
+  decorations([characterId]) {
+    if (characterId === 254) {
       return "---> on Exit";
     }
 
-    if (objectId === 255) {
+    if (characterId === 255) {
       return "<---";
     }
 
-    return `---> on ${objectId}`;
+    return `---> on ${characterId}`;
   },
 };

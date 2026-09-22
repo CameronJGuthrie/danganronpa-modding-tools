@@ -67,7 +67,7 @@ export type ParameterMeta = {
    * Name table declared by the document itself rather than a shared enum: `Object` resolves names
    * from the file's `Meta()` block (`Object(20, Monitor)` lets the body say `OnObject(Monitor)`).
    */
-  scope?: "Object" | "Option";
+  scope?: "Object" | "Character" | "Option";
   /**
    * Map of numbers to LinscriptValue, can be a simple string but might also indicate typing for other params
    */

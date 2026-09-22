@@ -42,10 +42,10 @@ export function isOptional(parameter: Parameter): parameter is OptionalParameter
 }
 
 /**
- * Name tables that are not fixed by the opcode table but supplied per script, e.g. the object names
- * a `.linscript` file declares in its `Meta()` block.
+ * Name tables that are not fixed by the opcode table but supplied per script, e.g. the object and
+ * character names a `.linscript` file declares in its `Meta()` block.
  */
-export type ParameterScope = "Object" | "Option";
+export type ParameterScope = "Object" | "Option" | "Character";
 
 /** A slot whose names come from the script being read or written (see `ParameterScope`). */
 export type ScopedParameter = {

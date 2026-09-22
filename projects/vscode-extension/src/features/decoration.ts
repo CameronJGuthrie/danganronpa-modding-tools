@@ -3,7 +3,7 @@ import { textStyleColor } from "../data/text-style-data";
 import { metadata } from "../metadata";
 import { logDebug, logError, logWarning } from "../output";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
-import { objectNamesFromDocument, optionNamesFromDocument } from "../util/script-meta";
+import { characterNamesFromDocument, objectNamesFromDocument, optionNamesFromDocument } from "../util/script-meta";
 import {
   createCompleteFunctionRegex,
   createVarargsRegex,
@@ -209,7 +209,7 @@ export function registerDecoration() {
 
 /**
  * Name tables per argument position, expanding a varargs head/tail pattern to the actual count.
- * Parameters scoped to the document (object and option ids) take their table from its `Meta()` block.
+ * Parameters scoped to the document (object, character and option ids) take their table from its `Meta()` block.
  */
 function argumentNames(functionDetails: LinscriptInstructionMeta, call: string, documentText: string) {
   const { varargNames } = functionDetails;
@@ -217,9 +217,11 @@ function argumentNames(functionDetails: LinscriptInstructionMeta, call: string, 
     return functionDetails.parameters.map((parameter) =>
       parameter.scope === "Object"
         ? objectNamesFromDocument(documentText)
-        : parameter.scope === "Option"
-          ? optionNamesFromDocument(documentText)
-          : (parameter.namesBy ?? parameter.names),
+        : parameter.scope === "Character"
+          ? characterNamesFromDocument(documentText)
+          : parameter.scope === "Option"
+            ? optionNamesFromDocument(documentText)
+            : (parameter.namesBy ?? parameter.names),
     );
   }
   const count = getArgumentsFromFunctionLike(call).length;
@@ -227,6 +229,11 @@ function argumentNames(functionDetails: LinscriptInstructionMeta, call: string, 
   return Array.from({ length: count }, (_, i) =>
     i < head.length ? head[i] : tail.length === 0 ? undefined : tail[(i - head.length) % tail.length],
   );
+}
+
+/** Whether the argument starting at `stringIndex` in `call` is a plain number rather than a name. */
+function isWrittenAsNumber(call: string, stringIndex: number): boolean {
+  return /^\d+\s*[,)]/.test(call.slice(stringIndex));
 }
 
 function addParameterDecoration(
@@ -305,6 +312,10 @@ function enrichParameters(
     if (!functionDetails.varargs && !functionDetails.selfDescribing && showParameterDecorations) {
       args.forEach(({ stringIndex }, argIndex) => {
         const param = functionDetails.parameters[argIndex];
+        // A Meta() name such as OnObject(Monitor) or OnCharacter(Taka) already says what the id is
+        if (param.scope && !isWrittenAsNumber(match[0], stringIndex)) {
+          return;
+        }
         const rangePos = document.positionAt(matchIndex + stringIndex);
         const decorationWidth = addParameterDecoration(param, rangePos, hintDecorations);
         totalDecorationWidth += decorationWidth;

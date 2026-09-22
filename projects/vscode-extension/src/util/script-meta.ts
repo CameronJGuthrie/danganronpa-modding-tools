@@ -11,6 +11,11 @@ export function objectNamesFromDocument(documentText: string): ArgumentNames {
   return scopedNamesFromDocument(documentText, "Object", {});
 }
 
+/** The character-slot names a file declares with `Character(id, Name)`, for `OnCharacter`. */
+export function characterNamesFromDocument(documentText: string): ArgumentNames {
+  return scopedNamesFromDocument(documentText, "Character", {});
+}
+
 /** The option names in effect for a file: the defaults plus its `Meta()` block's `Option(id, Name)` entries. */
 export function optionNamesFromDocument(documentText: string): ArgumentNames {
   return scopedNamesFromDocument(documentText, "Option", DEFAULT_OPTION_NAMES);
@@ -18,7 +23,7 @@ export function optionNamesFromDocument(documentText: string): ArgumentNames {
 
 function scopedNamesFromDocument(
   documentText: string,
-  entry: "Object" | "Option",
+  entry: "Object" | "Character" | "Option",
   defaults: Readonly<Record<number, string>>,
 ): ArgumentNames {
   const declared: Record<number, string> = { ...defaults };

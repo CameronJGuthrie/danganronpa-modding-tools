@@ -84,6 +84,8 @@ const flagOffset: Parameter = {
 };
 /** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
 const objectId: Parameter = { type: Byte, scope: "Object" };
+/** A placed-character slot, named per script by `Character(id, Name)` in the `Meta()` block. */
+const characterId: Parameter = { type: Byte, scope: "Character" };
 /** A menu option id byte, written by name: the defaults (`Yes`, `No`, `Exit_1`, `Exit_2`) or the script's `Meta()` entries. */
 const optionId: Parameter = { type: Byte, scope: "Option" };
 /** A 0/1 byte, written as `False` / `True`. */
@@ -133,7 +135,7 @@ export const opcodes = {
   ObjectState:           { id: 0x23, args: fixed([objectId, Byte, Byte, Byte, Byte]) },
   SetUI:                 { id: 0x25, args: fixed([named(Byte, UserInterface), named(Byte, UiVisibility)]) },
   SetFlag:               { id: 0x26, args: fixed([flagGroup, flagOffset, bool]) },
-  OnCharacter:           { id: 0x27, args: bytes(1), block: true },
+  OnCharacter:           { id: 0x27, args: fixed([characterId]), block: true },
   OnObject:              { id: 0x29, args: fixed([objectId]), block: true },
   Label:                 { id: 0x2a, args: fixed([UInt16BE]) },
   SetOption:             { id: 0x2b, args: fixed([optionId]), block: true },

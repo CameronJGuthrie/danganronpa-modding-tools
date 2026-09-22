@@ -7,7 +7,7 @@
  *    the indented lines that follow it, and the group is closed by `OnObject(255)`.
  *  - `SetOption(n)` (or its labelled sugar `Option(n, "label")`) registers a menu option; the body
  *    is the indented lines that follow it, and the menu is closed by `SetOption(255)`.
- *  - `Meta()` at the top level starts the per-script annotations (object and option names) that run to the end
+ *  - `Meta()` at the top level starts the per-script annotations (object, character and option names) that run to the end
  *    of the file.
  *
  * `Goto(n)` lines are resolved against the labels so the UI can offer jump navigation.
@@ -256,8 +256,12 @@ class FlowBuilder {
     const count = (name: string) =>
       meta.items.filter((item) => item.kind === "line" && item.line.functionName === name).length;
     const objects = count("Object");
+    const characters = count("Character");
     const options = count("Option");
     const parts = [`${objects} object name${objects === 1 ? "" : "s"}`];
+    if (characters > 0) {
+      parts.push(`${characters} character name${characters === 1 ? "" : "s"}`);
+    }
     if (options > 0) {
       parts.push(`${options} option name${options === 1 ? "" : "s"}`);
     }
