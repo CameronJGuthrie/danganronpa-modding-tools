@@ -12,8 +12,9 @@ If a path is not under `workbench/mod/`, tell the user; the mod dir is where rew
 ## 1. Load the tone
 
 Read every file in `workbench/tone/*.md` before writing a line. `README.md` has the
-premise and hard formatting rules, `makoto.md` the protagonist, `cast.md` one section
-per supporting character and Monokuma. If the script has a character with no section,
+hard formatting rules, `tone.md` the premise and general voice, `makoto.md` the
+protagonist, and every other file one supporting character or Monokuma (named by first
+name, e.g. `kiyotaka.md`, `monokuma.md`). If the script has a character with no file,
 extrapolate from their original lines and the "escalate the existing trait" rule, and
 say so in the report.
 
