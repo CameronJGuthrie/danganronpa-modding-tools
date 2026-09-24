@@ -12,8 +12,10 @@ If a path is not under `workbench/mod/`, tell the user; the mod dir is where rew
 ## 1. Load the tone
 
 Read every file in `workbench/tone/*.md` before writing a line. `README.md` has the
-hard formatting rules, `tone.md` the premise and general voice, `makoto.md` the
-protagonist, and every other file one supporting character or Monokuma (named by first
+hard formatting rules, `plot-differences.md` the deliberate departures from the
+original plot by chapter (a scene that touches a listed beat must match it, and a
+rewrite that changes a fact rather than a voice must add an entry), `tone.md` the
+premise and general voice, `makoto.md` the protagonist, and every other file one supporting character or Monokuma (named by first
 name, e.g. `kiyotaka.md`, `monokuma.md`). If the script has a character with no file,
 extrapolate from their original lines and the "escalate the existing trait" rule, and
 say so in the report.
@@ -43,7 +45,31 @@ Leave untouched:
 - Silent beats `"..."`, grunts (`"Ng...gah..."`, `"Urgh..."`), sound effects
   (`*WHAM*`, `*Rattle rattle*`), menu labels, `"Leave the area?"` prompts.
 
-## 3. Write the replacement map
+## 3. Write the lines
+
+Rephrase each line from scratch in the character's voice, keeping its facts. Do not
+keep the original sentence and bolt a joke onto the end of it: the source's register
+and the appended quip pull in different directions and the line reads as two voices.
+If the original wording survives, it should be because it already sounds like the
+parody character, not because it was the starting point.
+
+Vary the rhythm. A line may be one flowing sentence, a question, or a sentence and a
+half; it should not default to a run of clipped fragments ("A desk. With drawers. My
+enemy."). That cadence is a seasoning for a few landing beats per scene, not the base.
+Read a scene's lines together and check that no two neighbouring lines share the same
+shape or the same punchline.
+
+Vary the target, too. Each character has one dominant trait to escalate, but a scene
+where every line hits it becomes a single joke repeated. Aim for roughly one line in
+three that plays the character's signature bit; let the rest be that character
+reacting to the actual situation, other characters, or the object in front of them,
+still rude and still in voice.
+
+Makoto in particular: he resents school, but he is not a school-hatred machine. Only
+some of his thoughts should route back to it; he should also be tired, petty about
+whoever just spoke to him, wryly observant, or briefly and grudgingly sincere.
+
+## 3a. Write the replacement map
 
 Create `<scratchpad>/<script>.json`: an object mapping the exact source string (as it
 appears between the quotes in the file, escapes and tags included) to the replacement.
@@ -79,6 +105,8 @@ file and replace the numeric references with the name. Conventions from existing
   number repeats (`MetalPlate_1`, `MetalPlate_2`, `Camera_1`). Unique per file.
 - Do not name `254`/`255` or ids that only appear in `ObjectState` at map load with no
   handler; leave them numeric and list them in the report.
+- Check `workbench/tone/rooms.md` for the map first and reuse the names it lists;
+  add the room, or any new names, to that file afterwards.
 - If the file has no `Meta()` block, add one after the final `StopScript()` with a blank
   line before it. Keep any existing `Option(...)` rows.
 - Object ids and option ids are separate namespaces; only add `Option(n, Name)` when the
