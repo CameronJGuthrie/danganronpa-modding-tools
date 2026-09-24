@@ -48,14 +48,29 @@ export type SaveResult = {
   written: string[];
   /** The opened file, when it was left untouched because it is read-only (e.g. a decompiled workbench file). */
   readOnly?: string;
+  /**
+   * Set, with nothing written, when a file the save would overwrite no longer holds `expected`:
+   * it was changed outside the editor since the script was loaded or last saved.
+   */
+  conflict?: string;
 };
 
 /**
  * Save an edited script: write it back to the file it was opened from, and copy it into the mod
  * script directory under its own name so `pnpm build` picks it up. A read-only original (the
  * decompiled workbench is generated and protected) is skipped rather than forced.
+ *
+ * `expected` is the source as the editor last loaded or saved it. Every file the save would
+ * overwrite must still hold it (ignoring the byte-order mark); otherwise nothing is written and
+ * the result names the file that differs, so edits made elsewhere are never silently lost. A
+ * file that has been deleted is simply recreated.
  */
-export async function saveScript(appPath: string, filePath: string, source: string): Promise<SaveResult> {
+export async function saveScript(
+  appPath: string,
+  filePath: string,
+  source: string,
+  expected: string,
+): Promise<SaveResult> {
   const modDirectory = modScriptDirectory(appPath);
   if (modDirectory === null) {
     throw new Error("Cannot find the workbench; run `pnpm run reset` first");
@@ -64,6 +79,14 @@ export async function saveScript(appPath: string, filePath: string, source: stri
   const text = source.startsWith("﻿") ? source : `﻿${source}`;
   const modPath = path.join(modDirectory, path.basename(filePath));
   const result: SaveResult = { written: [] };
+
+  const targets = path.resolve(filePath) === modPath ? [modPath] : [filePath, modPath];
+  for (const target of targets) {
+    if (!(await holdsSource(target, expected))) {
+      result.conflict = target;
+      return result;
+    }
+  }
 
   if (path.resolve(filePath) !== modPath) {
     if (await isWritable(filePath)) {
@@ -78,6 +101,24 @@ export async function saveScript(appPath: string, filePath: string, source: stri
   await fs.promises.writeFile(modPath, text, "utf8");
   result.written.push(modPath);
   return result;
+}
+
+/**
+ * True when `target` still holds `expected` (byte-order mark aside), or does not exist: there is
+ * nothing to lose by writing over a missing file, so the save recreates it.
+ */
+async function holdsSource(target: string, expected: string): Promise<boolean> {
+  let current: string;
+  try {
+    current = await fs.promises.readFile(target, "utf8");
+  } catch {
+    return true;
+  }
+  return stripBom(current) === stripBom(expected);
+}
+
+function stripBom(text: string): string {
+  return text.startsWith("﻿") ? text.slice(1) : text;
 }
 
 async function isWritable(filePath: string): Promise<boolean> {

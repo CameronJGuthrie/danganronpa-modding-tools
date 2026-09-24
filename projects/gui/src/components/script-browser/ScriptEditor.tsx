@@ -72,8 +72,9 @@ export function ScriptEditor({
       setViewAll(true);
     }
   }, [reveal]);
-  // Read-only disables every dropdown so the script cannot be edited by accident
-  const [readOnly, setReadOnly] = useState(false);
+  // Read-only disables every dropdown so the script cannot be edited by accident. A script opens
+  // read-only; editing is opted into per script.
+  const [readOnly, setReadOnly] = useState(true);
   // The line whose text is open in an inline text field; null when nothing is being edited
   const [editingLine, setEditingLine] = useState<number | null>(null);
   const allLines = useMemo(() => (viewAll ? parseScriptLines(source) : []), [viewAll, source]);
@@ -145,7 +146,17 @@ export function ScriptEditor({
     const text = sourceRef.current;
     setSaving(true);
     try {
-      const result = await window.electron.saveScript(filePath, text);
+      // The save is refused when the disk no longer holds what this editor loaded or last saved,
+      // so edits made outside the editor (a script, another tool) are not overwritten
+      const result = await window.electron.saveScript(filePath, text, savedSourceRef.current);
+      if (result.conflict !== undefined) {
+        setSaveStatus({
+          kind: "error",
+          text: "Not saved: file changed on disk",
+          detail: `${shortPath(result.conflict)} no longer matches what this editor loaded. Reopen the script to see the current version, then redo the edits.`,
+        });
+        return false;
+      }
       setSavedSource(text);
       onSaved?.();
       const copied = result.written.map(shortPath).join(" and ");

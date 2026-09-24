@@ -53,7 +53,9 @@ export function ActionPanel({ readOnly, onToggleReadOnly, dirty, saving, onSave,
         onClick={onToggleReadOnly}
         aria-pressed={readOnly}
         title={
-          readOnly ? "Editing is disabled; click to allow edits" : "Disable all dropdowns so nothing can be edited"
+          readOnly
+            ? "Scripts open read-only; click to allow edits to this one"
+            : "Disable all dropdowns so nothing can be edited"
         }
       >
         {readOnly ? "🔒 readonly" : "readonly"}

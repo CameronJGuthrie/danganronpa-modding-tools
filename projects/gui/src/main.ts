@@ -112,8 +112,8 @@ ipcMain.handle("search-scripts", async (_event, directory: string, query: string
 
 ipcMain.handle("run-game", async () => runGame(app.getAppPath()));
 
-ipcMain.handle("save-script", async (_event, filePath: string, source: string) =>
-  saveScript(app.getAppPath(), filePath, source),
+ipcMain.handle("save-script", async (_event, filePath: string, source: string, expected: string) =>
+  saveScript(app.getAppPath(), filePath, source, expected),
 );
 
 ipcMain.handle("tga-file-to-base-64-png", async (_event, filePath: string) => {

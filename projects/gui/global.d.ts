@@ -25,9 +25,15 @@ declare global {
       }>;
       /**
        * Write `source` back to `filePath` (unless it is read-only) and copy it into the mod script
-       * directory. Resolves with the paths written and the read-only original, if it was skipped.
+       * directory, provided every file it would overwrite still holds `expected`, the source as last
+       * loaded or saved. Resolves with the paths written and the read-only original, if it was
+       * skipped; or, with nothing written, `conflict` naming the file that changed on disk.
        */
-      saveScript: (filePath: string, source: string) => Promise<{ written: string[]; readOnly?: string }>;
+      saveScript: (
+        filePath: string,
+        source: string,
+        expected: string,
+      ) => Promise<{ written: string[]; readOnly?: string; conflict?: string }>;
       /** Basenames of the `.linscript` files in the mod script directory, i.e. the modified scripts. */
       listModifiedScripts: () => Promise<string[]>;
       /** Read a script for editing, preferring its copy in the mod script directory when one exists. */
