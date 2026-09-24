@@ -85,7 +85,7 @@ export const roomNames: Readonly<Record<number, string>> = {
   142: "Dressing Room Locker (Alter Ego)",
   144: "Bathhouse",
   145: "Sauna",
-  146: "Dorm Lobby (fish tank)",
+  146: "1F Boys Bathroom",
   148: "Dorm 2F Hallway (ruined)",
   149: "Dorm 2F Room (ruined)",
   150: "Dorm 2F Locker Room",
