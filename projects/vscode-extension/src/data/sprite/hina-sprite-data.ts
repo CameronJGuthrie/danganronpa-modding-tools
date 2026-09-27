@@ -6,7 +6,7 @@ export const hinaSprite = {
   4: "Smiling",
   5: "Sheepish",
   6: "Cutesy",
-  7: "HotNBothered",
+  7: "Flustered",
   8: "Wondering",
   9: "Horrified",
   10: "Puzzled",

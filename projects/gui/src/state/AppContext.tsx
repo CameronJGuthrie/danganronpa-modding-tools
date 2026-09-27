@@ -6,11 +6,14 @@ export type AppState = AppData & Setters<AppData>;
 
 export type AppData = {
   gameDirectory: string | null;
+  /** Folder the Asset Preview resolves sprite paths against; null until the default is looked up or one is chosen. */
+  assetDirectory: string | null;
   characterStandingSpriteFilePath: string | null;
 };
 
 const initialData: AppData = {
   gameDirectory: null,
+  assetDirectory: null,
   characterStandingSpriteFilePath: null,
 };
 

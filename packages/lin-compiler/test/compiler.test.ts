@@ -39,13 +39,16 @@ describe("compile and decompile", () => {
     assert.throws(() => readSource("StudentTitleEntry(Junko, Add, 1)\n"), SourceError);
   });
 
-  test("Sprite names its character; only characters with sprites are accepted by name", () => {
-    const script = readSource("Sprite(0, Usami, 34, 6, 3)\nSprite(0, 17, 1, 1, 2)\nSprite(0, 19, 0, 0, 0)\n");
+  test("Sprite names its character, transition and position; only characters with sprites are accepted by name", () => {
+    const script = readSource(
+      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, 17, 1, 1, 2)\nSprite(0, 19, 0, 0, 0)\nSprite(0, Makoto, 0, 11, 11)\n",
+    );
     assert.equal(
       writeSourceText(script),
-      "Sprite(0, Usami, 34, 6, 3)\nSprite(0, AlterEgo, 1, 1, 2)\nSprite(0, 19, 0, 0, 0)\n",
+      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, AlterEgo, 1, FadeIn, Center)\nSprite(0, 19, 0, Set, Leftmost)\nSprite(0, Makoto, 0, 11, 11)\n",
     );
     assert.throws(() => readSource("Sprite(0, Headmaster, 0, 0, 0)\n"), SourceError);
+    assert.throws(() => readSource("Sprite(0, Makoto, 0, Vanish, 0)\n"), SourceError);
   });
 
   test("LoadSprite names its sprite sheet, with placeholders for the unidentified sheets", () => {

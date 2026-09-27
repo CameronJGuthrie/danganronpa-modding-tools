@@ -23,6 +23,7 @@
     "build": "node packages/scripts/src/mod/build.ts",
     "copy": "node packages/scripts/src/explore/generator.ts",
     "game": "node packages/scripts/src/game/launch-game.ts",
+    "gui": "pnpm -C projects/gui run start",
     "investigate": "node packages/scripts/src/explore/investigate.ts",
     "validate-paks": "node packages/scripts/src/setup/validate-paks.ts",
     "test:all": "pnpm -r --if-present run test ",

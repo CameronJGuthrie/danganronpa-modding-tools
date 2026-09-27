@@ -40,11 +40,11 @@ type TabProps = {
   onSelect: () => void;
 };
 
-function Tab({ name, label, onSelect }: TabProps) {
+function Tab({ name, label, isSelected, onSelect }: TabProps) {
   return (
     <li key={name}>
-      <Button color="blue" onClick={() => onSelect()}>
-        {label}
+      <Button color="blue" onClick={() => onSelect()} aria-current={isSelected ? "page" : undefined}>
+        {isSelected ? <strong>{label}</strong> : label}
       </Button>
     </li>
   );

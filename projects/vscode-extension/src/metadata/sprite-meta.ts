@@ -1,4 +1,12 @@
-import { CharacterSprite, isCharacterSprite, LinscriptInstructionName } from "linscript-definitions";
+import {
+  CharacterSprite,
+  isCharacterSprite,
+  isSpritePosition,
+  isSpriteTransition,
+  LinscriptInstructionName,
+  SpritePosition,
+  SpriteTransition,
+} from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import { sprites } from "../data/sprite";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -17,37 +25,37 @@ export const spriteMeta: LinscriptInstructionMeta = {
     },
     {
       name: "spriteId",
+      description: "The expression; 98 clears the slot's bust-up and 97 is only used with RemoveFromMap",
       unknown: true,
     },
     {
-      name: "state",
+      name: "transition",
+      description:
+        "How the bust-up enters, leaves or is placed. Exits render nothing on an empty slot. " +
+        "The scripts never animate two consecutive Sprite lines: a second character leaving alongside a FadeOut uses HideInstant",
+      names: SpriteTransition,
       values: {
-        0: "", // 0 rendered nothing
-        1: "", // 1 rendered a bustup with a quick fade in
-        2: "", // 2 rendered a bustup with a slow fade in
-        3: "", // 3 rendered nothing
-        4: "", // 4 rendered nothing
-        5: "", // 5 rendered nothing
-        6: "", // 6 sprite slides in from bottom
-        7: "", // 7 rendered nothing
-        8: "", // 8 immediately appeared with no fade
-        9: "", // 9 positions the sprite lower and on the left
-        10: "", // 10 rendered nothing
+        [SpriteTransition.Set]: "Set the slot's sprite without showing a bust-up (courtroom stands, placement, sprite 98 cleanup)",
+        [SpriteTransition.FadeIn]: "Fade in (the default entrance)",
+        [SpriteTransition.SlowFadeIn]: "Slow fade in",
+        [SpriteTransition.HideInstant]: "Hide with no animation (screen is black, or second of two leaving)",
+        [SpriteTransition.FadeOut]: "Fade out (the default exit)",
+        [SpriteTransition.WalkOff]: "Leave the scene; paired with footsteps or door sounds and a Wait",
+        [SpriteTransition.PopIn]: "Slide up from the bottom; Monokuma after Sound(133)",
+        [SpriteTransition.PopOut]: "Slide down off the bottom; Monokuma after Sound(133)",
+        [SpriteTransition.ShowInstant]: "Show with no animation (screen is black)",
+        [SpriteTransition.WorkshopOverlay]: "Lower-left placement used only by the Monokuma workshop script",
+        [SpriteTransition.RemoveFromMap]: "Take the character off the map; only used with sprite 97",
       },
-      unknown: true,
     },
     {
       name: "position",
-      values: {
-        0: "Leftmost",
-        1: "Left",
-        2: "Center",
-        3: "Right",
-        4: "Rightmost",
-      },
+      description:
+        "Where the bust-up stands. Set placement lines also use values such as 11, 21 and 31, which look like a map offset and stay numeric",
+      names: SpritePosition,
     },
   ] as const,
-  decorations([_, character, spriteId, animation, position]) {
+  decorations([_, character, spriteId, transition, position]) {
     if (!isCharacterSprite(character)) {
       return [{ contentText: `Unknown sprite character ${character}`, color: "gray" }];
     }
@@ -55,25 +63,23 @@ export const spriteMeta: LinscriptInstructionMeta = {
     const { name, color } = characterData[character];
 
     const expression = sprites?.[character]?.[spriteId] ?? "Unknown Sprite";
-    const animationName = animations[animation] ? ` (${animations[animation]})` : "";
-    const positionName = positions[position] ? ` ${positions[position]}` : "";
+    const transitionName = isSpriteTransition(transition) ? ` (${transitions[transition]})` : "";
+    const positionName = isSpritePosition(position) ? ` ${SpritePosition[position]}` : "";
 
-    return [{ contentText: `${name}: «${expression}» ${animationName}${positionName}`, color }];
+    return [{ contentText: `${name}: «${expression}»${transitionName}${positionName}`, color }];
   },
 };
 
-const animations: { [key: number]: string } = {
-  1: "fade in", // 1 rendered a bustup with a quick fade in
-  2: "slow fade in", // 2 rendered a bustup with a slow fade in
-  6: "slide in from bottom", // 6 sprite slides in from bottom
-  8: "immediate", // 8 immediately appeared with no fade
-  9: "offset left", // 9 positions the sprite lower and on the left
-};
-
-const positions: { [key: number]: string } = {
-  0: "Leftmost",
-  1: "Left",
-  2: "Center",
-  3: "Right",
-  4: "Rightmost",
+const transitions: Readonly<Record<SpriteTransition, string>> = {
+  [SpriteTransition.Set]: "set",
+  [SpriteTransition.FadeIn]: "fade in",
+  [SpriteTransition.SlowFadeIn]: "slow fade in",
+  [SpriteTransition.HideInstant]: "hide",
+  [SpriteTransition.FadeOut]: "fade out",
+  [SpriteTransition.WalkOff]: "walk off",
+  [SpriteTransition.PopIn]: "pop in",
+  [SpriteTransition.PopOut]: "pop out",
+  [SpriteTransition.ShowInstant]: "show",
+  [SpriteTransition.WorkshopOverlay]: "workshop overlay",
+  [SpriteTransition.RemoveFromMap]: "remove from map",
 };

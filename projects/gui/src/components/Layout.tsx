@@ -4,13 +4,15 @@ import { useTheme } from "../hooks/useTheme";
 import { useRunGame } from "../state/RunGameContext";
 import { Button } from "./base/Button";
 import { TabLayout } from "./base/TabLayout";
+import { AssetPreview } from "./asset-preview/AssetPreview";
 import { RunLog } from "./RunLog";
 import { ScriptBrowser } from "./script-browser/ScriptBrowser";
 
-type ExplorerTab = "ScriptBrowser";
+type ExplorerTab = "ScriptBrowser" | "AssetPreview";
 
 const tabs: Record<ExplorerTab, string> = {
   ScriptBrowser: "Script Browser",
+  AssetPreview: "Asset Preview",
 };
 
 export function Layout() {
@@ -51,6 +53,7 @@ export function Layout() {
         }
       >
         {activeTab === "ScriptBrowser" && <ScriptBrowser />}
+        {activeTab === "AssetPreview" && <AssetPreview />}
       </TabLayout>
       {log !== null && <RunLog result={log} onDismiss={dismissLog} />}
     </main>

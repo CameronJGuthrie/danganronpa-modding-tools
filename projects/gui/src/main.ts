@@ -3,6 +3,7 @@ import path from "node:path";
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import started from "electron-squirrel-startup";
 
+import { defaultAssetDirectory } from "./main/assets";
 import { loadFile } from "./main/file";
 import { runGame } from "./main/game";
 import {
@@ -99,6 +100,8 @@ ipcMain.handle("get-default-game-directory", () => {
 
   return null;
 });
+
+ipcMain.handle("get-default-asset-directory", () => defaultAssetDirectory(app.getAppPath()));
 
 ipcMain.handle("get-default-script-directory", () => defaultScriptDirectory(app.getAppPath()));
 

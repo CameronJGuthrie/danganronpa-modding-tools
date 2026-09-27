@@ -7,18 +7,26 @@ export function useStateSetters(setData: React.Dispatch<React.SetStateAction<App
     (gameDirectory: string | null) => {
       setData((prevState) => ({ ...prevState, gameDirectory }));
     },
-    [setData]
+    [setData],
+  );
+
+  const setAssetDirectory = useCallback(
+    (assetDirectory: string | null) => {
+      setData((prevState) => ({ ...prevState, assetDirectory }));
+    },
+    [setData],
   );
 
   const setCharacterStandingSpriteFilePath = useCallback(
     (characterStandingFilePath: string | null) => {
       setData((prevState) => ({ ...prevState, characterStandingSpriteFilePath: characterStandingFilePath }));
     },
-    [setData]
+    [setData],
   );
 
   return {
     setGameDirectory,
+    setAssetDirectory,
     setCharacterStandingSpriteFilePath,
   };
 }

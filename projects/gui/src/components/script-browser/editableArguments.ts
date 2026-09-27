@@ -7,7 +7,9 @@ import {
   comparisonOperators,
   FlagGroup,
   LogicalJoin,
+  SpritePosition,
   SpriteSheet,
+  SpriteTransition,
   Student,
   UiVisibility,
   UserInterface,
@@ -41,7 +43,7 @@ export const editableArguments: Readonly<Record<string, EditableArguments>> = {
   // Only the sixteen students (ids 0-15) have a report card, so the wider Character table is not offered
   StudentTitleEntry: { head: [Student, Arithmetic, undefined] },
   // Only the characters that have bust-up sprites
-  Sprite: { head: [undefined, CharacterSprite] },
+  Sprite: { head: [undefined, CharacterSprite, undefined, SpriteTransition, SpritePosition] },
   LoadSprite: { head: [undefined, SpriteSheet] },
   Voice: { head: [VoiceCharacter, Chapter] },
   SetVariable: { head: [Variable, Arithmetic, undefined] },

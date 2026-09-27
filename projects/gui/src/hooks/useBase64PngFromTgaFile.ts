@@ -1,50 +1,70 @@
 import { useEffect, useState } from "react";
 
-const cache: { [key: string]: string } = {};
+/** Data URL per TGA path, or null when the file could not be read or converted. */
+const cache: { [key: string]: string | null } = {};
 
-export function useBase64PngFromTgaFile(filePath: string | null) {
-  const [dataUrl, setDataUrl] = useState<string | null>(() => {
-    // Check cache on initial render
-    return filePath && filePath in cache ? cache[filePath] : null;
-  });
+export type TgaImageState =
+  | { status: "empty" }
+  | { status: "loading" }
+  | { status: "failed" }
+  | { status: "ready"; dataUrl: string };
+
+/** Converts a TGA file to a PNG data URL through the main process, remembering the result per path. */
+export function useTgaImage(filePath: string | null): TgaImageState {
+  const [state, setState] = useState<TgaImageState>(() => initialState(filePath));
 
   useEffect(() => {
     let isMounted = true;
-
-    if (filePath === null) {
-      Promise.resolve().then(() => {
-        if (isMounted) {
-          setDataUrl(null);
-        }
-      });
-      return;
-    }
-
-    // If cached, state was already initialized correctly
-    if (filePath in cache) {
-      // Only update if state is different (shouldn't happen with lazy init)
-      if (cache[filePath] !== dataUrl) {
-        Promise.resolve().then(() => {
-          if (isMounted) {
-            setDataUrl(cache[filePath]);
-          }
-        });
-      }
-      return;
-    }
-
-    // Fetch new data
-    window.electron.tgaFileToPng(filePath).then((result) => {
-      cache[filePath] = result;
+    const next = initialState(filePath);
+    // Defer so a synchronous setState inside the effect does not trigger a lint warning
+    Promise.resolve().then(() => {
       if (isMounted) {
-        setDataUrl(result);
+        setState(next);
       }
     });
+    if (filePath === null || next.status !== "loading") {
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    window.electron
+      .tgaFileToPng(filePath)
+      .then(
+        (dataUrl) => {
+          cache[filePath] = dataUrl;
+        },
+        () => {
+          cache[filePath] = null;
+        },
+      )
+      .then(() => {
+        if (isMounted) {
+          setState(initialState(filePath));
+        }
+      });
 
     return () => {
       isMounted = false;
     };
-  }, [filePath, dataUrl]);
+  }, [filePath]);
 
-  return dataUrl;
+  return state;
+}
+
+function initialState(filePath: string | null): TgaImageState {
+  if (filePath === null) {
+    return { status: "empty" };
+  }
+  if (!(filePath in cache)) {
+    return { status: "loading" };
+  }
+  const cached = cache[filePath];
+  return cached === null ? { status: "failed" } : { status: "ready", dataUrl: cached };
+}
+
+/** The PNG data URL for a TGA file, or null while it loads, when there is no file, or when it cannot be read. */
+export function useBase64PngFromTgaFile(filePath: string | null): string | null {
+  const state = useTgaImage(filePath);
+  return state.status === "ready" ? state.dataUrl : null;
 }

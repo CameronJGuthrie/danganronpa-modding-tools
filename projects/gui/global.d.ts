@@ -10,6 +10,8 @@ declare global {
       openFileDialog: () => Promise<{ canceled: boolean; filePaths: string[] }>;
       openDirectoryDialog: () => Promise<{ canceled: boolean; filePaths: string[] }>;
       getDefaultGameDirectory: () => Promise<string | null>;
+      /** The repository's extracted `workbench/all`, which sprite paths are relative to, or null when it has not been extracted. */
+      getDefaultAssetDirectory: () => Promise<string | null>;
       /** The repository's `workbench/linscript-exploration`, or null when it has not been generated. */
       getDefaultScriptDirectory: () => Promise<string | null>;
       /** Every `.linscript` under `directory`, as forward-slash paths relative to it, sorted. */

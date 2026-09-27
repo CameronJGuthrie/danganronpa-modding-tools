@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
+import type { AssetMeta } from "./asset";
 import type { Character } from "./character";
 
-export type SpriteMeta = {
-  name: string;
-  path: string;
-};
+export type SpriteMeta = AssetMeta;
 
 export const sprites: Record<Character["name"], SpriteMeta[]> = {
   Makoto: [
@@ -233,7 +231,7 @@ export const sprites: Record<Character["name"], SpriteMeta[]> = {
     { path: "/dr1_data/Dr1/data/all/texture/stand_09_04.tga", name: "Smiling" },
     { path: "/dr1_data/Dr1/data/all/texture/stand_09_05.tga", name: "Sheepish" },
     { path: "/dr1_data/Dr1/data/all/texture/stand_09_06.tga", name: "Cutesy" },
-    { path: "/dr1_data/Dr1/data/all/texture/stand_09_07.tga", name: "HotNBothered" },
+    { path: "/dr1_data/Dr1/data/all/texture/stand_09_07.tga", name: "Flustered" },
     { path: "/dr1_data/Dr1/data/all/texture/stand_09_08.tga", name: "Wondering" },
     { path: "/dr1_data/Dr1/data/all/texture/stand_09_09.tga", name: "Horrified" },
     { path: "/dr1_data/Dr1/data/all/texture/stand_09_10.tga", name: "Puzzled" },
