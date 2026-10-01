@@ -15,6 +15,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const ifMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.If,
   hexcode: "0x36",
+  description:
+    "Branches on script variables: each condition is variable, comparison, value, with And/Or joins between conditions. Followed by Then() and the conditional body.",
   varargs: true,
   varargNames: {
     head: [Variable, comparisonOperators, undefined],

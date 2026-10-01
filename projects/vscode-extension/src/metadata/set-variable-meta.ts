@@ -13,6 +13,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const setVariableMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.SetVariable,
   hexcode: "0x33",
+  description:
+    "Assigns to or adjusts a script variable using an arithmetic operation; Wait(frames) is sugar for assigning the Wait variable.",
   parameters: [
     {
       name: "address",

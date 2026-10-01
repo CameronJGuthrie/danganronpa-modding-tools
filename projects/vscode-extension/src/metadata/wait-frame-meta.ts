@@ -8,5 +8,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const waitFrameMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.WaitFrame,
   hexcode: "0x3B",
+  description: "Waits one frame. Text(...) inserts one per newline automatically, so it is rarely needed in source.",
   parameters: [] as const,
 };

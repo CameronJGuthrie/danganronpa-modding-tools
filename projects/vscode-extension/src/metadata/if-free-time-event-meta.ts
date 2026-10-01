@@ -11,6 +11,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const ifFreeTimeEventMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.IfFreeTimeEvent,
   hexcode: "0x38",
+  description:
+    "Branches on how many free-time events the player has seen with a character. Followed by Then() and the conditional body.",
   parameters: [
     {
       name: "characterId",

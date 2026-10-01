@@ -5,9 +5,11 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const speakerMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Speaker,
   hexcode: "0x21",
+  description: "Sets the character whose name appears on the following Text lines.",
   selfDescribing: true,
   parameters: [
     {
+      name: "character",
       names: Character,
     },
   ] as const,

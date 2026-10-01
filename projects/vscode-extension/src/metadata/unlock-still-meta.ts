@@ -5,6 +5,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const unlockSkillMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.UnlockSkill,
   hexcode: "0x0E",
+  description: "Unlocks a skill for the player; the value is always 1.",
   parameters: [
     {
       name: "skillId",

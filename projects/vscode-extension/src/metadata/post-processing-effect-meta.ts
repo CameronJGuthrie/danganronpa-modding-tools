@@ -4,6 +4,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const postProcessingEffectMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.PostProcessingEffect,
   hexcode: "0x04",
+  description:
+    "Applies a full-screen filter such as a blur or colour effect. The other arguments are not yet understood.",
   parameters: [
     {
       unknown: true,

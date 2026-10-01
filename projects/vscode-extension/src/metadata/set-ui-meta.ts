@@ -5,6 +5,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const setUiMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.SetUI,
   hexcode: "0x25",
+  description: "Shows or hides a user-interface element such as the textbox, HUD or rumble effect.",
   selfDescribing: true,
   parameters: [
     {

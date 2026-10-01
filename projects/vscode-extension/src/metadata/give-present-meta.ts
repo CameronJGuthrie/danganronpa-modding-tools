@@ -6,6 +6,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const givePresentMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.GivePresent,
   hexcode: "0x0D",
+  description:
+    "Hands a present to a student, removing one from the inventory; sugar for the hidden Present(id, Subtract, 1) opcode.",
   sugar: true,
   selfDescribing: true,
   parameters: [

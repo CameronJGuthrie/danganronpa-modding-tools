@@ -4,6 +4,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const onCharacterMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.OnCharacter,
   hexcode: "0x27",
+  description:
+    "Opens the handler block that runs when the player talks to a placed character; the id is a Sprite slot named with Character(id, Name) in Meta().",
   parameters: [
     {
       name: "characterId",

@@ -6,6 +6,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const runScriptMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.RunScript,
   hexcode: "0x1B",
+  description:
+    "Runs another script file as a subroutine, e.g. RunScript(3, 26, 11) runs e03_026_011.lin. Ctrl+Click the call to open the file. Some targets do not exist on disk.",
   parameters: [
     {
       name: "Episode",

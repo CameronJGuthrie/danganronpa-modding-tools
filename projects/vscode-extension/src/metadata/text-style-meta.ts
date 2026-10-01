@@ -10,6 +10,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const textStyleMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.TextStyle,
   hexcode: "0x03",
+  description:
+    "Switches the colour or style of the text that follows. Text(...) inserts these automatically from <thought>, <keyword> and similar tags, so it is rarely needed in source.",
   parameters: [
     {
       name: "styleId",

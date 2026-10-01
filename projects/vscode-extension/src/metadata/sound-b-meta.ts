@@ -4,6 +4,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const soundBMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.SoundB,
   hexcode: "0x0B",
+  description: "Plays a sound effect from the second sound bank (transition and UI sounds).",
   parameters: [
     {
       name: "soundId",

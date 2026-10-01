@@ -14,6 +14,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const spriteMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Sprite,
   hexcode: "0x1E",
+  description:
+    "Shows, hides or places a character bust-up in a slot with a transition and screen position. A Set transition on a slot makes it a placed, interactable character.",
   parameters: [
     {
       name: "objectId",
@@ -35,7 +37,8 @@ export const spriteMeta: LinscriptInstructionMeta = {
         "The scripts never animate two consecutive Sprite lines: a second character leaving alongside a FadeOut uses HideInstant",
       names: SpriteTransition,
       values: {
-        [SpriteTransition.Set]: "Set the slot's sprite without showing a bust-up (courtroom stands, placement, sprite 98 cleanup)",
+        [SpriteTransition.Set]:
+          "Set the slot's sprite without showing a bust-up (courtroom stands, placement, sprite 98 cleanup)",
         [SpriteTransition.FadeIn]: "Fade in (the default entrance)",
         [SpriteTransition.SlowFadeIn]: "Slow fade in",
         [SpriteTransition.HideInstant]: "Hide with no animation (screen is black, or second of two leaving)",

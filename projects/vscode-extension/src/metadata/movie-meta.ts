@@ -4,6 +4,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const movieMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Movie,
   hexcode: "0x05",
+  description: "Plays a full-screen video by id, optionally keeping the last frame on screen afterwards.",
   parameters: [
     {
       name: "movieId",

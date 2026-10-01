@@ -4,6 +4,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const loadScriptMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.LoadScript,
   hexcode: "0x19",
+  description:
+    "Switches to another script file, e.g. LoadScript(3, 26, 11) loads e03_026_011.lin, and is usually followed by StopScript(). Ctrl+Click the call to open the file.",
   parameters: [
     {
       name: "Episode",

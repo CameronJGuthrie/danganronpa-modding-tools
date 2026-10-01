@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { roomName } from "../../data/room";
-import { buildScriptTree, containsModified, filterScriptTree, type ScriptTreeNode } from "../../script/scriptTree";
+import {
+  buildScriptTree,
+  containsModified,
+  filterScriptTree,
+  type ScriptGrouping,
+  type ScriptTreeNode,
+} from "../../script/scriptTree";
 import { ScriptSearchInput, ScriptSearchResults, useScriptSearch } from "./ScriptSearch";
 
 type ScriptFileTreeProps = {
@@ -32,6 +38,7 @@ export function ScriptFileTree({
 }: ScriptFileTreeProps) {
   const [files, setFiles] = useState<string[]>([]);
   const [modifiedOnly, setModifiedOnly] = useState(false);
+  const [grouping, setGrouping] = useState<ScriptGrouping>(readGrouping);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<Set<string>>(() => new Set());
@@ -55,13 +62,23 @@ export function ScriptFileTree({
     };
   }, [directory]);
 
-  const tree = useMemo(() => buildScriptTree(files), [files]);
+  const tree = useMemo(() => buildScriptTree(files, grouping), [files, grouping]);
   const visible = useMemo(
     () => filterScriptTree(tree, query, (file) => !modifiedOnly || modified.has(file.name)),
     [tree, query, modifiedOnly, modified],
   );
   // While filtering, every folder is shown open so the matches are visible
   const filtering = query.trim() !== "" || modifiedOnly;
+
+  const toggleGrouping = () => {
+    const next: ScriptGrouping = grouping === "chapter" ? "scene" : "chapter";
+    setGrouping(next);
+    try {
+      window.localStorage.setItem(GROUPING_STORAGE_KEY, next);
+    } catch {
+      // storage unavailable; the choice just does not persist
+    }
+  };
 
   const toggleFolder = (path: string) => {
     setOpen((previous) => {
@@ -140,6 +157,23 @@ export function ScriptFileTree({
         >
           ★ {modified.size}
         </button>
+        <button
+          type="button"
+          className={`shrink-0 rounded px-1.5 text-xs ${
+            grouping === "scene"
+              ? "bg-blue-200 text-blue-950 dark:bg-blue-700 dark:text-blue-50"
+              : "bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500"
+          }`}
+          onClick={toggleGrouping}
+          aria-pressed={grouping === "scene"}
+          title={
+            grouping === "scene"
+              ? "Grouped by chapter and scene; click to group by chapter only"
+              : "Grouped by chapter; click to also group by scene (the second part of the file name)"
+          }
+        >
+          Scenes
+        </button>
       </div>
       <ScriptSearchInput query={searchQuery} onQueryChange={setSearchQuery} />
       <div className="min-h-0 flex-1 overflow-auto font-mono text-sm">
@@ -177,6 +211,16 @@ export function ScriptFileTree({
       </div>
     </aside>
   );
+}
+
+const GROUPING_STORAGE_KEY = "scriptFileTree.grouping";
+
+function readGrouping(): ScriptGrouping {
+  try {
+    return window.localStorage.getItem(GROUPING_STORAGE_KEY) === "scene" ? "scene" : "chapter";
+  } catch {
+    return "chapter";
+  }
 }
 
 type TreeNodeProps = {

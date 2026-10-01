@@ -4,6 +4,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const setOptionMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.SetOption,
   hexcode: "0x2B",
+  description:
+    'Registers a menu option id; usually written as the Option(n, "label") sugar. Ids 18 and 19 are the back-out handlers and 255 closes the menu.',
   parameters: [
     {
       name: "option",

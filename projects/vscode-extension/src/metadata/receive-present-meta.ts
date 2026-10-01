@@ -6,6 +6,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const receivePresentMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.ReceivePresent,
   hexcode: "0x0D",
+  description: "Awards the player one of an item as a story reward; sugar for the hidden Present(id, Add, 1) opcode.",
   sugar: true,
   selfDescribing: true,
   parameters: [

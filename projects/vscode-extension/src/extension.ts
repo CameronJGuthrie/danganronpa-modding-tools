@@ -6,6 +6,7 @@ import { registerVoiceTestController } from "./features/audio/controllers/voice-
 import { toggleFunctionDecorations, toggleParameterDecorations } from "./features/configuration";
 import { registerDecoration } from "./features/decoration";
 import { registerDefinitionProvider } from "./features/go-to-definition";
+import { registerHoverProvider } from "./features/hover";
 import { findRootDirectory, isRootWorkspace } from "./features/workspace";
 import { initializeOutputChannel, log, logWarning } from "./output";
 
@@ -26,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
   registerDecoration();
   registerDefinitionProvider(context);
+  registerHoverProvider(context);
   registerVoiceTestController(context);
   registerSoundTestController(context);
   registerSoundBTestController(context);

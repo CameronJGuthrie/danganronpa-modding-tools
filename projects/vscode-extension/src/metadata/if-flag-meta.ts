@@ -24,6 +24,8 @@ const characterOffset = {
 export const ifFlagMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.IfFlag,
   hexcode: "0x35",
+  description:
+    "Branches on one or more flags: each condition is flagGroup, offset, comparison, value, with And/Or joins between conditions. Followed by Then() and the conditional body.",
   varargs: true,
   varargNames: {
     head: [FlagGroup, characterOffset, comparisonOperators, Bool],

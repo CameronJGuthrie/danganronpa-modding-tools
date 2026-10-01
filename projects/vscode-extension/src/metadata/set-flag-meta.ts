@@ -14,6 +14,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const setFlagMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.SetFlag,
   hexcode: "0x26",
+  description:
+    "Sets a boolean flag in a flag group, such as whether a character has been investigated or is dead. Read back with IfFlag.",
   parameters: [
     {
       name: "flagGroup",

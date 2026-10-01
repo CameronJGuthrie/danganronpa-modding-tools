@@ -11,6 +11,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const ifRelationshipMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.IfRelationship,
   hexcode: "0x39",
+  description:
+    "Branches on the player's relationship level with a character (the scripts only compare against 0 or 20). Followed by Then() and the conditional body.",
   parameters: [
     {
       name: "characterId",

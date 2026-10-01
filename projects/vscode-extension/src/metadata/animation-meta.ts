@@ -5,6 +5,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const animationMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Animation,
   hexcode: "0x06",
+  description:
+    "Plays a background animation (an LLFS flash-style effect) by id. Apart from the final state byte, the other arguments are not yet understood.",
   parameters: [
     {
       name: "id",

@@ -4,6 +4,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const objectStateMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.ObjectState,
   hexcode: "0x23",
+  description:
+    "Sets the state of a placed map object (declared with Object(id, Name) in Meta()). The four trailing arguments are not yet understood and are always 0 or 1.",
   parameters: [
     {
       name: "objectId",

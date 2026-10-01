@@ -2,7 +2,8 @@
  * A folder tree of `.linscript` files for the Script Browser's file panel. Real directories become
  * folders; a directory holding many flat files such as `e01_001_000.linscript` is additionally
  * grouped by the filename's first `_`-separated segment (the chapter), so the game's 1800-odd
- * scripts do not land in one endless list.
+ * scripts do not land in one endless list. The `"scene"` grouping nests a second level under each
+ * chapter for the filename's second segment (the scene), so `e01_004_001` sits under `e01` > `004`.
  */
 
 import { roomName } from "../data/room";
@@ -11,10 +12,16 @@ export type ScriptTreeNode =
   | { kind: "folder"; name: string; path: string; children: ScriptTreeNode[] }
   | { kind: "file"; name: string; path: string };
 
+/** How a large flat directory is grouped: by chapter only, or by chapter and then scene. */
+export type ScriptGrouping = "chapter" | "scene";
+
 /** A directory with more files than this is grouped by filename prefix. */
 const GROUP_THRESHOLD = 30;
 
-export function buildScriptTree(relativePaths: readonly string[]): ScriptTreeNode[] {
+export function buildScriptTree(
+  relativePaths: readonly string[],
+  grouping: ScriptGrouping = "chapter",
+): ScriptTreeNode[] {
   const root: ScriptTreeNode = { kind: "folder", name: "", path: "", children: [] };
 
   for (const relative of relativePaths) {
@@ -26,7 +33,7 @@ export function buildScriptTree(relativePaths: readonly string[]): ScriptTreeNod
     folder.children.push({ kind: "file", name: segments[segments.length - 1], path: relative });
   }
 
-  return groupLargeFolders(root).children;
+  return groupLargeFolders(root, grouping).children;
 }
 
 function childFolder(parent: ScriptTreeNode & { kind: "folder" }, name: string): ScriptTreeNode & { kind: "folder" } {
@@ -44,28 +51,55 @@ function childFolder(parent: ScriptTreeNode & { kind: "folder" }, name: string):
   return folder;
 }
 
-function groupLargeFolders(folder: ScriptTreeNode & { kind: "folder" }): ScriptTreeNode & { kind: "folder" } {
-  const folders = folder.children.filter((child) => child.kind === "folder").map(groupLargeFolders);
+function groupLargeFolders(
+  folder: ScriptTreeNode & { kind: "folder" },
+  grouping: ScriptGrouping,
+): ScriptTreeNode & { kind: "folder" } {
+  const folders = folder.children
+    .filter((child) => child.kind === "folder")
+    .map((child) => groupLargeFolders(child, grouping));
   const files = folder.children.filter((child) => child.kind === "file");
 
   if (files.length <= GROUP_THRESHOLD) {
     return { ...folder, children: [...folders, ...files] };
   }
 
+  const depth = grouping === "scene" ? 2 : 1;
+  return { ...folder, children: [...folders, ...groupBySegment(files, folder.path, 0, depth)] };
+}
+
+/**
+ * `files` grouped into folders by their `segment`th `_`-separated name segment, recursing until
+ * `depth` segments are used. Files with no such segment are left ungrouped at that level.
+ */
+function groupBySegment(
+  files: readonly ScriptTreeNode[],
+  parentPath: string,
+  segment: number,
+  depth: number,
+): ScriptTreeNode[] {
   const groups = new Map<string, ScriptTreeNode[]>();
+  const ungrouped: ScriptTreeNode[] = [];
   for (const file of files) {
-    const prefix = file.name.split("_")[0];
-    const group = groups.get(prefix) ?? [];
+    const key = file.name.replace(/\.linscript$/, "").split("_")[segment];
+    if (key === undefined) {
+      ungrouped.push(file);
+      continue;
+    }
+    const group = groups.get(key) ?? [];
     group.push(file);
-    groups.set(prefix, group);
+    groups.set(key, group);
   }
-  const grouped: ScriptTreeNode[] = [...groups].map(([prefix, children]) => ({
-    kind: "folder",
-    name: prefix,
-    path: `${folder.path}#${prefix}`,
-    children,
-  }));
-  return { ...folder, children: [...folders, ...grouped] };
+  const grouped: ScriptTreeNode[] = [...groups].map(([key, children]) => {
+    const path = `${parentPath}#${key}`;
+    return {
+      kind: "folder",
+      name: key,
+      path,
+      children: segment + 1 < depth ? groupBySegment(children, path, segment + 1, depth) : children,
+    };
+  });
+  return [...grouped, ...ungrouped];
 }
 
 /**

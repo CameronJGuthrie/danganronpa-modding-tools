@@ -12,6 +12,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const studentRelationshipMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.StudentRelationship,
   hexcode: "0x11",
+  description: "Sets, adds to or subtracts from the player's relationship value with a student.",
   parameters: [
     {
       name: "characterId",

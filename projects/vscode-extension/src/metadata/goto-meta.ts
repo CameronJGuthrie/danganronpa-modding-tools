@@ -4,6 +4,7 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const gotoMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Goto,
   hexcode: "0x34",
+  description: "Jumps to the Label with the same address in this script. Ctrl+Click the call to follow it.",
   parameters: [
     {
       name: "label",

@@ -4,6 +4,8 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 export const loadSpriteMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.LoadSprite,
   hexcode: "0x01",
+  description:
+    "Loads a character's sprite sheet so later Sprite calls can show it; the first and third arguments are not yet understood.",
   parameters: [
     {
       unknown: true,
