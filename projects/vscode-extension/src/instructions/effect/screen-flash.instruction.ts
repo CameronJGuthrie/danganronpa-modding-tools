@@ -1,0 +1,53 @@
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstruction } from "../linscript-instruction";
+
+export const screenFlashInstruction: LinscriptInstruction = {
+  name: LinscriptInstructionName.ScreenFlash,
+  description: "Flashes the screen with an RGB colour, fading in, holding and fading out over the given frame counts.",
+  parameters: [
+    {
+      name: "R",
+      description: "Red 0-255",
+    },
+    {
+      name: "G",
+      description: "Green 0-255",
+    },
+    {
+      name: "B",
+      description: "Blue 0-255",
+    },
+    {
+      name: "in",
+      description: "Duration in frames",
+    },
+    {
+      name: "hold",
+      description: "Duration in frames",
+    },
+    {
+      name: "out",
+      description: "Duration in frames",
+    },
+    {
+      name: "opacity",
+      description: "Opacity 0-255. Always 255",
+    },
+  ] as const,
+  decorations([r, g, b, inFrames, holdFrames, outFrames, _opacity]) {
+    const red = r.toString(16).padStart(2, "0");
+    const green = g.toString(16).padStart(2, "0");
+    const blue = b.toString(16).padStart(2, "0");
+
+    const fadeInDurationSeconds = (inFrames / 60).toFixed(2);
+    const holdDurationSeconds = (holdFrames / 60).toFixed(2);
+    const fadeOutDurationSeconds = (outFrames / 60).toFixed(2);
+
+    return [
+      {
+        contentText: `${fadeInDurationSeconds}s->[${holdDurationSeconds}s]->${fadeOutDurationSeconds}s`,
+        color: `#${red}${green}${blue}`,
+      },
+    ];
+  },
+};

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { instructions } from "../instructions";
 import { logDebug } from "../output";
-import type { LinscriptInstruction, ParameterMeta } from "../types/linscript-instruction";
+import type { LinscriptInstruction, ParameterMeta } from "../instructions/linscript-instruction";
 import { argumentNames } from "../util/argument-names";
 import { metaEntryForScope } from "../util/script-meta";
 import type { ArgumentNameSource, ArgumentNames, DependentNames } from "../util/string-util";

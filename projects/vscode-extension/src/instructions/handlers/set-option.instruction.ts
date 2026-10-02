@@ -1,0 +1,16 @@
+import { LinscriptInstructionName } from "linscript-definitions";
+import type { LinscriptInstruction } from "../linscript-instruction";
+
+export const setOptionInstruction: LinscriptInstruction = {
+  name: LinscriptInstructionName.SetOption,
+  description:
+    'Registers a menu option id; usually written as the Option(n, "label") sugar. Ids 18 and 19 are the back-out handlers and 255 closes the menu.',
+  parameters: [
+    {
+      name: "option",
+      description:
+        "Menu option id: 1, 2, ... are the choices (named per script in Meta(), e.g. Option(1, Yes)), 18/19 (Exit_1/Exit_2) the back-out handlers, 255 closes the menu",
+      scope: "Option",
+    },
+  ] as const,
+};

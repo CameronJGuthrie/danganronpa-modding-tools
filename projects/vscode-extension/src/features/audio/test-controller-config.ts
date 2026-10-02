@@ -1,5 +1,5 @@
 import type * as vscode from "vscode";
-import type { LinscriptInstruction } from "../../types/linscript-instruction";
+import type { LinscriptInstruction } from "../../instructions/linscript-instruction";
 import type { ArgumentNameSource } from "../../util/string-util";
 
 /**
@@ -45,13 +45,7 @@ export type AudioTestConfigBuilder<TInfo> = {
   /** And all other properties not derived from the instruction */
 } & Omit<
   AudioTestConfig<TInfo>,
-  | "controllerId"
-  | "controllerLabel"
-  | "runProfileLabel"
-  | "channel"
-  | "functionPatterns"
-  | "defaults"
-  | "argumentNames"
+  "controllerId" | "controllerLabel" | "runProfileLabel" | "channel" | "functionPatterns" | "defaults" | "argumentNames"
 >;
 
 export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): AudioTestConfig<T> {

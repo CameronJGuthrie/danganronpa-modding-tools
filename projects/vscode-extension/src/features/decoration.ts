@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { textStyleColor } from "linscript-definitions";
 import { instructions } from "../instructions";
 import { logDebug, logError, logWarning } from "../output";
-import type { LinscriptInstruction } from "../types/linscript-instruction";
+import type { LinscriptInstruction } from "../instructions/linscript-instruction";
 import { argumentNames } from "../util/argument-names";
 import {
   createCompleteFunctionRegex,

@@ -1,4 +1,4 @@
-import type { LinscriptInstruction } from "../types/linscript-instruction";
+import type { LinscriptInstruction } from "../instructions/linscript-instruction";
 import {
   characterNamesFromDocument,
   labelNamesFromDocument,
