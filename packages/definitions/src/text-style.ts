@@ -1,28 +1,31 @@
+import { defineEnum, type EnumValue } from "./enum.ts";
+
 /**
  * Text styles selectable with `<CLT n>` tags inside game text, named for the role the game uses
  * them in rather than their colour. `Evidence`, `Shout` and `Choice` are inferred from the class
  * trial scripts and are not yet verified in game.
  */
-export enum TextStyle {
+export const TextStyle = defineEnum({
   /** White; what `<CLT>` resets to. */
-  Default = 0,
+  Default: 0,
   /** Pink. Selectable answer words shown in brackets, e.g. `[favor]`. */
-  Choice = 1,
+  Choice: 1,
   /** Yellow. Items, places and interface terms. */
-  Keyword = 3,
+  Keyword: 3,
   /** Cyan. Makoto's inner monologue. */
-  Thought = 4,
+  Thought: 4,
   /** Class trial only; looks like the highlighted weak point of a statement. */
-  Evidence = 9,
-  PaleGreen = 10,
-  Red = 11,
+  Evidence: 9,
+  PaleGreen: 10,
+  Red: 11,
   /** Green. Tutorial and narrator text (usually `Speaker(Blank)`) and sound effects. */
-  System = 23,
+  System: 23,
   /** Class trial only; short outbursts such as "Stab!". */
-  Shout = 26,
-}
+  Shout: 26,
+});
+export type TextStyle = EnumValue<typeof TextStyle>;
 
-const textStyle = new Set(Object.values(TextStyle).filter((v) => typeof v === "number"));
+const textStyle = new Set<number>(Object.values(TextStyle).filter((v) => typeof v === "number"));
 
 export function isTextStyle(style: number): style is TextStyle {
   return textStyle.has(style);
@@ -32,7 +35,7 @@ export function isTextStyle(style: number): style is TextStyle {
  * The tag name written in `.linscript` for each style, e.g. `<thought>...</thought>`.
  * `Default` has no tag: closing a wrapper returns to it.
  */
-export const textStyleTags: Readonly<Record<Exclude<TextStyle, TextStyle.Default>, string>> = {
+export const textStyleTags: Readonly<Record<Exclude<TextStyle, typeof TextStyle.Default>, string>> = {
   [TextStyle.Choice]: "choice",
   [TextStyle.Keyword]: "keyword",
   [TextStyle.Thought]: "thought",

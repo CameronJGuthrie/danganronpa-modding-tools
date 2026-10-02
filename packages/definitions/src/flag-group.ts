@@ -1,17 +1,20 @@
-export enum FlagGroup {
-  System = 0,
-  MapUnlock = 1,
-  MonocoinCollected = 10, // hidden Monocoin index collected this chapter; reset at every chapter start
-  FreeTimeEvent = 12,
-  ObjectInvestigated = 13,
-  MapInvestigated = 14,
-  CharacterInvestigated = 15,
-  CharacterDead = 16,
-  Skills = 20, // offset is a Skill id; engine-owned, only read by scripts (coin pickup bonus)
-  Skills2 = 22, // offset is a Skill id; engine-owned, only read by scripts (free-time bonuses). Distinction from 20 unknown
-}
+import { defineEnum, type EnumValue } from "./enum.ts";
 
-const flagGroupSet = new Set(Object.values(FlagGroup).filter((v) => typeof v === "number"));
+export const FlagGroup = defineEnum({
+  System: 0,
+  MapUnlock: 1,
+  MonocoinCollected: 10, // hidden Monocoin index collected this chapter; reset at every chapter start
+  FreeTimeEvent: 12,
+  ObjectInvestigated: 13,
+  MapInvestigated: 14,
+  CharacterInvestigated: 15,
+  CharacterDead: 16,
+  Skills: 20, // offset is a Skill id; engine-owned, only read by scripts (coin pickup bonus)
+  Skills2: 22, // offset is a Skill id; engine-owned, only read by scripts (free-time bonuses). Distinction from 20 unknown
+});
+export type FlagGroup = EnumValue<typeof FlagGroup>;
+
+const flagGroupSet = new Set<number>(Object.values(FlagGroup).filter((v) => typeof v === "number"));
 
 export function isFlagGroup(flagGroup: number): flagGroup is FlagGroup {
   return flagGroupSet.has(flagGroup);

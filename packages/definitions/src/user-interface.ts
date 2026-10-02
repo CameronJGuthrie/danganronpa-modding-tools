@@ -1,41 +1,45 @@
-export enum UserInterface {
-  Thinking = 0,
-  Textbox = 1,
-  Name = 2,
-  HUD = 3,
-  Minimap = 5,
-  BlackBackground = 6,
-  TextboxOnly = 7,
-  ClassTrial = 8,
-  BustUp = 9,
-  MovieBackground = 11,
-  Save = 12,
-  Rumble = 13,
-  CameraPan = 14,
-  CameraLook = 15,
-  Investigate = 16,
-  ChooseOption = 18,
-  ChoosePresent = 19,
-  BleepText = 23,
-  CameraZoom = 25,
-  CameraCharacter = 26,
-  CameraSubarea = 27,
-  PanicTalkAction = 33,
-  ChooseEvidence = 35,
-  ChoosePerson = 37,
-  MonoMonoMachine = 41,
-  VendingMachine = 44,
-  IslandMode = 50,
-  Minimal = 51,
-  LogicDive = 71,
-  SplitScreen = 72,
-}
+import { defineEnum, type EnumValue } from "./enum.ts";
+
+export const UserInterface = defineEnum({
+  Thinking: 0,
+  Textbox: 1,
+  Name: 2,
+  HUD: 3,
+  Minimap: 5,
+  BlackBackground: 6,
+  TextboxOnly: 7,
+  ClassTrial: 8,
+  BustUp: 9,
+  MovieBackground: 11,
+  Save: 12,
+  Rumble: 13,
+  CameraPan: 14,
+  CameraLook: 15,
+  Investigate: 16,
+  ChooseOption: 18,
+  ChoosePresent: 19,
+  BleepText: 23,
+  CameraZoom: 25,
+  CameraCharacter: 26,
+  CameraSubarea: 27,
+  PanicTalkAction: 33,
+  ChooseEvidence: 35,
+  ChoosePerson: 37,
+  MonoMonoMachine: 41,
+  VendingMachine: 44,
+  IslandMode: 50,
+  Minimal: 51,
+  LogicDive: 71,
+  SplitScreen: 72,
+});
+export type UserInterface = EnumValue<typeof UserInterface>;
 
 /**
  * The second argument of `SetUI`. 0 and 1 are hide/show; a few interfaces accept larger mode
  * values, which have no name and stay numeric in source.
  */
-export enum UiVisibility {
-  Hidden = 0,
-  Shown = 1,
-}
+export const UiVisibility = defineEnum({
+  Hidden: 0,
+  Shown: 1,
+});
+export type UiVisibility = EnumValue<typeof UiVisibility>;

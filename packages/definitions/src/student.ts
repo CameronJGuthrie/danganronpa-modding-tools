@@ -5,22 +5,22 @@ export const MAX_STUDENT_ID = 15;
 
 /** Character ids that have a report card and so are valid in the student opcodes. */
 export type Student =
-  | Character.Makoto
-  | Character.Taka
-  | Character.Byakuya
-  | Character.Mondo
-  | Character.Leon
-  | Character.Hifumi
-  | Character.Hiro
-  | Character.Sayaka
-  | Character.Kyoko
-  | Character.Aoi
-  | Character.Toko
-  | Character.Sakura
-  | Character.Celeste
-  | Character.Mukuro
-  | Character.Chihiro
-  | Character.Monokuma;
+  | typeof Character.Makoto
+  | typeof Character.Taka
+  | typeof Character.Byakuya
+  | typeof Character.Mondo
+  | typeof Character.Leon
+  | typeof Character.Hifumi
+  | typeof Character.Hiro
+  | typeof Character.Sayaka
+  | typeof Character.Kyoko
+  | typeof Character.Aoi
+  | typeof Character.Toko
+  | typeof Character.Sakura
+  | typeof Character.Celeste
+  | typeof Character.Mukuro
+  | typeof Character.Chihiro
+  | typeof Character.Monokuma;
 
 /**
  * The `Character` table restricted to ids 0–15: the sixteen students that the report card and

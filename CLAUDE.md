@@ -2,11 +2,11 @@
 
 ## Repository layout
 Libraries and scripts live under `packages/`, applications under `projects/`:
-- `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`, plus lookup tables under `src/data/` (sound, music and movie names, voice line transcripts, character, sprite, present, flag, variable, UI and background names) used by both the extension and the GUI. Built to `dist/` (CommonJS) by the root `prepare` script so both Node type-stripping consumers and the VS Code extension host can load it
+- `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`, plus lookup tables under `src/data/` (sound, music and movie names, voice line transcripts, character, sprite, present, flag, variable, UI and background names) used by both the extension and the GUI. It has no build step: its `exports` point at `src/index.ts`, so every consumer imports the TypeScript source. Enums are plain objects made with `defineEnum` in `src/enum.ts` (same shape as a numeric enum, including the value-to-name reverse mapping) so the package stays erasable for Node's type stripping and `erasableSyntaxOnly`; use `typeof Character.Makoto` when a member is needed as a type
 - `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library
 - `projects/cli` - the `lin-compiler` command-line tool, a thin wrapper over the library; `pnpm --filter lin-compiler-cli run build` emits JavaScript to `projects/cli/out/`
 - `packages/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
-- `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension
+- `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension. `tsc` only typechecks it; esbuild bundles `src/extension.ts`, the tests and the grammar builder into `out/`, which is how the extension host loads the definitions source
 - `projects/gui` - Electron asset browser (standalone; not a workspace package, has its own lockfile)
 
 `docs/file-formats/` holds reverse-engineering notes; `workbench/` holds generated working files.

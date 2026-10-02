@@ -1,9 +1,12 @@
-export enum Filter {
-  None = 0,
-  Sepia = 1,
-}
+import { defineEnum, type EnumValue } from "./enum.ts";
 
-const set = new Set(Object.values(Filter).filter((v) => typeof v === "number"));
+export const Filter = defineEnum({
+  None: 0,
+  Sepia: 1,
+});
+export type Filter = EnumValue<typeof Filter>;
+
+const set = new Set<number>(Object.values(Filter).filter((v) => typeof v === "number"));
 
 export const filterConfiguration: Record<Filter, string> = {
   [Filter.None]: "None",

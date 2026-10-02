@@ -2,20 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2023",
-    "lib": [
-      "ES2023"
-    ],
-    "noEmit": false,
-    "outDir": "out",
-    "rootDir": "src",
-    "sourceMap": true,
-    "types": [
-      "node",
-      "vscode",
-      "mocha"
-    ]
+    "lib": ["ES2023"],
+    "allowImportingTsExtensions": true,
+    "types": ["node", "vscode", "mocha"]
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

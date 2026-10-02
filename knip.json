@@ -34,8 +34,7 @@
     },
     "projects/vscode-extension": {
       "entry": [
-        "src/test/**/*.ts",
-        "src/syntaxes/tmlanguage-builder.ts"
+        "src/test/**/*.ts"
       ],
       "project": [
         "src/**/*.ts"
@@ -47,5 +46,8 @@
   },
   "ignoreBinaries": [
     "x-terminal-emulator"
+  ],
+  "ignoreUnresolved": [
+    "src/test/\\*\\.test\\.ts"
   ]
 }

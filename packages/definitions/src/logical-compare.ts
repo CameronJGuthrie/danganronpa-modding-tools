@@ -1,13 +1,16 @@
-export enum LogicalCompare {
-  NotEqual = 0,
-  Equal = 1,
-  LessOrEqual = 2,
-  GreaterOrEqual = 3,
-  LessThan = 4,
-  GreaterThan = 5,
-}
+import { defineEnum, type EnumValue } from "./enum.ts";
 
-const logicalCompareSet = new Set(Object.values(LogicalCompare).filter((v) => typeof v === "number"));
+export const LogicalCompare = defineEnum({
+  NotEqual: 0,
+  Equal: 1,
+  LessOrEqual: 2,
+  GreaterOrEqual: 3,
+  LessThan: 4,
+  GreaterThan: 5,
+});
+export type LogicalCompare = EnumValue<typeof LogicalCompare>;
+
+const logicalCompareSet = new Set<number>(Object.values(LogicalCompare).filter((v) => typeof v === "number"));
 
 export function isLogicalCompare(logicalCompare: number): logicalCompare is LogicalCompare {
   return logicalCompareSet.has(logicalCompare);

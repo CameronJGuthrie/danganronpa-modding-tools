@@ -36,3 +36,4 @@ export * from "./data/text-style-data.ts";
 export * from "./data/truth-bullet-data.ts";
 export * from "./data/user-interface-data.ts";
 export * from "./data/variable-data.ts";
+export * from "./enum.ts";

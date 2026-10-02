@@ -1,13 +1,16 @@
-export enum Compare {
-  NotEqual = 0,
-  Equal = 1,
-  LessOrEqual = 2,
-  GreaterOrEqual = 3,
-  LessThan = 4,
-  GreaterThan = 5,
-}
+import { defineEnum, type EnumValue } from "./enum.ts";
 
-const set = new Set(Object.values(Compare).filter((x) => typeof x === "number"));
+export const Compare = defineEnum({
+  NotEqual: 0,
+  Equal: 1,
+  LessOrEqual: 2,
+  GreaterOrEqual: 3,
+  LessThan: 4,
+  GreaterThan: 5,
+});
+export type Compare = EnumValue<typeof Compare>;
+
+const set = new Set<number>(Object.values(Compare).filter((x) => typeof x === "number"));
 
 export const compareConfiguration: Record<Compare, { name: string; symbol: string }> = {
   [Compare.NotEqual]: { name: "Not Equal", symbol: "!=" },

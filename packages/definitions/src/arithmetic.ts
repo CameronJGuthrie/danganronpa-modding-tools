@@ -1,10 +1,13 @@
-export enum Arithmetic {
-  Assign = 0,
-  Add = 1,
-  Subtract = 2,
-}
+import { defineEnum, type EnumValue } from "./enum.ts";
 
-const set = new Set(Object.values(Arithmetic).filter((x) => typeof x === "number"));
+export const Arithmetic = defineEnum({
+  Assign: 0,
+  Add: 1,
+  Subtract: 2,
+});
+export type Arithmetic = EnumValue<typeof Arithmetic>;
+
+const set = new Set<number>(Object.values(Arithmetic).filter((x) => typeof x === "number"));
 
 export const arithmaticConfiguraiton: Record<Arithmetic, { name: string }> = {
   [Arithmetic.Assign]: { name: "Assign" },

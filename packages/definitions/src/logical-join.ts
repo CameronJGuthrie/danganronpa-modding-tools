@@ -1,9 +1,12 @@
-export enum LogicalJoin {
-  And = 6,
-  Or = 7,
-}
+import { defineEnum, type EnumValue } from "./enum.ts";
 
-const logicalJoinSet = new Set(Object.values(LogicalJoin).filter((v) => typeof v === "number"));
+export const LogicalJoin = defineEnum({
+  And: 6,
+  Or: 7,
+});
+export type LogicalJoin = EnumValue<typeof LogicalJoin>;
+
+const logicalJoinSet = new Set<number>(Object.values(LogicalJoin).filter((v) => typeof v === "number"));
 
 export function isLogicalJoin(logicalJoin: number): logicalJoin is LogicalJoin {
   return logicalJoinSet.has(logicalJoin);

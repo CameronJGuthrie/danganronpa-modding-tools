@@ -5,25 +5,25 @@ import { Character } from "./character.ts";
  * opcode: the sixteen students, Junko, Genocide Jill and Usami. No other id appears there.
  */
 export type VoiceCharacter =
-  | Character.Makoto
-  | Character.Taka
-  | Character.Byakuya
-  | Character.Mondo
-  | Character.Leon
-  | Character.Hifumi
-  | Character.Hiro
-  | Character.Sayaka
-  | Character.Kyoko
-  | Character.Aoi
-  | Character.Toko
-  | Character.Sakura
-  | Character.Celeste
-  | Character.Mukuro
-  | Character.Chihiro
-  | Character.Monokuma
-  | Character.Junko
-  | Character.GenocideJill
-  | Character.Usami;
+  | typeof Character.Makoto
+  | typeof Character.Taka
+  | typeof Character.Byakuya
+  | typeof Character.Mondo
+  | typeof Character.Leon
+  | typeof Character.Hifumi
+  | typeof Character.Hiro
+  | typeof Character.Sayaka
+  | typeof Character.Kyoko
+  | typeof Character.Aoi
+  | typeof Character.Toko
+  | typeof Character.Sakura
+  | typeof Character.Celeste
+  | typeof Character.Mukuro
+  | typeof Character.Chihiro
+  | typeof Character.Monokuma
+  | typeof Character.Junko
+  | typeof Character.GenocideJill
+  | typeof Character.Usami;
 
 const voiceCharacterIds: ReadonlySet<number> = new Set<number>([
   Character.Makoto,
