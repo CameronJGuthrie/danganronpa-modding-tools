@@ -10,7 +10,10 @@
  *  - `Meta()` at the top level starts the per-script annotations (object, character and option names) that run to the end
  *    of the file.
  *
- * `Goto(n)` lines are resolved against the labels so the UI can offer jump navigation.
+ * `Goto(n)` lines, and the `Goto(n)` a condition carries as its last argument
+ * (`IfRelationship(Sayaka, >, 0, Goto(n))`), are resolved against the labels so the UI can offer
+ * jump navigation. A label may be written by number or by a name the `Meta()` block declares with
+ * `LabelName(n, Name)`.
  */
 
 export type ScriptLine = {
@@ -48,10 +51,13 @@ export type FlowNode = {
   endLine: number;
 };
 
+/** A label as a Goto or Label line writes it: the numeric address, or a name from a `LabelName` entry. */
+export type LabelRef = number | string;
+
 export type ControlFlow = {
   root: FlowNode;
-  /** Label number -> id of the node that contains that label. */
-  labelOwners: Map<number, string>;
+  /** Label (by number and, when named, by name) -> id of the node that contains that label. */
+  labelOwners: Map<LabelRef, string>;
   /** Node id -> node, for quick lookup. */
   nodesById: Map<string, FlowNode>;
 };
@@ -121,30 +127,99 @@ export function buildControlFlow(source: string, scriptName: string): ControlFlo
   const root = builder.parseTopLevel(lines, scriptName);
 
   const nodesById = new Map<string, FlowNode>();
-  const labelOwners = new Map<number, string>();
-  indexNodes(root, nodesById, labelOwners);
+  const labelOwners = new Map<LabelRef, string>();
+  indexNodes(root, nodesById, labelOwners, parseLabelNames(lines));
 
   return { root, labelOwners, nodesById };
 }
 
-function indexNodes(node: FlowNode, nodesById: Map<string, FlowNode>, labelOwners: Map<number, string>) {
+function indexNodes(
+  node: FlowNode,
+  nodesById: Map<string, FlowNode>,
+  labelOwners: Map<LabelRef, string>,
+  labelNames: ReadonlyMap<number, string>,
+) {
   nodesById.set(node.id, node);
   for (const item of node.items) {
     if (item.kind === "line" && item.line.functionName === "Label") {
-      const label = firstNumber(item.line);
-      if (label !== undefined) {
-        labelOwners.set(label, node.id);
+      const label = labelRef(item.line);
+      if (label === undefined) {
+        continue;
+      }
+      labelOwners.set(label, node.id);
+      // Register the other spelling too, so Goto(5) and Goto(HatedGift) both resolve
+      if (typeof label === "number") {
+        const name = labelNames.get(label);
+        if (name !== undefined) {
+          labelOwners.set(name, node.id);
+        }
+      } else {
+        for (const [id, name] of labelNames) {
+          if (name === label) {
+            labelOwners.set(id, node.id);
+          }
+        }
       }
     }
   }
   for (const child of node.children) {
-    indexNodes(child, nodesById, labelOwners);
+    indexNodes(child, nodesById, labelOwners, labelNames);
   }
 }
 
 export function firstNumber(line: ScriptLine): number | undefined {
   const value = Number.parseInt(line.args[0] ?? "", 10);
   return Number.isNaN(value) ? undefined : value;
+}
+
+/** The label a `Label`/`Goto` line names: its number, or the identifier as written. */
+export function labelRef(line: ScriptLine): LabelRef | undefined {
+  return labelRefOf(line.args[0]);
+}
+
+function labelRefOf(text: string | undefined): LabelRef | undefined {
+  const arg = text?.trim() ?? "";
+  if (/^\d+$/.test(arg)) {
+    return Number(arg);
+  }
+  return /^[A-Za-z_]\w*$/.test(arg) ? arg : undefined;
+}
+
+/** The conditions, each written with its jump as a trailing `Goto(label)` argument. */
+const CONDITIONS: ReadonlySet<string> = new Set(["If", "IfFlag", "IfRelationship", "IfFreeTimeEvent"]);
+
+export function isCondition(line: ScriptLine): boolean {
+  return CONDITIONS.has(line.functionName);
+}
+
+/** The label a line jumps to: a `Goto` line's argument, or the `Goto(label)` ending a condition. */
+export function jumpTarget(line: ScriptLine): LabelRef | undefined {
+  if (line.functionName === "Goto") {
+    return labelRef(line);
+  }
+  if (!isCondition(line)) {
+    return undefined;
+  }
+  const match = /^Goto\s*\((.*)\)$/.exec(line.args[line.args.length - 1] ?? "");
+  return match ? labelRefOf(match[1]) : undefined;
+}
+
+const LABEL_NAME_ENTRY = /^LabelName\(\s*(\d+)\s*,\s*([A-Za-z_]\w*)\s*\)$/;
+
+/** The `LabelName(id, Name)` entries of the `Meta()` block, if the script has one. */
+function parseLabelNames(lines: readonly ScriptLine[]): Map<number, string> {
+  const names = new Map<number, string>();
+  const start = lines.findIndex((line) => line.functionName === "Meta");
+  if (start === -1) {
+    return names;
+  }
+  for (const line of lines.slice(start + 1)) {
+    const match = LABEL_NAME_ENTRY.exec(line.text);
+    if (match) {
+      names.set(Number(match[1]), match[2]);
+    }
+  }
+  return names;
 }
 
 function isOptionRegistration(line: ScriptLine): boolean {
@@ -258,12 +333,16 @@ class FlowBuilder {
     const objects = count("Object");
     const characters = count("Character");
     const options = count("Option");
+    const labels = count("LabelName");
     const parts = [`${objects} object name${objects === 1 ? "" : "s"}`];
     if (characters > 0) {
       parts.push(`${characters} character name${characters === 1 ? "" : "s"}`);
     }
     if (options > 0) {
       parts.push(`${options} option name${options === 1 ? "" : "s"}`);
+    }
+    if (labels > 0) {
+      parts.push(`${labels} label name${labels === 1 ? "" : "s"}`);
     }
     meta.subtitle = parts.join(", ");
     return meta;

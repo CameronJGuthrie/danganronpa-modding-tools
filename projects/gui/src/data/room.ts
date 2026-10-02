@@ -22,6 +22,7 @@ export const roomNames: Readonly<Record<number, string>> = {
   11: "Nurse's Office",
   14: "Classroom 1-A",
   15: "Classroom 1-B",
+  16: "1F Bathroom?",
   18: "Demo: Hallway",
   21: "2F Hallway",
   22: "Library",

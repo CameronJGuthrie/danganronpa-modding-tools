@@ -90,6 +90,8 @@ const objectId: Parameter = { type: Byte, scope: "Object" };
 const characterId: Parameter = { type: Byte, scope: "Character" };
 /** A menu option id byte, written by name: the defaults (`Yes`, `No`, `Exit_1`, `Exit_2`) or the script's `Meta()` entries. */
 const optionId: Parameter = { type: Byte, scope: "Option" };
+/** A jump label address, written by the name the script's `Meta()` block gives it with `LabelName(id, Name)`, if any. */
+const labelId: Parameter = { type: UInt16BE, scope: "Label" };
 /** A 0/1 byte, written as `False` / `True`. */
 const bool = named(Byte, Bool);
 /** A comparison operator byte, written as `==`, `!=`, `<`, `<=`, `>` or `>=`. */
@@ -122,13 +124,13 @@ export const opcodes = {
   UnlockSkill:           { id: 0x0e, args: bytes(2) },
   StudentTitleEntry:     { id: 0x0f, args: fixed([named(Byte, Student), named(Byte, Arithmetic), Byte]) },
   StudentReportInfo:     { id: 0x10, args: bytes(3) },
-  StudentRelationship:   { id: 0x11, args: bytes(4) },
+  StudentRelationship:   { id: 0x11, args: fixed([named(Byte, Student), named(Byte, Arithmetic), UInt16BE]) },
   TrialCamera:           { id: 0x14, args: fixed([Byte, UInt16BE]) },
   LoadMap:               { id: 0x15, args: bytes(3) },
   LoadScript:            { id: 0x19, args: bytes(3) },
   StopScript:            { id: 0x1a, args: bytes(0) },
   RunScript:             { id: 0x1b, args: bytes(3) },
-  RestartScript:         { id: 0x1c, args: bytes(0) },
+  Return:                { id: 0x1c, args: bytes(0) },
   Sprite:                { id: 0x1e, args: fixed([Byte, named(Byte, CharacterSprite), Byte, named(Byte, SpriteTransition), named(Byte, SpritePosition)]) },
   ScreenFlash:           { id: 0x1f, args: bytes(7) },
   SpriteFlash:           { id: 0x20, args: bytes(5) },
@@ -139,22 +141,22 @@ export const opcodes = {
   SetFlag:               { id: 0x26, args: fixed([flagGroup, flagOffset, bool]) },
   OnCharacter:           { id: 0x27, args: fixed([characterId]), block: true },
   OnObject:              { id: 0x29, args: fixed([objectId]), block: true },
-  Label:                 { id: 0x2a, args: fixed([UInt16BE]) },
+  Label:                 { id: 0x2a, args: fixed([labelId]) },
   SetOption:             { id: 0x2b, args: fixed([optionId]), block: true },
   EndOfJump:             { id: 0x2c, args: bytes(2) },
   CameraFlash:           { id: 0x2e, args: bytes(2) },
   ShowBackground:        { id: 0x30, args: fixed([UInt16BE, Byte]) },
   SetVariable:           { id: 0x33, args: fixed([named(Byte, Variable), named(Byte, Arithmetic), UInt16BE]) },
-  Goto:                  { id: 0x34, args: fixed([UInt16BE]) },
+  Goto:                  { id: 0x34, args: fixed([labelId]) },
   /** `group, offset, operand, value` followed by any number of `joiner, group, offset, operand, value`. */
   IfFlag:                { id: 0x35, args: { kind: "repeat", head: [flagGroup, flagOffset, compare, bool], tail: [join, flagGroup, flagOffset, compare, bool] } },
   /** `value1, operand, value2` followed by any number of `joiner, value1, operand, value2`. */
   If:                    { id: 0x36, args: { kind: "repeat", head: [variable, compare, UInt16BE], tail: [join, variable, compare, UInt16BE] } },
-  IfFreeTimeEvent:       { id: 0x38, args: fixed([UInt16BE, compare, UInt16BE]) },
-  IfRelationship:        { id: 0x39, args: fixed([UInt16BE, compare, UInt16BE]) },
+  IfFreeTimeEvent:       { id: 0x38, args: fixed([named(UInt16BE, Student), compare, UInt16BE]) },
+  IfRelationship:        { id: 0x39, args: fixed([named(UInt16BE, Student), compare, UInt16BE]) },
   WaitInput:             { id: 0x3a, args: none() },
   WaitFrame:             { id: 0x3b, args: none() },
-  Then:                  { id: 0x3c, args: none() },
+  Then:                  { id: 0x3c, args: none(), hidden: true }, // written as the Goto(...) argument of If* (opcodes/branch.ts)
 } as const satisfies Record<string, OpcodeRow>;
 
 /** A binary opcode's source name. */

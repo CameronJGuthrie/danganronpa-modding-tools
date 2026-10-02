@@ -30,6 +30,8 @@ export interface ScriptMeta {
    * declared entries only; `DEFAULT_OPTION_NAMES` in `opcodes/meta.ts` applies underneath them.
    */
   options: Readonly<Record<number, string>>;
+  /** Names for this script's jump labels, as used by `Label` and `Goto`; declared with `LabelName(id, Name)`. */
+  labels: Readonly<Record<number, string>>;
 }
 
 export interface Script {

@@ -1,9 +1,10 @@
 import {
   comparisonOperatorSymbols,
   comparisonOperators,
-  isCharacter,
   isLogicalCompare,
+  isStudent,
   LinscriptInstructionName,
+  Student,
 } from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -12,10 +13,13 @@ export const ifFreeTimeEventMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.IfFreeTimeEvent,
   hexcode: "0x38",
   description:
-    "Branches on how many free-time events the player has seen with a character. Followed by Then() and the conditional body.",
+    "Branches on how many free-time events the player has seen with a character. The last argument is the jump taken when it holds, Goto(label).",
+  branch: true,
   parameters: [
     {
-      name: "characterId",
+      name: "student",
+      description: "The student whose free-time event count is tested; only ids 0-15 have a report card",
+      names: Student,
     },
     {
       name: "operand",
@@ -25,16 +29,16 @@ export const ifFreeTimeEventMeta: LinscriptInstructionMeta = {
       name: "value",
     },
   ] as const,
-  decorations([characterId, operand, value]) {
+  decorations([student, operand, value]) {
     if (!isLogicalCompare(operand)) {
       return `⚠️ Unknown operand ${operand}`;
     }
     const operandSymbol = comparisonOperatorSymbols[operand];
 
-    if (!isCharacter(characterId)) {
-      return `⚠️ Unknown character ${operand}`;
+    if (!isStudent(student)) {
+      return `⚠️ Unknown student ${student} (valid ids are 0-15)`;
     }
-    const characterName = characterData[characterId].name;
+    const characterName = characterData[student].name;
 
     return `If ${characterName}'s free time event counter is ${operandSymbol} ${value}`;
   },

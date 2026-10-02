@@ -13,14 +13,16 @@ import { splitArgs } from "../parameter.ts";
  *       Object(21, Camera)
  *       Character(0, Sayaka)
  *       Option(3, Leave)
+ *       LabelName(5, HatedGift)
  *
  * `Object(id, Name)` names an object id, so the body can say `OnObject(Monitor)` instead of
  * `OnObject(20)`. `Character(id, Name)` names a placed-character slot the same way for
  * `OnCharacter`; the id is the first argument of the `Sprite(...)` that placed the character, not the
  * `Character` enum, so the same student can hold a different slot in every script. `Option(id, Name)`
  * names a menu option id for `SetOption` and the `Option(id, "label")` sugar. Every script starts with `DEFAULT_OPTION_NAMES`, which a declared
- * entry may override; only declared entries are written back. Names are identifiers, unique within
- * the file per kind, and each id is named once. The block is terminated by the end of the file;
+ * entry may override; only declared entries are written back. `LabelName(id, Name)` names a jump
+ * label so `Label(5)` / `Goto(5)` read `Label(HatedGift)` / `Goto(HatedGift)`; label ids are 16-bit.
+ * Names are identifiers, unique within the file per kind, and each id is named once. The block is terminated by the end of the file;
  * nothing but these entries, blank lines and comments may follow it. Compiling to `.lin` drops
  * the block, and decompiling produces none.
  */
@@ -33,6 +35,8 @@ export const META_OBJECT = "Object";
 export const META_CHARACTER = "Character";
 /** Source name of an option-name entry inside the block (the same word as the body sugar). */
 export const META_OPTION = "Option";
+/** Source name of a label-name entry inside the block. */
+export const META_LABEL = "LabelName";
 
 /**
  * Option ids every script can name without declaring them: 18 and 19 register the handlers that
@@ -46,15 +50,26 @@ export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = {
 };
 
 const IDENTIFIER = /^[A-Za-z_]\w*$/;
-/** The largest id a `Meta()` block may name; 255 closes an `OnObject` or `SetOption` block. */
+/** The largest byte id a `Meta()` block may name; 255 closes an `OnObject` or `SetOption` block. */
 const MAX_ID = 254;
+/** The largest label id: `Label` and `Goto` take a 16-bit address. */
+const MAX_LABEL_ID = 0xffff;
 
 /** The entry kinds the block accepts, each filling one scope's name table. */
-const ENTRIES: Readonly<Record<string, { scope: ParameterScope; key: keyof ScriptMeta; noun: string }>> = {
-  [META_OBJECT]: { scope: "Object", key: "objects", noun: "object" },
-  [META_CHARACTER]: { scope: "Character", key: "characters", noun: "character" },
-  [META_OPTION]: { scope: "Option", key: "options", noun: "option" },
-};
+const ENTRIES: Readonly<Record<string, { scope: ParameterScope; key: keyof ScriptMeta; noun: string; maxId: number }>> =
+  {
+    [META_OBJECT]: { scope: "Object", key: "objects", noun: "object", maxId: MAX_ID },
+    [META_CHARACTER]: { scope: "Character", key: "characters", noun: "character", maxId: MAX_ID },
+    [META_OPTION]: { scope: "Option", key: "options", noun: "option", maxId: MAX_ID },
+    [META_LABEL]: { scope: "Label", key: "labels", noun: "label", maxId: MAX_LABEL_ID },
+  };
+
+const EMPTY_META = (): Record<keyof ScriptMeta, Record<number, string>> => ({
+  objects: {},
+  characters: {},
+  options: {},
+  labels: {},
+});
 
 /** One line of source with its 1-based line number, as the reader has already trimmed it. */
 export interface SourceLine {
@@ -67,8 +82,13 @@ export interface SourceLine {
  * `lines` are the non-blank, non-comment lines after it.
  */
 export function parseMeta(lines: readonly SourceLine[]): ScriptMeta {
-  const meta: Record<keyof ScriptMeta, Record<number, string>> = { objects: {}, characters: {}, options: {} };
-  const seen: Record<keyof ScriptMeta, Set<string>> = { objects: new Set(), characters: new Set(), options: new Set() };
+  const meta = EMPTY_META();
+  const seen: Record<keyof ScriptMeta, Set<string>> = {
+    objects: new Set(),
+    characters: new Set(),
+    options: new Set(),
+    labels: new Set(),
+  };
 
   for (const { line, text } of lines) {
     const match = /^(\w+)\s*\((.*)\)$/.exec(text);
@@ -76,7 +96,9 @@ export function parseMeta(lines: readonly SourceLine[]): ScriptMeta {
     if (match === null || entry === undefined) {
       throw new SourceError(
         line,
-        `only ${META_OBJECT}(id, Name), ${META_CHARACTER}(id, Name) and ${META_OPTION}(id, Name) entries may follow ${META}()`,
+        `only ${Object.keys(ENTRIES)
+          .map((entry) => `${entry}(id, Name)`)
+          .join(", ")} entries may follow ${META}()`,
       );
     }
     const values = splitArgs(match[2]);
@@ -85,8 +107,8 @@ export function parseMeta(lines: readonly SourceLine[]): ScriptMeta {
     }
     const [idText, name] = values.map((value) => value.trim());
     const id = Number(idText);
-    if (!/^\d+$/.test(idText) || id > MAX_ID) {
-      throw new SourceError(line, `${entry.noun} id must be a number from 0 to ${MAX_ID}, got '${idText}'`);
+    if (!/^\d+$/.test(idText) || id > entry.maxId) {
+      throw new SourceError(line, `${entry.noun} id must be a number from 0 to ${entry.maxId}, got '${idText}'`);
     }
     if (!IDENTIFIER.test(name)) {
       throw new SourceError(line, `${entry.noun} name must be an identifier, got '${name}'`);
@@ -134,7 +156,7 @@ export function formatMeta(meta: ScriptMeta | undefined, indent: string): string
 
 /**
  * The scoped name tables a script's meta provides for reading and writing its arguments. A script
- * without meta still gets the default option names and empty object and character tables, so a stray name is
+ * without meta still gets the default option names and empty object, character and label tables, so a stray name is
  * reported as unknown rather than as a malformed number.
  */
 export function scopeTables(meta: ScriptMeta | undefined): ScopeTables {
@@ -142,6 +164,7 @@ export function scopeTables(meta: ScriptMeta | undefined): ScopeTables {
     Object: twoWay(meta?.objects ?? {}),
     Character: twoWay(meta?.characters ?? {}),
     Option: twoWay({ ...DEFAULT_OPTION_NAMES, ...(meta?.options ?? {}) }),
+    Label: twoWay(meta?.labels ?? {}),
   };
 }
 

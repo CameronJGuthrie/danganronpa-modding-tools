@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { log } from "../output";
+import { labelNamesFromDocument } from "../util/script-meta";
 import { createStartOfLineFunctionRegex } from "../util/string-util";
 import { findRootDirectory } from "./workspace";
 
@@ -9,7 +10,7 @@ import { findRootDirectory } from "./workspace";
  * Provides "Go to Definition" (Ctrl+Click) functionality for .linscript files
  *
  * Features:
- * - Click on Goto(500) to jump to SetLabel(500)
+ * - Click on Goto(500), alone or inside If*(..., Goto(500)), to jump to Label(500); Goto(HatedGift) resolves the name through the Meta() block's LabelName entries
  * - Click on LoadScript(chapter, episode, scene) to open that script file
  * - Click on RunScript(chapter, episode, scene) to open that script file
  */
@@ -26,9 +27,10 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     const wordRange = document.getWordRangeAtPosition(position, /\w+/);
     const word = wordRange ? document.getText(wordRange) : "";
 
-    // Check if we're on a Goto line
-    const gotoMatch = lineText.match(createStartOfLineFunctionRegex("Goto", 1));
-    if (gotoMatch && (word === "Goto" || lineText.startsWith("Goto"))) {
+    // A Goto on its own line, or the Goto(label) branch at the end of an If* condition; the label
+    // may be written by number or by its LabelName
+    const gotoMatch = lineText.match(/\bGoto\(\s*(\w+)\s*\)/);
+    if (gotoMatch && (word === "Goto" || word === gotoMatch[1] || lineText.startsWith("Goto"))) {
       const label = gotoMatch[1];
       return this.findLabel(document, label);
     }
@@ -69,7 +71,11 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
    * Find the Label that corresponds to a Goto
    */
   private findLabel(document: vscode.TextDocument, label: string): vscode.Location | null {
-    const pattern = new RegExp(`^Label\\(${label}\\)`);
+    // A label may be declared by number or by name, and the Goto may use either form
+    const names = labelNamesFromDocument(document.getText());
+    const resolved = names[label];
+    const forms = resolved === undefined ? [label] : [label, String(resolved)];
+    const pattern = new RegExp(`^Label\\(\\s*(${forms.join("|")})\\s*\\)`);
 
     for (let i = 0; i < document.lineCount; i++) {
       const line = document.lineAt(i);

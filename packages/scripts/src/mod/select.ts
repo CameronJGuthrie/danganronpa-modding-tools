@@ -6,6 +6,7 @@ import { copyFile, mkdir } from "node:fs/promises";
 import { basename, dirname, extname, join, relative } from "node:path";
 import { promisify } from "node:util";
 import { errorMessage } from "../lib/errors.ts";
+import { findModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
 import { LIN_COMPILER_CLI as LIN_COMPILER_PATH, PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
@@ -13,6 +14,16 @@ const execAsync = promisify(exec);
 const MODDED_DIR = join(projectRoot, "workbench", "modded", "dr1_data_us");
 const MOD_DIR = join(projectRoot, "workbench", "mod", "dr1_data_us");
 const EXPLORATION_DIR = join(projectRoot, "workbench", "linscript-exploration");
+const MOD_SCRIPT_DIR = join(MOD_DIR, ...SCRIPT_DIR_SEGMENTS);
+
+/**
+ * Where the writable copy of `flatName` goes: the authored file if one already exists in the
+ * mod script directory (flat or organised by chapter/scene, with any label suffix), otherwise a
+ * new flat `<flatName>.linscript`.
+ */
+async function modOutputFile(flatName: string): Promise<string> {
+  return (await findModScript(MOD_SCRIPT_DIR, flatName)) ?? join(MOD_SCRIPT_DIR, `${flatName}.linscript`);
+}
 
 function showUsage(): void {
   console.log(`Usage: pnpm select <filepath>
@@ -102,7 +113,7 @@ async function handleLinFile(inputPath: string): Promise<void> {
 
   // Calculate the output path in MOD_DIR
   const outputBase = basename(sourceFile, ".lin");
-  const outputFile = join(MOD_DIR, dirname(relativePath), `${outputBase}.linscript`);
+  const outputFile = await modOutputFile(outputBase);
 
   console.log(`Selecting: ${relativePath}`);
   console.log(`Output:    ${relative(projectRoot, outputFile)}`);
@@ -160,8 +171,8 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
     process.exit(1);
   }
 
-  // Calculate the output path in MOD_DIR (same structure as .lin files)
-  const outputFile = join(MOD_DIR, "Dr1/data/us/script", `${baseFilename}.linscript`);
+  // Calculate the output path in MOD_DIR, reusing an existing organised file
+  const outputFile = await modOutputFile(baseFilename);
 
   console.log(`Selecting: ${basename(sourceFile)}`);
   console.log(`Found:     Dr1/data/us/script/${baseFilename}.lin`);

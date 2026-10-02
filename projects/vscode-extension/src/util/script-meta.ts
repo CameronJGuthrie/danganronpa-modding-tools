@@ -21,9 +21,19 @@ export function optionNamesFromDocument(documentText: string): ArgumentNames {
   return scopedNamesFromDocument(documentText, "Option", DEFAULT_OPTION_NAMES);
 }
 
+/** The label names a file declares with `LabelName(id, Name)`, for `Label` and `Goto`. */
+export function labelNamesFromDocument(documentText: string): ArgumentNames {
+  return scopedNamesFromDocument(documentText, "LabelName", {});
+}
+
+/** The `Meta()` entry that declares names for a scoped parameter, e.g. `LabelName` for the `Label` scope. */
+export function metaEntryForScope(scope: "Object" | "Character" | "Option" | "Label"): string {
+  return scope === "Label" ? "LabelName" : scope;
+}
+
 function scopedNamesFromDocument(
   documentText: string,
-  entry: "Object" | "Character" | "Option",
+  entry: "Object" | "Character" | "Option" | "LabelName",
   defaults: Readonly<Record<number, string>>,
 ): ArgumentNames {
   const declared: Record<number, string> = { ...defaults };

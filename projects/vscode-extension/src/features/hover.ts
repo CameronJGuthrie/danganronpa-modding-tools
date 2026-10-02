@@ -3,8 +3,9 @@ import { metadata } from "../metadata";
 import { logDebug } from "../output";
 import type { LinscriptInstructionMeta, ParameterMeta } from "../types/linscript-instruction-meta";
 import { argumentNames } from "../util/argument-names";
+import { metaEntryForScope } from "../util/script-meta";
 import type { ArgumentNameSource, ArgumentNames, DependentNames } from "../util/string-util";
-import { getArgumentsFromFunctionLike, isInsideQuotes } from "../util/string-util";
+import { getArgumentsFromFunctionLike, isInsideQuotes, stripBranchJump } from "../util/string-util";
 
 /**
  * Hover documentation for `.linscript` files.
@@ -39,7 +40,9 @@ export class LinscriptHoverProvider implements vscode.HoverProvider {
     }
 
     // Inside the parentheses: work out which argument the cursor is on
-    const callText = lineText.slice(call.nameStart, call.end);
+    // A condition's trailing Goto(label) is a call of its own, so the condition's text is read without it
+    const rawCallText = lineText.slice(call.nameStart, call.end);
+    const callText = functionDetails.branch ? stripBranchJump(rawCallText) : rawCallText;
     const argIndex = argumentIndexAt(callText, position.character - call.nameStart);
     if (argIndex === undefined) {
       return undefined;
@@ -259,7 +262,7 @@ function parameterLine(parameter: ParameterMeta, index: number): string {
     notes.push(`defaults to ${parameter.defaultValue}`);
   }
   if (parameter.scope) {
-    notes.push(`named in the \`Meta()\` block with \`${parameter.scope}(id, Name)\``);
+    notes.push(`named in the \`Meta()\` block with \`${metaEntryForScope(parameter.scope)}(id, Name)\``);
   }
   return notes.length === 0 ? label : `${label}: ${notes.join(". ")}`;
 }
@@ -302,7 +305,7 @@ function argumentHover(
   }
 
   if (parameter?.scope) {
-    lines.push(`Declared per script with \`${parameter.scope}(id, Name)\` in the \`Meta()\` block.`);
+    lines.push(`Declared per script with \`${metaEntryForScope(parameter.scope)}(id, Name)\` in the \`Meta()\` block.`);
   }
 
   md.appendMarkdown(lines.join("\n\n"));

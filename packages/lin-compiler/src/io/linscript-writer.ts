@@ -1,12 +1,14 @@
 import { writeFile } from "node:fs/promises";
 import { Opcode } from "../definitions/opcode.definition.ts";
+import { BinaryError } from "../errors.ts";
 import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
+import { branchJump, formatBranch, isConditionEntry } from "../opcodes/branch.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
 import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
-import { planTextSugar, stripImplicitNewline, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { planTextSugar, textSourceForm, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 
 export interface WriteSourceOptions {
@@ -37,6 +39,18 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     skipped.add(index + 2);
   }
   const scopes = names ? scopeTables(script.meta) : {};
+  // Every condition must carry its Then + Goto, which are written as the condition's last argument
+  if (names) {
+    entries.forEach((entry, index) => {
+      if (isConditionEntry(entry)) {
+        branchJump(entries, index);
+        skipped.add(index + 1);
+        skipped.add(index + 2);
+      } else if (entry.opcode === Opcode.Then && !skipped.has(index)) {
+        throw new BinaryError("Then without a preceding condition; only If* + Then + Goto branches are understood");
+      }
+    });
+  }
 
   /** One instruction as `Name(args)`, applying the Wait and Present sugar and named arguments. */
   const formatEntry = (entry: ScriptEntry): string => {
@@ -73,11 +87,13 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     }
 
     let call: string;
-    if (optionSugared.has(index)) {
+    if (names && opcode !== undefined && isConditionEntry(entry)) {
+      call = `${opcode.name}(${formatBranch(opcode, entry, entries[index + 2], names, scopes)})`;
+    } else if (optionSugared.has(index)) {
       call = `${OPTION}(${formatOption(entries, index, names, scopes)})`;
     } else if (opcode !== undefined && sugared.has(index) && "text" in entry) {
-      // The plan only sugars entries whose text carries the implicit newline
-      const text = stripImplicitNewline(entry.text) ?? entry.text;
+      // The plan only sugars entries that have a source form
+      const text = textSourceForm(entry.text) ?? entry.text;
       const args = [
         formatArgs(opcode.args, { ...entry, text }, { names, scopes }),
         ...(trailing.get(index) ?? []).map((i) => formatEntry(entries[i])),

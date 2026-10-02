@@ -9,6 +9,12 @@ Arguments: one or more `.linscript` paths (absolute, or relative to the repo roo
 If a path is not under `workbench/mod/`, tell the user; the mod dir is where rewrites live.
 `pnpm select <name>.linscript` copies a script from `workbench/linscript-exploration/` into it.
 
+Mod scripts are organised by chapter and scene with a room label on the filename:
+`workbench/mod/dr1_data_us/Dr1/data/us/script/chapter_01/scene_005/103_MakotosRoom.linscript`
+is the game's `e01_005_103`. Only the folder numbers and the leading three digits name the
+script; the suffix after the digits is for the reader. A user may hand you either form
+(`e01_005_103`, `103_MakotosRoom.linscript`, or the full path); resolve it by the numbers.
+
 ## 1. Load the tone
 
 Read every file in `workbench/tone/*.md` before writing a line. `README.md` has the
@@ -43,7 +49,18 @@ Leave untouched:
 - `Speaker(Blank)` tutorial text (handbook controls, `%CTRL_...%` placeholders).
 - School regulation cards and any `<style N>` fallback lines.
 - Silent beats `"..."`, grunts (`"Ng...gah..."`, `"Urgh..."`), sound effects
-  (`*WHAM*`, `*Rattle rattle*`), menu labels, `"Leave the area?"` prompts.
+  (`*WHAM*`, `*Rattle rattle*`), menu labels.
+
+One `<system>` line does change: the generic `"Leave the area?"` prompt (a
+`RawText("<system>Leave the area?\n</system>")` under the exit option) becomes a
+prompt naming the room the script plays in, in plain English and the same shape:
+`Leave the dining hall?`, `Leave the kitchen?`, `Leave the gym?`, `Leave the room?`
+for Makoto's room, and just `Leave the bathroom?` for any bathroom (no floor or
+gender). Take the room from the file's suffix or
+`workbench/tone/rooms.md`, keep the `<system>` wrapper and trailing `\n`, and use
+the same wording every time that room appears so the prompt matches across scenes
+(`grep -rn "Leave the" <mod script dir>` shows what is already in use). Leave a
+prompt that already names its room alone.
 
 ## 3. Write the lines
 
@@ -119,9 +136,31 @@ handler is written `OnCharacter(Name)`. Use the student's first name as the iden
 
 Recompile after editing Meta() (step 4 again).
 
-## 6. Report
+## 5b. Name the file
 
-For each file: how many lines changed, which UI lines were deliberately left, any
+Make sure the script sits at `chapter_CC/scene_SSS/NNN_<Suffix>.linscript` under the mod
+script directory, where `eCC_SSS_NNN` is its game name. `pnpm select` and a fresh copy
+land as a flat `eCC_SSS_NNN.linscript`; move it into place with `mv` (create the folders)
+and never leave two files that flatten to the same name, the build refuses to run then.
+
+Choose the suffix from the room, since every script in a map shares it and the folder
+already says which chapter and scene it is:
+
+- Look the map id (the last three digits) up in `workbench/tone/rooms.md`, then in
+  `projects/gui/src/data/room.ts`. Reuse the suffix any existing sibling script with the
+  same map already carries (`find` the mod script dir for `NNN_*.linscript`) so a room
+  reads identically across scenes.
+- PascalCase, letters and digits only, no apostrophes or spaces: `MakotosRoom`,
+  `DiningHall`, `1FBoysBathroom`, `TrophyDisplayCase`. Drop qualifiers such as "(crime
+  scene)" unless two maps in the same scene would otherwise share a suffix; then keep the
+  shortest distinguishing word (`GymEntranceCeremony` vs `Gym`).
+- When the map id is not a location (the prologue `000` scripts, Free Time `e08_*` and
+  School Mode `e09_*`), describe what the script is instead, from its text: `Opening`,
+  `FreeTimeTutorial`, `Classroom1A` for a scene that only loads one map.
+- If the room is new to `rooms.md`, add it there (step 5 already asks for this) with the
+  same name you used in the suffix.
+
+For each file: its final path (chapter/scene folder and suffix), how many lines changed, which UI lines were deliberately left, any
 character voiced without a tone section, and every object id left numeric with the
 reason (no handler, or handler text does not say what it is). Note that
 `workbench/` is gitignored, so there is nothing to commit.

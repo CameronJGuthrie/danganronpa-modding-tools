@@ -8,6 +8,7 @@ export enum LinscriptInstructionName {
   IfFreeTimeEvent = "IfFreeTimeEvent",
   IfRelationship = "IfRelationship",
   Label = "Label",
+  LabelName = "LabelName", // Source-only: `LabelName(id, Name)` inside Meta() names a jump label for the file
   LoadMap = "LoadMap",
   LoadScript = "LoadScript",
   LoadSprite = "LoadSprite",
@@ -23,7 +24,7 @@ export enum LinscriptInstructionName {
   GivePresent = "GivePresent", // Sugar for Present(id, Subtract, 1): the player hands a gift over
   ReceivePresent = "ReceivePresent", // Sugar for Present(id, Add, 1): the player is awarded an item
   RawText = "RawText", // The binary text opcode; Text is sugar that adds WaitFrame/TextStyle/WaitInput
-  RestartScript = "RestartScript",
+  Return = "Return",
   RunScript = "RunScript",
   ScreenFade = "ScreenFade",
   ScreenFlash = "ScreenFlash",
@@ -43,7 +44,6 @@ export enum LinscriptInstructionName {
   StudentTitleEntry = "StudentTitleEntry",
   Text = "Text",
   TextStyle = "TextStyle",
-  Then = "Then",
   TrialCamera = "TrialCamera",
   TruthBulletFlag = "TruthBulletFlag",
   UnlockSkill = "UnlockSkill",

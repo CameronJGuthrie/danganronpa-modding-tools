@@ -11,6 +11,12 @@ export type LinscriptInstructionMeta<Parameters extends readonly ParameterMeta[]
   /** Source-only annotation with no binary form at all, such as the `Meta()` block; `hexcode` is empty. */
   annotation?: true;
   selfDescribing?: boolean;
+  /**
+   * A condition (`If`, `IfFlag`, ...) whose jump is written as a trailing `Goto(label)` argument:
+   * `IfRelationship(Sayaka, >, 0, Goto(5))`. The compiler expands it to the condition, `Then` and
+   * `Goto` opcodes; the trailing call is not one of `parameters` and is decorated as its own `Goto`.
+   */
+  branch?: true;
   description?: string;
   varargs?: boolean;
   /**
@@ -65,9 +71,10 @@ export type ParameterMeta = {
   namesBy?: DependentNames;
   /**
    * Name table declared by the document itself rather than a shared enum: `Object` resolves names
-   * from the file's `Meta()` block (`Object(20, Monitor)` lets the body say `OnObject(Monitor)`).
+   * from the file's `Meta()` block (`Object(20, Monitor)` lets the body say `OnObject(Monitor)`);
+   * `Label` names come from `LabelName(5, HatedGift)` entries.
    */
-  scope?: "Object" | "Character" | "Option";
+  scope?: "Object" | "Character" | "Option" | "Label";
   /**
    * Map of numbers to LinscriptValue, can be a simple string but might also indicate typing for other params
    */

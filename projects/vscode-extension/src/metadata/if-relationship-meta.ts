@@ -1,9 +1,10 @@
 import {
   comparisonOperatorSymbols,
   comparisonOperators,
-  isCharacter,
   isLogicalCompare,
+  isStudent,
   LinscriptInstructionName,
+  Student,
 } from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -12,10 +13,14 @@ export const ifRelationshipMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.IfRelationship,
   hexcode: "0x39",
   description:
-    "Branches on the player's relationship level with a character (the scripts only compare against 0 or 20). Followed by Then() and the conditional body.",
+    "Branches on the player's relationship level with a character (the scripts only compare against 0 or 20). The last argument is the jump taken when it holds, Goto(label).",
+  branch: true,
   parameters: [
     {
-      name: "characterId",
+      name: "student",
+      description:
+        "The student whose relationship level is tested; written by name, e.g. IfRelationship(Sayaka, <, 20)",
+      names: Student,
     },
     {
       name: "operand", // this is always 4 or 5
@@ -25,16 +30,16 @@ export const ifRelationshipMeta: LinscriptInstructionMeta = {
       name: "value", // this is either 0 or 20
     },
   ] as const,
-  decorations([characterId, operand, value]) {
+  decorations([student, operand, value]) {
     if (!isLogicalCompare(operand)) {
       return `⚠️ Unknown operand ${operand}`;
     }
     const operandSymbol = comparisonOperatorSymbols[operand];
 
-    if (!isCharacter(characterId)) {
-      return `⚠️ Unknown character ${operand}`;
+    if (!isStudent(student)) {
+      return `⚠️ Unknown student ${student} (valid ids are 0-15)`;
     }
-    const characterName = characterData[characterId].name;
+    const characterName = characterData[student].name;
 
     return `If ${characterName}'s relationship is ${operandSymbol} ${value}`;
   },

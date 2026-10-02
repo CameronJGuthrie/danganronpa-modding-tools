@@ -33,7 +33,12 @@ async function walk(root: string, relative: string, files: string[]): Promise<vo
   }
 }
 
-/** Where `pnpm select` puts writable `.linscript` copies and `pnpm build` compiles them from. */
+/**
+ * Where `pnpm select` puts writable `.linscript` copies and `pnpm build` compiles them from.
+ * Files may be flat (`e01_005_103.linscript`) or organised as
+ * `chapter_01/scene_005/103_AnyLabel.linscript`; only the leading numbers name the script
+ * (see `packages/scripts/src/lib/mod-scripts.ts`).
+ */
 export function modScriptDirectory(appPath: string): string | null {
   const candidates = [
     path.resolve(appPath, "../../workbench/mod/dr1_data_us/Dr1/data/us/script"),
@@ -41,6 +46,37 @@ export function modScriptDirectory(appPath: string): string | null {
   ];
   // The mod folder may not exist yet; pick the candidate whose workbench does
   return candidates.find((candidate) => fs.existsSync(path.resolve(candidate, "../../../../../.."))) ?? null;
+}
+
+const FLAT_NAME = /^(e\d{2}_\d{3}_\d{3})(?:[^\d].*)?$/;
+const NESTED_PATH = /^chapter_(\d{2})\/scene_(\d{3})\/(\d{3})(?:[^\d].*)?$/;
+
+/** Flat game name (`e01_005_103`) for a `.linscript` at `relativePath` inside a mod script dir, or null. */
+export function flatScriptName(relativePath: string): string | null {
+  const posix = relativePath.split(path.sep).join("/");
+  if (!posix.endsWith(".linscript")) {
+    return null;
+  }
+  const stem = posix.slice(0, -".linscript".length);
+  const flat = FLAT_NAME.exec(path.basename(stem));
+  if (flat !== null) {
+    return flat[1];
+  }
+  const match = NESTED_PATH.exec(stem);
+  return match ? `e${match[1]}_${match[2]}_${match[3]}` : null;
+}
+
+/** Absolute path of the mod file that flattens to `flatName`, if one exists in either layout. */
+async function findModScript(modDirectory: string, flatName: string): Promise<string | null> {
+  if (!fs.existsSync(modDirectory)) {
+    return null;
+  }
+  for (const relativePath of await listLinscriptFiles(modDirectory)) {
+    if (flatScriptName(relativePath) === flatName) {
+      return path.join(modDirectory, relativePath);
+    }
+  }
+  return null;
 }
 
 export type SaveResult = {
@@ -57,7 +93,9 @@ export type SaveResult = {
 
 /**
  * Save an edited script: write it back to the file it was opened from, and copy it into the mod
- * script directory under its own name so `pnpm build` picks it up. A read-only original (the
+ * script directory so `pnpm build` picks it up: into the existing mod file for that script when
+ * there is one (it may be organised by chapter/scene), otherwise a new flat file under the
+ * script's game name. A read-only original (the
  * decompiled workbench is generated and protected) is skipped rather than forced.
  *
  * `expected` is the source as the editor last loaded or saved it. Every file the save would
@@ -77,7 +115,8 @@ export async function saveScript(
   }
   // Decompiled files carry a byte-order mark; keep writing one so the files stay uniform
   const text = source.startsWith("﻿") ? source : `﻿${source}`;
-  const modPath = path.join(modDirectory, path.basename(filePath));
+  const flatName = flatScriptName(path.basename(filePath)) ?? path.basename(filePath, ".linscript");
+  const modPath = (await findModScript(modDirectory, flatName)) ?? path.join(modDirectory, `${flatName}.linscript`);
   const result: SaveResult = { written: [] };
 
   const targets = path.resolve(filePath) === modPath ? [modPath] : [filePath, modPath];
@@ -97,7 +136,7 @@ export async function saveScript(
     }
   }
 
-  await fs.promises.mkdir(modDirectory, { recursive: true });
+  await fs.promises.mkdir(path.dirname(modPath), { recursive: true });
   await fs.promises.writeFile(modPath, text, "utf8");
   result.written.push(modPath);
   return result;
@@ -130,14 +169,23 @@ async function isWritable(filePath: string): Promise<boolean> {
   }
 }
 
-/** Basenames of the `.linscript` files in the mod script directory: the scripts that have been modified. */
+/**
+ * Game-name basenames (`e01_005_103.linscript`) of every script with a copy in the mod script
+ * directory, whichever layout it is stored in: the scripts that have been modified.
+ */
 export async function listModifiedScripts(appPath: string): Promise<string[]> {
   const modDirectory = modScriptDirectory(appPath);
   if (modDirectory === null || !fs.existsSync(modDirectory)) {
     return [];
   }
-  const entries = await fs.promises.readdir(modDirectory, { withFileTypes: true });
-  return entries.filter((entry) => entry.isFile() && entry.name.endsWith(".linscript")).map((entry) => entry.name);
+  const names = new Set<string>();
+  for (const relativePath of await listLinscriptFiles(modDirectory)) {
+    const flatName = flatScriptName(relativePath);
+    if (flatName !== null) {
+      names.add(`${flatName}.linscript`);
+    }
+  }
+  return [...names].sort();
 }
 
 export type LoadedScript = {
@@ -154,8 +202,9 @@ export type LoadedScript = {
  */
 export async function loadScript(appPath: string, filePath: string): Promise<LoadedScript> {
   const modDirectory = modScriptDirectory(appPath);
-  const modPath = modDirectory === null ? null : path.join(modDirectory, path.basename(filePath));
-  const useMod = modPath !== null && path.resolve(filePath) !== modPath && fs.existsSync(modPath);
+  const flatName = flatScriptName(path.basename(filePath));
+  const modPath = modDirectory === null || flatName === null ? null : await findModScript(modDirectory, flatName);
+  const useMod = modPath !== null && path.resolve(filePath) !== modPath;
   const target = useMod ? modPath : filePath;
   const source = await fs.promises.readFile(target, "utf8");
   return { path: target, source, fromMod: useMod };

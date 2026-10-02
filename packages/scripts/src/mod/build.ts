@@ -2,9 +2,10 @@
 
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { readdir, stat } from "node:fs/promises";
-import { join } from "node:path";
+import { copyFile, mkdir, readdir, rm, stat } from "node:fs/promises";
+import { join, relative } from "node:path";
 import { errorMessage } from "../lib/errors.ts";
+import { collectModScripts, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
 import {
   LIN_COMPILER_CLI as LIN_COMPILER,
   PROJECT_ROOT,
@@ -17,6 +18,8 @@ import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 const GAME_DIR = getGameDirectoryOrThrow();
 const MODS_DIR = join(WORKBENCH_DIR, "mod");
 const EXTRACTED_DIR = join(WORKBENCH_DIR, "modded");
+/** Flattened copies of the authored scripts are compiled here, so no `.lin` lands in `mod/`. */
+const BUILD_DIR = join(WORKBENCH_DIR, "build");
 
 interface CompileStats {
   succeeded: number;
@@ -29,21 +32,50 @@ interface ExecError extends Error {
   stderr?: string;
 }
 
-async function compileLinscripts(modPath: string): Promise<CompileStats> {
-  console.log("  Compiling .linscript files...");
+/**
+ * Gather every authored `.linscript` (flat or `chapter_CC/scene_SSS/NNN.linscript`) into one
+ * flat staging directory under their game names. Returns the staging script dir, or null when
+ * the mod has no scripts.
+ */
+async function organiseLinscripts(modPath: string, buildPath: string): Promise<string | null> {
+  console.log("  Organising .linscript files...");
 
-  // Find all .linscript files in the mod directory
-  const scriptDir = join(modPath, "Dr1", "data", "us", "script");
-
-  if (!existsSync(scriptDir)) {
+  const modScriptDir = join(modPath, ...SCRIPT_DIR_SEGMENTS);
+  if (!existsSync(modScriptDir)) {
     console.log("  No script directory found, skipping linscript compilation");
-    return { succeeded: 0, failed: 0 };
+    return null;
   }
+
+  const scripts = await collectModScripts(modScriptDir);
+  if (scripts.size === 0) {
+    console.log("  No .linscript files found, skipping linscript compilation");
+    return null;
+  }
+
+  const stagingDir = join(buildPath, ...SCRIPT_DIR_SEGMENTS);
+  await rm(buildPath, { recursive: true, force: true });
+  await mkdir(stagingDir, { recursive: true });
+
+  for (const script of scripts.values()) {
+    const source = relative(modScriptDir, script.path);
+    const target = `${script.name}.linscript`;
+    if (source !== target) {
+      console.log(`    ${source} -> ${target}`);
+    }
+    await copyFile(script.path, join(stagingDir, target));
+  }
+
+  console.log(`  ✓ Organised ${scripts.size} .linscript file(s)`);
+  return stagingDir;
+}
+
+async function compileLinscripts(stagingDir: string): Promise<CompileStats> {
+  console.log("  Compiling .linscript files...");
 
   try {
     // Use lin-compiler in batch mode to compile the directory
     // Note: compiler outputs errors to stderr and summary to stdout
-    const result = execSync(`node "${LIN_COMPILER}" -s "${scriptDir}" 2>&1`, {
+    const result = execSync(`node "${LIN_COMPILER}" -s "${stagingDir}" 2>&1`, {
       cwd: PROJECT_ROOT,
       encoding: "utf-8",
     });
@@ -71,20 +103,14 @@ async function compileLinscripts(modPath: string): Promise<CompileStats> {
   }
 }
 
-async function moveCompiledLins(modPath: string, extractedPath: string): Promise<void> {
+async function moveCompiledLins(stagingDir: string, extractedPath: string): Promise<void> {
   console.log("  Moving compiled .lin files to modded directory...");
 
-  const modScriptDir = join(modPath, "Dr1", "data", "us", "script");
-  const extractedScriptDir = join(extractedPath, "Dr1", "data", "us", "script");
-
-  if (!existsSync(modScriptDir)) {
-    console.log("  No script directory found, skipping");
-    return;
-  }
+  const extractedScriptDir = join(extractedPath, ...SCRIPT_DIR_SEGMENTS);
 
   try {
-    // Move all .lin files from mod/ to modded/, overwriting existing ones
-    execSync(`find "${modScriptDir}" -name "*.lin" -exec mv {} "${extractedScriptDir}"/ \\;`, {
+    // Move all .lin files from the staging dir to modded/, overwriting existing ones
+    execSync(`find "${stagingDir}" -name "*.lin" -exec mv {} "${extractedScriptDir}"/ \\;`, {
       stdio: "pipe",
       cwd: PROJECT_ROOT,
     });
@@ -141,14 +167,19 @@ async function buildMods(): Promise<void> {
     }
 
     try {
-      // Step 1: Compile .linscript files to .lin in mod directory
-      const compileStats = await compileLinscripts(modPath);
-      totalLinscriptsCompiled += compileStats.succeeded;
+      // Step 1: Flatten the authored .linscript files into the staging directory
+      const stagingDir = await organiseLinscripts(modPath, join(BUILD_DIR, modDir));
 
-      // Step 2: Move compiled .lin files to modded directory
-      await moveCompiledLins(modPath, extractedPath);
+      if (stagingDir !== null) {
+        // Step 2: Compile .linscript files to .lin in the staging directory
+        const compileStats = await compileLinscripts(stagingDir);
+        totalLinscriptsCompiled += compileStats.succeeded;
 
-      // Step 3: Use wad-archiver to pack the modded directory
+        // Step 3: Move compiled .lin files to modded directory
+        await moveCompiledLins(stagingDir, extractedPath);
+      }
+
+      // Step 4: Use wad-archiver to pack the modded directory
       execSync(`node "${WAD_ARCHIVER}" create "${extractedPath}" "${outputPath}"`, {
         stdio: "inherit",
         cwd: PROJECT_ROOT,
@@ -156,7 +187,8 @@ async function buildMods(): Promise<void> {
 
       console.log(`✓ Successfully built ${wadName} to game directory`);
       successCount++;
-    } catch {
+    } catch (error) {
+      console.error(`  ${errorMessage(error)}`);
       console.error(`✗ Failed to build ${wadName}`);
       errorCount++;
     }

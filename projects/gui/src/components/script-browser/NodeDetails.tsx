@@ -1,4 +1,4 @@
-import { type FlowNode, isBlank } from "../../script/controlFlow";
+import { type FlowNode, isBlank, type LabelRef } from "../../script/controlFlow";
 import { kindStyles } from "./kindStyles";
 import type { LineEditing } from "./LineEditing";
 import { VirtualActionList } from "./VirtualActionList";
@@ -6,11 +6,11 @@ import { VirtualActionList } from "./VirtualActionList";
 type NodeDetailsProps = {
   node: FlowNode;
   lineIds: readonly number[];
-  labelOwners: Map<number, string>;
+  labelOwners: Map<LabelRef, string>;
   editing: LineEditing;
   editingLine: number | null;
   onSelect: (id: string) => void;
-  onJump: (label: number) => void;
+  onJump: (label: LabelRef) => void;
 };
 
 /** One control-flow node: its header plus its lines and nested nodes in source order. */

@@ -7,7 +7,9 @@ import { getOpcode } from "./lookup.ts";
  * `[TextStyle] RawText WaitFrame* TextStyle* WaitInput`:
  *
  * - the text implicitly ends with a newline: `Text("hi")` is the bytes `hi\n`, with the newline
- *   placed before any closing `<CLT>` tags so `<thought>hi</thought>` is `<CLT 4>hi\n<CLT>`
+ *   placed before any closing `<CLT>` tags so `<thought>hi</thought>` is `<CLT 4>hi\n<CLT>`.
+ *   A few shipped lines omit that newline or a WaitFrame; they still decompile to `Text`, so
+ *   recompiling them normalises the bytes
  * - each `\n` in the text expands to a `WaitFrame`
  * - `<CLT N>` and `<CLT>` colour tags expand to `TextStyle(N)` / `TextStyle(0)`; when the text
  *   opens with a tag that style is also emitted before the RawText itself, as the game does
@@ -18,8 +20,8 @@ import { getOpcode } from "./lookup.ts";
  * This file owns both directions: `expandText` expands the sugar when compiling and
  * `planTextSugar` recognises collapsible groups when decompiling. The sugar is not a binary
  * opcode; the linscript reader and writer handle the name themselves. A text entry that the sugar
- * cannot express (no trailing newline, no closing WaitInput, WaitFrames that do not match the
- * newlines, or a trailing instruction the sugar refuses to absorb) is written as `RawText(...)`.
+ * cannot express (no closing WaitInput, a WaitFrame after a trailing instruction, or a trailing
+ * instruction the sugar refuses to absorb) is written as `RawText(...)`.
  */
 
 /** Matches `<CLT N>` opening tags, `<CLT>` closing tags, and literal newlines. */
@@ -50,7 +52,7 @@ const NOT_TRAILING: ReadonlySet<number> = new Set<number>([
   Opcode.LoadScript,
   Opcode.StopScript,
   Opcode.RunScript,
-  Opcode.RestartScript,
+  Opcode.Return,
   Opcode.If,
   Opcode.IfFlag,
   Opcode.IfFreeTimeEvent,
@@ -69,7 +71,11 @@ export function isTrailingEntry(entry: ScriptEntry): boolean {
  * they are placed after the text's own WaitFrame/TextStyle entries and before the WaitInput.
  */
 export function expandText(source: string, trailing: readonly ScriptEntry[] = []): ScriptEntry[] {
-  const text = addImplicitNewline(source);
+  return expandRawText(addImplicitNewline(source), trailing);
+}
+
+/** The entries for the exact bytes `text`, with no implicit newline added. */
+function expandRawText(text: string, trailing: readonly ScriptEntry[] = []): ScriptEntry[] {
   const entries: ScriptEntry[] = [];
   const tokens = [...text.matchAll(CLT_OR_NEWLINE)];
   const first = tokens[0];
@@ -105,14 +111,15 @@ function addImplicitNewline(source: string): string {
 }
 
 /**
- * The source form of a sugared text entry's raw text: the implicit trailing newline removed.
- * Returns undefined when the text has no such newline, or when re-adding it would not reproduce
- * the same bytes (e.g. `a<CLT>\n<CLT>`), so the entry cannot be written as `Text(...)`.
+ * The source form of a text entry's raw text: the implicit trailing newline removed when present.
+ * Text with no trailing newline at all is its own source form (compiling it adds the newline).
+ * Returns undefined when the text ends in a newline that re-adding would not reproduce (e.g.
+ * `a<CLT>\n<CLT>`), so the entry cannot be written as `Text(...)`.
  */
-export function stripImplicitNewline(text: string): string | undefined {
+export function textSourceForm(text: string): string | undefined {
   const match = IMPLICIT_NEWLINE.exec(text);
   if (match === null) {
-    return undefined;
+    return text;
   }
   const stripped = match[1] + match[2];
   return addImplicitNewline(stripped) === text.replace(/\0*$/, "") ? stripped : undefined;
@@ -132,9 +139,12 @@ interface TextSugarPlan {
 }
 
 /**
- * Find text entries that can be collapsed into the sugar: a RawText ending in the implicit newline,
- * followed by exactly the WaitFrame and TextStyle entries `expandText` would produce for it, then
- * any run of trailing instructions (see `isTrailingEntry`), then WaitInput.
+ * Find text entries that can be collapsed into the sugar: a RawText (with or without the implicit
+ * newline), its leading TextStyle if its bytes expand to one, then a run of WaitFrame and TextStyle
+ * entries whose TextStyles are exactly those the bytes expand to, then any run of trailing
+ * instructions (see `isTrailingEntry`), then WaitInput. The number of WaitFrames in the run is not
+ * checked: a few shipped lines have one fewer than their newlines, and recompiling `Text` emits one
+ * per newline, so those lines normalise rather than staying raw.
  */
 export function planTextSugar(entries: readonly ScriptEntry[]): TextSugarPlan {
   const plan: TextSugarPlan = { sugared: new Set(), skipped: new Set(), trailing: new Map() };
@@ -144,22 +154,41 @@ export function planTextSugar(entries: readonly ScriptEntry[]): TextSugarPlan {
     if (entry.opcode !== Opcode.RawText || !("text" in entry)) {
       continue;
     }
-    const stripped = stripImplicitNewline(normalizeText(entry.text));
-    if (stripped === undefined) {
+    const text = normalizeText(entry.text);
+    if (textSourceForm(text) === undefined) {
       continue;
     }
 
-    // What compiling `Text(stripped)` would emit, minus its WaitInput; the group must match it exactly
-    const expected = expandText(stripped).slice(0, -1);
+    // What these exact bytes expand to, minus the WaitInput
+    const expected = expandRawText(text).slice(0, -1);
     const leading = expected.findIndex((e) => e.opcode === Opcode.RawText);
     const start = i - leading;
-    if (start < 0 || !expected.every((e, offset) => sameEntry(entries[start + offset], e))) {
+    if (start < 0 || !expected.slice(0, leading).every((e, offset) => sameEntry(entries[start + offset], e))) {
+      continue;
+    }
+
+    // The TextStyles after the text must match in order; WaitFrames may be interleaved freely
+    const expectedStyles = expected.slice(leading + 1).filter((e) => e.opcode === Opcode.TextStyle);
+    let next = i + 1;
+    let styles = 0;
+    while (next < entries.length) {
+      const candidate = entries[next];
+      if (candidate.opcode === Opcode.WaitFrame) {
+        next++;
+      } else if (candidate.opcode === Opcode.TextStyle && styles < expectedStyles.length && sameEntry(candidate, expectedStyles[styles])) {
+        styles++;
+        next++;
+      } else {
+        break;
+      }
+    }
+    if (styles !== expectedStyles.length) {
       continue;
     }
 
     const trailing: number[] = [];
     let waitInput: number | undefined;
-    for (let j = start + expected.length; j < entries.length; j++) {
+    for (let j = next; j < entries.length; j++) {
       if (entries[j].opcode === Opcode.WaitInput) {
         waitInput = j;
         break;

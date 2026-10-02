@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { describeScript, roomName } from "../../data/room";
-import { buildControlFlow, parseScriptLines } from "../../script/controlFlow";
+import { buildControlFlow, type LabelRef, parseScriptLines } from "../../script/controlFlow";
 import {
   createDocument,
   insertDocumentBlankLine,
@@ -108,7 +108,7 @@ export function ScriptEditor({
     });
   }, []);
 
-  const jumpToLabel = useCallback((label: number) => {
+  const jumpToLabel = useCallback((label: LabelRef) => {
     const ownerId = flowRef.current.labelOwners.get(label);
     if (ownerId) {
       setViewAll(false);

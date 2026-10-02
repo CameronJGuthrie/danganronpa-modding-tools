@@ -1,10 +1,10 @@
 import {
   Arithmetic,
   arithmaticConfiguraiton,
-  Character,
   isArithmetic,
-  isCharacter,
+  isStudent,
   LinscriptInstructionName,
+  Student,
 } from "linscript-definitions";
 import { characterData } from "../data/character-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
@@ -15,29 +15,26 @@ export const studentRelationshipMeta: LinscriptInstructionMeta = {
   description: "Sets, adds to or subtracts from the player's relationship value with a student.",
   parameters: [
     {
-      name: "characterId",
-      values: Character,
+      name: "student",
+      description: "The student whose relationship value changes; only ids 0-15 have a report card",
+      names: Student,
     },
     {
       name: "operation",
-      values: Arithmetic,
-    },
-    {
-      unknown: true,
-      description: "Always zero, possibly this combines with amount to form a two byte value",
+      names: Arithmetic,
     },
     {
       name: "amount",
-      description: "The value to set, add, or remove from the student relationship",
+      description: "The two-byte value to set, add, or remove from the student relationship",
     },
   ] as const,
-  decorations([character, op, _3, amount]) {
-    if (!isCharacter(character)) {
-      return `Unknown character: ${character}`;
+  decorations([student, op, amount]) {
+    if (!isStudent(student)) {
+      return `Unknown student: ${student} (valid ids are 0-15)`;
     }
     if (!isArithmetic(op)) {
       return `Unknown arithmetic: ${op}`;
     }
-    return `${characterData[character].name} relationship ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${amount}`;
+    return `${characterData[student].name} relationship ${arithmaticConfiguraiton[op].name.toLocaleLowerCase()} ${amount}`;
   },
 };

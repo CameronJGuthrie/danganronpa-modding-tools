@@ -1,10 +1,15 @@
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
-import { characterNamesFromDocument, objectNamesFromDocument, optionNamesFromDocument } from "./script-meta";
+import {
+  characterNamesFromDocument,
+  labelNamesFromDocument,
+  objectNamesFromDocument,
+  optionNamesFromDocument,
+} from "./script-meta";
 import { getArgumentsFromFunctionLike } from "./string-util";
 
 /**
  * Name tables per argument position, expanding a varargs head/tail pattern to the actual count.
- * Parameters scoped to the document (object, character and option ids) take their table from its `Meta()` block.
+ * Parameters scoped to the document (object, character, option and label ids) take their table from its `Meta()` block.
  */
 export function argumentNames(functionDetails: LinscriptInstructionMeta, call: string, documentText: string) {
   const { varargNames } = functionDetails;
@@ -16,7 +21,9 @@ export function argumentNames(functionDetails: LinscriptInstructionMeta, call: s
           ? characterNamesFromDocument(documentText)
           : parameter.scope === "Option"
             ? optionNamesFromDocument(documentText)
-            : (parameter.namesBy ?? parameter.names),
+            : parameter.scope === "Label"
+              ? labelNamesFromDocument(documentText)
+              : (parameter.namesBy ?? parameter.names),
     );
   }
   const count = getArgumentsFromFunctionLike(call).length;

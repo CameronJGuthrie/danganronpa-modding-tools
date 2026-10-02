@@ -12,6 +12,7 @@ import {
   getColorTextRegex,
   getTextFunctionRegex,
   isInsideQuotes,
+  stripBranchJump,
 } from "../util/string-util";
 import {
   getDecorationAlignmentColumn,
@@ -84,9 +85,10 @@ export function registerDecoration() {
 
     Object.values(metadata).forEach((functionDetails) => {
       const required = requiredParameterCount(functionDetails);
+      const branch = functionDetails.branch === true;
       const completeFunctionRegex = functionDetails.varargs
-        ? createVarargsRegex(functionDetails.name)
-        : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length, required);
+        ? createVarargsRegex(functionDetails.name, branch)
+        : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length, required, branch);
 
       const opcodeFunctionRegex = functionDetails.varargs
         ? createVarargsRegex(functionDetails.hexcode)
@@ -261,7 +263,9 @@ function enrichParameters(
       continue;
     }
 
-    const args = getArgumentsFromFunctionLike(match[0], argumentNames(functionDetails, match[0], documentText));
+    // A condition's trailing Goto(label) is decorated as its own Goto call, not as one of these arguments
+    const callText = functionDetails.branch ? stripBranchJump(match[0]) : match[0];
+    const args = getArgumentsFromFunctionLike(callText, argumentNames(functionDetails, callText, documentText));
     // Omitted optional arguments take their defaults so decorations see the compiled values
     const argValues = functionDetails.varargs
       ? args.map((arg) => arg.value)
@@ -289,7 +293,7 @@ function enrichParameters(
       args.forEach(({ stringIndex }, argIndex) => {
         const param = functionDetails.parameters[argIndex];
         // A Meta() name such as OnObject(Monitor) or OnCharacter(Taka) already says what the id is
-        if (param.scope && !isWrittenAsNumber(match[0], stringIndex)) {
+        if (param.scope && !isWrittenAsNumber(callText, stringIndex)) {
           return;
         }
         const rangePos = document.positionAt(matchIndex + stringIndex);

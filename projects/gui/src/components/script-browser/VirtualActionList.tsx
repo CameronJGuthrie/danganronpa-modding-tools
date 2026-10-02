@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useMemo, useRef } from "react";
-import type { FlowItem } from "../../script/controlFlow";
+import type { FlowItem, LabelRef } from "../../script/controlFlow";
 import { ActionRow, canJumpFrom } from "./ActionRow";
 import { InsertLineRow } from "./InsertLineButton";
 import type { LineEditing } from "./LineEditing";
@@ -8,7 +8,7 @@ import type { LineEditing } from "./LineEditing";
 type VirtualActionListProps = {
   items: readonly FlowItem[];
   lineIds: readonly number[];
-  labelOwners: Map<number, string>;
+  labelOwners: Map<LabelRef, string>;
   editing: LineEditing;
   editingLine: number | null;
   /** A line to scroll into view and mark, e.g. a search hit; a new object re-triggers the scroll. */
@@ -18,7 +18,7 @@ type VirtualActionListProps = {
   /** Whether line rows are indented by their block depth (the all-lines view). */
   indentByDepth?: boolean;
   onSelect: (id: string) => void;
-  onJump: (label: number) => void;
+  onJump: (label: LabelRef) => void;
 };
 
 /**

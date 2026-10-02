@@ -42,6 +42,7 @@ export const editableArguments: Readonly<Record<string, EditableArguments>> = {
   Speaker: { head: [Character] },
   // Only the sixteen students (ids 0-15) have a report card, so the wider Character table is not offered
   StudentTitleEntry: { head: [Student, Arithmetic, undefined] },
+  StudentRelationship: { head: [Student, Arithmetic, undefined] },
   // Only the characters that have bust-up sprites
   Sprite: { head: [undefined, CharacterSprite, undefined, SpriteTransition, SpritePosition] },
   LoadSprite: { head: [undefined, SpriteSheet] },
@@ -58,8 +59,8 @@ export const editableArguments: Readonly<Record<string, EditableArguments>> = {
     head: [Variable, comparisonOperators, undefined],
     tail: [LogicalJoin, Variable, comparisonOperators, undefined],
   },
-  IfFreeTimeEvent: { head: [undefined, comparisonOperators, undefined] },
-  IfRelationship: { head: [undefined, comparisonOperators, undefined] },
+  IfFreeTimeEvent: { head: [Student, comparisonOperators, undefined] },
+  IfRelationship: { head: [Student, comparisonOperators, undefined] },
 };
 
 export function isDependent(source: ArgumentSource): source is DependentValues {
@@ -77,6 +78,10 @@ export function sourceAt(spec: EditableArguments, index: number): ArgumentSource
 
 /** The concrete name table for argument `index`, following one level of dependency. */
 export function tableAt(spec: EditableArguments, args: readonly string[], index: number): NamedValues | undefined {
+  // A nested call, the Goto(label) ending a condition, is not a named value
+  if (/^\w+\s*\(.*\)$/.test(args[index] ?? "")) {
+    return undefined;
+  }
   const source = sourceAt(spec, index);
   if (!isDependent(source)) {
     return source;

@@ -11,6 +11,7 @@ import { ifFreeTimeEventMeta } from "./if-free-time-event-meta";
 import { ifMeta } from "./if-meta";
 import { ifRelationshipMeta } from "./if-relationship-meta";
 import { labelMeta } from "./label-meta";
+import { labelNameMeta } from "./label-name-meta";
 import { loadMapMeta } from "./load-map-meta";
 import { loadScriptMeta } from "./load-script-meta";
 import { loadSpriteMeta } from "./load-sprite-meta";
@@ -25,7 +26,7 @@ import { optionMeta } from "./option-meta";
 import { postProcessingEffectMeta } from "./post-processing-effect-meta";
 import { rawTextMeta } from "./raw-text-meta";
 import { receivePresentMeta } from "./receive-present-meta";
-import { restartScriptMeta } from "./restart-script-meta";
+import { returnMeta } from "./return-meta";
 import { runScriptMeta } from "./run-script-meta";
 import { screenFadeMeta } from "./screen-fade-meta";
 import { screenFlashMeta } from "./screen-flash-meta";
@@ -45,7 +46,6 @@ import { studentReportInfoMeta } from "./student-report-info-meta";
 import { studentTitleEntryMeta } from "./student-title-entry-meta";
 import { textMeta } from "./text-meta";
 import { textStyleMeta } from "./text-style-meta";
-import { thenMeta } from "./then-meta";
 import { trialCameraMeta } from "./trial-camera-meta";
 import { truthBulletFlagMeta } from "./truth-bullet-flag-meta";
 import { unlockSkillMeta } from "./unlock-still-meta";
@@ -66,6 +66,7 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.IfFreeTimeEvent]: ifFreeTimeEventMeta,
   [LinscriptInstructionName.IfRelationship]: ifRelationshipMeta,
   [LinscriptInstructionName.Label]: labelMeta,
+  [LinscriptInstructionName.LabelName]: labelNameMeta,
   [LinscriptInstructionName.LoadMap]: loadMapMeta,
   [LinscriptInstructionName.LoadScript]: loadScriptMeta,
   [LinscriptInstructionName.LoadSprite]: loadSpriteMeta,
@@ -80,7 +81,7 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.PostProcessingEffect]: postProcessingEffectMeta,
   [LinscriptInstructionName.RawText]: rawTextMeta,
   [LinscriptInstructionName.ReceivePresent]: receivePresentMeta,
-  [LinscriptInstructionName.RestartScript]: restartScriptMeta,
+  [LinscriptInstructionName.Return]: returnMeta,
   [LinscriptInstructionName.RunScript]: runScriptMeta,
   [LinscriptInstructionName.ScreenFade]: screenFadeMeta,
   [LinscriptInstructionName.ScreenFlash]: screenFlashMeta,
@@ -100,7 +101,6 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.StudentTitleEntry]: studentTitleEntryMeta,
   [LinscriptInstructionName.Text]: textMeta,
   [LinscriptInstructionName.TextStyle]: textStyleMeta,
-  [LinscriptInstructionName.Then]: thenMeta,
   [LinscriptInstructionName.TrialCamera]: trialCameraMeta,
   [LinscriptInstructionName.TruthBulletFlag]: truthBulletFlagMeta,
   [LinscriptInstructionName.UnlockSkill]: unlockSkillMeta,

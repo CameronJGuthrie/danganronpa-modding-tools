@@ -9,6 +9,7 @@ export const metaMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Meta,
   hexcode: "",
   annotation: true,
-  description: "Opens the block of per-script annotations (Object names) at the bottom of the file.",
+  description:
+    "Opens the block of per-script annotations (Object, Character, Option and LabelName entries) at the bottom of the file.",
   parameters: [] as const,
 };

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { type FlowItem, isBlank, type ScriptLine } from "../../script/controlFlow";
+import { type FlowItem, isBlank, type LabelRef, type ScriptLine } from "../../script/controlFlow";
 import { kindStyles } from "./kindStyles";
 import type { LineEditing } from "./LineEditing";
 import { VirtualActionList } from "./VirtualActionList";
@@ -8,12 +8,12 @@ type AllLinesProps = {
   title: string;
   lines: readonly ScriptLine[];
   lineIds: readonly number[];
-  labelOwners: Map<number, string>;
+  labelOwners: Map<LabelRef, string>;
   editing: LineEditing;
   editingLine: number | null;
   reveal?: { line: number } | null;
   onSelect: (id: string) => void;
-  onJump: (label: number) => void;
+  onJump: (label: LabelRef) => void;
 };
 
 /** Every line of the script in source order, indented by its block depth. */

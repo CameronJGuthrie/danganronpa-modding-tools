@@ -1,5 +1,5 @@
 import { type MouseEvent, memo } from "react";
-import { type FlowItem, firstNumber, type ScriptLine } from "../../script/controlFlow";
+import { type FlowItem, isCondition, jumpTarget, type LabelRef, type ScriptLine } from "../../script/controlFlow";
 import { lineComment } from "../../script/lineComment";
 import { ArgumentEditor } from "./ArgumentEditor";
 import { editableArguments } from "./editableArguments";
@@ -8,12 +8,9 @@ import { kindStyles } from "./kindStyles";
 import type { LineEditing } from "./LineEditing";
 import { LineTextField } from "./LineTextField";
 
-/** True when a Goto line targets a label that exists in this script. */
-export function canJumpFrom(line: ScriptLine, labelOwners: Map<number, string>): boolean {
-  if (line.functionName !== "Goto") {
-    return false;
-  }
-  const target = firstNumber(line);
+/** True when a Goto line, or a condition's Goto(label) branch, targets a label that exists in this script. */
+export function canJumpFrom(line: ScriptLine, labelOwners: Map<LabelRef, string>): boolean {
+  const target = jumpTarget(line);
   return target !== undefined && labelOwners.has(target);
 }
 
@@ -22,11 +19,11 @@ type ActionRowProps = {
   /** Extra indentation levels, used by the all-lines view to reproduce the source layout. */
   indent?: number;
   isEditing: boolean;
-  /** For Goto lines: whether the target label exists in this script. */
+  /** For Goto lines and conditions: whether the target label exists in this script. */
   canJump: boolean;
   editing: LineEditing;
   onSelect: (id: string) => void;
-  onJump: (label: number) => void;
+  onJump: (label: LabelRef) => void;
 };
 
 /** Width of the gutter left of the line numbers that holds the insert-line buttons. */
@@ -98,8 +95,8 @@ function ActionRowInner({ item, indent = 0, isEditing, canJump, editing, onSelec
   const comment = lineComment(line);
   const isLabel = line.functionName === "Label";
   const isGoto = line.functionName === "Goto";
-  const isBranch = line.functionName === "Then" || line.functionName === "IfFlag";
-  const target = isGoto ? firstNumber(line) : undefined;
+  const isBranch = isCondition(line);
+  const target = jumpTarget(line);
 
   let rowClass = "hover:bg-slate-50 dark:hover:bg-slate-700";
   if (isLabel) {
@@ -138,7 +135,7 @@ function ActionRowInner({ item, indent = 0, isEditing, canJump, editing, onSelec
       {comment !== undefined && (
         <span className="shrink-0 pl-2 text-slate-400 dark:text-slate-500 italic"># {comment}</span>
       )}
-      {isGoto && (
+      {(isGoto || isBranch) && (
         <button
           type="button"
           className="ml-auto shrink-0 rounded bg-sky-200 dark:bg-sky-800 px-1.5 text-xs disabled:opacity-40"

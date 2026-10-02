@@ -10,6 +10,7 @@ export enum Variable {
   Variable_11 = 11, // →    17 occurrences (0.2%)
   Variable_12 = 12, // →    40 occurrences (0.5%)
   Variable_13 = 13, // →   190 occurrences (2.4%)
+  Random = 14, // →   352 occurrences; a percentage roll 0–99: only compared against 25/33/50/66, only ever assigned 0 (reroll)
   GameMode = 15, // →   113 occurrences (1.4%)
   Variable_16 = 16, // →     2 occurrences (0.0%)
   Regulations = 17, // →    40 occurrences (0.5%)
@@ -44,6 +45,7 @@ export const variables: Readonly<Record<Variable, string>> = {
   [Variable.Variable_11]: "",
   [Variable.Variable_12]: "",
   [Variable.Variable_13]: "",
+  [Variable.Random]: "Random",
   [Variable.GameMode]: "GameMode",
   [Variable.Variable_16]: "",
   [Variable.Regulations]: "Regulations",

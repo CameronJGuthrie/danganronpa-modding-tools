@@ -3,6 +3,7 @@ import type { ScopeTables } from "../definitions/parameter.definition.ts";
 import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { SourceError } from "../errors.ts";
 import { parseEntry, parseTextArgument } from "../opcodes/arguments.ts";
+import { expandBranch, isCondition } from "../opcodes/branch.ts";
 import { getOpcodeByName } from "../opcodes/lookup.ts";
 import { META, parseMeta, type SourceLine, scopeTables } from "../opcodes/meta.ts";
 import { expandOption, OPTION } from "../opcodes/option.ts";
@@ -119,6 +120,9 @@ function parseOpcodeLine(name: string, argsText: string, line: number, scopes: S
   if (opcode !== undefined) {
     if (opcode.hidden) {
       throw new SourceError(line, `'${name}' is not a source instruction; use its sugar instead`);
+    }
+    if (isCondition(opcode)) {
+      return expandBranch(opcode, argsText, line, scopes);
     }
     return [parseEntry(opcode, argsText, line, scopes)];
   }

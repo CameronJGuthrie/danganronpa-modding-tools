@@ -30,6 +30,11 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
   [Variable.Variable_11]: undefined, // Some kind of timer used during the class trial's bad ending.
   [Variable.Variable_12]: undefined,
   [Variable.Variable_13]: undefined, // Something to do with the class trial
+  // A random percentage, 0-99. `If(Random, >=, 50)` is a coin flip, `> 33` / `> 66` a three-way split;
+  // `SetVariable(Random, Assign, 0)` before the test appears to reroll it. Only used in free time, gift and School Mode scripts.
+  [Variable.Random]: {
+    formatter: (val) => `${val}%`,
+  },
   [Variable.GameMode]: {
     16: "Transition",
     17: "Exploration", // during chapter init

@@ -7,6 +7,20 @@ import { textStyleForTag } from "linscript-definitions";
  */
 const ARGUMENT = "(?:\\d+|[A-Za-z_]\\w*|[<>!=]=?)";
 
+/** The jump a condition carries as its last argument: `, Goto(label)`. */
+const BRANCH_JUMP = `\\s*,\\s*Goto\\s*\\(\\s*${ARGUMENT}\\s*\\)`;
+
+/** Matches the trailing `, Goto(label)` of a condition call so the condition's own arguments can be read. */
+const BRANCH_JUMP_AT_END = new RegExp(`${BRANCH_JUMP}\\s*\\)\\s*$`);
+
+/**
+ * A condition call without its trailing `Goto(label)`, e.g. `IfRelationship(Sayaka, >, 0, Goto(5))`
+ * becomes `IfRelationship(Sayaka, >, 0)`. Other text is returned unchanged.
+ */
+export function stripBranchJump(callText: string): string {
+  return callText.replace(BRANCH_JUMP_AT_END, ")");
+}
+
 /** A numeric enum object (or similar table) mapping argument names to their values. */
 export type ArgumentNames = Readonly<Record<string, string | number>>;
 
@@ -39,14 +53,20 @@ export function createIncompleteFunctionRegex(functionName: string, numArgs: num
  * Match a complete call with between `requiredArgs` and `numArgs` arguments (all `numArgs` are
  * required unless told otherwise), e.g. `Voice(a, b, c)` or `Voice(a, b, c, d)`.
  */
-export function createCompleteFunctionRegex(functionName: string, numArgs: number, requiredArgs = numArgs): RegExp {
+export function createCompleteFunctionRegex(
+  functionName: string,
+  numArgs: number,
+  requiredArgs = numArgs,
+  branch = false,
+): RegExp {
   // Create the regex pattern based on the function name and the number of arguments
   const required = Array(requiredArgs).fill(`\\s*${ARGUMENT}\\s*`).join(",\\s*");
   // Each optional argument is a further ", value" group that may be absent (none is ever the first argument)
   const optional = Array(numArgs - requiredArgs)
     .fill(`(?:,\\s*${ARGUMENT}\\s*)?`)
     .join("");
-  const argsPattern = `${required}${optional}`;
+  // A condition ends with its jump, `Goto(label)`
+  const argsPattern = `${required}${optional}${branch ? BRANCH_JUMP : ""}`;
 
   // Use negative lookbehind to ensure we're not inside quotes
   // (?<![^"]*") means: not preceded by an odd number of quotes (i.e., not inside a string)
@@ -57,10 +77,13 @@ export function createCompleteFunctionRegex(functionName: string, numArgs: numbe
   return regexPattern;
 }
 
-export function createVarargsRegex(functionName: string): RegExp {
+export function createVarargsRegex(functionName: string, branch = false): RegExp {
   // Match function name followed by parentheses with any number of comma-separated arguments
-  // Pattern: FunctionName( arg [, arg]* )
-  const regexPattern = new RegExp(`${functionName}\\s*\\(\\s*${ARGUMENT}(?:\\s*,\\s*${ARGUMENT})*\\s*\\)`, "g");
+  // Pattern: FunctionName( arg [, arg]* ) — a condition ends with its jump, Goto(label)
+  const regexPattern = new RegExp(
+    `${functionName}\\s*\\(\\s*${ARGUMENT}(?:\\s*,\\s*${ARGUMENT})*${branch ? BRANCH_JUMP : ""}\\s*\\)`,
+    "g",
+  );
 
   return regexPattern;
 }
