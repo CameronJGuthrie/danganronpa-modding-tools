@@ -22,6 +22,6 @@ touch /path/to/your/working/directory/.danganronpa-working-root
 ### LINSCRIPT Features
 
 - **Syntax highlighting** works everywhere regardless of the marker file
-- **Navigate to labels** quickly by `ctrl+click`ing on the Label opcode.
-- **Way too much text decoration** on the right of each opcode at a fixed offset.
-- **Interactive Sound/Music/Voice player** to the left of the line number column there is a green play button for Sound, Voice, Music opcodes. Click it to hear the sound in the game.
+- **Navigate to labels** quickly by `ctrl+click`ing on a Label instruction.
+- **Way too much text decoration** on the right of each instruction at a fixed offset.
+- **Interactive Sound/Music/Voice player** to the left of the line number column there is a green play button for Sound, Voice, Music instructions. Click it to hear the sound in the game.

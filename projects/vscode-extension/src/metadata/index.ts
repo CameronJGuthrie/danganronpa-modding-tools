@@ -54,7 +54,7 @@ import { waitFrameMeta } from "./wait-frame-meta";
 import { waitInputMeta } from "./wait-input-meta";
 import { waitMeta } from "./wait-meta";
 
-/** Opcode metadata keyed by opcode name, so lookups are type-checked against the enum. */
+/** Instruction metadata keyed by instruction name, so lookups are type-checked against the enum. */
 export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<LinscriptInstructionMeta>>> = {
   [LinscriptInstructionName.Animation]: animationMeta,
   [LinscriptInstructionName.CameraFlash]: cameraFlashMeta,

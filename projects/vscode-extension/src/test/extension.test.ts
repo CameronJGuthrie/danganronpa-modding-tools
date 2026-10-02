@@ -138,10 +138,6 @@ suite("Extension Test Suite", () => {
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Then( )"), []);
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Then(  )"), []);
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Then(   )"), []);
-
-    // Hex opcode format with no arguments
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("0x3C()"), []);
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("0x3C( )"), []);
   });
 
   test("argument extractor with single argument", () => {

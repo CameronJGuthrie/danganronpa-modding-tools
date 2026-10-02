@@ -14,7 +14,7 @@ type MusicInfo = {
 
 export function registerMusicTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<MusicInfo> = {
-    opcode: musicMeta,
+    instruction: musicMeta,
     // Music(255, ...) is the engine's "stop music" instruction.
     isStopRequest: (info) => info.musicId === 255,
 

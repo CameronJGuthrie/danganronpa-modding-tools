@@ -12,7 +12,7 @@ type TmLanguage = {
   patterns: TmLanguagePattern[];
 };
 
-const opcodeNames = Object.values(LinscriptInstructionName);
+const instructionNames = Object.values(LinscriptInstructionName);
 
 const tmLanguage: TmLanguage = {
   scopeName: "source.linscript",
@@ -26,11 +26,11 @@ const tmLanguage: TmLanguage = {
       name: "string.quoted.double.linscript",
     },
     {
-      match: `\\b(${opcodeNames.join("|")})\\b`,
+      match: `\\b(${instructionNames.join("|")})\\b`,
       name: "entity.name.function.linscript",
     },
     {
-      // Named arguments such as Speaker(Makoto); listed after the opcodes so those win
+      // Named arguments such as Speaker(Makoto); listed after the instructions so those win
       match: "\\b[A-Za-z_]\\w*\\b",
       name: "variable.other.enummember.linscript",
     },
@@ -43,4 +43,4 @@ const outputPath = join(__dirname, "../../src/syntaxes/linscript.tmLanguage.json
 writeFileSync(outputPath, `${JSON.stringify(tmLanguage, null, 2)}\n`);
 
 console.log(`Generated ${outputPath}`);
-console.log(`Included ${opcodeNames.length} opcodes`);
+console.log(`Included ${instructionNames.length} instructions`);

@@ -27,15 +27,6 @@ suite("Voice Test Controller Test Suite", () => {
     assert.strictEqual("Voice(1, 1, 100)\nVoice(2, 2, 200, 80)".match(regex())?.length, 2);
   });
 
-  test("0x08 opcode regex matches correctly", () => {
-    // Should match valid 0x08 calls with 4 parameters
-    assert.match("0x08(1, 1, 100, 100)", createCompleteFunctionRegex("0x08", 4));
-    assert.match("0x08(1,1,100,100)", createCompleteFunctionRegex("0x08", 4));
-
-    // Should not match invalid calls
-    assert.doesNotMatch("0x08(1, 1, 100)", createCompleteFunctionRegex("0x08", 4)); // Only 3 params
-    assert.doesNotMatch("0x08(1, 1, 100, 100, 200)", createCompleteFunctionRegex("0x08", 4)); // 5 params
-  });
 
   test("Voice lines inside quotes are detected correctly", () => {
     const testContent = `ScriptType(2)
@@ -70,9 +61,9 @@ Text("This has Voice(3, 2, 300, 100) in it")`;
     assert.strictEqual(args[3].value, 100, "Fourth param (volume) should be 100");
   });
 
-  test("Named Voice arguments resolve through the opcode's name tables", () => {
+  test("Named Voice arguments resolve through the instruction's name tables", () => {
     const config = createConfiguration({
-      opcode: voiceMeta,
+      instruction: voiceMeta,
       parseInfoFromTest: () => null,
       getAudioFilePath: () => null,
       formatTestLabel: () => "",
@@ -94,14 +85,13 @@ Text("This has Voice(3, 2, 300, 100) in it")`;
 
 Voice(1, 1, 100, 100)
 Voice(2, 1, 200, 100)
-0x08(3, 2, 300, 100)
+Voice(3, 2, 300, 100)
 
 Speaker(1)
 Text("This is not a voice line")
 Voice(4, 3, 400, 100)`;
 
     const voiceRegex = createCompleteFunctionRegex("Voice", 4);
-    const opcodeRegex = createCompleteFunctionRegex("0x08", 4);
     const matches = [];
 
     // Find Voice(...) matches
@@ -111,14 +101,6 @@ Voice(4, 3, 400, 100)`;
       }
     }
 
-    // Find 0x08(...) matches
-    for (const match of testContent.matchAll(opcodeRegex)) {
-      if (!isInsideQuotes(testContent, match.index!)) {
-        matches.push(match[0]);
-      }
-    }
-
-    // Should find 4 voice lines total (3 Voice + 1 0x08)
     assert.strictEqual(matches.length, 4, "Should find 4 voice lines total");
   });
 

@@ -13,7 +13,7 @@ type SoundBLineInfo = {
 
 export function registerSoundBTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<SoundBLineInfo> = {
-    opcode: soundBMeta,
+    instruction: soundBMeta,
 
     parseInfoFromTest: (test: vscode.TestItem): SoundBLineInfo | null => {
       // Test ID format: "file:///path:line:soundId:volume"

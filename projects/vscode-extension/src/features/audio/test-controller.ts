@@ -13,7 +13,7 @@ const EXCLUDE_GLOB = "{**/node_modules/**,**/.vscode-test/**,**/out/**}";
  * Create and register an audio test controller with the given configuration.
  *
  * Discovery scans every `.linscript` in the workspace on activation and registers a file item
- * only for files that contain at least one call to this controller's opcode. Open editors are
+ * only for files that contain at least one call to this controller's instruction. Open editors are
  * re-parsed on every edit so their entries stay live, and a file watcher tracks the rest.
  */
 export function createAudioTestController<TInfo>(
@@ -32,7 +32,7 @@ export function createAudioTestController<TInfo>(
   const isLinscriptFile = (uri: vscode.Uri) => uri.scheme === "file" && uri.fsPath.endsWith(".linscript");
 
   /**
-   * Parse `text` for this controller's opcodes. A file with matches gets (or keeps) a file item
+   * Parse `text` for this controller's instruction. A file with matches gets (or keeps) a file item
    * holding one child per call; a file without matches is removed from the tree entirely.
    */
   const parseTests = (uri: vscode.Uri, text: string) => {
@@ -74,7 +74,7 @@ export function createAudioTestController<TInfo>(
     }
   };
 
-  /** Scan every linscript in the workspace and register the ones that contain this opcode. */
+  /** Scan every linscript in the workspace and register the ones that contain this instruction. */
   const discoverWorkspaceFiles = async () => {
     const uris = await vscode.workspace.findFiles(LINSCRIPT_GLOB, EXCLUDE_GLOB);
     await Promise.all(uris.map(parseFileFromDisk));

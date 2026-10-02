@@ -13,7 +13,7 @@ type SoundLineInfo = {
 
 export function registerSoundTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<SoundLineInfo> = {
-    opcode: soundMeta,
+    instruction: soundMeta,
     // Sound(65535, ...) is the engine's "stop sound" instruction. 255 is a real effect.
     isStopRequest: (info) => info.soundId === 65535,
 

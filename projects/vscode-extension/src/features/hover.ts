@@ -11,7 +11,7 @@ import { getArgumentsFromFunctionLike, isInsideQuotes, stripBranchJump } from ".
  * Hover documentation for `.linscript` files.
  *
  * - Hovering an instruction name (`Speaker` in `Speaker(Makoto)`) shows what the instruction does,
- *   its opcode and its parameter list.
+ *   and its parameter list.
  * - Hovering an argument shows that parameter's name and description and, when the value has a
  *   known name (a character, a flag, a sound), that name too.
  *
@@ -231,7 +231,7 @@ function instructionHover(functionDetails: LinscriptInstructionMeta): vscode.Mar
   if (functionDetails.annotation) {
     md.appendMarkdown("Source-only annotation; has no binary form.\n\n");
   } else if (functionDetails.sugar) {
-    md.appendMarkdown("Source sugar; the compiler expands it to its binary opcode.\n\n");
+    md.appendMarkdown("Source sugar; the compiler expands it to binary opcodes.\n\n");
   }
 
   if (functionDetails.description) {

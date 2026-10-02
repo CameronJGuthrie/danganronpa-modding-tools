@@ -14,7 +14,7 @@ export type AudioTestConfig<TInfo> = {
   runProfileLabel: string;
   /** Playback channel; only one process plays per channel at a time */
   channel: string;
-  /** Function patterns to match (e.g., ["Voice", "0x08"]); calls may omit trailing optional arguments */
+  /** Function patterns to match, e.g. `Voice`; calls may omit trailing optional arguments */
   functionPatterns: Array<{ name: string; paramCount: number; requiredParamCount: number }>;
   /** Default for every argument position, used where a call omits a trailing optional argument */
   defaults: Array<number | undefined>;
@@ -22,7 +22,7 @@ export type AudioTestConfig<TInfo> = {
   argumentNames: readonly ArgumentNameSource[];
   /**
    * True when these arguments mean "stop this channel" rather than "play something".
-   * For example Music(255, ...) stops the current music. Omit if the opcode has no stop value.
+   * For example Music(255, ...) stops the current music. Omit if the instruction has no stop value.
    */
   isStopRequest?: (info: TInfo) => boolean;
   /** Parse test info from test ID */
@@ -40,9 +40,9 @@ export type AudioTestConfig<TInfo> = {
 };
 
 export type AudioTestConfigBuilder<TInfo> = {
-  /** The opcode relating to this test configuration */
-  opcode: LinscriptInstructionMeta;
-  /** And all other properties not derived from the opcode */
+  /** The instruction this test configuration plays, e.g. `Voice` */
+  instruction: LinscriptInstructionMeta;
+  /** And all other properties not derived from the instruction */
 } & Omit<
   AudioTestConfig<TInfo>,
   | "controllerId"
@@ -55,23 +55,23 @@ export type AudioTestConfigBuilder<TInfo> = {
 >;
 
 export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): AudioTestConfig<T> {
-  const { opcode, ...rest } = builder;
-  const requiredParamCount = opcode.parameters.filter((param) => param.defaultValue === undefined).length;
+  const { instruction, ...rest } = builder;
+  const requiredParamCount = instruction.parameters.filter((param) => param.defaultValue === undefined).length;
 
   return {
-    controllerId: `${opcode.name}-playback-controller`,
-    controllerLabel: `${opcode.name} Playback`,
-    runProfileLabel: `Play ${opcode.name}`,
-    channel: opcode.name,
+    controllerId: `${instruction.name}-playback-controller`,
+    controllerLabel: `${instruction.name} Playback`,
+    runProfileLabel: `Play ${instruction.name}`,
+    channel: instruction.name,
     functionPatterns: [
       {
-        name: opcode.name,
-        paramCount: opcode.parameters.length,
+        name: instruction.name,
+        paramCount: instruction.parameters.length,
         requiredParamCount,
       },
     ],
-    defaults: opcode.parameters.map((param) => param.defaultValue),
-    argumentNames: opcode.parameters.map((param) => param.namesBy ?? param.names),
+    defaults: instruction.parameters.map((param) => param.defaultValue),
+    argumentNames: instruction.parameters.map((param) => param.namesBy ?? param.names),
     ...rest,
   };
 }

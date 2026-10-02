@@ -4,7 +4,7 @@ import type { ArgumentNameSource, ArgumentNames, DependentNames } from "../util/
 
 export type LinscriptInstructionMeta<Parameters extends readonly ParameterMeta[] = ParameterMeta[]> = {
   name: LinscriptInstructionName;
-  /** Source-only sugar that the compiler expands into another opcode, such as `Text` or `Wait`. */
+  /** Source-only sugar that the compiler expands into other instructions, such as `Text` or `Wait`. */
   sugar?: true;
   /** Source-only annotation with no binary form at all, such as the `Meta()` block. */
   annotation?: true;

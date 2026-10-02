@@ -130,7 +130,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
 
   /**
    * Find the sprite image file based on character and spriteId
-   * TODO: when does the Sprite opcode use the bustup images at dr1_data/Dr1/data/all/texture/cg/*.tga
+   * TODO: when does the Sprite instruction use the bustup images at dr1_data/Dr1/data/all/texture/cg/*.tga
    */
   private findSpriteImageFile(character: number, spriteId: number): vscode.Location | null {
     const rootDir = findRootDirectory();
