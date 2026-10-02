@@ -4,8 +4,9 @@
 neither can assume a repository checkout. A command-line tool is therefore the wrong seam between
 them and the logic, so `projects/cli` was removed. `lin-compiler` gained `compileFile`,
 `decompileFile`, `compileDirectory` and `decompileDirectory`, the scripts package imports them
-instead of shelling out, and the next step is for the extension and GUI to bundle the scripts
-package's operations as functions rather than spawning `pnpm`. Each app now has its own workbench
+instead of shelling out. The extension now bundles the compiler and runs it on a worker thread
+(`src/worker/compiler-worker.ts`) for Select and Verify; the GUI still spawns the build script and
+is the remaining `pnpm`-shaped caller. Each app now has its own workbench
 setting (`lindecompilerhelper.workbenchRoot`; the GUI's `settings.json` in its user-data folder)
 in place of the old `.danganronpa-working-root` marker file.
 

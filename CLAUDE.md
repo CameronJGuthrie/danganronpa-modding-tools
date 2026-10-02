@@ -115,3 +115,5 @@ Typecheck with `pnpm --filter danganronpa-scripts run typecheck` (emits nothing)
 
 ## vscode-extension
 VSCode extension providing syntax highlighting and language support for `.linscript` files, making it easier to read and edit decompiled Danganronpa scripts.
+
+The workbench is located through the `lindecompilerhelper.workbenchRoot` setting (default `workbench`, relative to the first workspace folder; "LinScript: Choose Workbench Folder" picks another). "Select for Modding" and "Verify File" run in-process: `src/features/scripts.ts` does the file work and `lin-compiler` runs on a `worker_threads` worker (`src/worker/compiler-worker.ts`, bundled by esbuild to `out/compiler-worker.js`, driven by `CompilerClient` in `src/features/compiler.ts`) so compiling never blocks the extension host. The extension depends on `lin-compiler` and `danganronpa-scripts` as workspace packages and esbuild bundles their sources, so the shipped `.vsix` carries them.

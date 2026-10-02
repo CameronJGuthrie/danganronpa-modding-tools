@@ -3,12 +3,14 @@ import { registerMusicTestController } from "./features/audio/controllers/music-
 import { registerSoundTestController } from "./features/audio/controllers/sound-test-controller";
 import { registerSoundBTestController } from "./features/audio/controllers/soundb-test-controller";
 import { registerVoiceTestController } from "./features/audio/controllers/voice-test-controller";
+import { getCompiler } from "./features/compiler";
 import { toggleFunctionDecorations, toggleParameterDecorations } from "./features/configuration";
 import { registerDecoration } from "./features/decoration";
 import { registerDefinitionProvider } from "./features/go-to-definition";
 import { registerHoverProvider } from "./features/hover";
+import { selectScript, verifyScript } from "./features/scripts";
 import { registerWorkbenchRoot, requireWorkbenchRoot } from "./features/workspace";
-import { initializeOutputChannel, log } from "./output";
+import { initializeOutputChannel, log, logError } from "./output";
 
 export function activate(context: vscode.ExtensionContext) {
   // Initialize output channel first
@@ -26,88 +28,36 @@ export function activate(context: vscode.ExtensionContext) {
   registerSoundBTestController(context);
   registerMusicTestController(context);
 
-  // Register context menu command for selecting scripts
-  const selectCommand = vscode.commands.registerCommand("lindecompilerhelper.selectScript", async (uri: vscode.Uri) => {
-    const rootDir = await requireWorkbenchRoot();
-    if (rootDir === null) {
-      return;
-    }
-
-    const path = require("node:path");
-    const fs = require("node:fs");
-
-    // The pnpm scripts run from the repository root, which holds the workbench
-    const repoRoot = path.dirname(rootDir);
-
-    // Determine output file path
-    const ext = path.extname(uri.fsPath);
-    const basename = path.basename(uri.fsPath, ext);
-    const outputPath = path.join(rootDir, "mod/dr1_data_us/Dr1/data/us/script", `${basename}.linscript`);
-
-    // Run the select command
-    const terminal = vscode.window.createTerminal({
-      name: "Select Script",
-      cwd: repoRoot,
-    });
-    terminal.sendText(`pnpm select ${uri.fsPath}`);
-    terminal.show();
-
-    // Wait for the file to be created, then open it
-    const checkInterval = setInterval(() => {
-      if (fs.existsSync(outputPath)) {
-        clearInterval(checkInterval);
-        vscode.window.showTextDocument(vscode.Uri.file(outputPath));
+  // Context menu commands: both run the compiler on the worker thread and open the result
+  const runScriptCommand = (title: string, run: (root: string, file: string) => Promise<string>) => {
+    return async (uri: vscode.Uri) => {
+      const rootDir = await requireWorkbenchRoot();
+      if (rootDir === null) {
+        return;
       }
-    }, 100);
-
-    // Timeout after 10 seconds
-    setTimeout(() => {
-      clearInterval(checkInterval);
-    }, 10000);
-  });
-
-  context.subscriptions.push(selectCommand);
-
-  // Register context menu command for verifying files
-  const verifyCommand = vscode.commands.registerCommand("lindecompilerhelper.verifyFile", async (uri: vscode.Uri) => {
-    const rootDir = await requireWorkbenchRoot();
-    if (rootDir === null) {
-      return;
-    }
-
-    const path = require("node:path");
-    const fs = require("node:fs");
-
-    // The pnpm scripts run from the repository root, which holds the workbench
-    const repoRoot = path.dirname(rootDir);
-
-    // Extract the base filename
-    const basename = path.basename(uri.fsPath, ".lin");
-    const outputPath = path.join(rootDir, "verify", `${basename}.linscript`);
-
-    // Run the verify command
-    const terminal = vscode.window.createTerminal({
-      name: "Verify File",
-      cwd: repoRoot,
-    });
-    terminal.sendText(`pnpm verify ${uri.fsPath}`);
-    terminal.show();
-
-    // Wait for the file to be created, then open it
-    const checkInterval = setInterval(() => {
-      if (fs.existsSync(outputPath)) {
-        clearInterval(checkInterval);
-        vscode.window.showTextDocument(vscode.Uri.file(outputPath));
+      try {
+        const output = await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title }, () =>
+          run(rootDir, uri.fsPath),
+        );
+        await vscode.window.showTextDocument(vscode.Uri.file(output));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logError(`${title} failed: ${message}`);
+        vscode.window.showErrorMessage(`${title} failed: ${message}`);
       }
-    }, 100);
+    };
+  };
 
-    // Timeout after 10 seconds
-    setTimeout(() => {
-      clearInterval(checkInterval);
-    }, 10000);
-  });
-
-  context.subscriptions.push(verifyCommand);
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "lindecompilerhelper.selectScript",
+      runScriptCommand("Select for Modding", (root, file) => selectScript(getCompiler(context), root, file)),
+    ),
+    vscode.commands.registerCommand(
+      "lindecompilerhelper.verifyFile",
+      runScriptCommand("Verify File", (root, file) => verifyScript(getCompiler(context), root, file)),
+    ),
+  );
 
   // Register toggle commands for decorations
   const toggleParameterDecorationsCommand = vscode.commands.registerCommand(

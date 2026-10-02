@@ -116,7 +116,7 @@
   "scripts": {
     "vscode:prepublish": "pnpm run compile && pnpm run bundle",
     "compile": "tsc -p ./ && pnpm run bundle",
-    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=out/extension.js && esbuild src/test/*.test.ts --bundle --platform=node --format=cjs --external:vscode --external:mocha --outdir=out/test",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=out/extension.js && esbuild src/worker/compiler-worker.ts --bundle --platform=node --format=cjs --outfile=out/compiler-worker.js && esbuild src/test/*.test.ts --bundle --platform=node --format=cjs --external:vscode --external:mocha --outdir=out/test",
     "build-grammar": "esbuild src/syntaxes/tmlanguage-builder.ts --bundle --platform=node --format=cjs --outfile=out/syntaxes/tmlanguage-builder.js && node out/syntaxes/tmlanguage-builder.js",
     "typecheck": "tsc -p ./",
     "watch": "tsc -watch -p ./",
@@ -128,6 +128,8 @@
     "test": "vscode-test"
   },
   "dependencies": {
+    "danganronpa-scripts": "workspace:*",
+    "lin-compiler": "workspace:*",
     "linscript-definitions": "workspace:*"
   },
   "devDependencies": {

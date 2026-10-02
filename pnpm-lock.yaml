@@ -232,6 +232,12 @@ importers:
 
   projects/vscode-extension:
     dependencies:
+      danganronpa-scripts:
+        specifier: workspace:*
+        version: link:../../packages/scripts
+      lin-compiler:
+        specifier: workspace:*
+        version: link:../../packages/lin-compiler
       linscript-definitions:
         specifier: workspace:*
         version: link:../../packages/definitions
