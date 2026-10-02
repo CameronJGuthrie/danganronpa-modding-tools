@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     log("Root workspace detected");
   } else {
     logWarning(".danganronpa-working-root marker file not found.");
-    vscode.window.showInformationMessage(
+    vscode.window.showWarningMessage(
       "Danganronpa extension: .danganronpa-working-root marker file not found in workspace hierarchy. Create this file in your working directory.",
     );
   }
