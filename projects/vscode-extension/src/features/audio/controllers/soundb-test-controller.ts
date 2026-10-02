@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import { transitionSounds } from "linscript-definitions";
 import type * as vscode from "vscode";
-import { soundBMeta } from "../../../metadata/sound-b-meta";
+import { instructions } from "../../../instructions";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
@@ -13,7 +13,7 @@ type SoundBLineInfo = {
 
 export function registerSoundBTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<SoundBLineInfo> = {
-    instruction: soundBMeta,
+    instruction: instructions.SoundB,
 
     parseInfoFromTest: (test: vscode.TestItem): SoundBLineInfo | null => {
       // Test ID format: "file:///path:line:soundId:volume"
@@ -33,8 +33,8 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
     },
 
     getAudioFilePath: (info: SoundBLineInfo): string | null => {
-      const soundMeta = transitionSounds[info.soundId];
-      if (!soundMeta?.sourcePath) {
+      const soundInstruction = transitionSounds[info.soundId];
+      if (!soundInstruction?.sourcePath) {
         return null;
       }
 
@@ -45,14 +45,14 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/bgm", soundMeta.sourcePath);
+      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/bgm", soundInstruction.sourcePath);
     },
 
     formatTestLabel: (info: SoundBLineInfo): string => {
-      const soundMeta = transitionSounds[info.soundId];
+      const soundInstruction = transitionSounds[info.soundId];
 
-      if (soundMeta?.name && soundMeta.name !== "?") {
-        return `${soundMeta.name} (${info.soundId})`;
+      if (soundInstruction?.name && soundInstruction.name !== "?") {
+        return `${soundInstruction.name} (${info.soundId})`;
       } else {
         return `SoundB ${info.soundId}`;
       }

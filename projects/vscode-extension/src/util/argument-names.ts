@@ -1,4 +1,4 @@
-import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
+import type { LinscriptInstruction } from "../types/linscript-instruction";
 import {
   characterNamesFromDocument,
   labelNamesFromDocument,
@@ -11,7 +11,7 @@ import { getArgumentsFromFunctionLike } from "./string-util";
  * Name tables per argument position, expanding a varargs head/tail pattern to the actual count.
  * Parameters scoped to the document (object, character, option and label ids) take their table from its `Meta()` block.
  */
-export function argumentNames(functionDetails: LinscriptInstructionMeta, call: string, documentText: string) {
+export function argumentNames(functionDetails: LinscriptInstruction, call: string, documentText: string) {
   const { varargNames } = functionDetails;
   if (!functionDetails.varargs || !varargNames) {
     return functionDetails.parameters.map((parameter) => {

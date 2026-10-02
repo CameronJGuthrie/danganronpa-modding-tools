@@ -14,7 +14,7 @@ All but `projects/gui` are pnpm workspace packages (see `pnpm-workspace.yaml`).
 
 ## Exploration Mode
 This is when I'm trying to discover what the opcodes do. You'll be helping me to understand patterns in the workbench/linscript-exploration/*.linscript files.
-I document my findings in these typescript files at projects/vscode-extension/src/functions/*.ts with the names of the opcodes corresponding to the functions. E.g. Voice -> Voice.ts
+I document my findings in projects/vscode-extension/src/instructions/*.instruction.ts, one file per instruction. E.g. Voice -> voice.instruction.ts
 
 **Investigation Script:**
 Use `pnpm run investigate` to analyze opcode usage patterns across all linscript files:

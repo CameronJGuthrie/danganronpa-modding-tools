@@ -1,7 +1,7 @@
 import * as assert from "node:assert";
 import { Character, comparisonOperators } from "linscript-definitions";
-// Import the metadata record from metadata/index.ts to avoid drift
-import { metadata } from "../metadata";
+// Import the instructions record from instructions/index.ts to avoid drift
+import { instructions } from "../instructions";
 import {
   createCompleteFunctionRegex,
   createVarargsRegex,
@@ -182,13 +182,13 @@ suite("Extension Test Suite", () => {
       [3, 4, 20],
     );
     assert.deepStrictEqual(
-      metadata.If.decorations?.([0, 1, 5, 7, 8, 2, 9] as never, ""),
+      instructions.If.decorations?.([0, 1, 5, 7, 8, 2, 9] as never, ""),
       "If Time == 5 Or ScriptEntryContext <= 9",
     );
   });
 
   test("dependent name tables resolve a character offset after a character flag group", () => {
-    const setFlagNames = metadata.SetFlag.parameters.map((p) => p.namesBy ?? p.names);
+    const setFlagNames = instructions.SetFlag.parameters.map((p) => p.namesBy ?? p.names);
     assert.deepStrictEqual(
       getArgumentsFromFunctionLike("SetFlag(CharacterDead, Celeste, True)", setFlagNames).map((a) => a.value),
       [16, 12, 1],
@@ -206,16 +206,16 @@ suite("Extension Test Suite", () => {
   test("the Speaker decoration resolves a character name", () => {
     const args = getArgumentsFromFunctionLike(
       "Speaker(Makoto)",
-      metadata.Speaker.parameters.map((p) => p.names),
+      instructions.Speaker.parameters.map((p) => p.names),
     );
-    const decoration = metadata.Speaker.decorations?.(args.map((arg) => arg.value) as [number], "Speaker(Makoto)");
+    const decoration = instructions.Speaker.decorations?.(args.map((arg) => arg.value) as [number], "Speaker(Makoto)");
     assert.ok(Array.isArray(decoration));
     assert.strictEqual(decoration[0].contentText, "Speaker: Makoto");
   });
 
-  test("metadata keys match their instruction names", () => {
-    for (const [key, meta] of Object.entries(metadata)) {
-      assert.strictEqual(meta.name, key, `Metadata registered under "${key}" is named "${meta.name}"`);
+  test("instructions keys match their instruction names", () => {
+    for (const [key, meta] of Object.entries(instructions)) {
+      assert.strictEqual(meta.name, key, `Instruction registered under "${key}" is named "${meta.name}"`);
     }
   });
 });

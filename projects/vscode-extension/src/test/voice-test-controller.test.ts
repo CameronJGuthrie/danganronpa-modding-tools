@@ -1,7 +1,7 @@
 import * as assert from "node:assert";
 import { Chapter, VoiceCharacter } from "linscript-definitions";
 import { createConfiguration } from "../features/audio/test-controller-config";
-import { voiceMeta } from "../metadata/voice-meta";
+import { instructions } from "../instructions";
 import { createCompleteFunctionRegex, getArgumentsFromFunctionLike, isInsideQuotes } from "../util/string-util";
 
 suite("Voice Test Controller Test Suite", () => {
@@ -63,7 +63,7 @@ Text("This has Voice(3, 2, 300, 100) in it")`;
 
   test("Named Voice arguments resolve through the instruction's name tables", () => {
     const config = createConfiguration({
-      instruction: voiceMeta,
+      instruction: instructions.Voice,
       parseInfoFromTest: () => null,
       getAudioFilePath: () => null,
       formatTestLabel: () => "",

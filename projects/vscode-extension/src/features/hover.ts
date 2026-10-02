@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { metadata } from "../metadata";
+import { instructions } from "../instructions";
 import { logDebug } from "../output";
-import type { LinscriptInstructionMeta, ParameterMeta } from "../types/linscript-instruction-meta";
+import type { LinscriptInstruction, ParameterMeta } from "../types/linscript-instruction";
 import { argumentNames } from "../util/argument-names";
 import { metaEntryForScope } from "../util/script-meta";
 import type { ArgumentNameSource, ArgumentNames, DependentNames } from "../util/string-util";
@@ -15,7 +15,7 @@ import { getArgumentsFromFunctionLike, isInsideQuotes, stripBranchJump } from ".
  * - Hovering an argument shows that parameter's name and description and, when the value has a
  *   known name (a character, a flag, a sound), that name too.
  *
- * Everything shown comes from `src/metadata`, the same table the inline decorations use.
+ * Everything shown comes from `src/instructions`, the same table the inline decorations use.
  */
 export class LinscriptHoverProvider implements vscode.HoverProvider {
   provideHover(
@@ -157,8 +157,8 @@ function argumentRange(line: number, callStart: number, callText: string, argInd
   return new vscode.Range(line, start, line, start + Math.max(length, 1));
 }
 
-function lookupInstruction(name: string): LinscriptInstructionMeta | undefined {
-  return Object.hasOwn(metadata, name) ? metadata[name as keyof typeof metadata] : undefined;
+function lookupInstruction(name: string): LinscriptInstruction | undefined {
+  return Object.hasOwn(instructions, name) ? instructions[name as keyof typeof instructions] : undefined;
 }
 
 function isDependent(source: ArgumentNameSource): source is DependentNames {
@@ -207,7 +207,7 @@ function parameterLabel(parameter: ParameterMeta | undefined, index: number): st
   return parameter?.name || `arg${index + 1}`;
 }
 
-function signature(functionDetails: LinscriptInstructionMeta): string {
+function signature(functionDetails: LinscriptInstruction): string {
   if (functionDetails.varargs) {
     return `${functionDetails.name}(...)`;
   }
@@ -224,7 +224,7 @@ function signature(functionDetails: LinscriptInstructionMeta): string {
   return `${functionDetails.name}(${params.join(", ")})`;
 }
 
-function instructionHover(functionDetails: LinscriptInstructionMeta): vscode.MarkdownString {
+function instructionHover(functionDetails: LinscriptInstruction): vscode.MarkdownString {
   const md = new vscode.MarkdownString();
   md.appendCodeblock(signature(functionDetails), "linscript");
 
@@ -267,7 +267,7 @@ function parameterLine(parameter: ParameterMeta, index: number): string {
 }
 
 function argumentHover(
-  functionDetails: LinscriptInstructionMeta,
+  functionDetails: LinscriptInstruction,
   parameter: ParameterMeta | undefined,
   index: number,
   value: number,

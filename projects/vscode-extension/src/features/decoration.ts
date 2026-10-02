@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { textStyleColor } from "linscript-definitions";
-import { metadata } from "../metadata";
+import { instructions } from "../instructions";
 import { logDebug, logError, logWarning } from "../output";
-import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
+import type { LinscriptInstruction } from "../types/linscript-instruction";
 import { argumentNames } from "../util/argument-names";
 import {
   createCompleteFunctionRegex,
@@ -83,7 +83,7 @@ export function registerDecoration() {
       functionDecorationsByType.push([]);
     }
 
-    Object.values(metadata).forEach((functionDetails) => {
+    Object.values(instructions).forEach((functionDetails) => {
       const required = requiredParameterCount(functionDetails);
       const branch = functionDetails.branch === true;
       const completeFunctionRegex = functionDetails.varargs
@@ -201,7 +201,7 @@ function isWrittenAsNumber(call: string, stringIndex: number): boolean {
 }
 
 function addParameterDecoration(
-  param: LinscriptInstructionMeta["parameters"][number],
+  param: LinscriptInstruction["parameters"][number],
   rangePos: vscode.Position,
   hintDecorations: vscode.DecorationOptions[],
 ): number {
@@ -232,7 +232,7 @@ function addParameterDecoration(
 function enrichParameters(
   regexp: RegExp,
   documentText: string,
-  functionDetails: LinscriptInstructionMeta,
+  functionDetails: LinscriptInstruction,
   document: vscode.TextDocument,
   hintDecorations: vscode.DecorationOptions[],
   functionDecorationsByType: vscode.DecorationOptions[][],
@@ -305,7 +305,7 @@ function enrichParameters(
 }
 
 function addFunctionDecoration(
-  functionDetails: LinscriptInstructionMeta,
+  functionDetails: LinscriptInstruction,
   argValues: number[],
   documentText: string,
   matchStartIndex: number,
@@ -374,6 +374,6 @@ function addFunctionDecoration(
 }
 
 /** Leading parameters that source must always write, i.e. all but those with a `defaultValue`. */
-function requiredParameterCount(functionDetails: LinscriptInstructionMeta): number {
+function requiredParameterCount(functionDetails: LinscriptInstruction): number {
   return functionDetails.parameters.filter((param) => param.defaultValue === undefined).length;
 }

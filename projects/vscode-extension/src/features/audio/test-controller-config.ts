@@ -1,5 +1,5 @@
 import type * as vscode from "vscode";
-import type { LinscriptInstructionMeta } from "../../types/linscript-instruction-meta";
+import type { LinscriptInstruction } from "../../types/linscript-instruction";
 import type { ArgumentNameSource } from "../../util/string-util";
 
 /**
@@ -41,7 +41,7 @@ export type AudioTestConfig<TInfo> = {
 
 export type AudioTestConfigBuilder<TInfo> = {
   /** The instruction this test configuration plays, e.g. `Voice` */
-  instruction: LinscriptInstructionMeta;
+  instruction: LinscriptInstruction;
   /** And all other properties not derived from the instruction */
 } & Omit<
   AudioTestConfig<TInfo>,

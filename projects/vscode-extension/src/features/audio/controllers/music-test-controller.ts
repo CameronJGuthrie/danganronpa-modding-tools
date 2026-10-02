@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import { musics } from "linscript-definitions";
 import type * as vscode from "vscode";
-import { musicMeta } from "../../../metadata/music-meta";
+import { instructions } from "../../../instructions";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
@@ -14,7 +14,7 @@ type MusicInfo = {
 
 export function registerMusicTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<MusicInfo> = {
-    instruction: musicMeta,
+    instruction: instructions.Music,
     // Music(255, ...) is the engine's "stop music" instruction.
     isStopRequest: (info) => info.musicId === 255,
 

@@ -7,7 +7,7 @@ import {
   characterData,
 } from "linscript-definitions";
 import type * as vscode from "vscode";
-import { voiceMeta } from "../../../metadata/voice-meta";
+import { instructions } from "../../../instructions";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
@@ -21,7 +21,7 @@ type VoiceLineInfo = {
 
 export function registerVoiceTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<VoiceLineInfo> = {
-    instruction: voiceMeta,
+    instruction: instructions.Voice,
 
     parseInfoFromTest: (test: vscode.TestItem): VoiceLineInfo | null => {
       // Test ID format: "file:///path:line:characterId:chapter:voiceId:volume"

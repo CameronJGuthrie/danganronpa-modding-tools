@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import { sounds } from "linscript-definitions";
 import type * as vscode from "vscode";
-import { soundMeta } from "../../../metadata/sound-meta";
+import { instructions } from "../../../instructions";
 import { findRootDirectory } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
@@ -13,7 +13,7 @@ type SoundLineInfo = {
 
 export function registerSoundTestController(context: vscode.ExtensionContext) {
   const testConfigBuilder: AudioTestConfigBuilder<SoundLineInfo> = {
-    instruction: soundMeta,
+    instruction: instructions.Sound,
     // Sound(65535, ...) is the engine's "stop sound" instruction. 255 is a real effect.
     isStopRequest: (info) => info.soundId === 65535,
 
@@ -35,8 +35,8 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
     },
 
     getAudioFilePath: (info: SoundLineInfo): string | null => {
-      const soundMeta = sounds[info.soundId];
-      if (!soundMeta?.sourcePath) {
+      const soundInstruction = sounds[info.soundId];
+      if (!soundInstruction?.sourcePath) {
         return null;
       }
 
@@ -47,14 +47,14 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/se", soundMeta.sourcePath);
+      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/se", soundInstruction.sourcePath);
     },
 
     formatTestLabel: (info: SoundLineInfo): string => {
-      const soundMeta = sounds[info.soundId];
+      const soundInstruction = sounds[info.soundId];
 
-      if (soundMeta?.name && soundMeta.name !== "?") {
-        return `${soundMeta.name} (${info.soundId})`;
+      if (soundInstruction?.name && soundInstruction.name !== "?") {
+        return `${soundInstruction.name} (${info.soundId})`;
       } else {
         return `Sound ${info.soundId}`;
       }

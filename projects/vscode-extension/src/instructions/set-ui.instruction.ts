@@ -1,0 +1,41 @@
+import {
+  LinscriptInstructionName,
+  UiVisibility,
+  UserInterface,
+  isUserInterface,
+  userInterfaceConfiguration,
+} from "linscript-definitions";
+import type { LinscriptInstruction } from "../types/linscript-instruction";
+
+export const setUiInstruction: LinscriptInstruction = {
+  name: LinscriptInstructionName.SetUI,
+  description: "Shows or hides a user-interface element such as the textbox, HUD or rumble effect.",
+  selfDescribing: true,
+  parameters: [
+    {
+      name: "interfaceId",
+      names: UserInterface,
+      values: UserInterface,
+    },
+    {
+      name: "state",
+      names: UiVisibility,
+      values: {
+        [UiVisibility.Hidden]: "Hidden",
+        [UiVisibility.Shown]: "Shown",
+      },
+      description: "Hidden or Shown; some interfaces accept larger numeric modes",
+    },
+  ] as const,
+  decorations([interfaceId, state]) {
+    const visibility = state === UiVisibility.Hidden ? "Hide" : state === UiVisibility.Shown ? "Show" : `Mode ${state}`;
+    if (!isUserInterface(interfaceId)) {
+      return [{ contentText: `${visibility} UI: ${interfaceId}` }];
+    }
+    return [
+      {
+        contentText: `${visibility} UI: ${userInterfaceConfiguration[interfaceId]}`,
+      },
+    ];
+  },
+};
