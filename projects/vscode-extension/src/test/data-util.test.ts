@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { mapProperty } from "../util/data-util";
+import { mapProperty } from "linscript-definitions";
 
 suite("Data Util Test Suite", () => {
   test("mapProperty extracts color property to name", () => {

@@ -1,5 +1,5 @@
-import { FlagGroup } from "linscript-definitions";
-import { characterData } from "./character-data";
+import { FlagGroup } from "../flag-group.ts";
+import { characterData } from "./character-data.ts";
 
 export const RESET_FLAGS = 32;
 

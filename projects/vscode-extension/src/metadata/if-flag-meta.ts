@@ -11,8 +11,8 @@ import {
   joins,
   LinscriptInstructionName,
   LogicalJoin,
+  flagDataByFlagGroup,
 } from "linscript-definitions";
-import { flagDataByFlagGroup } from "../data/flag-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 /** The offset after a character flag group is a character id; after other groups it stays numeric. */

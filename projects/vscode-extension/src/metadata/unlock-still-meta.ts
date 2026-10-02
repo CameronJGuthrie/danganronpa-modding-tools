@@ -1,5 +1,4 @@
-import { isSkill, LinscriptInstructionName, Skill } from "linscript-definitions";
-import { skills } from "../data/skill-data";
+import { isSkill, LinscriptInstructionName, Skill, skills } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const unlockSkillMeta: LinscriptInstructionMeta = {

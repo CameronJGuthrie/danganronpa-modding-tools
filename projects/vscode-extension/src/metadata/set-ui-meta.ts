@@ -1,5 +1,10 @@
-import { LinscriptInstructionName, UiVisibility, UserInterface } from "linscript-definitions";
-import { isUserInterface, userInterfaceConfiguration } from "../data/user-interface-data";
+import {
+  LinscriptInstructionName,
+  UiVisibility,
+  UserInterface,
+  isUserInterface,
+  userInterfaceConfiguration,
+} from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const setUiMeta: LinscriptInstructionMeta = {

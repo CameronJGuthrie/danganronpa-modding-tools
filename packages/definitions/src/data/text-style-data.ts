@@ -1,4 +1,4 @@
-import { TextStyle } from "linscript-definitions";
+import { TextStyle } from "../text-style.ts";
 
 export const textStyleColor: Readonly<Record<TextStyle, string>> = {
   [TextStyle.Default]: "#ffffff",

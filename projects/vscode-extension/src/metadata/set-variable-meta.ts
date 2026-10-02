@@ -7,8 +7,8 @@ import {
   LinscriptInstructionName,
   Variable,
   variables,
+  variableData,
 } from "linscript-definitions";
-import { variableData } from "../data/variable-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const setVariableMeta: LinscriptInstructionMeta = {

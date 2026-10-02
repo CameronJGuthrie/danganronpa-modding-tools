@@ -1,5 +1,4 @@
-import { isTextStyle, LinscriptInstructionName, TextStyle } from "linscript-definitions";
-import { textStyleColor } from "../data/text-style-data";
+import { isTextStyle, LinscriptInstructionName, TextStyle, textStyleColor } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 /**

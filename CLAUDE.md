@@ -2,7 +2,7 @@
 
 ## Repository layout
 Libraries and scripts live under `packages/`, applications under `projects/`:
-- `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`, plus asset lookup tables under `src/data/` (sound, music and movie names, voice line transcripts) used by both the extension and the GUI. Built to `dist/` (CommonJS) by the root `prepare` script so both Node type-stripping consumers and the VS Code extension host can load it
+- `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`, plus lookup tables under `src/data/` (sound, music and movie names, voice line transcripts, character, sprite, present, flag, variable, UI and background names) used by both the extension and the GUI. Built to `dist/` (CommonJS) by the root `prepare` script so both Node type-stripping consumers and the VS Code extension host can load it
 - `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library
 - `projects/cli` - the `lin-compiler` command-line tool, a thin wrapper over the library; `pnpm --filter lin-compiler-cli run build` emits JavaScript to `projects/cli/out/`
 - `packages/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)

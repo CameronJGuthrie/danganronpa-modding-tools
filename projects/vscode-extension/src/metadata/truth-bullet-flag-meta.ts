@@ -1,5 +1,4 @@
-import { isTruthBullet, LinscriptInstructionName, TruthBullet } from "linscript-definitions";
-import { truthBulletFlags } from "../data/truth-bullet-data";
+import { isTruthBullet, LinscriptInstructionName, TruthBullet, truthBulletFlags } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const truthBulletFlagMeta: LinscriptInstructionMeta = {

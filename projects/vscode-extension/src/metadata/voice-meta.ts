@@ -5,8 +5,8 @@ import {
   LinscriptInstructionName,
   VoiceCharacter,
   voiceLinesByCharacterByChapter,
+  characterData,
 } from "linscript-definitions";
-import { characterData } from "../data/character-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const voiceMeta: LinscriptInstructionMeta = {

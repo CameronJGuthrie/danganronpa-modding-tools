@@ -1,4 +1,4 @@
-import { Present } from "linscript-definitions";
+import { Present } from "../present.ts";
 
 export const presentConfiguration: Record<Present, { name: string; description: string }> = {
   [Present.MineralWater]: {

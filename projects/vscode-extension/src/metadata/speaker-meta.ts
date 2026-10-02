@@ -1,5 +1,4 @@
-import { Character, isCharacter, LinscriptInstructionName } from "linscript-definitions";
-import { characterData } from "../data/character-data";
+import { Character, isCharacter, LinscriptInstructionName, characterData } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const speakerMeta: LinscriptInstructionMeta = {

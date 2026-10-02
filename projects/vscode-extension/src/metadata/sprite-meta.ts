@@ -6,9 +6,9 @@ import {
   LinscriptInstructionName,
   SpritePosition,
   SpriteTransition,
+  characterData,
+  sprites,
 } from "linscript-definitions";
-import { characterData } from "../data/character-data";
-import { sprites } from "../data/sprite";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const spriteMeta: LinscriptInstructionMeta = {

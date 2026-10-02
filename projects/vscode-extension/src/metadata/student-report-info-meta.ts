@@ -5,8 +5,8 @@ import {
   isArithmetic,
   isCharacter,
   LinscriptInstructionName,
+  characterData,
 } from "linscript-definitions";
-import { characterData } from "../data/character-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const studentReportInfoMeta: LinscriptInstructionMeta = {

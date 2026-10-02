@@ -1,5 +1,4 @@
-import { LinscriptInstructionName } from "linscript-definitions";
-import { backgrounds } from "../data/background-data";
+import { LinscriptInstructionName, backgrounds } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const animationMeta: LinscriptInstructionMeta = {

@@ -1,4 +1,4 @@
-import { Skill } from "linscript-definitions";
+import { Skill } from "../skill.ts";
 
 export const skills: Readonly<Record<Skill, string>> = {
   [Skill.InfluenceAttentive]: "InfluenceAttentive",

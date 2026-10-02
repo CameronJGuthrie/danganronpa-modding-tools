@@ -1,4 +1,4 @@
-import { UserInterface } from "linscript-definitions";
+import { UserInterface } from "../user-interface.ts";
 
 export const userInterfaceConfiguration: Record<UserInterface, string> = {
   [UserInterface.Thinking]: "Thinking",

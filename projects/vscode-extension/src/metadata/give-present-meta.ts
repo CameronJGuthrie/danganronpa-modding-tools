@@ -1,5 +1,4 @@
-import { isPresent, LinscriptInstructionName, Present } from "linscript-definitions";
-import { presentConfiguration } from "../data/present-data";
+import { isPresent, LinscriptInstructionName, Present, presentConfiguration } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 /** Source-only sugar for `Present(id, -=, 1)`: hands a gift to a student in the free-time menu, removing one from the inventory. */

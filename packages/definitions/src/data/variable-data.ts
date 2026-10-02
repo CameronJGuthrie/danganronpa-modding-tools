@@ -1,6 +1,6 @@
-import { Variable } from "linscript-definitions";
-import { flatMapProperty } from "../util/data-util";
-import { characterData } from "./character-data";
+import { Variable } from "../variable.ts";
+import { flatMapProperty } from "../data-util.ts";
+import { characterData } from "./character-data.ts";
 
 type VariableValueDetail = {
   [value: number]: string;

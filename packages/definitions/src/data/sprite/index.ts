@@ -1,22 +1,22 @@
-import { Character } from "linscript-definitions";
-import { alterEgoSprite } from "./alter-ego-sprite-data";
-import { byakuyaSprite } from "./byakuya-sprite-data";
-import { celesteSprite } from "./celeste-sprite-data";
-import { chihiroSprite } from "./chihiro-sprite-data";
-import { hifumiSprite } from "./hifumi-sprite-data";
-import { hinaSprite } from "./hina-sprite-data";
-import { hiroSprite } from "./hiro-sprite-data";
-import { junkoSprite } from "./junko-sprite-data";
-import { kiyotakaSprite } from "./kiyotaka-sprite-data";
-import { kyokoSprite } from "./kyoko-sprite-data";
-import { leonSprite } from "./leon-sprite-data";
-import { makotoSprite } from "./makoto-sprite-data";
-import { mondoSprite } from "./mondo-sprite-data";
-import { monokumaSprite } from "./monokuma-sprite-data";
-import { mukuroSprite } from "./mukuro-sprite-data";
-import { sakuraSprite } from "./sakura-sprite-data";
-import { sayakaSprite } from "./sayaka-sprite-data";
-import { tokoSprite } from "./toko-sprite-data";
+import { Character } from "../../character.ts";
+import { alterEgoSprite } from "./alter-ego-sprite-data.ts";
+import { byakuyaSprite } from "./byakuya-sprite-data.ts";
+import { celesteSprite } from "./celeste-sprite-data.ts";
+import { chihiroSprite } from "./chihiro-sprite-data.ts";
+import { hifumiSprite } from "./hifumi-sprite-data.ts";
+import { hinaSprite } from "./hina-sprite-data.ts";
+import { hiroSprite } from "./hiro-sprite-data.ts";
+import { junkoSprite } from "./junko-sprite-data.ts";
+import { kiyotakaSprite } from "./kiyotaka-sprite-data.ts";
+import { kyokoSprite } from "./kyoko-sprite-data.ts";
+import { leonSprite } from "./leon-sprite-data.ts";
+import { makotoSprite } from "./makoto-sprite-data.ts";
+import { mondoSprite } from "./mondo-sprite-data.ts";
+import { monokumaSprite } from "./monokuma-sprite-data.ts";
+import { mukuroSprite } from "./mukuro-sprite-data.ts";
+import { sakuraSprite } from "./sakura-sprite-data.ts";
+import { sayakaSprite } from "./sayaka-sprite-data.ts";
+import { tokoSprite } from "./toko-sprite-data.ts";
 
 export const sprites: Record<Character, { [spriteId: number]: string } | undefined> = {
   [Character.Makoto]: makotoSprite,

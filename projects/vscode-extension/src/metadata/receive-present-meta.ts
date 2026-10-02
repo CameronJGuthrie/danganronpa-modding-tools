@@ -1,5 +1,4 @@
-import { isPresent, LinscriptInstructionName, Present } from "linscript-definitions";
-import { presentConfiguration } from "../data/present-data";
+import { isPresent, LinscriptInstructionName, Present, presentConfiguration } from "linscript-definitions";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 /** Source-only sugar for `Present(id, +=, 1)`: awards the player one of an item as a story reward. */

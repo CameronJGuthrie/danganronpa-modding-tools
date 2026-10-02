@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { textStyleColor } from "../data/text-style-data";
+import { textStyleColor } from "linscript-definitions";
 import { metadata } from "../metadata";
 import { logDebug, logError, logWarning } from "../output";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";

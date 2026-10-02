@@ -1,4 +1,4 @@
-import { Character } from "linscript-definitions";
+import { Character } from "../character.ts";
 
 export type CharacterMeta = {
   /* A short way of printing this character's name in the editor */

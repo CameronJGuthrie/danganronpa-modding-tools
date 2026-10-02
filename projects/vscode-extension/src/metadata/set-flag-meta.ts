@@ -6,9 +6,10 @@ import {
   isCharacter,
   isFlagGroup,
   LinscriptInstructionName,
+  characterData,
+  flagDataByFlagGroup,
+  RESET_FLAGS,
 } from "linscript-definitions";
-import { characterData } from "../data/character-data";
-import { flagDataByFlagGroup, RESET_FLAGS } from "../data/flag-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
 export const setFlagMeta: LinscriptInstructionMeta = {
