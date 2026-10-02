@@ -307,6 +307,7 @@ function enrichParameters(
         functionDetails,
         argValues,
         documentText,
+        matchIndex,
         matchEndIndex,
         totalDecorationWidth,
         document,
@@ -321,6 +322,7 @@ function addFunctionDecoration(
   functionDetails: LinscriptInstructionMeta,
   argValues: number[],
   documentText: string,
+  matchStartIndex: number,
   matchEndIndex: number,
   totalParameterDecorationWidth: number,
   document: vscode.TextDocument,
@@ -335,8 +337,11 @@ function addFunctionDecoration(
 
   // The decoration sits at the end of the line the call ends on (before any trailing
   // whitespace), so a trailing `Wait(10),` inside a multi-line Text(...) is decorated after
-  // its comma rather than between the call and the comma
-  const endLine = document.lineAt(document.positionAt(matchEndIndex).line);
+  // its comma rather than between the call and the comma. A condition is the exception: its
+  // jump is written on the following line and carries its own Goto decoration, so the
+  // condition's decoration stays on the line it opens on rather than stacking after the jump's
+  const anchorIndex = functionDetails.branch ? matchStartIndex : matchEndIndex;
+  const endLine = document.lineAt(document.positionAt(anchorIndex).line);
   const rangePos = new vscode.Position(endLine.lineNumber, endLine.text.trimEnd().length);
 
   // Calculate current visual column: end of line + parameter decorations
