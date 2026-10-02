@@ -14,17 +14,20 @@ import { getArgumentsFromFunctionLike } from "./string-util";
 export function argumentNames(functionDetails: LinscriptInstructionMeta, call: string, documentText: string) {
   const { varargNames } = functionDetails;
   if (!functionDetails.varargs || !varargNames) {
-    return functionDetails.parameters.map((parameter) =>
-      parameter.scope === "Object"
-        ? objectNamesFromDocument(documentText)
-        : parameter.scope === "Character"
-          ? characterNamesFromDocument(documentText)
-          : parameter.scope === "Option"
-            ? optionNamesFromDocument(documentText)
-            : parameter.scope === "Label"
-              ? labelNamesFromDocument(documentText)
-              : (parameter.namesBy ?? parameter.names),
-    );
+    return functionDetails.parameters.map((parameter) => {
+      switch (parameter.scope) {
+        case "Object":
+          return objectNamesFromDocument(documentText);
+        case "Character":
+          return characterNamesFromDocument(documentText);
+        case "Option":
+          return optionNamesFromDocument(documentText);
+        case "Label":
+          return labelNamesFromDocument(documentText);
+        default:
+          return parameter.namesBy ?? parameter.names;
+      }
+    });
   }
   const count = getArgumentsFromFunctionLike(call).length;
   const { head, tail } = varargNames;
