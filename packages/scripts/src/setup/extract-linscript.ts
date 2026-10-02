@@ -5,9 +5,10 @@ import { existsSync } from "node:fs";
 import { chmod, copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { decompileDirectory } from "lin-compiler";
 import unzipper from "unzipper";
 import { errorMessage } from "../lib/errors.ts";
-import { LIN_COMPILER_CLI, WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
+import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 const BASE_FILES_ZIP = join(WORKBENCH_DIR, "base_files.zip");
@@ -58,12 +59,11 @@ async function decompileLinFiles(extractDir: string): Promise<string> {
     throw new Error(`Script directory not found: ${scriptDir}`);
   }
 
-  if (!existsSync(LIN_COMPILER_CLI)) {
-    throw new Error(`lin-compiler entry point not found at ${LIN_COMPILER_CLI}`);
+  const result = await decompileDirectory(scriptDir);
+  for (const failure of result.failed) {
+    console.error(`  Failed: ${failure.file}: ${failure.error.message}`);
   }
-
-  // Run the lin-compiler in batch decompile mode
-  await execAsync(`node "${LIN_COMPILER_CLI}" -s -d "${scriptDir}"`, { maxBuffer: 50 * 1024 * 1024 });
+  console.log(`Decompiled ${result.succeeded.length} .lin files`);
 
   return scriptDir;
 }

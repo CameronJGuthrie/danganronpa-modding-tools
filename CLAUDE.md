@@ -3,8 +3,7 @@
 ## Repository layout
 Libraries and scripts live under `packages/`, applications under `projects/`:
 - `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`, plus lookup tables under `src/data/` (sound, music and movie names, voice line transcripts, character, sprite, present, flag, variable, UI and background names) used by both the extension and the GUI. It has no build step: its `exports` point at `src/index.ts`, so every consumer imports the TypeScript source. Enums are plain objects made with `defineEnum` in `src/enum.ts` (same shape as a numeric enum, including the value-to-name reverse mapping) so the package stays erasable for Node's type stripping and `erasableSyntaxOnly`; use `typeof Character.Makoto` when a member is needed as a type
-- `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library
-- `projects/cli` - the `lin-compiler` command-line tool, a thin wrapper over the library; `pnpm --filter lin-compiler-cli run build` emits JavaScript to `projects/cli/out/`
+- `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library. There is no command-line tool: the scripts package, the GUI and the extension call the library directly
 - `packages/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
 - `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension. `tsc` only typechecks it; esbuild bundles `src/extension.ts`, the tests and the grammar builder into `out/`, which is how the extension host loads the definitions source
 - `projects/gui` - Electron asset browser (standalone; not a workspace package, has its own lockfile)
@@ -64,11 +63,11 @@ WAD → PAK → (GMO | TGA | PAK | ?)
 ## lin-compiler
 `.linscript` is not a live format. It is still being designed and has no external consumers, so opcode names and argument sugar can change freely; regenerate `workbench/` with `pnpm run reset` after a rename rather than keeping compatibility shims.
 
-TypeScript library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `packages/lin-compiler/src/`; the command-line wrapper lives in `projects/cli/src/cli.ts` and imports the library by its package name.
+TypeScript library for compiling/decompiling Danganronpa script files between binary `.lin` format and human-readable `.linscript` format. Source in `packages/lin-compiler/src/`; consumers import it by its package name (`workspace:*`).
 
-**Status:** Node.js/TypeScript (migrated from C#). No build step — it runs straight from source via Node's type stripping; the CLI entry point is `projects/cli/src/cli.ts`. `pnpm --filter lin-compiler run typecheck` and `pnpm --filter lin-compiler-cli run typecheck` typecheck them.
+**Status:** Node.js/TypeScript (migrated from C#). No build step — it runs straight from source via Node's type stripping. `pnpm --filter lin-compiler run typecheck` typechecks it.
 
-**Usage:** `node projects/cli/src/cli.ts -d input.lin output.linscript` (decompile) or `node projects/cli/src/cli.ts input.linscript output.lin` (compile). Pass a directory instead of a file for batch mode. Options: `-s` silent, `--indent-spaces N` (default 4). Opcodes are only ever written by name: there is no hex form, so an opcode missing from the table is a decompile error.
+**Usage:** there is no command-line tool. Single files go through `decompileFile(lin, linscript)` / `compileFile(linscript, lin)` and whole directories through `decompileDirectory(dir)` / `compileDirectory(dir)` (`src/io/batch.ts`), which convert every matching file in place and return the succeeded and failed paths rather than throwing on the first bad file. The `pnpm` scripts (`reset`, `select`, `verify`, `build`, `extract-recursive`) are the terminal entry points. Opcodes are only ever written by name: there is no hex form, so an opcode missing from the table is a decompile error.
 
 **Tests:** `pnpm --filter lin-compiler run test` runs the `node:test` suites in `packages/lin-compiler/test/`. The corpus test round-trips every `.lin` in `workbench/modded/dr1_data_us/Dr1/data/us/script` and is skipped if that directory is missing. Run it after any change to the reader, writer, or opcode table.
 

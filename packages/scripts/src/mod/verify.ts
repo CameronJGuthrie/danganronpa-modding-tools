@@ -2,11 +2,12 @@
 
 import { exec } from "node:child_process";
 import { existsSync } from "node:fs";
-import { copyFile, mkdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { basename, extname, join, relative } from "node:path";
 import { promisify } from "node:util";
+import { decompileFile } from "lin-compiler";
 import { errorMessage } from "../lib/errors.ts";
-import { LIN_COMPILER_CLI as LIN_COMPILER_PATH, PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
+import { PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 
@@ -79,12 +80,6 @@ async function main(): Promise<void> {
       process.exit(1);
     }
 
-    // Check if lin-compiler exists
-    if (!existsSync(LIN_COMPILER_PATH)) {
-      console.error(`Error: lin-compiler entry point not found at ${LIN_COMPILER_PATH}`);
-      process.exit(1);
-    }
-
     // Calculate the output path in VERIFY_DIR
     const outputBase = basename(sourceFile, ".lin");
     const outputFile = join(VERIFY_DIR, `${outputBase}.linscript`);
@@ -95,21 +90,9 @@ async function main(): Promise<void> {
     // Create output directory
     await mkdir(VERIFY_DIR, { recursive: true });
 
-    // Copy the .lin file to a temp location for decompilation
-    const tempLinFile = join(VERIFY_DIR, basename(sourceFile));
-    await copyFile(sourceFile, tempLinFile);
-
     // Decompile the .lin file
     console.log("\nDecompiling...");
-    const { stdout, stderr } = await execAsync(`node "${LIN_COMPILER_PATH}" -d "${tempLinFile}" "${outputFile}"`, {
-      maxBuffer: 10 * 1024 * 1024,
-    });
-
-    if (stdout) console.log(stdout);
-    if (stderr) console.error(stderr);
-
-    // Remove the temporary .lin file
-    await execAsync(`rm "${tempLinFile}"`);
+    await decompileFile(sourceFile, outputFile);
 
     console.log(`\n✓ Created: ${relative(projectRoot, outputFile)}`);
 

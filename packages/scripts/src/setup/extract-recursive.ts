@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
-import { exec } from "node:child_process";
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { basename, dirname, extname, join } from "node:path";
-import { promisify } from "node:util";
+import { decompileDirectory } from "lin-compiler";
 import { extractPak } from "../formats/pak-archiver.ts";
 import { errorMessage } from "../lib/errors.ts";
-
-const execAsync = promisify(exec);
 
 // ============================================================================
 // WAD Archive Functions
@@ -242,7 +239,10 @@ async function findAndDecompileLins(directory: string): Promise<void> {
   for (const dir of dirsWithLins) {
     try {
       console.log(`  Decompiling: ${dir}`);
-      await execAsync(`node projects/cli/src/cli.ts -d "${dir}"`);
+      const result = await decompileDirectory(dir);
+      for (const failure of result.failed) {
+        console.log(`    Failed: ${basename(failure.file)}: ${failure.error.message}`);
+      }
       // Remove .lin files after successful decompilation
       await removeLinFiles(dir);
     } catch (err) {

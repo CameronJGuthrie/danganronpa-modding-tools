@@ -22,14 +22,13 @@ Libraries and scripts live under `packages/`, applications under `projects/`:
 | Path | What it is |
 | --- | --- |
 | `packages/lin-compiler` | TypeScript (de)compiler library for the game's `.lin` scripts |
-| `projects/cli` | Command-line wrapper around `lin-compiler`; builds to `projects/cli/out/` |
 | `packages/scripts` | TypeScript automation scripts behind the root `pnpm run ...` commands |
 | `projects/vscode-extension` | The VSCode extension (`lindecompilerhelper`) |
 | `projects/gui` | Electron asset browser (standalone, has its own lockfile) |
 | `docs/` | Reverse-engineering notes on the game's file formats |
 | `workbench/` | Generated working files - extracted game data, mods, scratch |
 
-The first four are pnpm workspace packages; `projects/gui` is installed and run on its own.
+All but `projects/gui` are pnpm workspace packages; the GUI is installed and run on its own.
 
 ## Setup and Usage
 
@@ -107,15 +106,10 @@ on its own:
 pnpm run compile
 ```
 
-It can also be driven directly, on a single file or on a whole directory:
+It is a library with no command-line tool of its own: `pnpm select`, `pnpm verify`, `pnpm build` and
+`pnpm reset` call it, and the GUI and VS Code extension are meant to as well.
 
-```bash
-node projects/cli/src/cli.ts -d input.lin output.linscript   # decompile
-node projects/cli/src/cli.ts input.linscript output.lin      # compile
-node projects/cli/src/cli.ts -s -d path/to/scripts/          # batch decompile a directory
-```
-
-See [packages/lin-compiler/README.md](packages/lin-compiler/README.md) for the full option list and for how to add
+See [packages/lin-compiler/README.md](packages/lin-compiler/README.md) for the library API and for how to add
 new opcodes.
 
 ## Scripts

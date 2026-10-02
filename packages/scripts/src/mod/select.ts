@@ -2,12 +2,13 @@
 
 import { exec } from "node:child_process";
 import { existsSync } from "node:fs";
-import { copyFile, mkdir } from "node:fs/promises";
+import { chmod, copyFile, mkdir } from "node:fs/promises";
 import { basename, dirname, extname, join, relative } from "node:path";
 import { promisify } from "node:util";
+import { decompileFile } from "lin-compiler";
 import { errorMessage } from "../lib/errors.ts";
 import { findModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
-import { LIN_COMPILER_CLI as LIN_COMPILER_PATH, PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
+import { PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 
@@ -102,12 +103,6 @@ async function handleLinFile(inputPath: string): Promise<void> {
     process.exit(1);
   }
 
-  // Check if lin-compiler exists
-  if (!existsSync(LIN_COMPILER_PATH)) {
-    console.error(`Error: lin-compiler entry point not found at ${LIN_COMPILER_PATH}`);
-    process.exit(1);
-  }
-
   // Calculate the relative path from MODDED_DIR
   const relativePath = relative(MODDED_DIR, sourceFile);
 
@@ -121,22 +116,9 @@ async function handleLinFile(inputPath: string): Promise<void> {
   // Create output directory
   await mkdir(dirname(outputFile), { recursive: true });
 
-  // Copy the .lin file to a temp location for decompilation
-  const tempDir = dirname(outputFile);
-  const tempLinFile = join(tempDir, basename(sourceFile));
-  await copyFile(sourceFile, tempLinFile);
-
   // Decompile the .lin file
   console.log("\nDecompiling...");
-  const { stdout, stderr } = await execAsync(`node "${LIN_COMPILER_PATH}" -d "${tempLinFile}" "${outputFile}"`, {
-    maxBuffer: 10 * 1024 * 1024,
-  });
-
-  if (stdout) console.log(stdout);
-  if (stderr) console.error(stderr);
-
-  // Remove the temporary .lin file
-  await execAsync(`rm "${tempLinFile}"`);
+  await decompileFile(sourceFile, outputFile);
 
   console.log(`\n✓ Created: ${relative(projectRoot, outputFile)}`);
 
@@ -183,7 +165,7 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
 
   // Copy the linscript file and make it writable
   await copyFile(sourceFile, outputFile);
-  await execAsync(`chmod u+w "${outputFile}"`);
+  await chmod(outputFile, 0o644);
 
   console.log(`\n✓ Created writable copy: ${relative(projectRoot, outputFile)}`);
 

@@ -14,5 +14,4 @@ export const PROJECT_ROOT = join(__dirname, "..", "..", "..", "..");
 export const SCRIPTS_SRC = join(PROJECT_ROOT, "packages", "scripts", "src");
 export const WORKBENCH_DIR = join(PROJECT_ROOT, "workbench");
 
-export const LIN_COMPILER_CLI = join(PROJECT_ROOT, "projects", "cli", "src", "cli.ts");
 export const WAD_ARCHIVER_CLI = join(SCRIPTS_SRC, "formats", "wad-archiver.ts");

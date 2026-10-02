@@ -2,16 +2,15 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * The folder of decompiled scripts the Script Browser opens by default: the repository's
- * `workbench/linscript-exploration`, found relative to the app (which lives in `projects/gui`).
- * Null when the workbench has not been generated (`pnpm run reset`).
+ * The folder of decompiled scripts the Script Browser opens by default: the workbench's
+ * `linscript-exploration/`. Null when the workbench has not been generated (`pnpm run reset`).
  */
-export function defaultScriptDirectory(appPath: string): string | null {
-  const candidates = [
-    path.resolve(appPath, "../../workbench/linscript-exploration"),
-    path.resolve(appPath, "../../../workbench/linscript-exploration"),
-  ];
-  return candidates.find((candidate) => fs.existsSync(candidate)) ?? null;
+export function defaultScriptDirectory(workbenchRoot: string | null): string | null {
+  if (workbenchRoot === null) {
+    return null;
+  }
+  const directory = path.join(workbenchRoot, "linscript-exploration");
+  return fs.existsSync(directory) ? directory : null;
 }
 
 /** Every `.linscript` under `directory`, as forward-slash paths relative to it, sorted. */
@@ -39,13 +38,9 @@ async function walk(root: string, relative: string, files: string[]): Promise<vo
  * `chapter_01/scene_005/103_AnyLabel.linscript`; only the leading numbers name the script
  * (see `packages/scripts/src/lib/mod-scripts.ts`).
  */
-export function modScriptDirectory(appPath: string): string | null {
-  const candidates = [
-    path.resolve(appPath, "../../workbench/mod/dr1_data_us/Dr1/data/us/script"),
-    path.resolve(appPath, "../../../workbench/mod/dr1_data_us/Dr1/data/us/script"),
-  ];
-  // The mod folder may not exist yet; pick the candidate whose workbench does
-  return candidates.find((candidate) => fs.existsSync(path.resolve(candidate, "../../../../../.."))) ?? null;
+export function modScriptDirectory(workbenchRoot: string | null): string | null {
+  // The mod folder may not exist yet; it is enough that the workbench does
+  return workbenchRoot === null ? null : path.join(workbenchRoot, "mod/dr1_data_us/Dr1/data/us/script");
 }
 
 const FLAT_NAME = /^(e\d{2}_\d{3}_\d{3})(?:[^\d].*)?$/;
@@ -104,12 +99,12 @@ export type SaveResult = {
  * file that has been deleted is simply recreated.
  */
 export async function saveScript(
-  appPath: string,
+  workbenchRoot: string | null,
   filePath: string,
   source: string,
   expected: string,
 ): Promise<SaveResult> {
-  const modDirectory = modScriptDirectory(appPath);
+  const modDirectory = modScriptDirectory(workbenchRoot);
   if (modDirectory === null) {
     throw new Error("Cannot find the workbench; run `pnpm run reset` first");
   }
@@ -173,8 +168,8 @@ async function isWritable(filePath: string): Promise<boolean> {
  * Game-name basenames (`e01_005_103.linscript`) of every script with a copy in the mod script
  * directory, whichever layout it is stored in: the scripts that have been modified.
  */
-export async function listModifiedScripts(appPath: string): Promise<string[]> {
-  const modDirectory = modScriptDirectory(appPath);
+export async function listModifiedScripts(workbenchRoot: string | null): Promise<string[]> {
+  const modDirectory = modScriptDirectory(workbenchRoot);
   if (modDirectory === null || !fs.existsSync(modDirectory)) {
     return [];
   }
@@ -200,8 +195,8 @@ export type LoadedScript = {
  * Read a script for editing. Saves land in the mod script directory, so when that holds a copy of
  * the requested file it is the current version and is read in place of the original.
  */
-export async function loadScript(appPath: string, filePath: string): Promise<LoadedScript> {
-  const modDirectory = modScriptDirectory(appPath);
+export async function loadScript(workbenchRoot: string | null, filePath: string): Promise<LoadedScript> {
+  const modDirectory = modScriptDirectory(workbenchRoot);
   const flatName = flatScriptName(path.basename(filePath));
   const modPath = modDirectory === null || flatName === null ? null : await findModScript(modDirectory, flatName);
   const useMod = modPath !== null && path.resolve(filePath) !== modPath;

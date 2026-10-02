@@ -2,7 +2,7 @@ import * as path from "node:path";
 import { sounds } from "linscript-definitions";
 import type * as vscode from "vscode";
 import { instructions } from "../../../instructions";
-import { findRootDirectory } from "../../workspace";
+import { getWorkbenchRoot } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
@@ -41,7 +41,7 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
       }
 
       // Find the root directory
-      const rootDir = findRootDirectory();
+      const rootDir = getWorkbenchRoot();
       if (!rootDir) {
         return null;
       }

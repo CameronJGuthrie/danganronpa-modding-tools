@@ -5,6 +5,9 @@ import { useStateSetters } from "./useStateSetters";
 export type AppState = AppData & Setters<AppData>;
 
 export type AppData = {
+  /** The workbench folder the main process resolved; null when none. Meaningful once `workbenchRootLoaded`. */
+  workbenchRoot: string | null;
+  workbenchRootLoaded: boolean;
   gameDirectory: string | null;
   /** Folder the Asset Preview resolves sprite paths against; null until the default is looked up or one is chosen. */
   assetDirectory: string | null;
@@ -12,6 +15,8 @@ export type AppData = {
 };
 
 const initialData: AppData = {
+  workbenchRoot: null,
+  workbenchRootLoaded: false,
   gameDirectory: null,
   assetDirectory: null,
   characterStandingSpriteFilePath: null,

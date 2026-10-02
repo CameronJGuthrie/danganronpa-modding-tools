@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAppContext } from "../../state/AppContext";
 import { ScriptEditor } from "./ScriptEditor";
 import { ScriptFileTree } from "./ScriptFileTree";
 
@@ -22,6 +23,7 @@ type OpenScript = {
  * for the chosen file beside it. The folder, the open file and the panel state are remembered.
  */
 export function ScriptBrowser() {
+  const { workbenchRoot, workbenchRootLoaded } = useAppContext();
   const [directory, setDirectory] = useState<string | null>(() => read(STORAGE.directory));
   const [selectedPath, setSelectedPath] = useState<string | null>(() => read(STORAGE.file));
   const [collapsed, setCollapsed] = useState(() => read(STORAGE.collapsed) === "true");
@@ -52,26 +54,39 @@ export function ScriptBrowser() {
     setReveal(line === undefined ? null : { line });
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the mod directory lives in the workbench, so refresh when it changes
   const refreshModified = useCallback(() => {
     window.electron
       .listModifiedScripts()
       .then((names) => setModified(new Set(names)))
       .catch(() => setModified(new Set()));
-  }, []);
+  }, [workbenchRoot]);
 
   useEffect(refreshModified, [refreshModified]);
 
-  // Fall back to the repository workbench when no folder has been chosen yet
+  // Open the workbench's decompiled scripts when no folder has been chosen yet, and again
+  // whenever a different workbench is chosen
+  const appliedRoot = useRef<string | null | undefined>(undefined);
   useEffect(() => {
-    if (directory !== null) {
+    if (!workbenchRootLoaded) {
+      return;
+    }
+    const rootChanged = appliedRoot.current !== undefined && appliedRoot.current !== workbenchRoot;
+    appliedRoot.current = workbenchRoot;
+    if (directory !== null && !rootChanged) {
       return;
     }
     window.electron.getDefaultScriptDirectory().then((found) => {
-      if (found !== null) {
-        setDirectory(found);
+      if (found === null) {
+        return;
+      }
+      setDirectory(found);
+      if (rootChanged) {
+        setSelectedPath(null);
+        setScript(null);
       }
     });
-  }, [directory]);
+  }, [directory, workbenchRoot, workbenchRootLoaded]);
 
   // Load the selected file, or its saved copy in the mod directory when there is one. Edits made
   // in the editor are held there and lost when switching files without saving.

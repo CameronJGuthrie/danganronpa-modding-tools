@@ -7,7 +7,6 @@ projects/cli/out/
 
 # Workspace directory (working files)
 workbench/*
-!workbench/.danganronpa-working-root
 
 # Really messy debug scripts
 packages/scripts/src/generator.ts

@@ -8,6 +8,14 @@ export {
 } from "./definitions/parameter.definition.ts";
 export { type Script, type ScriptEntry, type ScriptMeta, ScriptType } from "./definitions/script.definition.ts";
 export { BinaryError, SourceError } from "./errors.ts";
+export {
+  type BatchFailure,
+  type BatchResult,
+  compileDirectory,
+  compileFile,
+  decompileDirectory,
+  decompileFile,
+} from "./io/batch.ts";
 export { readCompiled, readCompiledFile } from "./io/lin-reader.ts";
 export { writeCompiledBytes, writeCompiledFile } from "./io/lin-writer.ts";
 export { readSource, readSourceFile } from "./io/linscript-reader.ts";

@@ -7,8 +7,8 @@ import { toggleFunctionDecorations, toggleParameterDecorations } from "./feature
 import { registerDecoration } from "./features/decoration";
 import { registerDefinitionProvider } from "./features/go-to-definition";
 import { registerHoverProvider } from "./features/hover";
-import { findRootDirectory, isRootWorkspace } from "./features/workspace";
-import { initializeOutputChannel, log, logWarning } from "./output";
+import { registerWorkbenchRoot, requireWorkbenchRoot } from "./features/workspace";
+import { initializeOutputChannel, log } from "./output";
 
 export function activate(context: vscode.ExtensionContext) {
   // Initialize output channel first
@@ -17,14 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
   log(`========================================`);
   log(`Danganronpa Modding extension activated at ${timestamp}`);
 
-  if (isRootWorkspace()) {
-    log("Root workspace detected");
-  } else {
-    logWarning(".danganronpa-working-root marker file not found.");
-    vscode.window.showWarningMessage(
-      "Danganronpa extension: .danganronpa-working-root marker file not found in workspace hierarchy. Create this file in your working directory.",
-    );
-  }
+  registerWorkbenchRoot(context);
   registerDecoration();
   registerDefinitionProvider(context);
   registerHoverProvider(context);
@@ -35,16 +28,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register context menu command for selecting scripts
   const selectCommand = vscode.commands.registerCommand("lindecompilerhelper.selectScript", async (uri: vscode.Uri) => {
-    const rootDir = findRootDirectory();
-    if (!rootDir) {
-      vscode.window.showErrorMessage("Cannot find root directory with .danganronpa-working-root marker");
+    const rootDir = await requireWorkbenchRoot();
+    if (rootDir === null) {
       return;
     }
 
     const path = require("node:path");
     const fs = require("node:fs");
 
-    // The marker lives in workbench/; the pnpm scripts run from the repository root above it
+    // The pnpm scripts run from the repository root, which holds the workbench
     const repoRoot = path.dirname(rootDir);
 
     // Determine output file path
@@ -78,16 +70,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Register context menu command for verifying files
   const verifyCommand = vscode.commands.registerCommand("lindecompilerhelper.verifyFile", async (uri: vscode.Uri) => {
-    const rootDir = findRootDirectory();
-    if (!rootDir) {
-      vscode.window.showErrorMessage("Cannot find root directory with .danganronpa-working-root marker");
+    const rootDir = await requireWorkbenchRoot();
+    if (rootDir === null) {
       return;
     }
 
     const path = require("node:path");
     const fs = require("node:fs");
 
-    // The marker lives in workbench/; the pnpm scripts run from the repository root above it
+    // The pnpm scripts run from the repository root, which holds the workbench
     const repoRoot = path.dirname(rootDir);
 
     // Extract the base filename

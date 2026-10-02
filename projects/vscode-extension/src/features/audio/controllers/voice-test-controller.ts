@@ -8,7 +8,7 @@ import {
 } from "linscript-definitions";
 import type * as vscode from "vscode";
 import { instructions } from "../../../instructions";
-import { findRootDirectory } from "../../workspace";
+import { getWorkbenchRoot } from "../../workspace";
 import { createAudioTestController } from "../test-controller";
 import { type AudioTestConfigBuilder, createConfiguration } from "../test-controller-config";
 
@@ -67,7 +67,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       const indexStr = audioIndex.toString().padStart(5, "0");
 
       // Find the root directory
-      const rootDir = findRootDirectory();
+      const rootDir = getWorkbenchRoot();
       if (!rootDir) {
         return null;
       }

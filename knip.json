@@ -19,11 +19,6 @@
         "test/**/*.ts"
       ]
     },
-    "projects/cli": {
-      "project": [
-        "src/**/*.ts"
-      ]
-    },
     "packages/scripts": {
       "entry": [
         "src/{formats,setup,mod,game,explore}/*.ts"

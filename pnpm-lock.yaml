@@ -207,6 +207,9 @@ importers:
       clipboardy:
         specifier: ^5.0.0
         version: 5.3.2
+      lin-compiler:
+        specifier: workspace:*
+        version: link:../lin-compiler
       sharp:
         specifier: '>=0.35.0'
         version: 0.35.4(@types/node@22.20.1)
@@ -223,19 +226,6 @@ importers:
       '@types/unzipper':
         specifier: ^0.10.11
         version: 0.10.11
-      typescript:
-        specifier: 'catalog:'
-        version: 7.0.2
-
-  projects/cli:
-    dependencies:
-      lin-compiler:
-        specifier: workspace:*
-        version: link:../../packages/lin-compiler
-    devDependencies:
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.20.1
       typescript:
         specifier: 'catalog:'
         version: 7.0.2

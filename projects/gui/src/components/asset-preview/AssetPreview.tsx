@@ -99,13 +99,14 @@ export function AssetPreview() {
   );
 }
 
-/** The app-wide asset directory, filled from the main process default on first use. */
+/** The app-wide asset directory, filled from the workbench default on first use and whenever the workbench changes. */
 function useAssetDirectory() {
-  const { assetDirectory, setAssetDirectory } = useAppContext();
+  const { assetDirectory, setAssetDirectory, workbenchRoot, workbenchRootLoaded } = useAppContext();
   const [lookedUp, setLookedUp] = useState(assetDirectory !== null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the default lives in the workbench, so look it up again when that changes
   useEffect(() => {
-    if (lookedUp) {
+    if (!workbenchRootLoaded) {
       return;
     }
     let isMounted = true;
@@ -121,7 +122,7 @@ function useAssetDirectory() {
     return () => {
       isMounted = false;
     };
-  }, [lookedUp, setAssetDirectory]);
+  }, [workbenchRoot, workbenchRootLoaded, setAssetDirectory]);
 
   const chooseDirectory = useCallback(async () => {
     const result = await window.electron.openDirectoryDialog();

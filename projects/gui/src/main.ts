@@ -14,6 +14,7 @@ import {
   saveScript,
   searchScripts,
 } from "./main/scripts";
+import { setWorkbenchRoot, workbenchRoot } from "./main/settings";
 import { convertTgaToPngDataUrl } from "./main/tga";
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
@@ -101,22 +102,39 @@ ipcMain.handle("get-default-game-directory", () => {
   return null;
 });
 
-ipcMain.handle("get-default-asset-directory", () => defaultAssetDirectory(app.getAppPath()));
+/** The workbench folder in use: the saved setting, or the repository's `workbench/` in development. */
+const currentWorkbench = (): string | null => workbenchRoot(app.getAppPath()).path;
 
-ipcMain.handle("get-default-script-directory", () => defaultScriptDirectory(app.getAppPath()));
+ipcMain.handle("get-workbench-root", () => workbenchRoot(app.getAppPath()));
+
+ipcMain.handle("choose-workbench-root", async () => {
+  if (!mainWindow) return null;
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: "Choose the workbench folder",
+    buttonLabel: "Use as workbench",
+    properties: ["openDirectory", "createDirectory"],
+  });
+  if (result.canceled || result.filePaths.length === 0) return null;
+  setWorkbenchRoot(result.filePaths[0]);
+  return result.filePaths[0];
+});
+
+ipcMain.handle("get-default-asset-directory", () => defaultAssetDirectory(currentWorkbench()));
+
+ipcMain.handle("get-default-script-directory", () => defaultScriptDirectory(currentWorkbench()));
 
 ipcMain.handle("list-linscript-files", async (_event, directory: string) => listLinscriptFiles(directory));
 
-ipcMain.handle("load-script", async (_event, filePath: string) => loadScript(app.getAppPath(), filePath));
+ipcMain.handle("load-script", async (_event, filePath: string) => loadScript(currentWorkbench(), filePath));
 
-ipcMain.handle("list-modified-scripts", async () => listModifiedScripts(app.getAppPath()));
+ipcMain.handle("list-modified-scripts", async () => listModifiedScripts(currentWorkbench()));
 
 ipcMain.handle("search-scripts", async (_event, directory: string, query: string) => searchScripts(directory, query));
 
 ipcMain.handle("run-game", async () => runGame(app.getAppPath()));
 
 ipcMain.handle("save-script", async (_event, filePath: string, source: string, expected: string) =>
-  saveScript(app.getAppPath(), filePath, source, expected),
+  saveScript(currentWorkbench(), filePath, source, expected),
 );
 
 ipcMain.handle("tga-file-to-base-64-png", async (_event, filePath: string) => {

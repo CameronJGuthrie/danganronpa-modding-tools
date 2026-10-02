@@ -1,7 +1,6 @@
 packages:
   - packages/lin-compiler
   - packages/definitions
-  - projects/cli
   - packages/scripts
   - projects/vscode-extension
 

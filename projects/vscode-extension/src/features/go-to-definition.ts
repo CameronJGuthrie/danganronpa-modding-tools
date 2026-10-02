@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { log } from "../output";
 import { labelNamesFromDocument } from "../util/script-meta";
 import { createStartOfLineFunctionRegex } from "../util/string-util";
-import { findRootDirectory } from "./workspace";
+import { getWorkbenchRoot } from "./workspace";
 
 /**
  * Provides "Go to Definition" (Ctrl+Click) functionality for .linscript files
@@ -92,7 +92,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
    * Format: e{chapter:02d}_{episode:03d}_{scene:03d}.linscript
    */
   private findScriptFile(chapter: number, episode: number, scene: number): vscode.Location | null {
-    const rootDir = findRootDirectory();
+    const rootDir = getWorkbenchRoot();
     if (!rootDir) {
       log("Root directory not found");
       return null;
@@ -133,7 +133,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
    * TODO: when does the Sprite instruction use the bustup images at dr1_data/Dr1/data/all/texture/cg/*.tga
    */
   private findSpriteImageFile(character: number, spriteId: number): vscode.Location | null {
-    const rootDir = findRootDirectory();
+    const rootDir = getWorkbenchRoot();
     if (!rootDir) {
       log("Root directory not found");
       return null;

@@ -1,6 +1,6 @@
 # lin-compiler
 
-TypeScript CLI and library for compiling/decompiling Danganronpa script files between the
+TypeScript library for compiling/decompiling Danganronpa script files between the
 binary `.lin` format and the human-readable `.linscript` format.
 
 ## Build and test
@@ -10,7 +10,7 @@ pnpm --filter lin-compiler run typecheck   # or, from the repo root: pnpm compil
 pnpm --filter lin-compiler run test        # unit tests, plus a corpus round-trip when scripts are extracted
 ```
 
-There is no build output: Node runs the TypeScript sources directly via type stripping, with `projects/cli/src/cli.ts` (the `lin-compiler-cli` package) as the command-line entry point.
+There is no build output: Node runs the TypeScript sources directly via type stripping. There is no command-line tool either; the root `pnpm` scripts, the GUI and the VS Code extension import the library.
 
 The corpus test in `test/corpus.test.ts` decompiles and recompiles every `.lin` under
 `workbench/modded/dr1_data_us/Dr1/data/us/script` and checks the regenerated source is
@@ -18,28 +18,20 @@ identical. It is skipped when that directory has not been extracted with `pnpm u
 
 ## Usage
 
-```bash
-node projects/cli/src/cli.ts [options] input [output]
+```ts
+import { compileDirectory, compileFile, decompileDirectory, decompileFile } from "lin-compiler";
+
+await decompileFile("input.lin", "output.linscript");       // one file, optional WriteSourceOptions
+await compileFile("input.linscript", "output.lin");
+
+const result = await decompileDirectory("path/to/scripts");  // every *.lin → sibling *.linscript
+for (const { file, error } of result.failed) console.error(file, error.message);
 ```
 
-| Option | Description |
-| --- | --- |
-| `-h`, `--help` | Display the usage message |
-| `-d`, `--decompile` | Decompile the input (default is compile) |
-| `-s`, `--silent` | Suppress all non-error messages |
-| `--indent-spaces N` | Indentation spaces per level (default: 4) |
-
-Examples:
-
-```bash
-node projects/cli/src/cli.ts -d input.lin output.linscript   # decompile
-node projects/cli/src/cli.ts input.linscript output.lin      # compile
-node projects/cli/src/cli.ts -s -d path/to/scripts/          # batch decompile a directory
-```
-
-When `input` is a directory, every matching file in it is processed in place: `*.lin` →
-`*.linscript` when decompiling, `*.linscript` → `*.lin` when compiling. An `output` path is
-not accepted in that mode.
+The directory functions convert every matching file in place (`*.lin` → `*.linscript` when
+decompiling, `*.linscript` → `*.lin` when compiling), carry on past a file that fails, and return
+the succeeded and failed paths. `decompileFile` and `decompileDirectory` take a `WriteSourceOptions`
+(`indentSpaces`, default 4).
 
 ## Library
 

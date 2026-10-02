@@ -1,80 +1,103 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { log, logError } from "../output";
+import { log } from "../output";
 
-const MARKER_FILE = ".danganronpa-working-root";
-
-let cachedRootPath: string | null = null;
+const EXTENSION_ID = "lindecompilerhelper";
+const WORKBENCH_ROOT_KEY = "workbenchRoot";
+const CHOOSE_WORKBENCH_ROOT_COMMAND = `${EXTENSION_ID}.chooseWorkbenchRoot`;
 
 /**
- * Finds the root directory by searching for a marker file
- * starting from workspace folders and searching recursively downward
+ * The workbench folder (extracted game data, `mod/`, `modded/`, `linscript-exploration/`), from
+ * the `lindecompilerhelper.workbenchRoot` setting. A relative value is resolved against the first
+ * workspace folder, so the default `workbench` finds the repository's own workbench with no
+ * configuration. Null when the setting is empty or the folder does not exist.
  */
-export function findRootDirectory(): string | null {
-  if (cachedRootPath) {
-    log(`Using cached root path: ${cachedRootPath}`);
-    return cachedRootPath;
-  }
-
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
+export function getWorkbenchRoot(): string | null {
+  const configured = vscode.workspace.getConfiguration(EXTENSION_ID).get<string>(WORKBENCH_ROOT_KEY, "").trim();
+  if (configured === "") {
     return null;
   }
 
-  // Search each workspace folder
-  for (const folder of workspaceFolders) {
-    const result = searchForMarkerFile(folder.uri.fsPath);
-    if (result) {
-      cachedRootPath = result;
-      log(`Found and cached root path: ${cachedRootPath}`);
-      return result;
-    }
-  }
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const resolved = path.isAbsolute(configured)
+    ? configured
+    : workspaceFolder === undefined
+      ? null
+      : path.resolve(workspaceFolder, configured);
 
-  return null;
+  if (resolved === null || !isDirectory(resolved)) {
+    log(`Workbench root "${configured}" does not resolve to a folder`);
+    return null;
+  }
+  return resolved;
 }
 
 /**
- * Recursively searches for the marker file in a directory and its subdirectories
+ * The workbench root, or, when none is configured, an offer to pick one. Resolves to null when
+ * the user dismisses the prompt.
  */
-function searchForMarkerFile(dir: string): string | null {
-  // Check if marker file exists in current directory
-  const markerPath = path.join(dir, MARKER_FILE);
-  if (fs.existsSync(markerPath)) {
-    return dir;
+export async function requireWorkbenchRoot(): Promise<string | null> {
+  const root = getWorkbenchRoot();
+  if (root !== null) {
+    return root;
+  }
+  const choice = await vscode.window.showErrorMessage(
+    "Danganronpa extension: the workbench folder is not configured.",
+    "Choose folder…",
+  );
+  return choice === undefined ? null : chooseWorkbenchRoot();
+}
+
+/**
+ * Ask for the workbench folder and store it in the `workbenchRoot` setting: in the workspace
+ * settings when a workspace is open (the workbench belongs to the folder, not the user), otherwise
+ * in the user settings. Returns the chosen folder, or null when the dialog was cancelled.
+ */
+async function chooseWorkbenchRoot(): Promise<string | null> {
+  const picked = await vscode.window.showOpenDialog({
+    canSelectFiles: false,
+    canSelectFolders: true,
+    canSelectMany: false,
+    openLabel: "Use as workbench",
+    title: "Choose the Danganronpa workbench folder",
+  });
+  const folder = picked?.[0]?.fsPath;
+  if (folder === undefined) {
+    return null;
   }
 
-  // Search subdirectories
+  const target =
+    vscode.workspace.workspaceFolders === undefined
+      ? vscode.ConfigurationTarget.Global
+      : vscode.ConfigurationTarget.Workspace;
+  await vscode.workspace.getConfiguration(EXTENSION_ID).update(WORKBENCH_ROOT_KEY, folder, target);
+  log(`Workbench root set to ${folder}`);
+  vscode.window.showInformationMessage(`Workbench folder set to ${folder}`);
+  return folder;
+}
+
+/** Register the "choose workbench folder" command and the activation check that offers it. */
+export function registerWorkbenchRoot(context: vscode.ExtensionContext): void {
+  context.subscriptions.push(vscode.commands.registerCommand(CHOOSE_WORKBENCH_ROOT_COMMAND, chooseWorkbenchRoot));
+
+  const root = getWorkbenchRoot();
+  if (root !== null) {
+    log(`Workbench root: ${root}`);
+    return;
+  }
+  void vscode.window
+    .showWarningMessage(
+      "Danganronpa extension: no workbench folder found. Set lindecompilerhelper.workbenchRoot to use script selection, navigation and audio playback.",
+      "Choose folder…",
+    )
+    .then((choice) => (choice === undefined ? undefined : chooseWorkbenchRoot()));
+}
+
+function isDirectory(folder: string): boolean {
   try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.isDirectory()) {
-        const subDirPath = path.join(dir, entry.name);
-        const result = searchForMarkerFile(subDirPath);
-        if (result) {
-          return result;
-        }
-      }
-    }
-  } catch (err) {
-    // Handle permission errors or other issues reading directory
-    logError(`Error reading directory ${dir}: ${err}`);
+    return fs.statSync(folder).isDirectory();
+  } catch {
+    return false;
   }
-
-  return null;
-}
-
-/**
- * Checks if we're in a Danganronpa modding workspace by looking for the marker file
- */
-export function isRootWorkspace(): boolean {
-  return findRootDirectory() !== null;
-}
-
-/**
- * Clears the cached root path (useful for testing or if the marker file is created/deleted)
- */
-export function clearRootCache(): void {
-  cachedRootPath = null;
 }
