@@ -28,7 +28,7 @@ node projects/cli/src/cli.ts [options] input [output]
 | `-d`, `--decompile` | Decompile the input (default is compile) |
 | `-s`, `--silent` | Suppress all non-error messages |
 | `--hex` | Output opcodes as hex codes instead of names (decompile only) |
-| `--indent-spaces N` | Indentation spaces per level (default: 2) |
+| `--indent-spaces N` | Indentation spaces per level (default: 4) |
 
 Examples:
 

@@ -19,14 +19,43 @@
 export type ScriptLine = {
   /** 1-based line number in the original source. */
   lineNumber: number;
-  /** Indentation depth (2 spaces per level in the decompiler output). */
+  /** Indentation depth (4 spaces per level in the decompiler output). */
   depth: number;
   functionName: string;
   /** Raw argument text between the parentheses, split on top-level commas. */
   args: string[];
   /** The trimmed source text of the line; empty for a blank line. */
   text: string;
+  /**
+   * True for a line that continues the statement begun on an earlier line, such as the `Goto(n))`
+   * under a condition or a trailing instruction under `Text("...",`. The statement's function name
+   * and arguments are read from its first line, which absorbs the continuation lines' text.
+   */
+  continuation?: boolean;
 };
+
+/** Open parentheses minus closed ones, ignoring those inside quoted strings. */
+function parenDepth(text: string): number {
+  let depth = 0;
+  let inString = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (inString) {
+      if (char === "\\") {
+        i++;
+      } else if (char === '"') {
+        inString = false;
+      }
+    } else if (char === '"') {
+      inString = true;
+    } else if (char === "(") {
+      depth++;
+    } else if (char === ")") {
+      depth--;
+    }
+  }
+  return depth;
+}
 
 /** True for a blank source line, which is kept so the editor can show and fill it. */
 export function isBlank(line: ScriptLine): boolean {
@@ -63,27 +92,40 @@ export type ControlFlow = {
 };
 
 const TERMINATOR = 255;
-const INDENT_WIDTH = 2;
+const INDENT_WIDTH = 4;
 
 export function parseScriptLines(source: string): ScriptLine[] {
   const lines: ScriptLine[] = [];
   const rawLines = source.replace(/^﻿/, "").split(/\r?\n/);
 
+  // A statement whose parentheses stay open runs onto the following lines; its name and arguments
+  // come from the joined text, while each raw line still gets a row of its own
+  let open = 0;
   rawLines.forEach((raw, index) => {
     // Blank lines are kept (with their indentation) so they render as editable rows
     const leading = raw.length - raw.trimStart().length;
     const text = raw.trim();
-    const match = text.match(/^(\w+)\((.*)\)$/s);
+    const depth = Math.floor(leading / INDENT_WIDTH);
+    if (open > 0 && text !== "") {
+      open += parenDepth(text);
+      lines.push({ lineNumber: index + 1, depth, functionName: "", args: [], text, continuation: true });
+      return;
+    }
+    open = Math.max(parenDepth(text), 0);
+    let statement = text;
+    for (let next = index + 1; open > 0 && next < rawLines.length; next++) {
+      const continued = rawLines[next].trim();
+      if (continued === "") {
+        continue;
+      }
+      statement += ` ${continued}`;
+      open += parenDepth(continued);
+    }
+    const match = statement.match(/^(\w+)\((.*)\)$/s);
     const functionName = match ? match[1] : text;
     const args = match ? splitArgs(match[2]) : [];
 
-    lines.push({
-      lineNumber: index + 1,
-      depth: Math.floor(leading / INDENT_WIDTH),
-      functionName,
-      args,
-      text,
-    });
+    lines.push({ lineNumber: index + 1, depth, functionName, args, text });
   });
 
   return lines;

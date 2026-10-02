@@ -82,7 +82,7 @@ describe("compile and decompile", () => {
 
   test("Text absorbs the instructions between the printed text and its WaitInput", () => {
     const source =
-      'Text("Hi\\nthere", Wait(10), SetUI(Rumble, Hidden))\nText("<thought>x</thought>", Music(3, 100, 0))\nText("plain")\n';
+      'Text("Hi\\nthere",\n    Wait(10),\n    SetUI(Rumble, Hidden))\nText("<thought>x</thought>",\n    Music(3, 100, 0))\nText("plain")\n';
     const script = readSource(source);
     assert.deepEqual(
       script.entries.map((entry) => entry.opcode),
@@ -125,7 +125,7 @@ describe("compile and decompile", () => {
   test("a WaitFrame count that differs from the newlines still collapses to Text", () => {
     // Two newlines, one WaitFrame: recompiling emits two
     const source = 'RawText("a\\nb\\n")\nWaitFrame()\nWait(10)\nSetUI(Rumble, Hidden)\nWaitInput()\n';
-    const expected = 'Text("a\\nb", Wait(10), SetUI(Rumble, Hidden))\n';
+    const expected = 'Text("a\\nb",\n    Wait(10),\n    SetUI(Rumble, Hidden))\n';
     assert.equal(writeSourceText(readSource(source)), expected);
     assert.equal(roundTrip(expected), expected);
     assert.equal(readSource(expected).entries.filter((e) => e.opcode === Opcode.WaitFrame).length, 2);
@@ -135,19 +135,20 @@ describe("compile and decompile", () => {
   });
 
   test("Text may spread its trailing instructions over several lines", () => {
-    const multiLine = 'Text("Hi",\n  Wait(10),\n  # a comment inside is ignored\n  SetUI(Rumble, Hidden))\nSpeaker(Makoto)\n';
+    const multiLine = 'Text("Hi",\n    Wait(10),\n    # a comment inside is ignored\n    SetUI(Rumble, Hidden))\nSpeaker(Makoto)\n';
     const script = readSource(multiLine);
-    assert.equal(writeSourceText(script), 'Text("Hi", Wait(10), SetUI(Rumble, Hidden))\nSpeaker(Makoto)\n');
+    assert.equal(writeSourceText(script), 'Text("Hi",\n    Wait(10),\n    SetUI(Rumble, Hidden))\nSpeaker(Makoto)\n');
     // A closing paren inside the string does not end the statement
     assert.equal(
-      writeSourceText(readSource('Text("a)",\n  Wait(1))\n')),
+      writeSourceText(readSource('Text("a)",\n    Wait(1))\n')),
       writeSourceText(readSource('Text("a)", Wait(1))\n')),
     );
     // Errors in a continued statement point at its first line
-    assert.throws(() => readSource('Speaker(Makoto)\nText("a",\n  Goto(1))\n'), (error: SourceError) => error.line === 2);
-    assert.throws(() => readSource('Text("a",\n  Wait(1)\n'), (error: SourceError) => error.line === 1);
-    // Only Text continues: any other unbalanced line is still an error on its own
-    assert.throws(() => readSource('Speaker(Makoto\n)\n'), SourceError);
+    assert.throws(() => readSource('Speaker(Makoto)\nText("a",\n    Goto(1))\n'), (error: SourceError) => error.line === 2);
+    assert.throws(() => readSource('Text("a",\n    Wait(1)\n'), (error: SourceError) => error.line === 1);
+    // Any statement continues while its parentheses stay open; a stray close paren is still an error
+    assert.deepEqual(readSource('Speaker(Makoto\n)\n').entries, readSource('Speaker(Makoto)\n').entries);
+    assert.throws(() => readSource('Speaker(Makoto))\n'), SourceError);
   });
 
   test("Text refuses trailing instructions the sugar cannot absorb", () => {
@@ -168,9 +169,9 @@ describe("compile and decompile", () => {
   });
 
   test("Option(n, label) stands for SetOption plus its RawText label and WaitFrame", () => {
-    const source = 'Option(1, "Yes")\n  Goto(5)\nOption(2, "No")\n  Goto(6)\nSetOption(Exit_1)\nSetOption(255)\n';
+    const source = 'Option(1, "Yes")\n    Goto(5)\nOption(2, "No")\n    Goto(6)\nSetOption(Exit_1)\nSetOption(255)\n';
     const script = readSource(
-      'Option(1, "Yes")\n  Goto(5)\nOption(2, "No")\n  Goto(6)\nSetOption(18)\nSetOption(255)\n',
+      'Option(1, "Yes")\n    Goto(5)\nOption(2, "No")\n    Goto(6)\nSetOption(18)\nSetOption(255)\n',
     );
     assert.deepEqual(
       script.entries.map((entry) => [entry.opcode, ...entry.args]),
@@ -198,7 +199,7 @@ describe("compile and decompile", () => {
 
   test("a SetOption whose label does not follow directly stays plain", () => {
     const source =
-      'SetOption(1)\n  Speaker(Makoto)\n  RawText("Yes\\n")\n  WaitFrame()\nSetOption(2)\n  RawText("No")\n  WaitFrame()\n';
+      'SetOption(1)\n    Speaker(Makoto)\n    RawText("Yes\\n")\n    WaitFrame()\nSetOption(2)\n    RawText("No")\n    WaitFrame()\n';
     assert.equal(writeSourceText(readSource(source)), source);
   });
 
@@ -244,7 +245,7 @@ describe("compile and decompile", () => {
     const script = readSource("If(20, !=, 21, Goto(1))\nIf(Scene, !=, 16, Or, 20, !=, 17, Goto(2))\nIf(49, !=, 0, Goto(3))\n");
     assert.equal(
       writeSourceText(script),
-      "If(Scene, !=, 21, Goto(1))\nIf(Scene, !=, 16, Or, Scene, !=, 17, Goto(2))\nIf(49, !=, 0, Goto(3))\n",
+      "If(Scene, !=, 21,\n    Goto(1))\nIf(Scene, !=, 16, Or, Scene, !=, 17,\n    Goto(2))\nIf(49, !=, 0,\n    Goto(3))\n",
     );
     assert.throws(() => readSource("If(Scene, !=, Monocoin, Goto(1))\n"), SourceError);
   });
@@ -289,7 +290,7 @@ describe("compile and decompile", () => {
   test("If chains round-trip through big-endian packing", () => {
     // Followed by another opcode so the variadic If does not absorb the alignment padding
     // The joiner and second operator bytes are deliberately invalid, so they stay numeric
-    const source = "If(258, ==, 772, 5, 1, 9, 2, Goto(1))\nSpeaker(Taka)\n";
+    const source = "If(258, ==, 772, 5, 1, 9, 2,\n    Goto(1))\nSpeaker(Taka)\n";
     const entry = readSource(source).entries[0];
     assert.deepEqual(entry.args, [1, 2, 1, 3, 4, 5, 0, 1, 9, 0, 2]);
     assert.equal(roundTrip(source), source);
@@ -381,8 +382,8 @@ describe("Text sugar", () => {
     const source = 'RawText("hi\\n")\nWaitFrame()\nSpeaker(Taka)\n';
     assert.equal(roundTrip(source), source);
     // A menu label written the long way collapses to the Option sugar on decompile
-    const option = 'SetOption(1)\n  RawText("Yes\\n")\n  WaitFrame()\n  Goto(1)\nSetOption(255)\n';
-    assert.equal(roundTrip(option), 'Option(1, "Yes")\n  Goto(1)\nSetOption(255)\n');
+    const option = 'SetOption(1)\n    RawText("Yes\\n")\n    WaitFrame()\n    Goto(1)\nSetOption(255)\n';
+    assert.equal(roundTrip(option), 'Option(1, "Yes")\n    Goto(1)\nSetOption(255)\n');
   });
 
   test("RawText compiles to exactly one entry with no implicit newline", () => {
@@ -397,14 +398,14 @@ describe("Text sugar", () => {
 describe("Meta block", () => {
   const source = [
     "OnObject(Monitor)",
-    "  ObjectState(Camera, 1, 0, 0, 0)",
+    "    ObjectState(Camera, 1, 0, 0, 0)",
     "OnObject(254)",
-    "  Speaker(Makoto)",
+    "    Speaker(Makoto)",
     "OnObject(255)",
     "",
     "Meta()",
-    "  Object(20, Monitor)",
-    "  Object(21, Camera)",
+    "    Object(20, Monitor)",
+    "    Object(21, Camera)",
     "",
   ].join("\n");
 
@@ -426,7 +427,7 @@ describe("Meta block", () => {
 
   test("Character(id, Name) names OnCharacter slots separately from object ids", () => {
     const source =
-      "OnCharacter(Sayaka)\n  Goto(1)\nOnCharacter(3)\nOnCharacter(255)\nOnObject(Sayaka_Seat)\nOnObject(255)\n\nMeta()\n  Object(0, Sayaka_Seat)\n  Character(0, Sayaka)\n";
+      "OnCharacter(Sayaka)\n    Goto(1)\nOnCharacter(3)\nOnCharacter(255)\nOnObject(Sayaka_Seat)\nOnObject(255)\n\nMeta()\n    Object(0, Sayaka_Seat)\n    Character(0, Sayaka)\n";
     const script = readSource(source);
     assert.deepEqual(script.meta, { objects: { 0: "Sayaka_Seat" }, characters: { 0: "Sayaka" }, options: {}, labels: {} });
     assert.deepEqual(
@@ -438,8 +439,8 @@ describe("Meta block", () => {
   });
 
   test("numbers are accepted for named objects and unnamed ids stay numeric", () => {
-    const script = readSource("OnObject(20)\nOnObject(22)\nMeta()\n  Object(20, Monitor)\n");
-    assert.equal(writeSourceText(script), "OnObject(Monitor)\nOnObject(22)\n\nMeta()\n  Object(20, Monitor)\n");
+    const script = readSource("OnObject(20)\nOnObject(22)\nMeta()\n    Object(20, Monitor)\n");
+    assert.equal(writeSourceText(script), "OnObject(Monitor)\nOnObject(22)\n\nMeta()\n    Object(20, Monitor)\n");
   });
 
   test("the block is dropped by the binary and by hex output", () => {
@@ -454,13 +455,13 @@ describe("Meta block", () => {
     );
     assert.equal(
       writeSourceText(script, { hexOpcodes: true }),
-      "0x29(20)\n  0x23(21, 1, 0, 0, 0)\n0x29(254)\n  0x21(0)\n0x29(255)\n",
+      "0x29(20)\n    0x23(21, 1, 0, 0, 0)\n0x29(254)\n    0x21(0)\n0x29(255)\n",
     );
   });
 
   test("exit option ids have default names and Meta() names the choices or overrides a default", () => {
     const source =
-      'Option(Yes, "Sure")\n  Goto(1)\nOption(No, "Nope")\n  Goto(2)\nOption(Leave, "Leave")\n  Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n  Option(1, Yes)\n  Option(2, No)\n  Option(3, Leave)\n';
+      'Option(Yes, "Sure")\n    Goto(1)\nOption(No, "Nope")\n    Goto(2)\nOption(Leave, "Leave")\n    Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n    Option(1, Yes)\n    Option(2, No)\n    Option(3, Leave)\n';
     const script = readSource(source);
     assert.deepEqual(script.meta, { objects: {}, characters: {}, options: { 1: "Yes", 2: "No", 3: "Leave" }, labels: {} });
     assert.deepEqual(
@@ -475,18 +476,18 @@ describe("Meta block", () => {
     );
     assert.throws(() => readSource("SetOption(Yes)\n"), /unknown name 'Yes'/);
     assert.equal(
-      writeSourceText(readSource("SetOption(18)\nMeta()\n  Option(18, Back)\n")),
-      "SetOption(Back)\n\nMeta()\n  Option(18, Back)\n",
+      writeSourceText(readSource("SetOption(18)\nMeta()\n    Option(18, Back)\n")),
+      "SetOption(Back)\n\nMeta()\n    Option(18, Back)\n",
     );
     assert.equal(
-      writeSourceText(readSource("SetOption(2)\nMeta()\n  Option(2, Decline)\n")),
-      "SetOption(Decline)\n\nMeta()\n  Option(2, Decline)\n",
+      writeSourceText(readSource("SetOption(2)\nMeta()\n    Option(2, Decline)\n")),
+      "SetOption(Decline)\n\nMeta()\n    Option(2, Decline)\n",
     );
     assert.equal(writeSourceText(readSource("SetOption(1)\n"), { hexOpcodes: true }), "0x2B(1)\n");
   });
 
   test("LabelName() in Meta() names a jump label for Label and Goto", () => {
-    const source = "Label(HatedGift)\nGoto(HatedGift)\nGoto(7)\n\nMeta()\n  LabelName(5, HatedGift)\n  LabelName(300, Later)\n";
+    const source = "Label(HatedGift)\nGoto(HatedGift)\nGoto(7)\n\nMeta()\n    LabelName(5, HatedGift)\n    LabelName(300, Later)\n";
     const script = readSource(source);
     assert.deepEqual(script.meta, { objects: {}, characters: {}, options: {}, labels: { 5: "HatedGift", 300: "Later" } });
     assert.deepEqual(script.entries.slice(0, 3), [
@@ -496,8 +497,8 @@ describe("Meta block", () => {
     ]);
     assert.equal(writeSourceText(script), source);
     // Label ids are 16-bit, so names may cover addresses a byte id cannot
-    assert.deepEqual(readSource("Goto(Far)\nMeta()\n  LabelName(65535, Far)\n").entries, [{ opcode: Opcode.Goto, args: [255, 255] }]);
-    assert.throws(() => readSource("Meta()\n  LabelName(65536, Far)\n"), /0 to 65535/);
+    assert.deepEqual(readSource("Goto(Far)\nMeta()\n    LabelName(65535, Far)\n").entries, [{ opcode: Opcode.Goto, args: [255, 255] }]);
+    assert.throws(() => readSource("Meta()\n    LabelName(65536, Far)\n"), /0 to 65535/);
     assert.throws(() => readSource("Goto(Missing)\n"), /unknown name 'Missing'/);
     assert.equal(roundTrip(source), "Label(5)\nGoto(5)\nGoto(7)\n");
   });
@@ -511,24 +512,24 @@ describe("Meta block", () => {
   test("malformed blocks are rejected with the offending line", () => {
     const cases: [string, RegExp][] = [
       ["OnObject(Monitor)\n", /unknown name 'Monitor'/],
-      ["Meta()\n  Speaker(Makoto)\n", /only Object\(id, Name\), Character\(id, Name\), Option\(id, Name\), LabelName\(id, Name\) entries/],
+      ["Meta()\n    Speaker(Makoto)\n", /only Object\(id, Name\), Character\(id, Name\), Option\(id, Name\), LabelName\(id, Name\) entries/],
       ["OnCharacter(Sayaka)\n", /unknown name 'Sayaka'/],
-      ["Meta()\n  Character(0, Sayaka)\n  Character(1, Sayaka)\n", /already used/],
-      ["Meta()\n  Option(3, Exit_1)\n", /already used by default option 18/],
-      ["Meta()\n  Option(3, Leave)\n  Option(4, Leave)\n", /already used/],
+      ["Meta()\n    Character(0, Sayaka)\n    Character(1, Sayaka)\n", /already used/],
+      ["Meta()\n    Option(3, Exit_1)\n", /already used by default option 18/],
+      ["Meta()\n    Option(3, Leave)\n    Option(4, Leave)\n", /already used/],
       ["SetOption(Leave)\n", /unknown name 'Leave'/],
-      ["Meta()\n  Object(20)\n", /expects 2 arguments/],
-      ["Meta()\n  Object(255, Close)\n", /0 to 254/],
-      ["Meta()\n  Object(20, 12)\n", /must be an identifier/],
-      ["Meta()\n  Object(20, A)\n  Object(20, B)\n", /already named 'A'/],
-      ["Meta()\n  Object(20, A)\n  Object(21, A)\n", /already used/],
+      ["Meta()\n    Object(20)\n", /expects 2 arguments/],
+      ["Meta()\n    Object(255, Close)\n", /0 to 254/],
+      ["Meta()\n    Object(20, 12)\n", /must be an identifier/],
+      ["Meta()\n    Object(20, A)\n    Object(20, B)\n", /already named 'A'/],
+      ["Meta()\n    Object(20, A)\n    Object(21, A)\n", /already used/],
       ["Meta(1)\n", /takes no arguments/],
     ];
     for (const [text, message] of cases) {
       assert.throws(() => readSource(text), message, text);
     }
     assert.throws(
-      () => readSource("Speaker(Makoto)\nMeta()\n  Object(20, A)\n  Object(x, B)\n"),
+      () => readSource("Speaker(Makoto)\nMeta()\n    Object(20, A)\n    Object(x, B)\n"),
       (error: unknown) => {
         assert.ok(error instanceof SourceError);
         assert.equal(error.line, 4);
@@ -567,13 +568,13 @@ describe("named arguments", () => {
     // Trailing Speaker keeps the variadic If from absorbing the alignment padding
     assert.equal(
       roundTrip("If(0, 0, 5, Goto(1))\nIf(0, 1, 5, 6, 8, 2, 9, 7, 8, 3, 9, Goto(2))\nSpeaker(Taka)\n"),
-      "If(Time, !=, 5, Goto(1))\nIf(Time, ==, 5, And, ScriptEntryContext, <=, 9, Or, ScriptEntryContext, >=, 9, Goto(2))\nSpeaker(Taka)\n",
+      "If(Time, !=, 5,\n    Goto(1))\nIf(Time, ==, 5, And, ScriptEntryContext, <=, 9, Or, ScriptEntryContext, >=, 9,\n    Goto(2))\nSpeaker(Taka)\n",
     );
     assert.equal(
       roundTrip(
         "IfRelationship(3, 4, 20, Goto(1))\nIfRelationship(Sayaka, >, 0, Goto(2))\nIfFreeTimeEvent(3, 5, 0, Goto(3))\nIfFreeTimeEvent(Sayaka, !=, 2, Goto(4))\n",
       ),
-      "IfRelationship(Mondo, <, 20, Goto(1))\nIfRelationship(Sayaka, >, 0, Goto(2))\nIfFreeTimeEvent(Mondo, >, 0, Goto(3))\nIfFreeTimeEvent(Sayaka, !=, 2, Goto(4))\n",
+      "IfRelationship(Mondo, <, 20,\n    Goto(1))\nIfRelationship(Sayaka, >, 0,\n    Goto(2))\nIfFreeTimeEvent(Mondo, >, 0,\n    Goto(3))\nIfFreeTimeEvent(Sayaka, !=, 2,\n    Goto(4))\n",
     );
     // Bare = is accepted for ==, and numbers still work everywhere
     assert.deepEqual(readSource("If(0, =, 5, Goto(1))\n").entries[0].args, [0, 0, 1, 0, 5]);
@@ -582,13 +583,13 @@ describe("named arguments", () => {
   });
 
   test("a condition carries its Then and Goto as a trailing Goto(label) argument", () => {
-    const script = readSource("IfRelationship(Sayaka, >, 0, Goto(HatedGift))\nMeta()\n  LabelName(5, HatedGift)\n");
+    const script = readSource("IfRelationship(Sayaka, >, 0, Goto(HatedGift))\nMeta()\n    LabelName(5, HatedGift)\n");
     assert.deepEqual(script.entries, [
       { opcode: Opcode.IfRelationship, args: [0, 7, 5, 0, 0] },
       { opcode: Opcode.Then, args: [] },
       { opcode: Opcode.Goto, args: [0, 5] },
     ]);
-    assert.equal(writeSourceText(script), "IfRelationship(Sayaka, >, 0, Goto(HatedGift))\n\nMeta()\n  LabelName(5, HatedGift)\n");
+    assert.equal(writeSourceText(script), "IfRelationship(Sayaka, >, 0,\n    Goto(HatedGift))\n\nMeta()\n    LabelName(5, HatedGift)\n");
     // The raw view still shows the three opcodes
     assert.equal(writeSourceText(script, { hexOpcodes: true }), "0x39(7, 5, 0)\n0x3C()\n0x34(5)\n");
     // The form is mandatory: no bare condition, no separate Then, and no other body in the binary
@@ -601,6 +602,14 @@ describe("named arguments", () => {
     assert.throws(() => writeSourceText({ entries: [condition, then] }), /not followed by Goto/);
     assert.throws(() => writeSourceText({ entries: [condition, { opcode: Opcode.Speaker, args: [0] }] }), /not followed by Then/);
     assert.throws(() => writeSourceText({ entries: [then] }), /Then without a preceding condition/);
+  });
+
+  test("a branch inside a block indents its Goto one level deeper than the condition", () => {
+    const source = "SetOption(1)\n    If(Time, ==, 5,\n        Goto(2))\nSetOption(255)\n";
+    assert.equal(writeSourceText(readSource(source)), source);
+    assert.equal(roundTrip(source), source);
+    assert.deepEqual(readSource("If(Time, ==, 5,\n  Goto(2))\n").entries, readSource("If(Time, ==, 5, Goto(2))\n").entries);
+    assert.throws(() => readSource("If(Time, ==, 5,\n"), /unterminated statement/);
   });
 
   test("flag groups are named and character-group offsets become character names", () => {
@@ -620,7 +629,7 @@ describe("named arguments", () => {
     const source = "IfFlag(15, 12, 0, 0, Goto(1))\nIfFlag(13, 20, 1, 1, 7, 16, 3, 0, 0, Goto(2))\nSpeaker(Taka)\n";
     assert.equal(
       roundTrip(source),
-      "IfFlag(CharacterInvestigated, Celeste, !=, False, Goto(1))\nIfFlag(ObjectInvestigated, 20, ==, True, Or, CharacterDead, Mondo, !=, False, Goto(2))\nSpeaker(Taka)\n",
+      "IfFlag(CharacterInvestigated, Celeste, !=, False,\n    Goto(1))\nIfFlag(ObjectInvestigated, 20, ==, True, Or, CharacterDead, Mondo, !=, False,\n    Goto(2))\nSpeaker(Taka)\n",
     );
     assert.deepEqual(readSource("IfFlag(CharacterInvestigated, Celeste, !=, False, Goto(1))\n").entries[0], {
       opcode: 0x35,
@@ -753,13 +762,13 @@ describe("block indentation", () => {
     const source = "SetOption(1)\nSpeaker(1)\nSetOption(2)\nSpeaker(2)\nSetOption(255)\nSpeaker(3)\n";
     assert.equal(
       writeSourceText(readSource(source)),
-      "SetOption(1)\n  Speaker(Taka)\nSetOption(2)\n  Speaker(Byakuya)\nSetOption(255)\nSpeaker(Mondo)\n",
+      "SetOption(1)\n    Speaker(Taka)\nSetOption(2)\n    Speaker(Byakuya)\nSetOption(255)\nSpeaker(Mondo)\n",
     );
   });
 
   test("indent width is configurable and leading whitespace is ignored on compile", () => {
-    const script = readSource("SetOption(1)\n        Speaker(1)\n");
-    assert.equal(writeSourceText(script, { indentSpaces: 4 }), "SetOption(1)\n    Speaker(Taka)\n");
+    const script = readSource("SetOption(1)\n              Speaker(1)\n");
+    assert.equal(writeSourceText(script, { indentSpaces: 2 }), "SetOption(1)\n  Speaker(Taka)\n");
   });
 });
 
@@ -811,7 +820,7 @@ describe("binary edge cases", () => {
         { opcode: 0x34, args: [0, 1] },
       ],
     });
-    assert.equal(source, "IfFlag(7, 8, Goto(1))\n");
+    assert.equal(source, "IfFlag(7, 8,\n    Goto(1))\n");
   });
 
   test("a truncated fixed-length entry is shown as raw bytes", () => {

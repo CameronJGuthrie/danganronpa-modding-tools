@@ -18,7 +18,7 @@ export interface WriteSourceOptions {
   hexOpcodes?: boolean;
 }
 
-export const DEFAULT_INDENT_SPACES = 2;
+export const DEFAULT_INDENT_SPACES = 4;
 
 /** Decompiled files start with a UTF-8 BOM, matching the original C# tool byte for byte. */
 const UTF8_BOM = "\uFEFF";
@@ -73,6 +73,21 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
   // Each block opcode indents independently; nesting depth is the number currently open
   const openBlocks = new Set<string>();
 
+  /**
+   * A statement whose arguments end in nested instruction calls, written one per line and one
+   * level deeper than the statement itself:
+   *
+   *     IfFlag(Unknown, 0, !=, False,
+   *         Goto(501))
+   */
+  const formatNested = (name: string, head: string, nested: readonly string[], depth: number): string => {
+    if (nested.length === 0) {
+      return `${name}(${head})`;
+    }
+    const inner = indent.repeat(depth + 1);
+    return `${name}(${head},\n${nested.map((call) => `${inner}${call}`).join(",\n")})`;
+  };
+
   entries.forEach((entry, index) => {
     // Type is implied by the presence of Text opcodes and regenerated on compile
     if (skipped.has(index) || entry.opcode === Opcode.Type) {
@@ -86,23 +101,23 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       openBlocks.delete(block);
     }
 
+    const depth = openBlocks.size;
     let call: string;
     if (names && opcode !== undefined && isConditionEntry(entry)) {
-      call = `${opcode.name}(${formatBranch(opcode, entry, entries[index + 2], names, scopes)})`;
+      const { conditions, jump } = formatBranch(opcode, entry, entries[index + 2], names, scopes);
+      call = formatNested(opcode.name, conditions, [jump], depth);
     } else if (optionSugared.has(index)) {
       call = `${OPTION}(${formatOption(entries, index, names, scopes)})`;
     } else if (opcode !== undefined && sugared.has(index) && "text" in entry) {
       // The plan only sugars entries that have a source form
       const text = textSourceForm(entry.text) ?? entry.text;
-      const args = [
-        formatArgs(opcode.args, { ...entry, text }, { names, scopes }),
-        ...(trailing.get(index) ?? []).map((i) => formatEntry(entries[i])),
-      ];
-      call = `${TEXT_SUGAR}(${args.join(", ")})`;
+      const head = formatArgs(opcode.args, { ...entry, text }, { names, scopes });
+      const nested = (trailing.get(index) ?? []).map((i) => formatEntry(entries[i]));
+      call = formatNested(TEXT_SUGAR, head, nested, depth);
     } else {
       call = formatEntry(entry);
     }
-    lines.push(`${indent.repeat(openBlocks.size)}${call}`);
+    lines.push(`${indent.repeat(depth)}${call}`);
 
     if (block !== null && entry.args[0] !== BLOCK_CLOSE) {
       openBlocks.add(block);

@@ -12,7 +12,8 @@ import { getOpcode, getOpcodeByName, type OpcodeInfo } from "./lookup.ts";
  * `Then` never appears anywhere else (5853 of 5853 occurrences in the game's scripts). Source
  * therefore writes the three as one instruction whose last argument is the jump:
  *
- *     IfRelationship(Sayaka, >, 0, Goto(HatedGift))
+ *     IfRelationship(Sayaka, >, 0,
+ *         Goto(HatedGift))
  *
  * The form is mandatory rather than optional sugar, because the separate opcodes make no sense
  * on their own: `Then` is a hidden opcode that source cannot name, a condition without a trailing
@@ -80,15 +81,18 @@ export function branchJump(entries: readonly ScriptEntry[], index: number): Scri
   return jump;
 }
 
-/** The argument text of a branch: the condition's own arguments followed by `Goto(label)`. */
+/**
+ * The argument text of a branch: the condition's own arguments, and the `Goto(label)` call the
+ * writer places on its own line after them.
+ */
 export function formatBranch(
   opcode: OpcodeInfo,
   entry: ScriptEntry,
   jump: ScriptEntry,
   names: boolean,
   scopes: ScopeTables,
-): string {
+): { conditions: string; jump: string } {
   const conditions = formatArgs(opcode.args, entry, { names, scopes });
   const label = formatArgs(gotoOpcode.args, jump, { names, scopes });
-  return `${conditions}, ${GOTO}(${label})`;
+  return { conditions, jump: `${GOTO}(${label})` };
 }

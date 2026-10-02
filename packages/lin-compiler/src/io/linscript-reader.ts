@@ -14,9 +14,6 @@ import { expandWait, WAIT } from "../opcodes/wait.ts";
 /** Matches `OpcodeName(args)`, capturing the name and the raw argument text. */
 const OPCODE_LINE = /^(\w+)\s*\((.*)\)$/;
 
-/** The start of a `Text(...)` statement, the only one that may continue onto further lines. */
-const TEXT_SUGAR_OPEN = new RegExp(`^${TEXT_SUGAR}\\s*\\(`);
-
 /** Open parentheses minus closed ones, ignoring those inside quoted strings. */
 function parenDepth(text: string): number {
   let depth = 0;
@@ -44,14 +41,17 @@ function parenDepth(text: string): number {
  * Parse `.linscript` source text. Blank lines and `#` comments are ignored. A `Meta()` block ends
  * the instructions; it is read first so the names it declares can be used above it.
  *
- * Every instruction is one line, except that `Text(...)` may spread its trailing instructions
- * over the following lines until its parentheses close:
+ * A statement whose parentheses are still open at the end of its line continues onto the following
+ * lines until they close, which is how the writer lays out nested instruction calls: the trailing
+ * instructions of `Text(...)` and the `Goto(...)` of a condition:
  *
  *     Text("Hello",
- *       Wait(10),
- *       SetUI(Rumble, Hidden))
+ *         Wait(10),
+ *         SetUI(Rumble, Hidden))
+ *     IfFlag(Unknown, 0, !=, False,
+ *         Goto(501))
  *
- * Such a statement is reported under the line number of its `Text(`.
+ * Such a statement is reported under the line number of its first line.
  */
 export function readSource(source: string): Script {
   const lines: SourceLine[] = [];
@@ -70,12 +70,12 @@ export function readSource(source: string): Script {
     }
     const line = { line: index + 1, text };
     lines.push(line);
-    if (TEXT_SUGAR_OPEN.test(text) && parenDepth(text) > 0) {
+    if (parenDepth(text) > 0) {
       open = line;
     }
   });
   if (open !== undefined) {
-    throw new SourceError(open.line, `unterminated ${TEXT_SUGAR}(...)`);
+    throw new SourceError(open.line, `unterminated statement: ${open.text}`);
   }
 
   const metaIndex = lines.findIndex(({ text }) => /^Meta\s*\(\s*\)$/.test(text));
