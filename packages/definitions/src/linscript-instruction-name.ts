@@ -2,7 +2,6 @@ export const LinscriptInstructionName = {
   Animation: "Animation",
   CameraFlash: "CameraFlash",
   Character: "Character", // Source-only: `Character(id, Name)` inside Meta() names a placed-character slot for the file
-  EndOfJump: "EndOfJump",
   Goto: "Goto",
   If: "If",
   IfFlag: "IfFlag",

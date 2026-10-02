@@ -48,7 +48,6 @@ const NOT_TRAILING: ReadonlySet<number> = new Set<number>([
   Opcode.WaitInput,
   Opcode.Label,
   Opcode.Goto,
-  Opcode.EndOfJump,
   Opcode.LoadScript,
   Opcode.StopScript,
   Opcode.RunScript,

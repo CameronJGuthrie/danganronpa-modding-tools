@@ -4,7 +4,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 import { animationMeta } from "./animation-meta";
 import { cameraFlashMeta } from "./camera-flash-meta";
 import { characterMeta } from "./character-meta";
-import { endOfJumpMeta } from "./end-of-jump-meta";
 import { givePresentMeta } from "./give-present-meta";
 import { gotoMeta } from "./goto-meta";
 import { ifFlagMeta } from "./if-flag-meta";
@@ -60,7 +59,6 @@ export const metadata: Readonly<Record<LinscriptInstructionName, Readonly<Linscr
   [LinscriptInstructionName.Animation]: animationMeta,
   [LinscriptInstructionName.CameraFlash]: cameraFlashMeta,
   [LinscriptInstructionName.Character]: characterMeta,
-  [LinscriptInstructionName.EndOfJump]: endOfJumpMeta,
   [LinscriptInstructionName.GivePresent]: givePresentMeta,
   [LinscriptInstructionName.Goto]: gotoMeta,
   [LinscriptInstructionName.If]: ifMeta,

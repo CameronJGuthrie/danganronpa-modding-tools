@@ -152,7 +152,6 @@ export const opcodes = {
   OnObject:              { id: 0x29, args: fixed([objectId]), block: true },
   Label:                 { id: 0x2a, args: fixed([labelId]) },
   SetOption:             { id: 0x2b, args: fixed([optionId]), block: true },
-  EndOfJump:             { id: 0x2c, args: bytes(2) },
   CameraFlash:           { id: 0x2e, args: bytes(2) },
   ShowBackground:        { id: 0x30, args: fixed([UInt16BE, Byte]) },
   SetVariable:           { id: 0x33, args: fixed([named(Byte, Variable), arithmetic, UInt16BE]) },
