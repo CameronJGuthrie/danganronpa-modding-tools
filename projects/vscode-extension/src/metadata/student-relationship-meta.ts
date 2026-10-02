@@ -1,6 +1,6 @@
 import {
-  Arithmetic,
   arithmaticConfiguraiton,
+  arithmeticOperators,
   isArithmetic,
   isStudent,
   LinscriptInstructionName,
@@ -21,7 +21,7 @@ export const studentRelationshipMeta: LinscriptInstructionMeta = {
     },
     {
       name: "operation",
-      names: Arithmetic,
+      names: arithmeticOperators,
     },
     {
       name: "amount",

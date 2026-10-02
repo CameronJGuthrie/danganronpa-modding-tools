@@ -1,5 +1,5 @@
 import {
-  Arithmetic,
+  arithmeticOperators,
   Bool,
   Chapter,
   Character,
@@ -94,6 +94,8 @@ const optionId: Parameter = { type: Byte, scope: "Option" };
 const labelId: Parameter = { type: UInt16BE, scope: "Label" };
 /** A 0/1 byte, written as `False` / `True`. */
 const bool = named(Byte, Bool);
+/** An arithmetic mode byte, written as `=`, `+=` or `-=`. */
+const arithmetic = named(Byte, arithmeticOperators);
 /** A comparison operator byte, written as `==`, `!=`, `<`, `<=`, `>` or `>=`. */
 const compare = named(Byte, comparisonOperators);
 /** A condition joiner byte, written as `And` or `Or`. */
@@ -122,9 +124,9 @@ export const opcodes = {
   TruthBulletFlag:       { id: 0x0c, args: bytes(2) },
   Present:               { id: 0x0d, args: bytes(3), hidden: true }, // GivePresent / ReceivePresent sugar
   UnlockSkill:           { id: 0x0e, args: bytes(2) },
-  StudentTitleEntry:     { id: 0x0f, args: fixed([named(Byte, Student), named(Byte, Arithmetic), Byte]) },
+  StudentTitleEntry:     { id: 0x0f, args: fixed([named(Byte, Student), arithmetic, Byte]) },
   StudentReportInfo:     { id: 0x10, args: bytes(3) },
-  StudentRelationship:   { id: 0x11, args: fixed([named(Byte, Student), named(Byte, Arithmetic), UInt16BE]) },
+  StudentRelationship:   { id: 0x11, args: fixed([named(Byte, Student), arithmetic, UInt16BE]) },
   TrialCamera:           { id: 0x14, args: fixed([Byte, UInt16BE]) },
   LoadMap:               { id: 0x15, args: bytes(3) },
   LoadScript:            { id: 0x19, args: bytes(3) },
@@ -146,7 +148,7 @@ export const opcodes = {
   EndOfJump:             { id: 0x2c, args: bytes(2) },
   CameraFlash:           { id: 0x2e, args: bytes(2) },
   ShowBackground:        { id: 0x30, args: fixed([UInt16BE, Byte]) },
-  SetVariable:           { id: 0x33, args: fixed([named(Byte, Variable), named(Byte, Arithmetic), UInt16BE]) },
+  SetVariable:           { id: 0x33, args: fixed([named(Byte, Variable), arithmetic, UInt16BE]) },
   Goto:                  { id: 0x34, args: fixed([labelId]) },
   /** `group, offset, operand, value` followed by any number of `joiner, group, offset, operand, value`. */
   IfFlag:                { id: 0x35, args: { kind: "repeat", head: [flagGroup, flagOffset, compare, bool], tail: [join, flagGroup, flagOffset, compare, bool] } },

@@ -1,6 +1,6 @@
 import {
-  Arithmetic,
   arithmaticConfiguraiton,
+  arithmeticOperators,
   Character,
   isArithmetic,
   isCharacter,
@@ -20,7 +20,7 @@ export const studentReportInfoMeta: LinscriptInstructionMeta = {
     },
     {
       name: "operation",
-      values: Arithmetic,
+      names: arithmeticOperators,
     },
     {
       name: "value",

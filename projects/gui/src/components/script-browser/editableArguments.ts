@@ -1,5 +1,5 @@
 import {
-  Arithmetic,
+  arithmeticOperators,
   Bool,
   Chapter,
   Character,
@@ -41,13 +41,13 @@ const characterOffset: DependentValues = {
 export const editableArguments: Readonly<Record<string, EditableArguments>> = {
   Speaker: { head: [Character] },
   // Only the sixteen students (ids 0-15) have a report card, so the wider Character table is not offered
-  StudentTitleEntry: { head: [Student, Arithmetic, undefined] },
-  StudentRelationship: { head: [Student, Arithmetic, undefined] },
+  StudentTitleEntry: { head: [Student, arithmeticOperators, undefined] },
+  StudentRelationship: { head: [Student, arithmeticOperators, undefined] },
   // Only the characters that have bust-up sprites
   Sprite: { head: [undefined, CharacterSprite, undefined, SpriteTransition, SpritePosition] },
   LoadSprite: { head: [undefined, SpriteSheet] },
   Voice: { head: [VoiceCharacter, Chapter] },
-  SetVariable: { head: [Variable, Arithmetic, undefined] },
+  SetVariable: { head: [Variable, arithmeticOperators, undefined] },
   SetUI: { head: [UserInterface, UiVisibility] },
   SetFlag: { head: [FlagGroup, characterOffset, Bool] },
   IfFlag: {

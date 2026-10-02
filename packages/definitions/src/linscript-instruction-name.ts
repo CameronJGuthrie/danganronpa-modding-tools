@@ -21,8 +21,8 @@ export enum LinscriptInstructionName {
   OnObject = "OnObject",
   Option = "Option", // Sugar for SetOption(n) + RawText("label\n") + WaitFrame: a labelled menu choice
   PostProcessingEffect = "PostProcessingEffect",
-  GivePresent = "GivePresent", // Sugar for Present(id, Subtract, 1): the player hands a gift over
-  ReceivePresent = "ReceivePresent", // Sugar for Present(id, Add, 1): the player is awarded an item
+  GivePresent = "GivePresent", // Sugar for Present(id, -=, 1): the player hands a gift over
+  ReceivePresent = "ReceivePresent", // Sugar for Present(id, +=, 1): the player is awarded an item
   RawText = "RawText", // The binary text opcode; Text is sugar that adds WaitFrame/TextStyle/WaitInput
   Return = "Return",
   RunScript = "RunScript",

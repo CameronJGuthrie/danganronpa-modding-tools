@@ -24,28 +24,28 @@ function textlessFile(scriptData: number[]): Uint8Array {
 
 describe("compile and decompile", () => {
   test("fixed-length opcodes round-trip unchanged", () => {
-    const source = "Speaker(Mondo)\nSound(513, 2)\nSetVariable(1, Subtract, 65535)\nStopScript()\n";
+    const source = "Speaker(Mondo)\nSound(513, 2)\nSetVariable(1, -=, 65535)\nStopScript()\n";
     assert.equal(roundTrip(source), source);
   });
 
   test("StudentTitleEntry names the student and operation; only ids 0-15 are students", () => {
     const script = readSource(
-      "StudentTitleEntry(Sayaka, Add, 1)\nStudentTitleEntry(15, 0, 0)\nStudentTitleEntry(16, 0, 0)\n",
+      "StudentTitleEntry(Sayaka, +=, 1)\nStudentTitleEntry(15, 0, 0)\nStudentTitleEntry(16, 0, 0)\n",
     );
     assert.equal(
       writeSourceText(script),
-      "StudentTitleEntry(Sayaka, Add, 1)\nStudentTitleEntry(Monokuma, Assign, 0)\nStudentTitleEntry(16, Assign, 0)\n",
+      "StudentTitleEntry(Sayaka, +=, 1)\nStudentTitleEntry(Monokuma, =, 0)\nStudentTitleEntry(16, =, 0)\n",
     );
-    assert.throws(() => readSource("StudentTitleEntry(Junko, Add, 1)\n"), SourceError);
+    assert.throws(() => readSource("StudentTitleEntry(Junko, +=, 1)\n"), SourceError);
   });
 
   test("StudentRelationship names the student and operation; the amount is a two-byte value", () => {
     assert.equal(
-      roundTrip("StudentRelationship(7, 1, 2)\nStudentRelationship(Taka, Assign, 20)\n"),
-      "StudentRelationship(Sayaka, Add, 2)\nStudentRelationship(Taka, Assign, 20)\n",
+      roundTrip("StudentRelationship(7, 1, 2)\nStudentRelationship(Taka, =, 20)\n"),
+      "StudentRelationship(Sayaka, +=, 2)\nStudentRelationship(Taka, =, 20)\n",
     );
-    assert.deepEqual(readSource("StudentRelationship(Sayaka, Add, 2)\n").entries[0], { opcode: 0x11, args: [7, 1, 0, 2] });
-    assert.throws(() => readSource("StudentRelationship(Junko, Add, 1)\n"), SourceError);
+    assert.deepEqual(readSource("StudentRelationship(Sayaka, +=, 2)\n").entries[0], { opcode: 0x11, args: [7, 1, 0, 2] });
+    assert.throws(() => readSource("StudentRelationship(Junko, +=, 1)\n"), SourceError);
   });
 
   test("Sprite names its character, transition and position; only characters with sprites are accepted by name", () => {
@@ -250,12 +250,12 @@ describe("compile and decompile", () => {
   });
 
   test("SetVariable names the variable and the operation", () => {
-    const script = readSource("SetVariable(20, 0, 3)\nSetVariable(Monocoin, Add, 5)\nSetVariable(14, 0, 0)\nSetVariable(49, 0, 0)\n");
+    const script = readSource("SetVariable(20, 0, 3)\nSetVariable(Monocoin, +=, 5)\nSetVariable(14, 0, 0)\nSetVariable(49, 0, 0)\n");
     assert.equal(
       writeSourceText(script),
-      "SetVariable(Scene, Assign, 3)\nSetVariable(Monocoin, Add, 5)\nSetVariable(Random, Assign, 0)\nSetVariable(49, Assign, 0)\n",
+      "SetVariable(Scene, =, 3)\nSetVariable(Monocoin, +=, 5)\nSetVariable(Random, =, 0)\nSetVariable(49, =, 0)\n",
     );
-    assert.throws(() => readSource("SetVariable(Scene, Assign, Monocoin)\n"), SourceError);
+    assert.throws(() => readSource("SetVariable(Scene, =, Monocoin)\n"), SourceError);
   });
 
   test("textless and text scripts get the right header", () => {
@@ -693,7 +693,7 @@ describe("text style tags", () => {
 });
 
 describe("Wait sugar", () => {
-  test("Wait(frames) compiles to SetVariable(Wait, Assign, frames)", () => {
+  test("Wait(frames) compiles to SetVariable(Wait, =, frames)", () => {
     assert.deepEqual(readSource("Wait(60)\n").entries[0], { opcode: 0x33, args: [6, 0, 0, 60] });
     assert.deepEqual(readSource("Wait(300)\n").entries[0], { opcode: 0x33, args: [6, 0, 1, 44] });
     assert.throws(() => readSource("Wait()\n"), /Wait expects 1 argument/);
@@ -706,7 +706,7 @@ describe("Wait sugar", () => {
     // Other variables and other arithmetic modes are left alone
     assert.equal(
       roundTrip("SetVariable(6, 1, 60)\nSetVariable(0, 0, 60)\n"),
-      "SetVariable(Wait, Add, 60)\nSetVariable(Time, Assign, 60)\n",
+      "SetVariable(Wait, +=, 60)\nSetVariable(Time, =, 60)\n",
     );
   });
 

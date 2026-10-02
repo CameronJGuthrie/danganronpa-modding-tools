@@ -2,11 +2,11 @@ import { isPresent, LinscriptInstructionName, Present } from "linscript-definiti
 import { presentConfiguration } from "../data/present-data";
 import type { LinscriptInstructionMeta } from "../types/linscript-instruction-meta";
 
-/** Source-only sugar for `Present(id, Add, 1)`: awards the player one of an item as a story reward. */
+/** Source-only sugar for `Present(id, +=, 1)`: awards the player one of an item as a story reward. */
 export const receivePresentMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.ReceivePresent,
   hexcode: "0x0D",
-  description: "Awards the player one of an item as a story reward; sugar for the hidden Present(id, Add, 1) opcode.",
+  description: "Awards the player one of an item as a story reward; sugar for the hidden Present(id, +=, 1) opcode.",
   sugar: true,
   selfDescribing: true,
   parameters: [

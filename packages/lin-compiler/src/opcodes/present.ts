@@ -43,7 +43,7 @@ export function formatPresent(entry: ScriptEntry): { name: PresentSugarName; arg
   const [id, operation, quantity] = entry.args;
   const name = operation === Arithmetic.Subtract ? GIVE_PRESENT : operation === Arithmetic.Add ? RECEIVE_PRESENT : undefined;
   if (name === undefined) {
-    throw new BinaryError(`Present uses arithmetic mode ${operation}; only Add and Subtract are understood`);
+    throw new BinaryError(`Present uses arithmetic mode ${operation}; only += and -= are understood`);
   }
   if (quantity !== QUANTITY) {
     throw new BinaryError(`Present has quantity ${quantity}; only ${QUANTITY} is understood`);
