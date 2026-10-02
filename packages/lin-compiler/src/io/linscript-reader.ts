@@ -130,7 +130,6 @@ function parseOpcodeLine(name: string, argsText: string, line: number, scopes: S
     throw new SourceError(line, `${META}() takes no arguments and must be the last block in the file`);
   }
 
-  // Hex names (`0xNN`) are decompiler output for unknown opcodes and `--hex` mode; source cannot use them
   throw new SourceError(line, `unknown opcode '${name}'`);
 }
 

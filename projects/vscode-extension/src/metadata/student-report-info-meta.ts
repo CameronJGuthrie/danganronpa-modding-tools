@@ -11,7 +11,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const studentReportInfoMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.StudentReportInfo,
-  hexcode: "0x10",
   description: "Sets, adds to or subtracts from the amount of report-card information unlocked for a student.",
   parameters: [
     {

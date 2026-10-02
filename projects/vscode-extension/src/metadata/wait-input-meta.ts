@@ -10,7 +10,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
  */
 export const waitInputMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.WaitInput,
-  hexcode: "0x3A",
   description:
     "Waits for the player to press a button. Text(...) inserts one after each line automatically, so it is rarely needed in source.",
   parameters: [] as const,

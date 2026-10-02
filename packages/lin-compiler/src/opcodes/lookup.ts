@@ -26,7 +26,7 @@ export function getOpcodeByName(name: string): OpcodeInfo | undefined {
   return byName.get(name);
 }
 
-/** The `0xNN` form used for opcodes with no name and for `--hex` output. Not readable as source. */
+/** The `0xNN` spelling of an opcode id, used only in error messages; source has no hex form. */
 export function hexOpcodeName(id: number): string {
   return `0x${id.toString(16).toUpperCase().padStart(2, "0")}`;
 }

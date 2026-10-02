@@ -3,7 +3,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const screenFlashMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.ScreenFlash,
-  hexcode: "0x1F",
   description: "Flashes the screen with an RGB colour, fading in, holding and fading out over the given frame counts.",
   parameters: [
     {

@@ -22,11 +22,6 @@ import { formatStyledText, parseStyledText } from "./textStyles.ts";
  */
 
 export interface FormatArgsOptions {
-  /**
-   * Write named parameter values (see `Parameter`) by name rather than number, and text style
-   * tags in their sugared form rather than raw `<CLT>`. Defaults to true.
-   */
-  names?: boolean;
   /** Per-script name tables for scoped parameters, e.g. the object names from a `Meta()` block. */
   scopes?: ScopeTables;
 }
@@ -47,15 +42,14 @@ export function argByteCount(spec: ArgumentSpec): number | undefined {
 
 /** Render `entry.args` as the comma-separated argument list used in source. */
 export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry, options: FormatArgsOptions = {}): string {
-  const names = options.names ?? true;
   const scopes = options.scopes ?? {};
   switch (spec.kind) {
     case "fixed":
-      return formatFixed(spec.layout, entry.args, names, scopes);
+      return formatFixed(spec.layout, entry.args, scopes);
     case "type":
-      return formatFixed([ParameterType.UInt16LE], entry.args, names, scopes);
+      return formatFixed([ParameterType.UInt16LE], entry.args, scopes);
     case "text":
-      return formatTextArgument("text" in entry ? entry.text : "", names);
+      return formatTextArgument("text" in entry ? entry.text : "");
     case "variadic":
       return formatRawBytes(entry.args);
     case "repeat": {
@@ -64,7 +58,7 @@ export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry, options: Form
       if (chained < 0 || chained % tailBytes !== 0) {
         return formatRawBytes(entry.args);
       }
-      return formatByLayout(repeatLayout(spec.head, spec.tail, chained / tailBytes), entry.args, names, scopes);
+      return formatByLayout(repeatLayout(spec.head, spec.tail, chained / tailBytes), entry.args, scopes);
     }
   }
 }
@@ -128,9 +122,9 @@ function repeatLayout(head: readonly Parameter[], tail: readonly Parameter[], co
   return layout;
 }
 
-function formatFixed(layout: readonly Parameter[], args: readonly number[], names: boolean, scopes: ScopeTables): string {
+function formatFixed(layout: readonly Parameter[], args: readonly number[], scopes: ScopeTables): string {
   // Malformed entry: keep every byte visible rather than decoding garbage
-  return args.length === layoutBytes(layout) ? formatByLayout(layout, args, names, scopes) : formatRawBytes(args);
+  return args.length === layoutBytes(layout) ? formatByLayout(layout, args, scopes) : formatRawBytes(args);
 }
 
 function parseFixed(
@@ -151,14 +145,9 @@ function parseFixed(
 
 /**
  * Decode `args` according to `layout` and join the values for source output. Trailing optional
- * slots holding their default are left out unless `names` is off (the raw `--hex` form).
+ * slots holding their default are left out.
  */
-function formatByLayout(
-  layout: readonly Parameter[],
-  args: readonly number[],
-  names: boolean,
-  scopes: ScopeTables,
-): string {
+function formatByLayout(layout: readonly Parameter[], args: readonly number[], scopes: ScopeTables): string {
   const rendered: string[] = [];
   const decoded: number[] = [];
   let offset = 0;
@@ -167,13 +156,13 @@ function formatByLayout(
     const value = decodeValue(type, args, offset);
     decoded.push(value);
     // Values without a name (e.g. an unresearched speaker id) stay numeric so nothing is hidden
-    const table = names ? namesFor(parameter, index, decoded, scopes) : undefined;
+    const table = namesFor(parameter, index, decoded, scopes);
     const name = table === undefined ? undefined : nameOfValue(table, value);
     rendered.push(name ?? String(value));
     offset += parameterProperties[type].size;
   });
   let count = rendered.length;
-  while (names && count > 0) {
+  while (count > 0) {
     const parameter = layout[count - 1];
     if (!isOptional(parameter) || decoded[count - 1] !== parameter.defaultValue) {
       break;
@@ -227,7 +216,7 @@ function parseParameter(type: ParameterType, names: NamedValues | undefined, tex
   return parseArg(type, text, line);
 }
 
-export function formatRawBytes(args: readonly number[]): string {
+function formatRawBytes(args: readonly number[]): string {
   return args.join(", ");
 }
 
@@ -235,9 +224,9 @@ export function formatRawBytes(args: readonly number[]): string {
 // quoted strings
 // ---------------------------------------------------------------------------
 
-/** Render game text as a quoted source string, with style tags sugared unless `names` is false. */
-export function formatTextArgument(text: string, names = true): string {
-  return formatQuotedString(names ? formatStyledText(text) : text);
+/** Render game text as a quoted source string, with style tags in their sugared form. */
+export function formatTextArgument(text: string): string {
+  return formatQuotedString(formatStyledText(text));
 }
 
 /** Parse a quoted source string into game text, compiling style tag sugar back to `<CLT>`. */

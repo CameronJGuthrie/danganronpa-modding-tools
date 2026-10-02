@@ -18,7 +18,6 @@ options:
 -h, --help\t\tdisplay this message
 -d, --decompile\t\tdecompile the input file or directory (default is compile)
 -s, --silent\t\tsuppress all non-error messages
---hex\t\t\toutput opcodes as hex codes instead of names (decompile only)
 --indent-spaces N\tset indentation spaces per level (default: ${DEFAULT_INDENT_SPACES})
 
 Batch processing:
@@ -63,9 +62,6 @@ function parseArgs(argv: readonly string[]): CliArgs | null {
       case "-s":
       case "--silent":
         args.silent = true;
-        break;
-      case "--hex":
-        args.source.hexOpcodes = true;
         break;
       case "--indent-spaces": {
         const value = argv[++i];

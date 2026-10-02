@@ -217,38 +217,9 @@ suite("Extension Test Suite", () => {
     assert.strictEqual(decoration[0].contentText, "Speaker: Makoto");
   });
 
-  test("metadata keys match their opcode names and opcodes are unique", () => {
+  test("metadata keys match their instruction names", () => {
     for (const [key, meta] of Object.entries(metadata)) {
       assert.strictEqual(meta.name, key, `Metadata registered under "${key}" is named "${meta.name}"`);
     }
-
-    // Check for duplicate opcodes (skip empty opcodes)
-    const opcodeMap = new Map<string, string>();
-    for (const meta of Object.values(metadata)) {
-      // Annotations such as Meta and Object have no binary form and so no opcode
-      if (meta.annotation) {
-        assert.strictEqual(meta.hexcode, "", `Annotation "${meta.name}" must not claim an opcode`);
-        continue;
-      }
-      if (meta.hexcode === "") {
-        assert.fail(`Function "${meta.name}" has an empty opcode. All functions must have a valid opcode.`);
-      }
-
-      // Sugar such as Text and Wait compiles to another opcode, so it legitimately shares that hexcode.
-      if (meta.sugar) {
-        continue;
-      }
-
-      if (opcodeMap.has(meta.hexcode)) {
-        assert.fail(
-          `Duplicate opcode found: "${meta.hexcode}" is used by both ` +
-            `"${meta.name}" and "${opcodeMap.get(meta.hexcode)}"`,
-        );
-      }
-      opcodeMap.set(meta.hexcode, meta.name);
-    }
-
-    // If we get here, no duplicates were found
-    assert.ok(true, "All function names and opcodes are unique");
   });
 });

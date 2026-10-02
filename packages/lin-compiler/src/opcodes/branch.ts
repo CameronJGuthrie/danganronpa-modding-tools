@@ -89,10 +89,9 @@ export function formatBranch(
   opcode: OpcodeInfo,
   entry: ScriptEntry,
   jump: ScriptEntry,
-  names: boolean,
   scopes: ScopeTables,
 ): { conditions: string; jump: string } {
-  const conditions = formatArgs(opcode.args, entry, { names, scopes });
-  const label = formatArgs(gotoOpcode.args, jump, { names, scopes });
+  const conditions = formatArgs(opcode.args, entry, { scopes });
+  const label = formatArgs(gotoOpcode.args, jump, { scopes });
   return { conditions, jump: `${GOTO}(${label})` };
 }

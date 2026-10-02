@@ -3,7 +3,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const gotoMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Goto,
-  hexcode: "0x34",
   description:
     "Jumps to the Label with the same address in this script, on its own line or as the branch of an If* condition. Ctrl+Click the call to follow it.",
   parameters: [

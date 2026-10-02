@@ -16,7 +16,6 @@ const types: { [type: number]: string } = {
 
 export const screenFadeMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.ScreenFade,
-  hexcode: "0x22",
   description:
     "Fades the screen overlay in or out over a number of frames; type 101 also blocks input until the loading overlay clears.",
   parameters: [

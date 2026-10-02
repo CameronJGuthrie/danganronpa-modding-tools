@@ -12,7 +12,6 @@
     "start": "pnpm run build && pnpm run game",
     "ext": "pnpm --filter lindecompilerhelper install-extension",
     "reset": "node packages/scripts/src/setup/extract-linscript.ts",
-    "reset-hex": "node packages/scripts/src/setup/extract-linscript.ts --hex",
     "unpack": "node packages/scripts/src/setup/unpack-base-files.ts",
     "extract-recursive": "node packages/scripts/src/setup/extract-recursive.ts",
     "extract-recursive:all": "node packages/scripts/src/setup/extract-recursive.ts workbench/all/dr1_data_us.wad && node packages/scripts/src/setup/extract-recursive.ts workbench/all/dr1_data.wad && node packages/scripts/src/setup/extract-recursive.ts workbench/all/dr1_data_keyboard_us.wad && node packages/scripts/src/setup/extract-recursive.ts workbench/all/dr1_data_keyboard.wad",

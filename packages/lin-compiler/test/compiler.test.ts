@@ -192,7 +192,6 @@ describe("compile and decompile", () => {
     assert.equal(script.entries[1].text, "Yes\n");
     assert.equal(writeSourceText(script), source);
     assert.equal(writeSourceText(readCompiled(writeCompiledBytes(script))), source);
-    assert.match(writeSourceText(script, { hexOpcodes: true }), /^0x2B\(1\)\n\s+0x02\("Yes\\n"\)\n\s+0x3B\(\)\n/);
     assert.throws(() => readSource("Option(1)\n"), SourceError);
     assert.throws(() => readSource("Option(1, 2)\n"), SourceError);
   });
@@ -219,10 +218,6 @@ describe("compile and decompile", () => {
     assert.equal(
       writeSourceText(script),
       "Voice(Makoto, Chapter_1, 5)\nVoice(Makoto, Chapter_1, 5)\nSound(7)\nSoundB(3)\n",
-    );
-    assert.equal(
-      writeSourceText(script, { hexOpcodes: true }),
-      "0x08(0, 1, 5, 100)\n0x08(0, 1, 5, 100)\n0x0A(7, 100)\n0x0B(3, 100)\n",
     );
   });
 
@@ -296,18 +291,11 @@ describe("compile and decompile", () => {
     assert.equal(roundTrip(source), source);
   });
 
-  test("unknown opcodes are written as hex with raw bytes, which source cannot compile", () => {
+  test("an opcode outside the table has no source form and is a decompile error", () => {
     const bytes = textlessFile([0x70, 0x07, 9, 8, 0x70, 0x21, 1]);
-    const source = writeSourceText(readCompiled(bytes));
-    assert.equal(source, "0x07(9, 8)\nSpeaker(Taka)\n");
-    assert.throws(() => readSource(source), /unknown opcode '0x07'/);
-    // Hex names are not accepted for known opcodes either
+    assert.throws(() => writeSourceText(readCompiled(bytes)), /unknown opcode 0x07 with 2 argument byte/);
+    // Nor can source spell an opcode by number
     assert.throws(() => readSource("0x21(4)\n"), /unknown opcode '0x21'/);
-  });
-
-  test("hexOpcodes option renders every known opcode as hex", () => {
-    const script = readSource("Speaker(1)\nStopScript()\n");
-    assert.equal(writeSourceText(script, { hexOpcodes: true }), "0x21(1)\n0x1A()\n");
   });
 });
 
@@ -443,7 +431,7 @@ describe("Meta block", () => {
     assert.equal(writeSourceText(script), "OnObject(Monitor)\nOnObject(22)\n\nMeta()\n    Object(20, Monitor)\n");
   });
 
-  test("the block is dropped by the binary and by hex output", () => {
+  test("the block is dropped by the binary", () => {
     const script = readSource(source);
     assert.equal(readCompiled(writeCompiledBytes(script)).meta, undefined);
     assert.equal(
@@ -452,10 +440,6 @@ describe("Meta block", () => {
         .replace(/\n\nMeta[^]*$/, "\n")
         .replace("Monitor", "20")
         .replace("Camera", "21"),
-    );
-    assert.equal(
-      writeSourceText(script, { hexOpcodes: true }),
-      "0x29(20)\n    0x23(21, 1, 0, 0, 0)\n0x29(254)\n    0x21(0)\n0x29(255)\n",
     );
   });
 
@@ -483,7 +467,6 @@ describe("Meta block", () => {
       writeSourceText(readSource("SetOption(2)\nMeta()\n    Option(2, Decline)\n")),
       "SetOption(Decline)\n\nMeta()\n    Option(2, Decline)\n",
     );
-    assert.equal(writeSourceText(readSource("SetOption(1)\n"), { hexOpcodes: true }), "0x2B(1)\n");
   });
 
   test("LabelName() in Meta() names a jump label for Label and Goto", () => {
@@ -590,8 +573,6 @@ describe("named arguments", () => {
       { opcode: Opcode.Goto, args: [0, 5] },
     ]);
     assert.equal(writeSourceText(script), "IfRelationship(Sayaka, >, 0,\n    Goto(HatedGift))\n\nMeta()\n    LabelName(5, HatedGift)\n");
-    // The raw view still shows the three opcodes
-    assert.equal(writeSourceText(script, { hexOpcodes: true }), "0x39(7, 5, 0)\n0x3C()\n0x34(5)\n");
     // The form is mandatory: no bare condition, no separate Then, and no other body in the binary
     assert.throws(() => readSource("IfRelationship(Sayaka, >, 0)\n"), /must end with its branch/);
     assert.throws(() => readSource("IfRelationship(Sayaka, >, 0, Goto(1), Goto(2))\n"), /expects 3 argument/);
@@ -635,10 +616,6 @@ describe("named arguments", () => {
       opcode: 0x35,
       args: [15, 12, 0, 0],
     });
-  });
-
-  test("hexOpcodes output keeps every argument numeric", () => {
-    assert.equal(writeSourceText(readSource("Speaker(Makoto)\n"), { hexOpcodes: true }), "0x21(0)\n");
   });
 
   test("unknown names are rejected", () => {
@@ -692,12 +669,11 @@ describe("text style tags", () => {
     assert.throws(() => readSource('Text("a</thought>")\n'), /expected no open tag/);
   });
 
-  test("text entries round-trip through the sugar and hex mode shows raw tags", () => {
+  test("text entries round-trip through the sugar", () => {
     const sugared = 'Text("<thought>Huh?</thought>")\nSpeaker(Taka)\n';
     assert.equal(roundTrip(sugared), sugared);
     const raw = 'RawText("<thought>Huh?</thought>")\nSpeaker(Taka)\n';
     assert.equal(roundTrip(raw), raw);
-    assert.equal(writeSourceText(readSource(raw), { hexOpcodes: true }), '0x02("<CLT 4>Huh?<CLT>")\n0x21(1)\n');
   });
 });
 
@@ -717,10 +693,6 @@ describe("Wait sugar", () => {
       roundTrip("SetVariable(6, 1, 60)\nSetVariable(0, 0, 60)\n"),
       "SetVariable(Wait, +=, 60)\nSetVariable(Time, =, 60)\n",
     );
-  });
-
-  test("hex mode writes the raw SetVariable", () => {
-    assert.equal(writeSourceText(readSource("Wait(60)\n"), { hexOpcodes: true }), "0x33(6, 0, 60)\n");
   });
 });
 
@@ -750,10 +722,6 @@ describe("Present sugar", () => {
     assert.throws(() => writeSourceText(present([0, 0, 1])), /arithmetic mode 0/);
     assert.throws(() => writeSourceText(present([0, 2, 3])), /quantity 3/);
     assert.throws(() => writeSourceText(present([200, 2, 1])), /unknown present id 200/);
-  });
-
-  test("hex mode writes the raw Present bytes", () => {
-    assert.equal(writeSourceText(readSource("GivePresent(MineralWater)\n"), { hexOpcodes: true }), "0x0D(0, 2, 1)\n");
   });
 });
 

@@ -22,10 +22,6 @@ const tmLanguage: TmLanguage = {
       name: "comment.line.number-sign.linscript",
     },
     {
-      match: "\\b0x[0-9A-Fa-f]+\\b",
-      name: "constant.numeric.hex.linscript",
-    },
-    {
       match: '"(?:[^"\\\\]|\\\\.)*"',
       name: "string.quoted.double.linscript",
     },

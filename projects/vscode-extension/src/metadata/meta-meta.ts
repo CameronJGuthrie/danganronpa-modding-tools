@@ -7,7 +7,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
  */
 export const metaMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Meta,
-  hexcode: "",
   annotation: true,
   description:
     "Opens the block of per-script annotations (Object, Character, Option and LabelName entries) at the bottom of the file.",

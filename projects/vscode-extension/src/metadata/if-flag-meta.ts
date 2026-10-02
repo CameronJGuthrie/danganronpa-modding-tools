@@ -23,7 +23,6 @@ const characterOffset = {
 
 export const ifFlagMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.IfFlag,
-  hexcode: "0x35",
   description:
     "Branches on one or more flags: each condition is flagGroup, offset, comparison, value, with And/Or joins between conditions. The last argument is the jump taken when it holds, Goto(label).",
   branch: true,

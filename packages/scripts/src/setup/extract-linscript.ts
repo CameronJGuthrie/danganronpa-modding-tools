@@ -49,7 +49,7 @@ async function extractWadContents(wadPath: string): Promise<string> {
   return extractDir;
 }
 
-async function decompileLinFiles(extractDir: string, useHex = false): Promise<string> {
+async function decompileLinFiles(extractDir: string): Promise<string> {
   console.log("Decompiling .lin files...");
 
   const scriptDir = join(extractDir, "Dr1/data/us/script");
@@ -63,8 +63,7 @@ async function decompileLinFiles(extractDir: string, useHex = false): Promise<st
   }
 
   // Run the lin-compiler in batch decompile mode
-  const hexFlag = useHex ? "--hex" : "";
-  await execAsync(`node "${LIN_COMPILER_CLI}" -s -d ${hexFlag} "${scriptDir}"`, { maxBuffer: 50 * 1024 * 1024 });
+  await execAsync(`node "${LIN_COMPILER_CLI}" -s -d "${scriptDir}"`, { maxBuffer: 50 * 1024 * 1024 });
 
   return scriptDir;
 }
@@ -115,15 +114,8 @@ async function cleanup(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  // Parse command line arguments
-  const args = process.argv.slice(2);
-  const useHex = args.includes("--hex") || args.includes("-h");
-
   try {
     console.log("Starting linscript extraction...\n");
-    if (useHex) {
-      console.log("Using hex opcodes mode\n");
-    }
 
     // Step 1: Extract WAD from ZIP
     const wadPath = await extractWadFromZip();
@@ -132,7 +124,7 @@ async function main(): Promise<void> {
     const extractDir = await extractWadContents(wadPath);
 
     // Step 3: Decompile .lin files to .linscript
-    const scriptDir = await decompileLinFiles(extractDir, useHex);
+    const scriptDir = await decompileLinFiles(extractDir);
 
     // Step 4: Copy .linscript files to linscript-exploration
     const linscriptFiles = await copyLinscriptFiles(scriptDir);

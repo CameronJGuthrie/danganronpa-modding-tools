@@ -69,11 +69,6 @@ export function createConfiguration<T>(builder: AudioTestConfigBuilder<T>): Audi
         paramCount: opcode.parameters.length,
         requiredParamCount,
       },
-      {
-        name: opcode.hexcode,
-        paramCount: opcode.parameters.length,
-        requiredParamCount,
-      },
     ],
     defaults: opcode.parameters.map((param) => param.defaultValue),
     argumentNames: opcode.parameters.map((param) => param.namesBy ?? param.names),

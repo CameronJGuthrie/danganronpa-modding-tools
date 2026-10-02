@@ -3,7 +3,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const trialCameraMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.TrialCamera,
-  hexcode: "0x14",
   description: "Moves the class trial camera to a character along a predefined track.",
   parameters: [
     {

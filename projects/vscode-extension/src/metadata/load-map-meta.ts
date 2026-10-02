@@ -3,7 +3,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const loadMapMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.LoadMap,
-  hexcode: "0x15",
   description:
     "Loads a room or map for exploration. The three arguments are not yet understood; the third is usually 255.",
   parameters: [

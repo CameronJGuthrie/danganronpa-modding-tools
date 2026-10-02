@@ -228,12 +228,11 @@ function instructionHover(functionDetails: LinscriptInstructionMeta): vscode.Mar
   const md = new vscode.MarkdownString();
   md.appendCodeblock(signature(functionDetails), "linscript");
 
-  const kind = functionDetails.annotation
-    ? "Source-only annotation; has no binary form."
-    : functionDetails.sugar
-      ? `Source sugar for opcode \`${functionDetails.hexcode}\`.`
-      : `Opcode \`${functionDetails.hexcode}\``;
-  md.appendMarkdown(`${kind}\n\n`);
+  if (functionDetails.annotation) {
+    md.appendMarkdown("Source-only annotation; has no binary form.\n\n");
+  } else if (functionDetails.sugar) {
+    md.appendMarkdown("Source sugar; the compiler expands it to its binary opcode.\n\n");
+  }
 
   if (functionDetails.description) {
     md.appendMarkdown(`${tidy(functionDetails.description)}\n\n`);

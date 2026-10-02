@@ -90,10 +90,6 @@ export function registerDecoration() {
         ? createVarargsRegex(functionDetails.name, branch)
         : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length, required, branch);
 
-      const opcodeFunctionRegex = functionDetails.varargs
-        ? createVarargsRegex(functionDetails.hexcode)
-        : createCompleteFunctionRegex(functionDetails.hexcode, functionDetails.parameters.length, required);
-
       // Debug logging for If
       if (functionDetails.name === "If") {
         logDebug(`If regex: /${completeFunctionRegex.source}/`);
@@ -115,19 +111,9 @@ export function registerDecoration() {
           showParameterDecorations,
           showFunctionDecorations,
         );
-        enrichParameters(
-          opcodeFunctionRegex,
-          documentText,
-          functionDetails,
-          document,
-          hintDecorations,
-          functionDecorationsByType,
-          showParameterDecorations,
-          showFunctionDecorations,
-        );
       } catch (e) {
         logError(
-          `Failed to enrich params for function ${functionDetails.name} (${functionDetails.hexcode}), regex: /${opcodeFunctionRegex.source}/, detail: ${(e as Error).message}`,
+          `Failed to enrich params for function ${functionDetails.name}, regex: /${completeFunctionRegex.source}/, detail: ${(e as Error).message}`,
         );
       }
     });

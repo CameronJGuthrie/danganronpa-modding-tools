@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { Opcode } from "../definitions/opcode.definition.ts";
 import { BinaryError } from "../errors.ts";
 import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
-import { formatArgs, formatRawBytes } from "../opcodes/arguments.ts";
+import { formatArgs } from "../opcodes/arguments.ts";
 import { branchJump, formatBranch, isConditionEntry } from "../opcodes/branch.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
@@ -14,8 +14,6 @@ import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 export interface WriteSourceOptions {
   /** Spaces per indentation level. */
   indentSpaces?: number;
-  /** Write every opcode as `0xNN` instead of its name, and every argument as a number. */
-  hexOpcodes?: boolean;
 }
 
 export const DEFAULT_INDENT_SPACES = 4;
@@ -31,42 +29,43 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
   const indent = " ".repeat(options.indentSpaces ?? DEFAULT_INDENT_SPACES);
   const { entries } = script;
   const { sugared, skipped, trailing } = planTextSugar(entries);
-  // Hex output is the raw view, so per-script names are left out of it along with the Meta block
-  const names = !options.hexOpcodes;
-  const optionSugared = names ? planOptionSugar(entries) : new Set<number>();
+  const optionSugared = planOptionSugar(entries);
   for (const index of optionSugared) {
     skipped.add(index + 1);
     skipped.add(index + 2);
   }
-  const scopes = names ? scopeTables(script.meta) : {};
+  const scopes = scopeTables(script.meta);
   // Every condition must carry its Then + Goto, which are written as the condition's last argument
-  if (names) {
-    entries.forEach((entry, index) => {
-      if (isConditionEntry(entry)) {
-        branchJump(entries, index);
-        skipped.add(index + 1);
-        skipped.add(index + 2);
-      } else if (entry.opcode === Opcode.Then && !skipped.has(index)) {
-        throw new BinaryError("Then without a preceding condition; only If* + Then + Goto branches are understood");
-      }
-    });
-  }
+  entries.forEach((entry, index) => {
+    if (isConditionEntry(entry)) {
+      branchJump(entries, index);
+      skipped.add(index + 1);
+      skipped.add(index + 2);
+    } else if (entry.opcode === Opcode.Then && !skipped.has(index)) {
+      throw new BinaryError("Then without a preceding condition; only If* + Then + Goto branches are understood");
+    }
+  });
+
+  /** The table row for an entry; source has no spelling for an opcode outside the table. */
+  const knownOpcode = (entry: ScriptEntry) => {
+    const opcode = getOpcode(entry.opcode);
+    if (opcode === undefined) {
+      throw new BinaryError(`unknown opcode ${hexOpcodeName(entry.opcode)} with ${entry.args.length} argument byte(s)`);
+    }
+    return opcode;
+  };
 
   /** One instruction as `Name(args)`, applying the Wait and Present sugar and named arguments. */
   const formatEntry = (entry: ScriptEntry): string => {
-    const opcode = getOpcode(entry.opcode);
-    if (opcode === undefined) {
-      return `${hexOpcodeName(entry.opcode)}(${formatRawBytes(entry.args)})`;
-    }
-    if (names && isWait(entry)) {
+    const opcode = knownOpcode(entry);
+    if (isWait(entry)) {
       return `${WAIT}(${formatWait(entry)})`;
     }
-    if (names && isPresent(entry)) {
+    if (isPresent(entry)) {
       const { name, args } = formatPresent(entry);
       return `${name}(${args})`;
     }
-    const name = names ? opcode.name : hexOpcodeName(entry.opcode);
-    return `${name}(${formatArgs(opcode.args, entry, { names, scopes })})`;
+    return `${opcode.name}(${formatArgs(opcode.args, entry, { scopes })})`;
   };
 
   const lines: string[] = [];
@@ -94,8 +93,8 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       return;
     }
 
-    const opcode = getOpcode(entry.opcode);
-    const block = opcode?.block && entry.args.length > 0 ? opcode.name : null;
+    const opcode = knownOpcode(entry);
+    const block = opcode.block && entry.args.length > 0 ? opcode.name : null;
     if (block !== null) {
       // A block opcode always ends the previous block of its kind before writing
       openBlocks.delete(block);
@@ -103,15 +102,15 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
 
     const depth = openBlocks.size;
     let call: string;
-    if (names && opcode !== undefined && isConditionEntry(entry)) {
-      const { conditions, jump } = formatBranch(opcode, entry, entries[index + 2], names, scopes);
+    if (isConditionEntry(entry)) {
+      const { conditions, jump } = formatBranch(opcode, entry, entries[index + 2], scopes);
       call = formatNested(opcode.name, conditions, [jump], depth);
     } else if (optionSugared.has(index)) {
-      call = `${OPTION}(${formatOption(entries, index, names, scopes)})`;
-    } else if (opcode !== undefined && sugared.has(index) && "text" in entry) {
+      call = `${OPTION}(${formatOption(entries, index, scopes)})`;
+    } else if (sugared.has(index) && "text" in entry) {
       // The plan only sugars entries that have a source form
       const text = textSourceForm(entry.text) ?? entry.text;
-      const head = formatArgs(opcode.args, { ...entry, text }, { names, scopes });
+      const head = formatArgs(opcode.args, { ...entry, text }, { scopes });
       const nested = (trailing.get(index) ?? []).map((i) => formatEntry(entries[i]));
       call = formatNested(TEXT_SUGAR, head, nested, depth);
     } else {
@@ -124,11 +123,9 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     }
   });
 
-  if (names) {
-    const meta = formatMeta(script.meta, indent);
-    if (meta.length > 0) {
-      lines.push("", ...meta);
-    }
+  const meta = formatMeta(script.meta, indent);
+  if (meta.length > 0) {
+    lines.push("", ...meta);
   }
 
   return lines.map((line) => `${line}\n`).join("");

@@ -4,11 +4,9 @@ import type { ArgumentNameSource, ArgumentNames, DependentNames } from "../util/
 
 export type LinscriptInstructionMeta<Parameters extends readonly ParameterMeta[] = ParameterMeta[]> = {
   name: LinscriptInstructionName;
-  // TODO: add a description to each opcode meta
-  hexcode: string;
-  /** Source-only sugar that the compiler expands into the opcode whose hexcode this shares. */
+  /** Source-only sugar that the compiler expands into another opcode, such as `Text` or `Wait`. */
   sugar?: true;
-  /** Source-only annotation with no binary form at all, such as the `Meta()` block; `hexcode` is empty. */
+  /** Source-only annotation with no binary form at all, such as the `Meta()` block. */
   annotation?: true;
   selfDescribing?: boolean;
   /**

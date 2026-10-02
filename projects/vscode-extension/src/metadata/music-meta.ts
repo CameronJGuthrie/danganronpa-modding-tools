@@ -3,7 +3,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const musicMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Music,
-  hexcode: "0x09",
   description: "Starts a background music track with a fade-in in frames; id 255 stops the current track.",
   parameters: [
     {

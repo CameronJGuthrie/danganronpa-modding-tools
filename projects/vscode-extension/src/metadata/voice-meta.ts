@@ -11,7 +11,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const voiceMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Voice,
-  hexcode: "0x08",
   description:
     "Plays a character's voice clip, chosen by character, chapter and line id. The decoration shows the transcript.",
   parameters: [

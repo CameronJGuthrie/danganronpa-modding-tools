@@ -18,7 +18,7 @@ export {
   writeSourceText,
 } from "./io/linscript-writer.ts";
 export { argByteCount, type FormatArgsOptions, formatArgs, parseEntry } from "./opcodes/arguments.ts";
-export { getOpcode, hexOpcodeName, type OpcodeInfo } from "./opcodes/lookup.ts";
+export { getOpcode, type OpcodeInfo } from "./opcodes/lookup.ts";
 export {
   formatMeta,
   META,

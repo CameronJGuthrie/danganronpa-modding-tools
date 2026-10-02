@@ -63,12 +63,11 @@ export function planOptionSugar(entries: readonly ScriptEntry[]): Set<number> {
 export function formatOption(
   entries: readonly ScriptEntry[],
   index: number,
-  names: boolean,
   scopes: ScopeTables,
 ): string {
   const label = entries[index + 1];
   const text = "text" in label ? (labelText(label.text) ?? label.text) : "";
-  return `${formatArgs(setOption.args, entries[index], { names, scopes })}, ${formatTextArgument(text, names)}`;
+  return `${formatArgs(setOption.args, entries[index], { scopes })}, ${formatTextArgument(text)}`;
 }
 
 /** The label without its trailing newline, or undefined when the text does not end in exactly one. */

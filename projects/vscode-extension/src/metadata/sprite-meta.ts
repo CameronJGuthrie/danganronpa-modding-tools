@@ -13,7 +13,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const spriteMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.Sprite,
-  hexcode: "0x1E",
   description:
     "Shows, hides or places a character bust-up in a slot with a transition and screen position. A Set transition on a slot makes it a placed, interactable character.",
   parameters: [

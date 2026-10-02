@@ -12,7 +12,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const studentTitleEntryMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.StudentTitleEntry,
-  hexcode: "0x0F",
   description: "Sets, adds to or subtracts from a student's unlocked title entry in the report card.",
   parameters: [
     {

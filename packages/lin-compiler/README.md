@@ -27,7 +27,6 @@ node projects/cli/src/cli.ts [options] input [output]
 | `-h`, `--help` | Display the usage message |
 | `-d`, `--decompile` | Decompile the input (default is compile) |
 | `-s`, `--silent` | Suppress all non-error messages |
-| `--hex` | Output opcodes as hex codes instead of names (decompile only) |
 | `--indent-spaces N` | Indentation spaces per level (default: 4) |
 
 Examples:
@@ -51,7 +50,7 @@ writers take one, and nothing depends on process-wide state:
 import { readCompiledFile, readSource, writeCompiledBytes, writeSourceText } from "lin-compiler";
 
 const script = await readCompiledFile("input.lin");
-const source = writeSourceText(script, { indentSpaces: 4, hexOpcodes: false });
+const source = writeSourceText(script, { indentSpaces: 4 });
 const bytes = writeCompiledBytes(readSource(source));
 ```
 

@@ -3,7 +3,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
 
 export const truthBulletFlagMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.TruthBulletFlag,
-  hexcode: "0x0C",
   description: "Unlocks, updates or resets a truth bullet (evidence) for the class trial.",
   parameters: [
     {

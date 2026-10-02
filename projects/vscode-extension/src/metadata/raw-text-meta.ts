@@ -7,7 +7,6 @@ import type { LinscriptInstructionMeta } from "../types/linscript-instruction-me
  */
 export const rawTextMeta: LinscriptInstructionMeta = {
   name: LinscriptInstructionName.RawText,
-  hexcode: "0x02",
   description: "Displays text with no automatic waits; the compiler assigns the text id.",
   parameters: [] as const,
 };
