@@ -7,21 +7,21 @@ export enum Variable {
   ScriptEntryContext = 8, // →  1365 occurrences (17.3%)
   TrialMinigameTutorialFlag = 9, // →    38 occurrences (0.5%)
   Variable_10 = 10, // →     1 occurrences (0.0%)
-  Variable_11 = 11, // →    17 occurrences (0.2%)
-  Variable_12 = 12, // →    40 occurrences (0.5%)
+  TimeLimit = 11, // →    17 occurrences (0.2%)
+  FreeTimeEventCount = 12, // →    40 occurrences (0.5%)
   Variable_13 = 13, // →   190 occurrences (2.4%)
   Random = 14, // →   352 occurrences; a percentage roll 0–99: only compared against 25/33/50/66, only ever assigned 0 (reroll)
   GameMode = 15, // →   113 occurrences (1.4%)
   Variable_16 = 16, // →     2 occurrences (0.0%)
   Regulations = 17, // →    40 occurrences (0.5%)
-  Variable_19 = 19, // →   285 occurrences (3.6%)
+  LogicDifficulty = 19, // →   285 occurrences (3.6%)
   Scene = 20, // →   270 occurrences (3.4%)
-  Variable_21 = 21, // →    45 occurrences (0.6%)
+  CharactersTalkedTo = 21, // →    45 occurrences (0.6%)
   Monocoin = 30, // →   182 occurrences (2.3%)
   Variable_48 = 48, // →     5 occurrences (0.1%)
   Variable_50 = 50, // →     1 occurrences (0.0%)
   Variable_56 = 56, // →    15 occurrences (0.2%)
-  Variable_58 = 58, // →     1 occurrences (0.0%)
+  DaysRemaining = 58, // →     1 occurrences (0.0%)
   Variable_59 = 59, // →    30 occurrences (0.4%)
   Variable_60 = 60, // →     2 occurrences (0.0%)
   Variable_61 = 61, // →     1 occurrences (0.0%)
@@ -42,21 +42,21 @@ export const variables: Readonly<Record<Variable, string>> = {
   [Variable.ScriptEntryContext]: "ScriptEntryContext",
   [Variable.TrialMinigameTutorialFlag]: "TrialMinigameTutorialFlag",
   [Variable.Variable_10]: "",
-  [Variable.Variable_11]: "",
-  [Variable.Variable_12]: "",
+  [Variable.TimeLimit]: "TimeLimit",
+  [Variable.FreeTimeEventCount]: "FreeTimeEventCount",
   [Variable.Variable_13]: "",
   [Variable.Random]: "Random",
   [Variable.GameMode]: "GameMode",
   [Variable.Variable_16]: "",
   [Variable.Regulations]: "Regulations",
-  [Variable.Variable_19]: "",
+  [Variable.LogicDifficulty]: "LogicDifficulty",
   [Variable.Scene]: "Scene",
-  [Variable.Variable_21]: "",
+  [Variable.CharactersTalkedTo]: "CharactersTalkedTo",
   [Variable.Monocoin]: "Monocoin",
   [Variable.Variable_48]: "",
   [Variable.Variable_50]: "",
   [Variable.Variable_56]: "",
-  [Variable.Variable_58]: "",
+  [Variable.DaysRemaining]: "DaysRemaining",
   [Variable.Variable_59]: "",
   [Variable.Variable_60]: "",
   [Variable.Variable_61]: "",

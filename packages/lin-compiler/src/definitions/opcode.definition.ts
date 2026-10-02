@@ -7,6 +7,7 @@ import {
   comparisonOperators,
   FlagGroup,
   LogicalJoin,
+  Skill,
   SpritePosition,
   SpriteSheet,
   SpriteTransition,
@@ -77,12 +78,18 @@ function none(): ArgumentSpec {
 const flagGroup = named(Byte, FlagGroup);
 /**
  * A flag offset byte. Its meaning depends on the flag group just before it: for the character
- * groups it is a character id and is written by name; other groups keep the number.
+ * groups it is a character id and for the skill groups a skill id, both written by name; other
+ * groups keep the number.
  */
 const flagOffset: Parameter = {
   type: Byte,
   dependsOn: -1,
-  namesBy: { [FlagGroup.CharacterInvestigated]: Character, [FlagGroup.CharacterDead]: Character },
+  namesBy: {
+    [FlagGroup.CharacterInvestigated]: Character,
+    [FlagGroup.CharacterDead]: Character,
+    [FlagGroup.Skills]: Skill,
+    [FlagGroup.Skills2]: Skill,
+  },
 };
 /** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
 const objectId: Parameter = { type: Byte, scope: "Object" };

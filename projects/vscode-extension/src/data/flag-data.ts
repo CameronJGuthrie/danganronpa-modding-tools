@@ -14,7 +14,7 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
   [FlagGroup.MapUnlock]: {
     [RESET_FLAGS]: { name: "Reset" },
   },
-  [FlagGroup.Unknown]: {
+  [FlagGroup.MonocoinCollected]: {
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.FreeTimeEvent]: {
@@ -31,4 +31,6 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.CharacterDead]: characterData,
+  [FlagGroup.Skills]: undefined,
+  [FlagGroup.Skills2]: undefined,
 };

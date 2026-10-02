@@ -27,8 +27,8 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
     1: "True",
   },
   [Variable.Variable_10]: undefined, // Used once, only set to 0
-  [Variable.Variable_11]: undefined, // Some kind of timer used during the class trial's bad ending.
-  [Variable.Variable_12]: undefined,
+  [Variable.TimeLimit]: undefined, // 60 or 180, set right before a timed choose-evidence / choose-option prompt in trials.
+  [Variable.FreeTimeEventCount]: undefined, // += 1 after StudentReportInfo at the end of each free time event; never read.
   [Variable.Variable_13]: undefined, // Something to do with the class trial
   // A random percentage, 0-99. `If(Random, >=, 50)` is a coin flip, `> 33` / `> 66` a three-way split;
   // `SetVariable(Random, Assign, 0)` before the test appears to reroll it. Only used in free time, gift and School Mode scripts.
@@ -49,10 +49,10 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
   },
   [Variable.Variable_16]: undefined, // Something to do with the minigame. Values seen are 1 and 200.
   [Variable.Regulations]: undefined,
-  [Variable.Variable_19]: undefined, // Only seems to be used in japanese game files
+  [Variable.LogicDifficulty]: undefined, // Trials test `!= 2` (Mean) to pick a vaguer hint after a wrong answer. Only written in the Japanese prototype scripts.
   [Variable.Scene]: undefined,
-  [Variable.Variable_21]: {
-    // Something to do with the camera?
+  [Variable.CharactersTalkedTo]: {
+    // = 0 at scene setup, += 1 the first time each character is investigated in chapter 3.
     0: "0",
     1: "1",
     2: "2",
@@ -63,7 +63,7 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
   [Variable.Variable_48]: undefined, // Only seems to be used in japanese game files
   [Variable.Variable_50]: undefined, // Something to do with the minigame. Value is always 1.
   [Variable.Variable_56]: { ...flatMapProperty(characterData, "name") }, // Something to do with the minigame. Value is characterId.
-  [Variable.Variable_58]: undefined, // Something to do with the minigame. Value is always 50.
+  [Variable.DaysRemaining]: undefined, // Set to 50 once at School Mode start.
   [Variable.Variable_59]: undefined, // Something to do with the minigame
   [Variable.Variable_60]: undefined, // Something to do with the minigame
   [Variable.Variable_61]: undefined, // Something to do with the minigame. Value is always 7.
