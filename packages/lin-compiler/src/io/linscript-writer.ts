@@ -6,7 +6,7 @@ import { formatArgs } from "../opcodes/arguments.ts";
 import { branchJump, formatBranch, isConditionEntry } from "../opcodes/branch.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
-import { formatMode, MODE, planModeSugar } from "../opcodes/mode.ts";
+import { formatMode, MODE, planModeSugar, type ModePlan } from "../opcodes/mode.ts";
 import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
 import { planTextSugar, textSourceForm, TEXT_SUGAR } from "../opcodes/textSugar.ts";
@@ -36,10 +36,14 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     skipped.add(index + 1);
     skipped.add(index + 2);
   }
-  // The Thinking toggle is written as part of the Mode(...) that stands where its Speaker was
+  // The UI toggles are written as part of the Mode(...) that stands where their Speaker was
   const modeSugared = planModeSugar(entries, skipped);
-  for (const toggle of modeSugared.values()) {
-    skipped.add(toggle);
+  for (const plan of modeSugared.values()) {
+    for (const toggle of [plan.thinking, plan.name]) {
+      if (toggle !== undefined) {
+        skipped.add(toggle);
+      }
+    }
   }
   const scopes = scopeTables(script.meta);
   // Every condition must carry its Then + Goto, which are written as the condition's last argument
@@ -116,7 +120,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       const { conditions, jump } = formatBranch(opcode, entry, entries[index + 2], scopes);
       call = formatNested(opcode.name, conditions, [jump], depth);
     } else if (modeSugared.has(index)) {
-      call = `${MODE}(${formatMode(entries[modeSugared.get(index) as number], entry)})`;
+      call = `${MODE}(${formatMode(modeSugared.get(index) as ModePlan, entries, entry)})`;
     } else if (optionSugared.has(index)) {
       call = `${OPTION}(${formatOption(entries, index, scopes)})`;
     } else if (sugared.has(index) && "text" in entry) {

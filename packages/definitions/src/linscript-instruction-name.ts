@@ -13,7 +13,7 @@ export const LinscriptInstructionName = {
   LoadScript: "LoadScript",
   LoadSprite: "LoadSprite",
   Meta: "Meta", // Source-only: opens the block of per-script annotations at the bottom of a file
-  Mode: "Mode", // Sugar for SetUI(Thinking, Shown|Hidden) + Speaker(character): who is talking and whether aloud
+  Mode: "Mode", // Sugar for SetUI(Thinking, …) + SetUI(Name, Shown) + Speaker(character), or SetUI(Name, Hidden) + Speaker(Blank) for System: who is talking and whether aloud
   Movie: "Movie",
   Music: "Music",
   Object: "Object", // Source-only: `Object(id, Name)` inside Meta() names an object id for the file

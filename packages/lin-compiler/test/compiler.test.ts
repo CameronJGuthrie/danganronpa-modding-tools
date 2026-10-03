@@ -748,37 +748,54 @@ describe("Present sugar", () => {
 describe("Mode sugar", () => {
   const setUi = (ui: number, visibility: number) => ({ opcode: 0x25, args: [ui, visibility] });
   const speaker = (character: number) => ({ opcode: 0x21, args: [character] });
+  const nameShown = setUi(2, 1);
+  const nameHidden = setUi(2, 0);
 
-  test("Mode compiles to the Thinking toggle and a Speaker, defaulting to Makoto", () => {
-    assert.deepEqual(readSource("Mode(Thinking)\n").entries, [setUi(0, 1), speaker(0)]);
-    assert.deepEqual(readSource("Mode(Speaking)\n").entries, [setUi(0, 0), speaker(0)]);
-    assert.deepEqual(readSource("Mode(Speaking, Monokuma)\n").entries, [setUi(0, 0), speaker(15)]);
-    assert.deepEqual(readSource("Mode(Thinking, 4)\n").entries, [setUi(0, 1), speaker(4)]);
+  test("Mode compiles to the Thinking and Name toggles and a Speaker, defaulting to Makoto", () => {
+    assert.deepEqual(readSource("Mode(Thinking)\n").entries, [setUi(0, 1), nameShown, speaker(0)]);
+    assert.deepEqual(readSource("Mode(Speaking)\n").entries, [setUi(0, 0), nameShown, speaker(0)]);
+    assert.deepEqual(readSource("Mode(Speaking, Monokuma)\n").entries, [setUi(0, 0), nameShown, speaker(15)]);
+    assert.deepEqual(readSource("Mode(Thinking, 4)\n").entries, [setUi(0, 1), nameShown, speaker(4)]);
     assert.throws(() => readSource("Mode()\n"), /Mode expects 1 or 2 arguments/);
     assert.throws(() => readSource("Mode(Shouting)\n"), /unknown mode 'Shouting'/);
     assert.throws(() => readSource("Mode(Thinking, Bogus)\n"), /unknown name 'Bogus'/);
   });
 
-  test("the toggle is collapsed from anywhere in the SetUI run before the Speaker", () => {
-    const script = { entries: [setUi(15, 0), setUi(0, 1), setUi(2, 1), setUi(1, 1), speaker(0), setUi(0, 0), speaker(15)] };
+  test("Mode(System) hides the name and speaks as Blank", () => {
+    assert.deepEqual(readSource("Mode(System)\n").entries, [nameHidden, speaker(31)]);
+    assert.deepEqual(readSource("Mode(System, Makoto)\n").entries, [nameHidden, speaker(0)]);
+  });
+
+  test("the toggles are collapsed from anywhere in the SetUI run before the Speaker", () => {
+    const script = { entries: [setUi(15, 0), setUi(0, 1), nameShown, setUi(1, 1), speaker(0), setUi(0, 0), speaker(15)] };
     assert.equal(
       writeSourceText(script),
-      "SetUI(CameraLook, Hidden)\nSetUI(Name, Shown)\nSetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Monokuma)\n",
+      "SetUI(CameraLook, Hidden)\nSetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Monokuma)\n",
+    );
+  });
+
+  test("a hidden name makes the run System and leaves a Thinking toggle plain", () => {
+    const script = { entries: [setUi(15, 0), nameHidden, setUi(1, 1), speaker(31), setUi(0, 1), nameHidden, speaker(0)] };
+    assert.equal(
+      writeSourceText(script),
+      "SetUI(CameraLook, Hidden)\nSetUI(Textbox, Shown)\nMode(System)\nSetUI(Thinking, Shown)\nMode(System, Makoto)\n",
     );
   });
 
   test("a toggle without a Speaker after its run, and a Speaker without a toggle, stay plain", () => {
-    const script = { entries: [setUi(0, 0), { opcode: 0x1e, args: [0, 15, 0, 1, 2] }, speaker(15), setUi(1, 0), speaker(0)] };
+    const script = { entries: [setUi(0, 0), { opcode: 0x1e, args: [0, 15, 0, 1, 2] }, speaker(15), setUi(1, 0), speaker(0), nameShown, speaker(2)] };
     assert.equal(
       writeSourceText(script),
-      "SetUI(Thinking, Hidden)\nSprite(0, Monokuma, 0, FadeIn, Center)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nSpeaker(Makoto)\n",
+      "SetUI(Thinking, Hidden)\nSprite(0, Monokuma, 0, FadeIn, Center)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nSpeaker(Makoto)\nSetUI(Name, Shown)\nSpeaker(Byakuya)\n",
     );
   });
 
   test("Mode round-trips, and the plain spelling decompiles to it", () => {
-    const source = "SetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Kyoko)\n";
+    const source = "SetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Kyoko)\nMode(System)\n";
     assert.equal(roundTrip(source), source);
-    assert.equal(roundTrip("SetUI(Thinking, Shown)\nSetUI(Name, Shown)\nSpeaker(Makoto)\n"), "SetUI(Name, Shown)\nMode(Thinking)\n");
+    assert.equal(roundTrip("SetUI(Thinking, Shown)\nSetUI(Name, Shown)\nSpeaker(Makoto)\n"), "Mode(Thinking)\n");
+    assert.equal(roundTrip("SetUI(Thinking, Shown)\nSpeaker(Makoto)\n"), "Mode(Thinking)\n");
+    assert.equal(roundTrip("SetUI(Name, Hidden)\nSpeaker(Blank)\n"), "Mode(System)\n");
   });
 });
 
