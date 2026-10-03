@@ -11,11 +11,7 @@ Libraries and scripts live under `packages/`, applications under `projects/`:
 `docs/file-formats/` holds reverse-engineering notes; `workbench/` holds generated working files.
 All but `projects/gui` are pnpm workspace packages (see `pnpm-workspace.yaml`).
 
-## Exploration Mode
-This is when I'm trying to discover what the opcodes do. You'll be helping me to understand patterns in the workbench/exploration/chapter_CC/scene_SSS/eCC_SSS_NNN.linscript files.
-I document my findings in projects/vscode-extension/src/instructions/*.instruction.ts, one file per instruction. E.g. Voice -> voice.instruction.ts
-
-**Investigation Script:**
+## Opcode Investigation:
 Use `pnpm run investigate` to analyze opcode usage patterns across all linscript files:
 
 ```bash
