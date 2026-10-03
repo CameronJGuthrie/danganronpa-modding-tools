@@ -5,14 +5,14 @@ import type { LinscriptInstruction } from "../linscript-instruction";
  * Source-only sugar for the UI toggles that start a character's lines followed by
  * `Speaker(character)`: who is about to talk and whether in the thought bubble or aloud (the name
  * plate shown, character defaulting to Makoto), or `System` for unattributed text with the name
- * plate hidden (character defaulting to Blank).
+ * plate hidden (character defaulting to Blank). Every mode also shows the textbox.
  */
 export const modeInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.Mode,
   sugar: true,
   selfDescribing: true,
   description:
-    "Starts a character's lines, either as thoughts (Thinking) or spoken aloud (Speaking) with the name plate shown, or unattributed text with the name plate hidden (System); sugar for SetUI(Thinking, …) + SetUI(Name, Shown) + Speaker(character), or SetUI(Name, Hidden) + Speaker(Blank). The character defaults to Makoto, or Blank for System.",
+    "Starts a character's lines, either as thoughts (Thinking) or spoken aloud (Speaking) with the name plate shown, or unattributed text with the name plate hidden (System); sugar for SetUI(Textbox, Shown) + SetUI(Thinking, …) + SetUI(Name, Shown) + Speaker(character), or SetUI(Textbox, Shown) + SetUI(Name, Hidden) + Speaker(Blank). The character defaults to Makoto, or Blank for System.",
   parameters: [
     {
       name: "mode",

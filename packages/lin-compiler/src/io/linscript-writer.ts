@@ -39,7 +39,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
   // The UI toggles are written as part of the Mode(...) that stands where their Speaker was
   const modeSugared = planModeSugar(entries, skipped);
   for (const plan of modeSugared.values()) {
-    for (const toggle of [plan.thinking, plan.name]) {
+    for (const toggle of [plan.thinking, plan.name, plan.textbox]) {
       if (toggle !== undefined) {
         skipped.add(toggle);
       }

@@ -10,13 +10,13 @@ import { parseParameter } from "./arguments.ts";
  * `Mode(...)` is source-only sugar for the UI toggles that start a character's lines and the
  * `Speaker(character)` that follows them.
  *
- * - `Mode(Thinking)` / `Mode(Speaking, Monokuma)` stand for `SetUI(Thinking, Shown|Hidden)`, which
- *   switches the textbox between the thought bubble and spoken dialogue, plus `SetUI(Name, Shown)`
- *   and the `Speaker`. The character defaults to Makoto, who does all the thinking and most of the
+ * - `Mode(Thinking)` / `Mode(Speaking, Monokuma)` stand for `SetUI(Textbox, Shown)`,
+ *   `SetUI(Thinking, Shown|Hidden)`, which switches the textbox between the thought bubble and spoken
+ *   dialogue, plus `SetUI(Name, Shown)` and the `Speaker`. The character defaults to Makoto, who does all the thinking and most of the
  *   talking. Every shipped line that switches the Thinking toggle has the name plate on, so the name
  *   toggle is implied: compiling always emits it, and decompiling absorbs one when it is in the run.
- * - `Mode(System)` stands for `SetUI(Name, Hidden)` plus `Speaker(Blank)`: unattributed text such as
- *   sound effects and tutorial prompts. The character argument is only needed where a shipped script
+ * - `Mode(System)` stands for `SetUI(Textbox, Shown)`, `SetUI(Name, Hidden)` plus `Speaker(Blank)`:
+ *   unattributed text such as sound effects and tutorial prompts. The character argument is only needed where a shipped script
  *   left a different character in the speaker register, `Mode(System, Makoto)`; nothing is drawn
  *   either way. A Thinking toggle in the same run stays plain before it.
  *
@@ -28,6 +28,11 @@ import { parseParameter } from "./arguments.ts";
  * independent switch, so moving a toggle to the end of its run, or adding an implied `Name Shown`,
  * does not change what the game does, but the bytes are not identical to the shipped file after a
  * round trip.
+ *
+ * Every mode also implies `SetUI(Textbox, Shown)`: the game opens the textbox for a `Text` anyway, so
+ * the explicit toggle is redundant where it is written and harmless where it is not. Compiling always
+ * emits it, and decompiling absorbs one from the run when it is there (about 58% of shipped Modes).
+ * A `Textbox Shown` with no Mode after its run stays plain, as do `Textbox Hidden` toggles.
  *
  * A toggle with no Speaker after its run, and a Speaker with neither a Thinking toggle nor a
  * `Name Hidden` before it, stay plain.
@@ -45,6 +50,13 @@ export interface ModePlan {
   thinking?: number;
   /** The `SetUI(Name, …)` entry: `Hidden` for System, `Shown` for the other modes when present. */
   name?: number;
+  /** The `SetUI(Textbox, Shown)` entry, when the run has one; implied otherwise. */
+  textbox?: number;
+}
+
+/** True for a `SetUI(Textbox, Shown)` entry. */
+function isTextboxShown(entry: ScriptEntry): boolean {
+  return isToggle(entry, UserInterface.Textbox) && entry.args[1] === UiVisibility.Shown;
 }
 
 /** True for a `SetUI(ui, Shown|Hidden)` entry. */
@@ -70,17 +82,27 @@ export function planModeSugar(entries: readonly ScriptEntry[], skipped: Readonly
     }
     let thinking: number | undefined;
     let name: number | undefined;
+    let textbox: number | undefined;
     for (let j = index - 1; j >= 0 && entries[j].opcode === Opcode.SetUI && !skipped.has(j); j--) {
       if (thinking === undefined && isToggle(entries[j], UserInterface.Thinking)) {
         thinking = j;
       } else if (name === undefined && isToggle(entries[j], UserInterface.Name)) {
         name = j;
+      } else if (textbox === undefined && isTextboxShown(entries[j])) {
+        textbox = j;
       }
     }
+    let chosen: ModePlan | undefined;
     if (name !== undefined && entries[name].args[1] === UiVisibility.Hidden) {
-      plan.set(index, { name });
+      chosen = { name };
     } else if (thinking !== undefined) {
-      plan.set(index, name === undefined ? { thinking } : { thinking, name });
+      chosen = name === undefined ? { thinking } : { thinking, name };
+    }
+    if (chosen !== undefined) {
+      if (textbox !== undefined) {
+        chosen.textbox = textbox;
+      }
+      plan.set(index, chosen);
     }
   });
   return plan;
@@ -112,13 +134,16 @@ export function expandMode(argsText: string, line: number): ScriptEntry[] {
     values.length === 2
       ? parseParameter(ParameterType.Byte, Character, values[1], line)
       : [system ? SYSTEM_CHARACTER : DEFAULT_CHARACTER];
+  const textbox: ScriptEntry = { opcode: Opcode.SetUI, args: [UserInterface.Textbox, UiVisibility.Shown] };
   if (system) {
     return [
+      textbox,
       { opcode: Opcode.SetUI, args: [UserInterface.Name, UiVisibility.Hidden] },
       { opcode: Opcode.Speaker, args: character },
     ];
   }
   return [
+    textbox,
     { opcode: Opcode.SetUI, args: [UserInterface.Thinking, mode] },
     { opcode: Opcode.SetUI, args: [UserInterface.Name, UiVisibility.Shown] },
     { opcode: Opcode.Speaker, args: character },

@@ -6,9 +6,14 @@ import type { CompilerClient } from "./compiler";
 /** The mod this extension edits; the authored scripts live under `<workbench>/mod/<wad>/Dr1/data/us/script`. */
 const MOD_WAD = "dr1_data_us";
 
+/** The authored script directory, `<workbench>/mod/dr1_data_us/Dr1/data/us/script`. */
+export function modScriptDir(workbenchRoot: string): string {
+  return path.join(workbenchRoot, "mod", MOD_WAD, ...SCRIPT_DIR_SEGMENTS);
+}
+
 /** Where an authored copy of the script named by `file` goes: the existing authored file, or a new flat one. */
 async function modOutputFile(workbenchRoot: string, file: string): Promise<string> {
-  const scriptDir = path.join(workbenchRoot, "mod", MOD_WAD, ...SCRIPT_DIR_SEGMENTS);
+  const scriptDir = modScriptDir(workbenchRoot);
   const flatName = path.basename(file, path.extname(file));
   return (await findModScript(scriptDir, flatName)) ?? path.join(scriptDir, `${flatName}.linscript`);
 }

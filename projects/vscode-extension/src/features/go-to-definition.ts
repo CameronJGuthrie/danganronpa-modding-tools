@@ -1,9 +1,11 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
+import { findModScript } from "danganronpa-scripts/src/lib/mod-scripts.ts";
 import { log } from "../output";
 import { labelNamesFromDocument } from "../util/script-meta";
 import { createStartOfLineFunctionRegex } from "../util/string-util";
+import { modScriptDir } from "./scripts";
 import { getWorkbenchRoot } from "./workspace";
 
 /**
@@ -13,6 +15,10 @@ import { getWorkbenchRoot } from "./workspace";
  * - Click on Goto(500), alone or inside If*(..., Goto(500)), to jump to Label(500); Goto(HatedGift) resolves the name through the Meta() block's LabelName entries
  * - Click on LoadScript(chapter, episode, scene) to open that script file
  * - Click on RunScript(chapter, episode, scene) to open that script file
+ *
+ * Script files are looked up in the mod directory first, by exact flat name and then by the loose
+ * layout the build accepts (`chapter_CC/scene_SSS/NNN_Label.linscript`, or a flat name with a label
+ * after it), and finally in `linscript-exploration`.
  */
 export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
   provideDefinition(
@@ -89,30 +95,43 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
 
   /**
    * Find the script file based on chapter, episode, and scene numbers
-   * Format: e{chapter:02d}_{episode:03d}_{scene:03d}.linscript
+   * Flat name: e{chapter:02d}_{episode:03d}_{scene:03d}
    */
-  private findScriptFile(chapter: number, episode: number, scene: number): vscode.Location | null {
+  private async findScriptFile(chapter: number, episode: number, scene: number): Promise<vscode.Location | null> {
     const rootDir = getWorkbenchRoot();
     if (!rootDir) {
       log("Root directory not found");
       return null;
     }
 
-    // Format the filename
-    const filename = `e${chapter.toString().padStart(2, "0")}_${episode
+    const flatName = `e${chapter.toString().padStart(2, "0")}_${episode
       .toString()
-      .padStart(3, "0")}_${scene.toString().padStart(3, "0")}.linscript`;
+      .padStart(3, "0")}_${scene.toString().padStart(3, "0")}`;
+    const filename = `${flatName}.linscript`;
 
     log(`Looking for: ${filename}`);
     log(`Root dir: ${rootDir}`);
 
-    // Search in the mod directory
-    const modPath = path.join(rootDir, "mod/dr1_data_us/Dr1/data/us/script", filename);
+    // Exact flat file in the mod directory
+    const scriptDir = modScriptDir(rootDir);
+    const modPath = path.join(scriptDir, filename);
 
     log(`Checking mod path: ${modPath}`);
     if (fs.existsSync(modPath)) {
       log(`Found in mod!`);
       return new vscode.Location(vscode.Uri.file(modPath), new vscode.Position(0, 0));
+    }
+
+    // Loose match: the organised layout the build script accepts, keyed by the leading numbers
+    try {
+      const organised = await findModScript(scriptDir, flatName);
+      if (organised !== null) {
+        log(`Found in mod (organised): ${organised}`);
+        return new vscode.Location(vscode.Uri.file(organised), new vscode.Position(0, 0));
+      }
+    } catch (error) {
+      // The mod directory has files the build would reject (duplicate or unnamed scripts); fall through
+      log(`Could not organise mod scripts: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     // If not found in mod, search in linscript-exploration

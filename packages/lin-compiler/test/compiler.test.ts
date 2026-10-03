@@ -750,35 +750,42 @@ describe("Mode sugar", () => {
   const speaker = (character: number) => ({ opcode: 0x21, args: [character] });
   const nameShown = setUi(2, 1);
   const nameHidden = setUi(2, 0);
+  const textboxShown = setUi(1, 1);
 
-  test("Mode compiles to the Thinking and Name toggles and a Speaker, defaulting to Makoto", () => {
-    assert.deepEqual(readSource("Mode(Thinking)\n").entries, [setUi(0, 1), nameShown, speaker(0)]);
-    assert.deepEqual(readSource("Mode(Speaking)\n").entries, [setUi(0, 0), nameShown, speaker(0)]);
-    assert.deepEqual(readSource("Mode(Speaking, Monokuma)\n").entries, [setUi(0, 0), nameShown, speaker(15)]);
-    assert.deepEqual(readSource("Mode(Thinking, 4)\n").entries, [setUi(0, 1), nameShown, speaker(4)]);
+  test("Mode compiles to the Textbox, Thinking and Name toggles and a Speaker, defaulting to Makoto", () => {
+    assert.deepEqual(readSource("Mode(Thinking)\n").entries, [textboxShown, setUi(0, 1), nameShown, speaker(0)]);
+    assert.deepEqual(readSource("Mode(Speaking)\n").entries, [textboxShown, setUi(0, 0), nameShown, speaker(0)]);
+    assert.deepEqual(readSource("Mode(Speaking, Monokuma)\n").entries, [textboxShown, setUi(0, 0), nameShown, speaker(15)]);
+    assert.deepEqual(readSource("Mode(Thinking, 4)\n").entries, [textboxShown, setUi(0, 1), nameShown, speaker(4)]);
     assert.throws(() => readSource("Mode()\n"), /Mode expects 1 or 2 arguments/);
     assert.throws(() => readSource("Mode(Shouting)\n"), /unknown mode 'Shouting'/);
     assert.throws(() => readSource("Mode(Thinking, Bogus)\n"), /unknown name 'Bogus'/);
   });
 
-  test("Mode(System) hides the name and speaks as Blank", () => {
-    assert.deepEqual(readSource("Mode(System)\n").entries, [nameHidden, speaker(31)]);
-    assert.deepEqual(readSource("Mode(System, Makoto)\n").entries, [nameHidden, speaker(0)]);
+  test("Mode(System) shows the textbox, hides the name and speaks as Blank", () => {
+    assert.deepEqual(readSource("Mode(System)\n").entries, [textboxShown, nameHidden, speaker(31)]);
+    assert.deepEqual(readSource("Mode(System, Makoto)\n").entries, [textboxShown, nameHidden, speaker(0)]);
   });
 
   test("the toggles are collapsed from anywhere in the SetUI run before the Speaker", () => {
-    const script = { entries: [setUi(15, 0), setUi(0, 1), nameShown, setUi(1, 1), speaker(0), setUi(0, 0), speaker(15)] };
-    assert.equal(
-      writeSourceText(script),
-      "SetUI(CameraLook, Hidden)\nSetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Monokuma)\n",
-    );
+    const script = { entries: [setUi(15, 0), setUi(0, 1), nameShown, textboxShown, speaker(0), setUi(0, 0), speaker(15)] };
+    assert.equal(writeSourceText(script), "SetUI(CameraLook, Hidden)\nMode(Thinking)\nMode(Speaking, Monokuma)\n");
   });
 
   test("a hidden name makes the run System and leaves a Thinking toggle plain", () => {
-    const script = { entries: [setUi(15, 0), nameHidden, setUi(1, 1), speaker(31), setUi(0, 1), nameHidden, speaker(0)] };
+    const script = { entries: [setUi(15, 0), nameHidden, textboxShown, speaker(31), setUi(0, 1), nameHidden, speaker(0)] };
     assert.equal(
       writeSourceText(script),
-      "SetUI(CameraLook, Hidden)\nSetUI(Textbox, Shown)\nMode(System)\nSetUI(Thinking, Shown)\nMode(System, Makoto)\n",
+      "SetUI(CameraLook, Hidden)\nMode(System)\nSetUI(Thinking, Shown)\nMode(System, Makoto)\n",
+    );
+  });
+
+  test("a Textbox toggle is only absorbed into a Mode, and only when Shown", () => {
+    // Shown before a plain Speaker, Hidden before a Mode, Shown before a non-Speaker: all plain
+    const script = { entries: [textboxShown, speaker(15), setUi(1, 0), setUi(0, 1), speaker(0), textboxShown, { opcode: 0x1e, args: [0, 15, 0, 1, 2] }] };
+    assert.equal(
+      writeSourceText(script),
+      "SetUI(Textbox, Shown)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nMode(Thinking)\nSetUI(Textbox, Shown)\nSprite(0, Monokuma, 0, FadeIn, Center)\n",
     );
   });
 
@@ -791,9 +798,9 @@ describe("Mode sugar", () => {
   });
 
   test("Mode round-trips, and the plain spelling decompiles to it", () => {
-    const source = "SetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Kyoko)\nMode(System)\n";
+    const source = "Mode(Thinking)\nMode(Speaking, Kyoko)\nMode(System)\n";
     assert.equal(roundTrip(source), source);
-    assert.equal(roundTrip("SetUI(Thinking, Shown)\nSetUI(Name, Shown)\nSpeaker(Makoto)\n"), "Mode(Thinking)\n");
+    assert.equal(roundTrip("SetUI(Textbox, Shown)\nSetUI(Thinking, Shown)\nSetUI(Name, Shown)\nSpeaker(Makoto)\n"), "Mode(Thinking)\n");
     assert.equal(roundTrip("SetUI(Thinking, Shown)\nSpeaker(Makoto)\n"), "Mode(Thinking)\n");
     assert.equal(roundTrip("SetUI(Name, Hidden)\nSpeaker(Blank)\n"), "Mode(System)\n");
   });
