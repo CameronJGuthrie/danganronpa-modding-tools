@@ -23,10 +23,15 @@ declare global {
       getDefaultScriptDirectory: () => Promise<string | null>;
       /** Every `.linscript` under `directory`, as forward-slash paths relative to it, sorted. */
       listScriptFiles: (directory: string) => Promise<string[]>;
-      /** Case-insensitive text search of every `.linscript` under `directory`, capped at 500 hits. */
+      /**
+       * Case-insensitive text search of every `.linscript` under `directory`, capped at 500 hits.
+       * With `textOnly`, only the readable text of `Text("...")` / `RawText("...")` lines is searched
+       * (style tags dropped, line breaks as spaces) and each hit's `text` is that readable text.
+       */
       searchScripts: (
         directory: string,
         query: string,
+        textOnly: boolean,
       ) => Promise<{
         hits: { path: string; lineNumber: number; text: string }[];
         fileCount: number;

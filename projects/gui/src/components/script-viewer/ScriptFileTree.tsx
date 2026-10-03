@@ -44,7 +44,8 @@ export function ScriptFileTree({
   const [open, setOpen] = useState<Set<string>>(() => new Set());
   // Free-text search across every file; while it has a query the results replace the tree
   const [searchQuery, setSearchQuery] = useState("");
-  const search = useScriptSearch(directory, searchQuery);
+  const [searchTextOnly, setSearchTextOnly] = useState(false);
+  const search = useScriptSearch(directory, searchQuery, searchTextOnly);
   const searching = searchQuery.trim() !== "";
 
   useEffect(() => {
@@ -175,10 +176,15 @@ export function ScriptFileTree({
           Scenes
         </button>
       </div>
-      <ScriptSearchInput query={searchQuery} onQueryChange={setSearchQuery} />
+      <ScriptSearchInput
+        query={searchQuery}
+        onQueryChange={setSearchQuery}
+        textOnly={searchTextOnly}
+        onTextOnlyChange={setSearchTextOnly}
+      />
       <div className="min-h-0 flex-1 overflow-auto font-mono text-sm">
         {searching && directory !== null && (
-          <ScriptSearchResults state={search} query={searchQuery} onSelect={onSelect} />
+          <ScriptSearchResults state={search} query={searchQuery} textOnly={searchTextOnly} onSelect={onSelect} />
         )}
         {directory === null && (
           <p className="p-1 text-xs text-slate-500 dark:text-slate-400">

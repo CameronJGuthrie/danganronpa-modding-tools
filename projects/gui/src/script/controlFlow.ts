@@ -64,6 +64,7 @@ export function isBlank(line: ScriptLine): boolean {
 }
 
 import { describeScript } from "../data/room";
+import { readableText } from "./textSearch";
 
 export type FlowNodeKind = "script" | "block" | "handlerGroup" | "handler" | "menu" | "option" | "meta";
 
@@ -278,13 +279,7 @@ export function previewText(line: ScriptLine, maxLength = 48, argIndex = 0): str
   if (!arg?.startsWith('"')) {
     return undefined;
   }
-  const text = arg
-    .slice(1, -1)
-    .replace(/<\/?[A-Za-z][A-Za-z0-9]*>|<style \d+>|<CLT[^>]*>/g, "")
-    .replace(/\\n/g, " ")
-    .replace(/\\"/g, '"')
-    .replace(/\s+/g, " ")
-    .trim();
+  const text = readableText(arg.slice(1, -1));
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { normalizeTextQuery, textOfLine } from "../script/textSearch";
 
 /**
  * The folder of decompiled scripts the Script Viewer opens by default: the workbench's
@@ -122,7 +123,7 @@ export type ScriptSearchHit = {
   path: string;
   /** 1-based line number of the hit. */
   lineNumber: number;
-  /** The matching line, trimmed. */
+  /** The matching line, trimmed; in a text-only search, the line's readable text instead. */
   text: string;
 };
 
@@ -134,9 +135,23 @@ export type ScriptSearchResult = {
   truncated: boolean;
 };
 
+export type ScriptSearchOptions = {
+  /**
+   * Search only the player-visible text of `Text("...")` / `RawText("...")` lines, ignoring style
+   * tags and treating line breaks as spaces (see `textOfLine`).
+   */
+  textOnly?: boolean;
+  /** The most hits to return. */
+  limit?: number;
+};
+
 /** Case-insensitive substring search of every `.linscript` under `directory`, at most `limit` hits. */
-export async function searchScripts(directory: string, query: string, limit = 500): Promise<ScriptSearchResult> {
-  const needle = query.toLowerCase();
+export async function searchScripts(
+  directory: string,
+  query: string,
+  { textOnly = false, limit = 500 }: ScriptSearchOptions = {},
+): Promise<ScriptSearchResult> {
+  const needle = (textOnly ? normalizeTextQuery(query) : query).toLowerCase();
   const files = await listLinscriptFiles(directory);
   const hits: ScriptSearchHit[] = [];
   let truncated = false;
@@ -147,12 +162,13 @@ export async function searchScripts(directory: string, query: string, limit = 50
     const source = await fs.promises.readFile(path.join(directory, file), "utf8");
     const lines = source.split("\n");
     for (let index = 0; index < lines.length; index++) {
-      if (lines[index].toLowerCase().includes(needle)) {
+      const text = textOnly ? textOfLine(lines[index]) : lines[index].trim();
+      if (text?.toLowerCase().includes(needle)) {
         if (hits.length >= limit) {
           truncated = true;
           return { hits, fileCount: files.length, truncated };
         }
-        hits.push({ path: file, lineNumber: index + 1, text: lines[index].trim() });
+        hits.push({ path: file, lineNumber: index + 1, text });
       }
     }
   }

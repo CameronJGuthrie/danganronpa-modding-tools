@@ -128,7 +128,9 @@ ipcMain.handle("load-script", async (_event, filePath: string) => loadScript(cur
 
 ipcMain.handle("list-modified-scripts", async () => listModifiedScripts(currentWorkbench()));
 
-ipcMain.handle("search-scripts", async (_event, directory: string, query: string) => searchScripts(directory, query));
+ipcMain.handle("search-scripts", async (_event, directory: string, query: string, textOnly: boolean) =>
+  searchScripts(directory, query, { textOnly }),
+);
 
 ipcMain.handle("run-game", async () => runGame(app.getAppPath()));
 
