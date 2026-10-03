@@ -14,7 +14,7 @@ type ScriptFileTreeProps = {
   directory: string | null;
   /** Relative path of the open script, or null. */
   selectedPath: string | null;
-  /** Basenames of scripts that have a modified copy in the mod directory; starred in the tree. */
+  /** Basenames of scripts that have a copy in the mod directory; starred in the tree. */
   modified: ReadonlySet<string>;
   /** Opens a script; a line number (from a search hit) is scrolled to once it is open. */
   onSelect: (relativePath: string, lineNumber?: number) => void;
@@ -24,7 +24,7 @@ type ScriptFileTreeProps = {
 };
 
 /**
- * The leftmost panel of the Script Browser: a collapsible tree of every `.linscript` under the
+ * The leftmost panel of the Script Viewer: a collapsible tree of every `.linscript` under the
  * chosen folder. Collapsed, it shrinks to a thin strip with a button to reopen it.
  */
 export function ScriptFileTree({

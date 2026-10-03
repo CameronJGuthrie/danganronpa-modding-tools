@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * The folder of decompiled scripts the Script Browser opens by default: the workbench's
+ * The folder of decompiled scripts the Script Viewer opens by default: the workbench's
  * `exploration/`, organised as `chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`. Null when the
  * workbench has not been generated (`pnpm run reset`).
  */
@@ -34,7 +34,8 @@ async function walk(root: string, relative: string, files: string[]): Promise<vo
 }
 
 /**
- * Where `pnpm select` puts writable `.linscript` copies and `pnpm build` compiles them from.
+ * Where `pnpm select` puts writable `.linscript` copies and `pnpm build` compiles them from; the
+ * viewer shows a script's copy from here when it has one.
  * Files may be flat (`e01_005_103.linscript`) or organised as
  * `chapter_01/scene_005_AnyLabel/103_AnyLabel.linscript`; only the leading numbers name the script
  * (see `packages/scripts/src/lib/mod-scripts.ts`).
@@ -75,96 +76,6 @@ async function findModScript(modDirectory: string, flatName: string): Promise<st
   return null;
 }
 
-export type SaveResult = {
-  /** Absolute paths that now hold `source`. */
-  written: string[];
-  /** The opened file, when it was left untouched because it is read-only (e.g. a decompiled workbench file). */
-  readOnly?: string;
-  /**
-   * Set, with nothing written, when a file the save would overwrite no longer holds `expected`:
-   * it was changed outside the editor since the script was loaded or last saved.
-   */
-  conflict?: string;
-};
-
-/**
- * Save an edited script: write it back to the file it was opened from, and copy it into the mod
- * script directory so `pnpm build` picks it up: into the existing mod file for that script when
- * there is one (it may be organised by chapter/scene), otherwise a new flat file under the
- * script's game name. A read-only original (the
- * decompiled workbench is generated and protected) is skipped rather than forced.
- *
- * `expected` is the source as the editor last loaded or saved it. Every file the save would
- * overwrite must still hold it (ignoring the byte-order mark); otherwise nothing is written and
- * the result names the file that differs, so edits made elsewhere are never silently lost. A
- * file that has been deleted is simply recreated.
- */
-export async function saveScript(
-  workbenchRoot: string | null,
-  filePath: string,
-  source: string,
-  expected: string,
-): Promise<SaveResult> {
-  const modDirectory = modScriptDirectory(workbenchRoot);
-  if (modDirectory === null) {
-    throw new Error("Cannot find the workbench; run `pnpm run reset` first");
-  }
-  // Decompiled files carry a byte-order mark; keep writing one so the files stay uniform
-  const text = source.startsWith("﻿") ? source : `﻿${source}`;
-  const flatName = flatScriptName(path.basename(filePath)) ?? path.basename(filePath, ".linscript");
-  const modPath = (await findModScript(modDirectory, flatName)) ?? path.join(modDirectory, `${flatName}.linscript`);
-  const result: SaveResult = { written: [] };
-
-  const targets = path.resolve(filePath) === modPath ? [modPath] : [filePath, modPath];
-  for (const target of targets) {
-    if (!(await holdsSource(target, expected))) {
-      result.conflict = target;
-      return result;
-    }
-  }
-
-  if (path.resolve(filePath) !== modPath) {
-    if (await isWritable(filePath)) {
-      await fs.promises.writeFile(filePath, text, "utf8");
-      result.written.push(filePath);
-    } else {
-      result.readOnly = filePath;
-    }
-  }
-
-  await fs.promises.mkdir(path.dirname(modPath), { recursive: true });
-  await fs.promises.writeFile(modPath, text, "utf8");
-  result.written.push(modPath);
-  return result;
-}
-
-/**
- * True when `target` still holds `expected` (byte-order mark aside), or does not exist: there is
- * nothing to lose by writing over a missing file, so the save recreates it.
- */
-async function holdsSource(target: string, expected: string): Promise<boolean> {
-  let current: string;
-  try {
-    current = await fs.promises.readFile(target, "utf8");
-  } catch {
-    return true;
-  }
-  return stripBom(current) === stripBom(expected);
-}
-
-function stripBom(text: string): string {
-  return text.startsWith("﻿") ? text.slice(1) : text;
-}
-
-async function isWritable(filePath: string): Promise<boolean> {
-  try {
-    await fs.promises.access(filePath, fs.constants.W_OK);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Game-name basenames (`e01_005_103.linscript`) of every script with a copy in the mod script
  * directory, whichever layout it is stored in: the scripts that have been modified.
@@ -193,8 +104,8 @@ export type LoadedScript = {
 };
 
 /**
- * Read a script for editing. Saves land in the mod script directory, so when that holds a copy of
- * the requested file it is the current version and is read in place of the original.
+ * Read a script for viewing. Authored edits live in the mod script directory, so when that holds a
+ * copy of the requested file it is the current version and is read in place of the original.
  */
 export async function loadScript(workbenchRoot: string | null, filePath: string): Promise<LoadedScript> {
   const modDirectory = modScriptDirectory(workbenchRoot);

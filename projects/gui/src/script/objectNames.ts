@@ -5,9 +5,8 @@
  *       Object(20, Monitor)
  *
  * With a name declared, the body writes `OnObject(Monitor)` and `ObjectState(Monitor, ...)` in
- * place of the id. This module reads the block out of source text and writes an edited set of
- * names back, renaming the body's references to match. Other entries in the block, such as
- * `Character(id, Name)`, `Option(id, Name)` and `LabelName(id, Name)`, are kept as written. Mirrors `opcodes/meta.ts` in lin-compiler.
+ * place of the id. This module reads the block out of source text so the viewer can list the
+ * names and count the body's references. Mirrors `opcodes/meta.ts` in lin-compiler.
  */
 
 export type ObjectNames = ReadonlyMap<number, string>;
@@ -16,17 +15,11 @@ const META_LINE = /^Meta\s*\(\s*\)$/;
 const OBJECT_ENTRY = /^Object\s*\(\s*(\d+)\s*,\s*([A-Za-z_]\w*)\s*\)$/;
 /** Instructions whose first argument is an object id. */
 const OBJECT_REFERENCE = /^(\s*)(OnObject|ObjectState)\((\s*)([^,)]*?)(\s*)([,)].*)$/;
-const IDENTIFIER = /^[A-Za-z_]\w*$/;
 
 /** The block-closing id, which is never an object and never named. */
-export const OBJECT_BLOCK_CLOSE = 255;
+const OBJECT_BLOCK_CLOSE = 255;
 /** The handler the game runs when the player leaves the area; a fixed id rather than an object. */
-export const OBJECT_EXIT = 254;
-export const MAX_OBJECT_ID = 254;
-
-export function isValidObjectName(name: string): boolean {
-  return IDENTIFIER.test(name);
-}
+const OBJECT_EXIT = 254;
 
 /** Index of the `Meta()` line in `lines`, or -1 when the source has no block. */
 function findMetaStart(lines: readonly string[]): number {
@@ -83,45 +76,4 @@ export function referencedObjectIds(source: string, names: ObjectNames): Map<num
     }
   }
   return uses;
-}
-
-/**
- * Rewrite `source` so its `Meta()` block declares exactly `names`, and every object reference in
- * the body uses the new name for its id (or the plain number when the id has none). An empty set
- * removes the block.
- */
-export function applyObjectNames(source: string, names: ObjectNames): string {
-  const trailingNewline = source.endsWith("\n");
-  const lines = source.split("\n");
-  const previous = parseObjectNames(source);
-  const metaStart = findMetaStart(lines);
-  const body = metaStart === -1 ? [...lines] : lines.slice(0, metaStart);
-  // Entries of other kinds (Character and Option names) stay in the block untouched
-  const otherEntries =
-    metaStart === -1
-      ? []
-      : lines.slice(metaStart + 1).filter((line) => line.trim() !== "" && !OBJECT_ENTRY.test(line.trim()));
-
-  const rewritten = body.map((line) => {
-    const match = OBJECT_REFERENCE.exec(line);
-    if (!match) {
-      return line;
-    }
-    const [, indent, instruction, before, arg, after, rest] = match;
-    const id = resolveObjectId(arg, previous);
-    if (id === undefined) {
-      return line;
-    }
-    const written = names.get(id) ?? String(id);
-    return `${indent}${instruction}(${before}${written}${after}${rest}`;
-  });
-
-  while (rewritten.length > 0 && rewritten[rewritten.length - 1].trim() === "") {
-    rewritten.pop();
-  }
-  if (names.size > 0 || otherEntries.length > 0) {
-    const ids = [...names.keys()].sort((a, b) => a - b);
-    rewritten.push("", "Meta()", ...ids.map((id) => `  Object(${id}, ${names.get(id)})`), ...otherEntries);
-  }
-  return rewritten.join("\n") + (trailingNewline ? "\n" : "");
 }

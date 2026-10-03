@@ -32,20 +32,9 @@ declare global {
         fileCount: number;
         truncated: boolean;
       }>;
-      /**
-       * Write `source` back to `filePath` (unless it is read-only) and copy it into the mod script
-       * directory, provided every file it would overwrite still holds `expected`, the source as last
-       * loaded or saved. Resolves with the paths written and the read-only original, if it was
-       * skipped; or, with nothing written, `conflict` naming the file that changed on disk.
-       */
-      saveScript: (
-        filePath: string,
-        source: string,
-        expected: string,
-      ) => Promise<{ written: string[]; readOnly?: string; conflict?: string }>;
       /** Basenames of the `.linscript` files in the mod script directory, i.e. the modified scripts. */
       listModifiedScripts: () => Promise<string[]>;
-      /** Read a script for editing, preferring its copy in the mod script directory when one exists. */
+      /** Read a script for viewing, preferring its copy in the mod script directory when one exists. */
       loadScript: (filePath: string) => Promise<{ path: string; source: string; fromMod: boolean }>;
       /** Build every mod with the repository's build script, then launch the game through Steam. */
       runGame: () => Promise<{ ok: boolean; output: string }>;

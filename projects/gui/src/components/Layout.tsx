@@ -3,21 +3,21 @@ import { useRootFontSize } from "../hooks/useRootFontSize";
 import { useTheme } from "../hooks/useTheme";
 import { useWorkbenchRoot } from "../hooks/useWorkbenchRoot";
 import { useRunGame } from "../state/RunGameContext";
+import { AssetPreview } from "./asset-preview/AssetPreview";
 import { Button } from "./base/Button";
 import { TabLayout } from "./base/TabLayout";
-import { AssetPreview } from "./asset-preview/AssetPreview";
 import { RunLog } from "./RunLog";
-import { ScriptBrowser } from "./script-browser/ScriptBrowser";
+import { ScriptViewer } from "./script-viewer/ScriptViewer";
 
-type ExplorerTab = "ScriptBrowser" | "AssetPreview";
+type ExplorerTab = "ScriptViewer" | "AssetPreview";
 
 const tabs: Record<ExplorerTab, string> = {
-  ScriptBrowser: "Script Browser",
+  ScriptViewer: "Script Viewer",
   AssetPreview: "Asset Preview",
 };
 
 export function Layout() {
-  const [activeTab, setActiveTab] = useState<ExplorerTab>("ScriptBrowser");
+  const [activeTab, setActiveTab] = useState<ExplorerTab>("ScriptViewer");
   const [theme, toggleTheme] = useTheme();
   const zoom = useRootFontSize();
   const { running, log, dismissLog, runGame } = useRunGame();
@@ -57,14 +57,14 @@ export function Layout() {
               color="green"
               onClick={() => void runGame()}
               disabled={running}
-              title="Save the open script, compile every mod into the game's .wad files, then launch the game through Steam"
+              title="Compile every mod into the game's .wad files, then launch the game through Steam"
             >
               {running ? "Building…" : "▶ Run game"}
             </Button>
           </div>
         }
       >
-        {activeTab === "ScriptBrowser" && <ScriptBrowser />}
+        {activeTab === "ScriptViewer" && <ScriptViewer />}
         {activeTab === "AssetPreview" && <AssetPreview />}
       </TabLayout>
       {log !== null && <RunLog result={log} onDismiss={dismissLog} />}

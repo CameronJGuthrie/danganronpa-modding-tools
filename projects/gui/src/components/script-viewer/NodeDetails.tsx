@@ -1,20 +1,16 @@
 import { type FlowNode, isBlank, type LabelRef } from "../../script/controlFlow";
 import { kindStyles } from "./kindStyles";
-import type { LineEditing } from "./LineEditing";
 import { VirtualActionList } from "./VirtualActionList";
 
 type NodeDetailsProps = {
   node: FlowNode;
-  lineIds: readonly number[];
   labelOwners: Map<LabelRef, string>;
-  editing: LineEditing;
-  editingLine: number | null;
   onSelect: (id: string) => void;
   onJump: (label: LabelRef) => void;
 };
 
 /** One control-flow node: its header plus its lines and nested nodes in source order. */
-export function NodeDetails({ node, lineIds, labelOwners, editing, editingLine, onSelect, onJump }: NodeDetailsProps) {
+export function NodeDetails({ node, labelOwners, onSelect, onJump }: NodeDetailsProps) {
   const style = kindStyles[node.kind];
   const lineCount = node.items.filter((item) => item.kind === "line" && !isBlank(item.line)).length;
 
@@ -32,16 +28,7 @@ export function NodeDetails({ node, lineIds, labelOwners, editing, editingLine, 
       </header>
 
       {node.items.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">No actions.</p>}
-      <VirtualActionList
-        items={node.items}
-        lineIds={lineIds}
-        labelOwners={labelOwners}
-        editing={editing}
-        editingLine={editingLine}
-        trailingInsertLine={node.endLine + 1}
-        onSelect={onSelect}
-        onJump={onJump}
-      />
+      <VirtualActionList items={node.items} labelOwners={labelOwners} onSelect={onSelect} onJump={onJump} />
     </div>
   );
 }

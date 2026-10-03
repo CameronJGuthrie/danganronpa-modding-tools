@@ -15,8 +15,6 @@ contextBridge.exposeInMainWorld("electron", {
   getDefaultScriptDirectory: () => ipcRenderer.invoke("get-default-script-directory"),
   listScriptFiles: (directory: string) => ipcRenderer.invoke("list-linscript-files", directory),
   searchScripts: (directory: string, query: string) => ipcRenderer.invoke("search-scripts", directory, query),
-  saveScript: (filePath: string, source: string, expected: string) =>
-    ipcRenderer.invoke("save-script", filePath, source, expected),
   listModifiedScripts: () => ipcRenderer.invoke("list-modified-scripts"),
   loadScript: (filePath: string) => ipcRenderer.invoke("load-script", filePath),
   runGame: () => ipcRenderer.invoke("run-game"),

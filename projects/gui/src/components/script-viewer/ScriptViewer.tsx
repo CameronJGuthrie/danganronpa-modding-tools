@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppContext } from "../../state/AppContext";
-import { ScriptEditor } from "./ScriptEditor";
 import { ScriptFileTree } from "./ScriptFileTree";
+import { ScriptView } from "./ScriptView";
 
 const STORAGE = {
-  directory: "scriptBrowser.directory",
-  file: "scriptBrowser.file",
-  collapsed: "scriptBrowser.treeCollapsed",
+  directory: "scriptViewer.directory",
+  file: "scriptViewer.file",
+  collapsed: "scriptViewer.treeCollapsed",
 } as const;
 
 type OpenScript = {
@@ -19,53 +19,38 @@ type OpenScript = {
 };
 
 /**
- * The Script Browser tab: a collapsible tree of `.linscript` files on the far left, and the editor
- * for the chosen file beside it. The folder, the open file and the panel state are remembered.
+ * The Script Viewer tab: a collapsible tree of `.linscript` files on the far left, and the
+ * read-only view of the chosen file beside it. The folder, the open file and the panel state are
+ * remembered.
  */
-export function ScriptBrowser() {
+export function ScriptViewer() {
   const { workbenchRoot, workbenchRootLoaded } = useAppContext();
   const [directory, setDirectory] = useState<string | null>(() => read(STORAGE.directory));
   const [selectedPath, setSelectedPath] = useState<string | null>(() => read(STORAGE.file));
   const [collapsed, setCollapsed] = useState(() => read(STORAGE.collapsed) === "true");
   const [script, setScript] = useState<OpenScript | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  // Scripts with a copy in the mod directory, starred in the tree; refreshed after every save
+  // Scripts with a copy in the mod directory, starred in the tree
   const [modified, setModified] = useState<ReadonlySet<string>>(() => new Set());
   // A line to scroll to in the open script, set when a search hit is picked; a fresh object each time
   const [reveal, setReveal] = useState<{ line: number } | null>(null);
 
-  // The open editor's save-if-dirty step, so switching scripts never drops edits
-  const flush = useRef<(() => Promise<boolean>) | null>(null);
-  const registerFlush = useCallback((step: () => Promise<boolean>) => {
-    flush.current = step;
-    return () => {
-      if (flush.current === step) {
-        flush.current = null;
-      }
-    };
-  }, []);
-
-  const selectScript = useCallback(async (relativePath: string, line?: number) => {
-    // Save the current script first; a failed save keeps it open so nothing is lost
-    if (flush.current !== null && !(await flush.current())) {
-      return;
-    }
+  const selectScript = useCallback((relativePath: string, line?: number) => {
     setSelectedPath(relativePath);
     setReveal(line === undefined ? null : { line });
   }, []);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: the mod directory lives in the workbench, so refresh when it changes
-  const refreshModified = useCallback(() => {
+  useEffect(() => {
     window.electron
       .listModifiedScripts()
       .then((names) => setModified(new Set(names)))
       .catch(() => setModified(new Set()));
   }, [workbenchRoot]);
 
-  useEffect(refreshModified, [refreshModified]);
-
-  // Open the workbench's decompiled scripts when no folder has been chosen yet, and again
-  // whenever a different workbench is chosen
+  // Open the workbench's decompiled scripts when no folder has been chosen yet, when the
+  // remembered folder no longer exists (e.g. it was renamed), and again whenever a different
+  // workbench is chosen
   const appliedRoot = useRef<string | null | undefined>(undefined);
   useEffect(() => {
     if (!workbenchRootLoaded) {
@@ -73,23 +58,29 @@ export function ScriptBrowser() {
     }
     const rootChanged = appliedRoot.current !== undefined && appliedRoot.current !== workbenchRoot;
     appliedRoot.current = workbenchRoot;
-    if (directory !== null && !rootChanged) {
-      return;
-    }
-    window.electron.getDefaultScriptDirectory().then((found) => {
-      if (found === null) {
-        return;
-      }
-      setDirectory(found);
-      if (rootChanged) {
+    let current = true;
+    const openDefault = () =>
+      window.electron.getDefaultScriptDirectory().then((found) => {
+        if (!current || found === null) {
+          return;
+        }
+        setDirectory(found);
         setSelectedPath(null);
         setScript(null);
-      }
-    });
+      });
+    if (directory === null) {
+      void openDefault();
+    } else if (rootChanged) {
+      void openDefault();
+    } else {
+      window.electron.listScriptFiles(directory).catch(openDefault);
+    }
+    return () => {
+      current = false;
+    };
   }, [directory, workbenchRoot, workbenchRootLoaded]);
 
-  // Load the selected file, or its saved copy in the mod directory when there is one. Edits made
-  // in the editor are held there and lost when switching files without saving.
+  // Load the selected file, or its copy in the mod directory when there is one
   useEffect(() => {
     if (directory === null || selectedPath === null) {
       return;
@@ -104,8 +95,8 @@ export function ScriptBrowser() {
             path: selectedPath,
             filePath: loaded.path,
             fromMod: loaded.fromMod,
-            // Decompiled files start with a byte-order mark, which the editor's line rewriting does not expect
-            source: loaded.source.replace(/^\uFEFF/, ""),
+            // Decompiled files start with a byte-order mark, which the line parser does not expect
+            source: loaded.source.replace(/^﻿/, ""),
           });
         }
       })
@@ -122,9 +113,6 @@ export function ScriptBrowser() {
   const chooseDirectory = useCallback(async () => {
     const result = await window.electron.openDirectoryDialog();
     if (!result.canceled && result.filePaths.length > 0) {
-      if (flush.current !== null && !(await flush.current())) {
-        return;
-      }
       setDirectory(result.filePaths[0]);
       setSelectedPath(null);
       setScript(null);
@@ -139,20 +127,17 @@ export function ScriptBrowser() {
         directory={directory}
         selectedPath={selectedPath}
         modified={modified}
-        onSelect={(relativePath, line) => void selectScript(relativePath, line)}
+        onSelect={selectScript}
         onChooseDirectory={chooseDirectory}
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed((previous) => !previous)}
       />
       {open !== null ? (
-        <ScriptEditor
+        <ScriptView
           key={open.filePath}
-          filePath={open.filePath}
           fromMod={open.fromMod}
           scriptName={scriptName(open.path)}
-          initialSource={open.source}
-          onSaved={refreshModified}
-          registerFlush={registerFlush}
+          source={open.source}
           reveal={reveal}
         />
       ) : (

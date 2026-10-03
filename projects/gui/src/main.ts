@@ -11,7 +11,6 @@ import {
   listLinscriptFiles,
   listModifiedScripts,
   loadScript,
-  saveScript,
   searchScripts,
 } from "./main/scripts";
 import { setWorkbenchRoot, workbenchRoot } from "./main/settings";
@@ -132,10 +131,6 @@ ipcMain.handle("list-modified-scripts", async () => listModifiedScripts(currentW
 ipcMain.handle("search-scripts", async (_event, directory: string, query: string) => searchScripts(directory, query));
 
 ipcMain.handle("run-game", async () => runGame(app.getAppPath()));
-
-ipcMain.handle("save-script", async (_event, filePath: string, source: string, expected: string) =>
-  saveScript(currentWorkbench(), filePath, source, expected),
-);
 
 ipcMain.handle("tga-file-to-base-64-png", async (_event, filePath: string) => {
   return convertTgaToPngDataUrl(filePath);

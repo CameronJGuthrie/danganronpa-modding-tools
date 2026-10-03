@@ -1,5 +1,5 @@
 /**
- * A folder tree of `.linscript` files for the Script Browser's file panel. Real directories become
+ * A folder tree of `.linscript` files for the Script Viewer's file panel. Real directories become
  * folders; a directory holding many flat files such as `e01_001_000.linscript` is additionally
  * grouped by the filename's first `_`-separated segment (the chapter), so the game's 1800-odd
  * scripts do not land in one endless list. The `"scene"` grouping nests a second level under each

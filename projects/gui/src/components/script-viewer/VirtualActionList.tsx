@@ -2,19 +2,12 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useMemo, useRef } from "react";
 import type { FlowItem, LabelRef } from "../../script/controlFlow";
 import { ActionRow, canJumpFrom } from "./ActionRow";
-import { InsertLineRow } from "./InsertLineButton";
-import type { LineEditing } from "./LineEditing";
 
 type VirtualActionListProps = {
   items: readonly FlowItem[];
-  lineIds: readonly number[];
   labelOwners: Map<LabelRef, string>;
-  editing: LineEditing;
-  editingLine: number | null;
   /** A line to scroll into view and mark, e.g. a search hit; a new object re-triggers the scroll. */
   reveal?: { line: number } | null;
-  /** Line number the insert button after the last row creates. */
-  trailingInsertLine: number;
   /** Whether line rows are indented by their block depth (the all-lines view). */
   indentByDepth?: boolean;
   onSelect: (id: string) => void;
@@ -23,16 +16,12 @@ type VirtualActionListProps = {
 
 /**
  * Scrollable list of action rows that only mounts the rows in view. Rows have varying heights
- * (wrapped text, open text fields), so each one is measured after it renders.
+ * (wrapped text), so each one is measured after it renders.
  */
 export function VirtualActionList({
   items,
-  lineIds,
   labelOwners,
-  editing,
-  editingLine,
   reveal,
-  trailingInsertLine,
   indentByDepth = false,
   onSelect,
   onJump,
@@ -56,20 +45,9 @@ export function VirtualActionList({
     overscan: 12,
     getItemKey: (index) => {
       const item = items[index];
-      return item.kind === "line" ? `line-${lineIds[item.line.lineNumber - 1]}` : `node-${item.node.id}`;
+      return item.kind === "line" ? `line-${item.line.lineNumber}` : `node-${item.node.id}`;
     },
   });
-
-  // Moving the edit to the next line (Enter) must keep the field in view, or focus is lost
-  useEffect(() => {
-    if (editingLine === null) {
-      return;
-    }
-    const index = rowOfLine.get(editingLine);
-    if (index !== undefined) {
-      virtualizer.scrollToIndex(index, { align: "auto" });
-    }
-  }, [editingLine, rowOfLine, virtualizer]);
 
   useEffect(() => {
     if (!reveal) {
@@ -99,9 +77,7 @@ export function VirtualActionList({
               <ActionRow
                 item={item}
                 indent={indentByDepth && line !== null ? line.depth : 0}
-                isEditing={line !== null && editingLine === line.lineNumber}
                 canJump={line !== null && canJumpFrom(line, labelOwners)}
-                editing={editing}
                 onSelect={onSelect}
                 onJump={onJump}
               />
@@ -109,7 +85,6 @@ export function VirtualActionList({
           );
         })}
       </div>
-      <InsertLineRow lineNumber={trailingInsertLine} editing={editing} />
     </div>
   );
 }

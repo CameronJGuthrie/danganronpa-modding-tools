@@ -1,35 +1,20 @@
 import { useMemo } from "react";
 import { type FlowItem, isBlank, type LabelRef, type ScriptLine } from "../../script/controlFlow";
 import { kindStyles } from "./kindStyles";
-import type { LineEditing } from "./LineEditing";
 import { VirtualActionList } from "./VirtualActionList";
 
 type AllLinesProps = {
   title: string;
   lines: readonly ScriptLine[];
-  lineIds: readonly number[];
   labelOwners: Map<LabelRef, string>;
-  editing: LineEditing;
-  editingLine: number | null;
   reveal?: { line: number } | null;
   onSelect: (id: string) => void;
   onJump: (label: LabelRef) => void;
 };
 
 /** Every line of the script in source order, indented by its block depth. */
-export function AllLines({
-  title,
-  lines,
-  lineIds,
-  labelOwners,
-  editing,
-  editingLine,
-  reveal,
-  onSelect,
-  onJump,
-}: AllLinesProps) {
+export function AllLines({ title, lines, labelOwners, reveal, onSelect, onJump }: AllLinesProps) {
   const actionCount = lines.filter((line) => !isBlank(line)).length;
-  const lastLine = lines[lines.length - 1]?.lineNumber ?? 0;
   const items = useMemo<FlowItem[]>(() => lines.map((line) => ({ kind: "line", line })), [lines]);
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
@@ -45,12 +30,8 @@ export function AllLines({
       </header>
       <VirtualActionList
         items={items}
-        lineIds={lineIds}
         labelOwners={labelOwners}
-        editing={editing}
-        editingLine={editingLine}
         reveal={reveal}
-        trailingInsertLine={lastLine + 1}
         indentByDepth
         onSelect={onSelect}
         onJump={onJump}
