@@ -111,7 +111,8 @@ async function buildMods(): Promise<void> {
     const modPath = join(MODS_DIR, modDir);
     const stats = await stat(modPath);
 
-    if (!stats.isDirectory()) {
+    // Only WAD directories are mods; dot-directories such as a nested .git are not
+    if (!stats.isDirectory() || modDir.startsWith(".")) {
       continue;
     }
 

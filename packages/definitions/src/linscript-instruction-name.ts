@@ -13,6 +13,7 @@ export const LinscriptInstructionName = {
   LoadScript: "LoadScript",
   LoadSprite: "LoadSprite",
   Meta: "Meta", // Source-only: opens the block of per-script annotations at the bottom of a file
+  Mode: "Mode", // Sugar for SetUI(Thinking, Shown|Hidden) + Speaker(character): who is talking and whether aloud
   Movie: "Movie",
   Music: "Music",
   Object: "Object", // Source-only: `Object(id, Name)` inside Meta() names an object id for the file
@@ -44,6 +45,7 @@ export const LinscriptInstructionName = {
   StudentTitleEntry: "StudentTitleEntry",
   Text: "Text",
   TextStyle: "TextStyle",
+  Time: "Time", // Sugar for SetVariable(Time, Assign, TimeOfDay)
   TrialCamera: "TrialCamera",
   TruthBulletFlag: "TruthBulletFlag",
   UnlockSkill: "UnlockSkill",

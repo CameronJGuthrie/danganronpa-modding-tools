@@ -7,8 +7,10 @@ import { expandBranch, isCondition } from "../opcodes/branch.ts";
 import { getOpcodeByName } from "../opcodes/lookup.ts";
 import { META, parseMeta, type SourceLine, scopeTables } from "../opcodes/meta.ts";
 import { expandOption, OPTION } from "../opcodes/option.ts";
+import { expandMode, MODE } from "../opcodes/mode.ts";
 import { expandPresent, isPresentSugarName } from "../opcodes/present.ts";
 import { expandText, isTrailingEntry, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { expandTime, TIME } from "../opcodes/time.ts";
 import { expandWait, WAIT } from "../opcodes/wait.ts";
 
 /** Matches `OpcodeName(args)`, capturing the name and the raw argument text. */
@@ -110,8 +112,14 @@ function parseOpcodeLine(name: string, argsText: string, line: number, scopes: S
   if (name === WAIT) {
     return [expandWait(argsText, line)];
   }
+  if (name === TIME) {
+    return [expandTime(argsText, line)];
+  }
   if (name === OPTION) {
     return expandOption(argsText, line, scopes);
+  }
+  if (name === MODE) {
+    return expandMode(argsText, line);
   }
   if (isPresentSugarName(name)) {
     return [expandPresent(name, argsText, line)];

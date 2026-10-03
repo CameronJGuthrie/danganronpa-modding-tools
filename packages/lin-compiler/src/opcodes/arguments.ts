@@ -202,7 +202,7 @@ const IDENTIFIER = /^[A-Za-z_]\w*$/;
  * Parse one source value. A named parameter accepts any entry of its name table (identifiers such
  * as `Makoto`, or symbols such as `<=`) as well as the plain number.
  */
-function parseParameter(type: ParameterType, names: NamedValues | undefined, text: string, line: number): number[] {
+export function parseParameter(type: ParameterType, names: NamedValues | undefined, text: string, line: number): number[] {
   const trimmed = text.trim();
   if (names !== undefined) {
     const value = valueOfName(names, trimmed);

@@ -6,9 +6,11 @@ import { formatArgs } from "../opcodes/arguments.ts";
 import { branchJump, formatBranch, isConditionEntry } from "../opcodes/branch.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
+import { formatMode, MODE, planModeSugar } from "../opcodes/mode.ts";
 import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
 import { planTextSugar, textSourceForm, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { formatTime, isTime, TIME } from "../opcodes/time.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 
 export interface WriteSourceOptions {
@@ -34,6 +36,11 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     skipped.add(index + 1);
     skipped.add(index + 2);
   }
+  // The Thinking toggle is written as part of the Mode(...) that stands where its Speaker was
+  const modeSugared = planModeSugar(entries, skipped);
+  for (const toggle of modeSugared.values()) {
+    skipped.add(toggle);
+  }
   const scopes = scopeTables(script.meta);
   // Every condition must carry its Then + Goto, which are written as the condition's last argument
   entries.forEach((entry, index) => {
@@ -55,11 +62,14 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     return opcode;
   };
 
-  /** One instruction as `Name(args)`, applying the Wait and Present sugar and named arguments. */
+  /** One instruction as `Name(args)`, applying the Wait, Time and Present sugar and named arguments. */
   const formatEntry = (entry: ScriptEntry): string => {
     const opcode = knownOpcode(entry);
     if (isWait(entry)) {
       return `${WAIT}(${formatWait(entry)})`;
+    }
+    if (isTime(entry)) {
+      return `${TIME}(${formatTime(entry)})`;
     }
     if (isPresent(entry)) {
       const { name, args } = formatPresent(entry);
@@ -105,6 +115,8 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     if (isConditionEntry(entry)) {
       const { conditions, jump } = formatBranch(opcode, entry, entries[index + 2], scopes);
       call = formatNested(opcode.name, conditions, [jump], depth);
+    } else if (modeSugared.has(index)) {
+      call = `${MODE}(${formatMode(entries[modeSugared.get(index) as number], entry)})`;
     } else if (optionSugared.has(index)) {
       call = `${OPTION}(${formatOption(entries, index, scopes)})`;
     } else if (sugared.has(index) && "text" in entry) {

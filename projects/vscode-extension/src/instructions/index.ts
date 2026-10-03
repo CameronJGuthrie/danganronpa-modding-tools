@@ -13,6 +13,7 @@ import { studentTitleEntryInstruction } from "./data/student-title-entry.instruc
 import { truthBulletFlagInstruction } from "./data/truth-bullet-flag.instruction";
 import { unlockSkillInstruction } from "./data/unlock-skill.instruction";
 import { rawTextInstruction } from "./dialogue/raw-text.instruction";
+import { modeInstruction } from "./dialogue/mode.instruction";
 import { speakerInstruction } from "./dialogue/speaker.instruction";
 import { textInstruction } from "./dialogue/text.instruction";
 import { textStyleInstruction } from "./dialogue/text-style.instruction";
@@ -52,6 +53,7 @@ import { objectInstruction } from "./meta/object.instruction";
 import { loadMapInstruction } from "./scene/load-map.instruction";
 import { objectStateInstruction } from "./scene/object-state.instruction";
 import { showBackgroundInstruction } from "./scene/show-background.instruction";
+import { timeInstruction } from "./scene/time.instruction";
 
 /** Every instruction keyed by its name, so lookups are type-checked against the enum. */
 export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<LinscriptInstruction>>> = {
@@ -91,6 +93,7 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.ShowBackground]: showBackgroundInstruction,
   [LinscriptInstructionName.Sound]: soundInstruction,
   [LinscriptInstructionName.SoundB]: soundBInstruction,
+  [LinscriptInstructionName.Mode]: modeInstruction,
   [LinscriptInstructionName.Speaker]: speakerInstruction,
   [LinscriptInstructionName.Sprite]: spriteInstruction,
   [LinscriptInstructionName.SpriteFlash]: spriteFlashInstruction,
@@ -100,6 +103,7 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.StudentTitleEntry]: studentTitleEntryInstruction,
   [LinscriptInstructionName.Text]: textInstruction,
   [LinscriptInstructionName.TextStyle]: textStyleInstruction,
+  [LinscriptInstructionName.Time]: timeInstruction,
   [LinscriptInstructionName.TrialCamera]: trialCameraInstruction,
   [LinscriptInstructionName.TruthBulletFlag]: truthBulletFlagInstruction,
   [LinscriptInstructionName.UnlockSkill]: unlockSkillInstruction,

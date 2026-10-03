@@ -696,6 +696,26 @@ describe("Wait sugar", () => {
   });
 });
 
+describe("Time sugar", () => {
+  test("Time(name) compiles to SetVariable(Time, =, value)", () => {
+    assert.deepEqual(readSource("Time(Day)\n").entries[0], { opcode: 0x33, args: [0, 0, 0, 0] });
+    assert.deepEqual(readSource("Time(Unknown)\n").entries[0], { opcode: 0x33, args: [0, 0, 0, 4] });
+    assert.throws(() => readSource("Time()\n"), /Time expects 1 argument/);
+    assert.throws(() => readSource("Time(Dusk)\n"), /unknown time of day 'Dusk'/);
+    assert.throws(() => readSource("Time(1)\n"), /unknown time of day '1'/);
+  });
+
+  test("named assignments to the Time variable decompile as Time", () => {
+    assert.equal(roundTrip("SetVariable(0, 0, 1)\n"), "Time(Night)\n");
+    assert.equal(roundTrip("Time(Midnight)\n"), "Time(Midnight)\n");
+    // Other arithmetic modes and values without a name are left alone
+    assert.equal(
+      roundTrip("SetVariable(0, 1, 1)\nSetVariable(0, 0, 60)\n"),
+      "SetVariable(Time, +=, 1)\nSetVariable(Time, =, 60)\n",
+    );
+  });
+});
+
 describe("Present sugar", () => {
   test("GivePresent and ReceivePresent compile to Present(id, mode, 1)", () => {
     assert.deepEqual(readSource("GivePresent(MineralWater)\n").entries[0], { opcode: 0x0d, args: [0, 2, 1] });
@@ -722,6 +742,43 @@ describe("Present sugar", () => {
     assert.throws(() => writeSourceText(present([0, 0, 1])), /arithmetic mode 0/);
     assert.throws(() => writeSourceText(present([0, 2, 3])), /quantity 3/);
     assert.throws(() => writeSourceText(present([200, 2, 1])), /unknown present id 200/);
+  });
+});
+
+describe("Mode sugar", () => {
+  const setUi = (ui: number, visibility: number) => ({ opcode: 0x25, args: [ui, visibility] });
+  const speaker = (character: number) => ({ opcode: 0x21, args: [character] });
+
+  test("Mode compiles to the Thinking toggle and a Speaker, defaulting to Makoto", () => {
+    assert.deepEqual(readSource("Mode(Thinking)\n").entries, [setUi(0, 1), speaker(0)]);
+    assert.deepEqual(readSource("Mode(Speaking)\n").entries, [setUi(0, 0), speaker(0)]);
+    assert.deepEqual(readSource("Mode(Speaking, Monokuma)\n").entries, [setUi(0, 0), speaker(15)]);
+    assert.deepEqual(readSource("Mode(Thinking, 4)\n").entries, [setUi(0, 1), speaker(4)]);
+    assert.throws(() => readSource("Mode()\n"), /Mode expects 1 or 2 arguments/);
+    assert.throws(() => readSource("Mode(Shouting)\n"), /unknown mode 'Shouting'/);
+    assert.throws(() => readSource("Mode(Thinking, Bogus)\n"), /unknown name 'Bogus'/);
+  });
+
+  test("the toggle is collapsed from anywhere in the SetUI run before the Speaker", () => {
+    const script = { entries: [setUi(15, 0), setUi(0, 1), setUi(2, 1), setUi(1, 1), speaker(0), setUi(0, 0), speaker(15)] };
+    assert.equal(
+      writeSourceText(script),
+      "SetUI(CameraLook, Hidden)\nSetUI(Name, Shown)\nSetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Monokuma)\n",
+    );
+  });
+
+  test("a toggle without a Speaker after its run, and a Speaker without a toggle, stay plain", () => {
+    const script = { entries: [setUi(0, 0), { opcode: 0x1e, args: [0, 15, 0, 1, 2] }, speaker(15), setUi(1, 0), speaker(0)] };
+    assert.equal(
+      writeSourceText(script),
+      "SetUI(Thinking, Hidden)\nSprite(0, Monokuma, 0, FadeIn, Center)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nSpeaker(Makoto)\n",
+    );
+  });
+
+  test("Mode round-trips, and the plain spelling decompiles to it", () => {
+    const source = "SetUI(Textbox, Shown)\nMode(Thinking)\nMode(Speaking, Kyoko)\n";
+    assert.equal(roundTrip(source), source);
+    assert.equal(roundTrip("SetUI(Thinking, Shown)\nSetUI(Name, Shown)\nSpeaker(Makoto)\n"), "SetUI(Name, Shown)\nMode(Thinking)\n");
   });
 });
 
