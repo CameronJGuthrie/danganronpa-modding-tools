@@ -9,7 +9,8 @@
     "clipboardy": "^5.0.0",
     "lin-compiler": "workspace:*",
     "sharp": "^0.34.5",
-    "unzipper": "^0.12.3"
+    "unzipper": "^0.12.3",
+    "linscript-definitions": "workspace:*"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

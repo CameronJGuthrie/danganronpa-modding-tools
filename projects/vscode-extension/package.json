@@ -54,6 +54,10 @@
       {
         "command": "lindecompilerhelper.chooseWorkbenchRoot",
         "title": "LinScript: Choose Workbench Folder"
+      },
+      {
+        "command": "lindecompilerhelper.stopAudio",
+        "title": "LinScript: Stop All Audio"
       }
     ],
     "menus": {
@@ -77,7 +81,7 @@
           "type": "string",
           "default": "workbench",
           "scope": "resource",
-          "markdownDescription": "The workbench folder holding the extracted game data (`all/`, `modded/`, `mod/`, `linscript-exploration/`). A relative path is resolved against the first workspace folder; the default finds the repository's own `workbench/`. Run **LinScript: Choose Workbench Folder** to pick one."
+          "markdownDescription": "The workbench folder holding the extracted game data (`all/`, `modded/`, `mod/`, `exploration/`). A relative path is resolved against the first workspace folder; the default finds the repository's own `workbench/`. Run **LinScript: Choose Workbench Folder** to pick one."
         },
         "lindecompilerhelper.decorationAlignmentColumn": {
           "type": "number",

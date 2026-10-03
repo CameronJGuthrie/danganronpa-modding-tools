@@ -593,17 +593,26 @@ describe("named arguments", () => {
     assert.throws(() => readSource("If(Time, ==, 5,\n"), /unterminated statement/);
   });
 
-  test("flag groups are named and character-group offsets become character names", () => {
+  test("flag groups are named and known offsets become flag, character or skill names", () => {
     assert.equal(
       roundTrip("SetFlag(15, 0, 1)\nSetFlag(16, 12, 1)\nSetFlag(13, 5, 1)\nSetFlag(15, 32, 0)\nSetFlag(90, 0, 1)\n"),
-      "SetFlag(CharacterInvestigated, Makoto, True)\nSetFlag(CharacterDead, Celeste, True)\nSetFlag(ObjectInvestigated, 5, True)\nSetFlag(CharacterInvestigated, 32, False)\nSetFlag(90, 0, True)\n",
+      "SetFlag(CharacterInvestigated, Makoto, True)\nSetFlag(CharacterDead, Celeste, True)\nSetFlag(ObjectInvestigated, 5, True)\nSetFlag(CharacterInvestigated, Reset, False)\nSetFlag(90, 0, True)\n",
     );
+    assert.equal(
+      roundTrip("SetFlag(0, 4, 1)\nSetFlag(0, 13, 0)\nSetFlag(1, 32, 0)\nSetFlag(20, 5, 1)\n"),
+      "SetFlag(System, HandbookEnabled, True)\nSetFlag(System, 13, False)\nSetFlag(MapUnlock, Reset, False)\nSetFlag(Skills, Charisma, True)\n",
+    );
+    assert.equal(
+      writeSourceText(readSource("SetFlag(System, HandbookEnabled, True)\nSetFlag(System, 4, True)\n")),
+      "SetFlag(System, HandbookEnabled, True)\nSetFlag(System, HandbookEnabled, True)\n",
+    );
+    assert.throws(() => readSource("SetFlag(MapUnlock, HandbookEnabled, 1)\n"), /unknown name 'HandbookEnabled'/);
     assert.deepEqual(readSource("SetFlag(CharacterDead, Celeste, 1)\n").entries[0], {
       opcode: 0x26,
       args: [16, 12, 1],
     });
     // A character name is only meaningful after a character group
-    assert.throws(() => readSource("SetFlag(ObjectInvestigated, Celeste, 1)\n"), /invalid Byte argument 'Celeste'/);
+    assert.throws(() => readSource("SetFlag(ObjectInvestigated, Celeste, 1)\n"), /unknown name 'Celeste'/);
   });
 
   test("IfFlag is a repeating condition with named groups, offsets and operators", () => {

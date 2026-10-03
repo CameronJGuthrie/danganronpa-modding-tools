@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { explorationScriptPath, findModScript } from "danganronpa-scripts/src/lib/mod-scripts.ts";
 import * as vscode from "vscode";
-import { findModScript } from "danganronpa-scripts/src/lib/mod-scripts.ts";
 import { log } from "../output";
 import { labelNamesFromDocument } from "../util/script-meta";
 import { createStartOfLineFunctionRegex } from "../util/string-util";
@@ -18,7 +18,7 @@ import { getWorkbenchRoot } from "./workspace";
  *
  * Script files are looked up in the mod directory first, by exact flat name and then by the loose
  * layout the build accepts (`chapter_CC/scene_SSS/NNN_Label.linscript`, or a flat name with a label
- * after it), and finally in `linscript-exploration`.
+ * after it), and finally in `exploration` (`chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`).
  */
 export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
   provideDefinition(
@@ -134,8 +134,8 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
       log(`Could not organise mod scripts: ${error instanceof Error ? error.message : String(error)}`);
     }
 
-    // If not found in mod, search in linscript-exploration
-    const explorationPath = path.join(rootDir, "linscript-exploration", filename);
+    // If not found in mod, look in exploration's chapter/scene layout
+    const explorationPath = path.join(rootDir, "exploration", explorationScriptPath(flatName));
 
     log(`Checking exploration path: ${explorationPath}`);
     if (fs.existsSync(explorationPath)) {

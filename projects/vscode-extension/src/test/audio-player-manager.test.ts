@@ -92,6 +92,21 @@ suite("AudioPlayerManager", () => {
     assert.equal(spawned[1].killed, true);
   });
 
+  test("stopAll kills every channel and reports how many", () => {
+    const { manager, spawned } = createManager();
+
+    assert.equal(manager.stopAll(), 0);
+
+    manager.play("Music", "a.ogg");
+    manager.play("Voice", "b.ogg");
+    spawned[0].exitNormally();
+
+    assert.equal(manager.stopAll(), 1);
+    assert.equal(spawned[0].killed, false);
+    assert.equal(spawned[1].killed, true);
+    assert.equal(manager.isPlaying("Voice"), false);
+  });
+
   test("dispose stops every channel", () => {
     const { manager, spawned } = createManager();
 

@@ -210,6 +210,9 @@ importers:
       lin-compiler:
         specifier: workspace:*
         version: link:../lin-compiler
+      linscript-definitions:
+        specifier: workspace:*
+        version: link:../definitions
       sharp:
         specifier: '>=0.35.0'
         version: 0.35.4(@types/node@22.20.1)

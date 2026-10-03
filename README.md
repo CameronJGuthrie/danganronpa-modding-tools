@@ -67,7 +67,7 @@ All but `projects/gui` are pnpm workspace packages; the GUI is installed and run
     ```txt
     (in vscode file explorer)
     Locate a .linscript file
-    E.g. at workbench/linscript-exploration/e00_003_001.linscript
+    E.g. at workbench/exploration/chapter_00/scene_003/e00_003_001.linscript
 
     Right Click -> Select For Modding
     ```

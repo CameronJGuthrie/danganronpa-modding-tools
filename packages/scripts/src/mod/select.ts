@@ -7,23 +7,29 @@ import { basename, dirname, extname, join, relative } from "node:path";
 import { promisify } from "node:util";
 import { decompileFile } from "lin-compiler";
 import { errorMessage } from "../lib/errors.ts";
-import { findModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
+import { explorationScriptPath, findModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
 import { PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 
 const MODDED_DIR = join(projectRoot, "workbench", "modded", "dr1_data_us");
 const MOD_DIR = join(projectRoot, "workbench", "mod", "dr1_data_us");
-const EXPLORATION_DIR = join(projectRoot, "workbench", "linscript-exploration");
+const EXPLORATION_DIR = join(projectRoot, "workbench", "exploration");
 const MOD_SCRIPT_DIR = join(MOD_DIR, ...SCRIPT_DIR_SEGMENTS);
 
 /**
- * Where the writable copy of `flatName` goes: the authored file if one already exists in the
- * mod script directory (flat or organised by chapter/scene, with any label suffix), otherwise a
- * new flat `<flatName>.linscript`.
+ * Where the writable copy of `flatName` goes: a new flat `<flatName>.linscript` in the mod script
+ * directory. Refuses when an authored file for the script already exists there (flat or organised
+ * by chapter/scene, with any label suffix), so a select never overwrites edits.
  */
 async function modOutputFile(flatName: string): Promise<string> {
-  return (await findModScript(MOD_SCRIPT_DIR, flatName)) ?? join(MOD_SCRIPT_DIR, `${flatName}.linscript`);
+  const existing = await findModScript(MOD_SCRIPT_DIR, flatName);
+  if (existing !== null) {
+    throw new Error(
+      `${flatName} is already selected: ${relative(projectRoot, existing)}\nEdit that file, or delete it to select the script again.`,
+    );
+  }
+  return join(MOD_SCRIPT_DIR, `${flatName}.linscript`);
 }
 
 function showUsage(): void {
@@ -31,7 +37,7 @@ function showUsage(): void {
 
 Two modes:
 1. .lin file: Decompiles from workbench/modded/ and places the .linscript in workbench/mod/
-2. .linscript file: Copies from workbench/linscript-exploration/ to workbench/mod/ with proper structure
+2. .linscript file: Copies from workbench/exploration/ to workbench/mod/ with proper structure
 
 Examples:
   pnpm select e01_004_135.lin
@@ -39,7 +45,8 @@ Examples:
   pnpm select workbench/modded/dr1_data_us/Dr1/data/us/script/e01_004_135.lin
 
   pnpm select e01_004_135.linscript
-  pnpm select workbench/linscript-exploration/e01_004_135.linscript`);
+  pnpm select chapter_01/scene_004/e01_004_135.linscript
+  pnpm select workbench/exploration/chapter_01/scene_004/e01_004_135.linscript`);
 }
 
 function resolveLinFilePath(inputPath: string): string {
@@ -80,13 +87,13 @@ function resolveLinscriptFilePath(inputPath: string): string {
   }
 
   // If it's a relative path from project root
-  if (inputPath.startsWith("workbench/linscript-exploration/")) {
+  if (inputPath.startsWith("workbench/exploration/")) {
     return join(projectRoot, inputPath);
   }
 
-  // If it's just a filename, assume it's in the exploration directory
+  // If it's just a filename, find it in the exploration directory's chapter/scene layout
   if (!inputPath.includes("/")) {
-    return join(EXPLORATION_DIR, inputPath);
+    return join(EXPLORATION_DIR, explorationScriptPath(basename(inputPath, ".linscript")));
   }
 
   // Otherwise, try treating it as relative to EXPLORATION_DIR
@@ -153,7 +160,7 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
     process.exit(1);
   }
 
-  // Calculate the output path in MOD_DIR, reusing an existing organised file
+  // Calculate the output path in MOD_DIR (refuses if the script is already selected)
   const outputFile = await modOutputFile(baseFilename);
 
   console.log(`Selecting: ${basename(sourceFile)}`);

@@ -11,23 +11,22 @@ export function modScriptDir(workbenchRoot: string): string {
   return path.join(workbenchRoot, "mod", MOD_WAD, ...SCRIPT_DIR_SEGMENTS);
 }
 
-/** Where an authored copy of the script named by `file` goes: the existing authored file, or a new flat one. */
-async function modOutputFile(workbenchRoot: string, file: string): Promise<string> {
-  const scriptDir = modScriptDir(workbenchRoot);
-  const flatName = path.basename(file, path.extname(file));
-  return (await findModScript(scriptDir, flatName)) ?? path.join(scriptDir, `${flatName}.linscript`);
-}
-
 /**
  * "Select for Modding": make a writable `.linscript` for `file` in the mod script directory and
  * return its path. A `.lin` is decompiled there (off-thread, through the compiler worker); a
- * `.linscript` is copied. An existing authored file for the same script is reused and overwritten.
+ * `.linscript` is copied. When an authored file for the same script already exists (flat or
+ * organised by chapter/scene), nothing is written and that file's path is returned, so selecting
+ * again opens the edited script instead of overwriting it.
  */
 export async function selectScript(compiler: CompilerClient, workbenchRoot: string, file: string): Promise<string> {
-  const output = await modOutputFile(workbenchRoot, file);
-  if (path.resolve(file) === path.resolve(output)) {
-    return output; // already the authored file
+  const scriptDir = modScriptDir(workbenchRoot);
+  const flatName = path.basename(file, path.extname(file));
+  const existing = await findModScript(scriptDir, flatName);
+  if (existing !== null) {
+    return existing;
   }
+
+  const output = path.join(scriptDir, `${flatName}.linscript`);
   await mkdir(path.dirname(output), { recursive: true });
 
   if (path.extname(file) === ".lin") {

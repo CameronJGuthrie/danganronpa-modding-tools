@@ -60,11 +60,15 @@ export class AudioPlayerManager implements vscode.Disposable {
     return this.playing.has(channel);
   }
 
-  /** Stop every channel. */
-  stopAll(): void {
+  /** Stop every channel. Returns how many processes were killed. */
+  stopAll(): number {
+    let stopped = 0;
     for (const channel of [...this.playing.keys()]) {
-      this.stop(channel);
+      if (this.stop(channel)) {
+        stopped++;
+      }
     }
+    return stopped;
   }
 
   dispose(): void {

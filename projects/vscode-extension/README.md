@@ -5,7 +5,7 @@ This extension provides syntax highlighting and file watching capabilities for D
 ## Workbench Folder Configuration
 
 The extension needs to know where the workbench is: the folder holding the extracted game data
-(`all/`, `modded/`, `mod/`, `linscript-exploration/`). Script selection, go-to-definition and the
+(`all/`, `modded/`, `mod/`, `exploration/`). Script selection, go-to-definition and the
 audio players all resolve paths under it.
 
 It is read from the `lindecompilerhelper.workbenchRoot` setting. The default, `workbench`, is

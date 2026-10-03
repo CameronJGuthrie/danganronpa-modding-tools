@@ -7,7 +7,7 @@ description: Rewrite the character dialogue in one or more workbench/mod .linscr
 
 Arguments: one or more `.linscript` paths (absolute, or relative to the repo root).
 If a path is not under `workbench/mod/`, tell the user; the mod dir is where rewrites live.
-`pnpm select <name>.linscript` copies a script from `workbench/linscript-exploration/` into it.
+`pnpm select <name>.linscript` copies a script from `workbench/exploration/` (`chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`) into it.
 
 Mod scripts are organised by chapter and scene with a room label on the filename:
 `workbench/mod/dr1_data_us/Dr1/data/us/script/chapter_01/scene_005/103_MakotosRoom.linscript`

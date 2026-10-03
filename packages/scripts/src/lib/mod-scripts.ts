@@ -1,5 +1,6 @@
 /**
- * Layout of `workbench/mod/<wad>/Dr1/data/us/script`.
+ * Layout of `workbench/mod/<wad>/Dr1/data/us/script` (and of `workbench/exploration`, see
+ * `explorationScriptPath`).
  *
  * The game wants one flat directory of `eCC_SSS_NNN.lin` files, but authored `.linscript`
  * files may be organised by chapter and scene:
@@ -8,10 +9,13 @@
  *   chapter_01/scene_005/103_MakotosRoom.linscript  ->  e01_005_103
  *   e00_001_000.linscript                           ->  e00_001_000
  *   chapter_00/e00_001_000_Intro.linscript          ->  e00_001_000
+ *   chapter_08_despair/scene_007_sayaka/001.linscript -> e08_007_001
  *
  * Only the leading numbers matter: anything after them (separated by a non-digit) is a label
- * for the author. A file whose basename starts with a flat script name keeps it wherever it
- * lives; any other file must sit at `chapter_CC/scene_SSS/NNN*.linscript`.
+ * for the author, on the chapter and scene directories as much as on the file. A file whose
+ * basename starts with a flat script name keeps it wherever it lives; any other file must sit
+ * at `chapter_CC<label>/scene_SSS<label>/NNN<label>.linscript`. New files are always created flat, so a labelled
+ * directory is only ever reused, never invented.
  */
 
 import type { Dirent } from "node:fs";
@@ -21,7 +25,7 @@ import { basename, join, relative, sep } from "node:path";
 export const SCRIPT_DIR_SEGMENTS = ["Dr1", "data", "us", "script"] as const;
 
 const FLAT_NAME = /^(e\d{2}_\d{3}_\d{3})(?:[^\d].*)?$/;
-const NESTED_PATH = /^chapter_(\d{2})\/scene_(\d{3})\/(\d{3})(?:[^\d].*)?$/;
+const NESTED_PATH = /^chapter_(\d{2})(?:[^\d/][^/]*)?\/scene_(\d{3})(?:[^\d/][^/]*)?\/(\d{3})(?:[^\d].*)?$/;
 
 /** Flat script name (no extension) for a `.linscript` at `relativePath` inside the script dir, or null if the path fits neither layout. */
 export function flatScriptName(relativePath: string): string | null {
@@ -38,13 +42,17 @@ export function flatScriptName(relativePath: string): string | null {
   return match ? `e${match[1]}_${match[2]}_${match[3]}` : null;
 }
 
-/** Nested path (relative to the script dir) that `pnpm select` and friends would create for a flat script name. */
-export function nestedScriptPath(flatName: string): string {
+/**
+ * Where `pnpm run reset` writes the read-only decompiled copy of `flatName` inside
+ * `workbench/exploration`: `chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`. The basename keeps the
+ * full game name so the file flattens under the rule above and tools can match it by basename.
+ */
+export function explorationScriptPath(flatName: string): string {
   const match = /^e(\d{2})_(\d{3})_(\d{3})$/.exec(flatName);
   if (match === null) {
     throw new Error(`Not a script name: ${flatName}`);
   }
-  return join(`chapter_${match[1]}`, `scene_${match[2]}`, `${match[3]}.linscript`);
+  return join(`chapter_${match[1]}`, `scene_${match[2]}`, `${flatName}.linscript`);
 }
 
 export interface ModScript {
@@ -89,7 +97,8 @@ export async function findModScript(scriptDir: string, flatName: string): Promis
   return scripts.get(flatName)?.path ?? null;
 }
 
-async function walkLinscripts(directory: string): Promise<string[]> {
+/** Absolute paths of every `.linscript` under `directory`, recursively; empty when it does not exist. */
+export async function walkLinscripts(directory: string): Promise<string[]> {
   const files: string[] = [];
   let entries: Dirent[];
   try {

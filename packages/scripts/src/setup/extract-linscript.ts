@@ -3,17 +3,18 @@
 import { exec } from "node:child_process";
 import { existsSync } from "node:fs";
 import { chmod, copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { decompileDirectory } from "lin-compiler";
 import unzipper from "unzipper";
 import { errorMessage } from "../lib/errors.ts";
+import { explorationScriptPath } from "../lib/mod-scripts.ts";
 import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 const BASE_FILES_ZIP = join(WORKBENCH_DIR, "base_files.zip");
 const TEMP_DIR = join(WORKBENCH_DIR, "temp_extract");
-const LINSCRIPT_EXPLORATION_DIR = join(WORKBENCH_DIR, "linscript-exploration");
+const EXPLORATION_DIR = join(WORKBENCH_DIR, "exploration");
 
 async function extractWadFromZip(): Promise<string> {
   console.log("Extracting dr1_data_us.wad from base_files.zip...");
@@ -68,18 +69,23 @@ async function decompileLinFiles(extractDir: string): Promise<string> {
   return scriptDir;
 }
 
+/**
+ * Copy the decompiled scripts into `workbench/exploration`, organised as
+ * `chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`. Returns the absolute destination paths.
+ */
 async function copyLinscriptFiles(scriptDir: string): Promise<string[]> {
-  console.log("Copying .linscript files to linscript-exploration...");
+  console.log("Copying .linscript files to exploration...");
 
-  await mkdir(LINSCRIPT_EXPLORATION_DIR, { recursive: true });
+  await mkdir(EXPLORATION_DIR, { recursive: true });
 
   const files = await readdir(scriptDir);
   const linscriptFiles = files.filter((f) => f.endsWith(".linscript"));
 
-  let copiedCount = 0;
+  const copied: string[] = [];
   for (const file of linscriptFiles) {
     const sourcePath = join(scriptDir, file);
-    const destPath = join(LINSCRIPT_EXPLORATION_DIR, file);
+    const destPath = join(EXPLORATION_DIR, explorationScriptPath(basename(file, ".linscript")));
+    await mkdir(dirname(destPath), { recursive: true });
 
     // Remove read-only flag if file exists
     try {
@@ -89,18 +95,17 @@ async function copyLinscriptFiles(scriptDir: string): Promise<string[]> {
     }
 
     await copyFile(sourcePath, destPath);
-    copiedCount++;
+    copied.push(destPath);
   }
 
-  console.log(`Copied ${copiedCount} .linscript files`);
-  return linscriptFiles;
+  console.log(`Copied ${copied.length} .linscript files`);
+  return copied;
 }
 
 async function makeFilesReadonly(files: string[]): Promise<void> {
   console.log("Making files read-only...");
 
-  for (const file of files) {
-    const filePath = join(LINSCRIPT_EXPLORATION_DIR, file);
+  for (const filePath of files) {
     // chmod 0o444 = r--r--r-- (read-only for owner, group, and others)
     await chmod(filePath, 0o444);
   }
@@ -126,7 +131,7 @@ async function main(): Promise<void> {
     // Step 3: Decompile .lin files to .linscript
     const scriptDir = await decompileLinFiles(extractDir);
 
-    // Step 4: Copy .linscript files to linscript-exploration
+    // Step 4: Copy .linscript files to exploration, organised by chapter and scene
     const linscriptFiles = await copyLinscriptFiles(scriptDir);
 
     // Step 5: Make files read-only
@@ -135,7 +140,7 @@ async function main(): Promise<void> {
     // Step 6: Remove temporary directory
     await cleanup();
 
-    console.log("\n✓ Complete! Linscript files are in linscript-exploration/");
+    console.log("\n✓ Complete! Linscript files are in exploration/");
   } catch (error) {
     console.error(`Error: ${errorMessage(error)}`);
 

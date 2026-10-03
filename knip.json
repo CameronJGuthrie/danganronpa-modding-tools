@@ -21,7 +21,8 @@
     },
     "packages/scripts": {
       "entry": [
-        "src/{formats,setup,mod,game,explore}/*.ts"
+        "src/{formats,setup,mod,game,explore}/*.ts",
+        "src/mod/gift-dialogue/*.ts"
       ],
       "project": [
         "src/**/*.ts"

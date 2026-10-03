@@ -24,7 +24,7 @@ export const sayakaVoiceLines: ChapterVoiceLines = {
     12: "*laughs*",
     13: "That's good.",
     14: "Cause I'm your assistant.",
-    15: "*Sigh*",
+    15: "*Relieved sigh*",
     16: "Okay.",
     17: "I...",
     18: "Huh?",

@@ -19,7 +19,7 @@ declare global {
       chooseWorkbenchRoot: () => Promise<string | null>;
       /** The workbench's extracted `all/`, which sprite paths are relative to, or null when it has not been extracted. */
       getDefaultAssetDirectory: () => Promise<string | null>;
-      /** The workbench's `linscript-exploration/`, or null when it has not been generated. */
+      /** The workbench's `exploration/`, or null when it has not been generated. */
       getDefaultScriptDirectory: () => Promise<string | null>;
       /** Every `.linscript` under `directory`, as forward-slash paths relative to it, sorted. */
       listScriptFiles: (directory: string) => Promise<string[]>;

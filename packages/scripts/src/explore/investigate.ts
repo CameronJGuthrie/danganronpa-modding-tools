@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { readdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { errorMessage } from "../lib/errors.ts";
+import { walkLinscripts } from "../lib/mod-scripts.ts";
 import { WORKBENCH_DIR } from "../lib/paths.ts";
 
-const LINSCRIPT_EXPLORATION_DIR = join(WORKBENCH_DIR, "linscript-exploration");
+const EXPLORATION_DIR = join(WORKBENCH_DIR, "exploration");
 
 type SortMode = "frequency" | "value";
 
@@ -159,15 +160,13 @@ async function investigate(): Promise<void> {
   console.log(`\nInvestigating opcode: ${opcode}(${filterDisplay})`);
   console.log(`Sort mode: ${sortMode}\n`);
 
-  const files = await readdir(LINSCRIPT_EXPLORATION_DIR);
-  const linscriptFiles = files.filter((f) => f.endsWith(".linscript"));
+  const linscriptFiles = await walkLinscripts(EXPLORATION_DIR);
 
   console.log(`Analyzing ${linscriptFiles.length} linscript files...\n`);
 
   let allMatches: string[][] = [];
 
-  for (const file of linscriptFiles) {
-    const filePath = join(LINSCRIPT_EXPLORATION_DIR, file);
+  for (const filePath of linscriptFiles) {
     const content = await readFile(filePath, "utf8");
     const matches = parseLinscriptFile(content, opcode, filters);
     allMatches = allMatches.concat(matches);

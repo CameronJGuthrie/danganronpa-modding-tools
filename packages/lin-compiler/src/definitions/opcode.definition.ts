@@ -6,8 +6,8 @@ import {
   CharacterSprite,
   comparisonOperators,
   FlagGroup,
+  flagNamesByFlagGroup,
   LogicalJoin,
-  Skill,
   SpritePosition,
   SpriteSheet,
   SpriteTransition,
@@ -77,19 +77,14 @@ function none(): ArgumentSpec {
 /** A flag group byte, written by name (`CharacterInvestigated`); unknown groups stay numeric. */
 const flagGroup = named(Byte, FlagGroup);
 /**
- * A flag offset byte. Its meaning depends on the flag group just before it: for the character
- * groups it is a character id and for the skill groups a skill id, both written by name; other
- * groups keep the number.
+ * A flag offset byte, written by name when the flag is known: the flag names in `linscript-definitions`
+ * (`HandbookEnabled`, `Reset`, ...), a character id for the character groups and a skill id for the
+ * skill groups. The table depends on the flag group just before it; unknown offsets keep the number.
  */
 const flagOffset: Parameter = {
   type: Byte,
   dependsOn: -1,
-  namesBy: {
-    [FlagGroup.CharacterInvestigated]: Character,
-    [FlagGroup.CharacterDead]: Character,
-    [FlagGroup.Skills]: Skill,
-    [FlagGroup.Skills2]: Skill,
-  },
+  namesBy: flagNamesByFlagGroup,
 };
 /** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
 const objectId: Parameter = { type: Byte, scope: "Object" };

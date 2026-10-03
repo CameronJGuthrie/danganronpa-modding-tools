@@ -3,13 +3,14 @@ import path from "node:path";
 
 /**
  * The folder of decompiled scripts the Script Browser opens by default: the workbench's
- * `linscript-exploration/`. Null when the workbench has not been generated (`pnpm run reset`).
+ * `exploration/`, organised as `chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`. Null when the
+ * workbench has not been generated (`pnpm run reset`).
  */
 export function defaultScriptDirectory(workbenchRoot: string | null): string | null {
   if (workbenchRoot === null) {
     return null;
   }
-  const directory = path.join(workbenchRoot, "linscript-exploration");
+  const directory = path.join(workbenchRoot, "exploration");
   return fs.existsSync(directory) ? directory : null;
 }
 
@@ -35,7 +36,7 @@ async function walk(root: string, relative: string, files: string[]): Promise<vo
 /**
  * Where `pnpm select` puts writable `.linscript` copies and `pnpm build` compiles them from.
  * Files may be flat (`e01_005_103.linscript`) or organised as
- * `chapter_01/scene_005/103_AnyLabel.linscript`; only the leading numbers name the script
+ * `chapter_01/scene_005_AnyLabel/103_AnyLabel.linscript`; only the leading numbers name the script
  * (see `packages/scripts/src/lib/mod-scripts.ts`).
  */
 export function modScriptDirectory(workbenchRoot: string | null): string | null {
@@ -44,7 +45,7 @@ export function modScriptDirectory(workbenchRoot: string | null): string | null 
 }
 
 const FLAT_NAME = /^(e\d{2}_\d{3}_\d{3})(?:[^\d].*)?$/;
-const NESTED_PATH = /^chapter_(\d{2})\/scene_(\d{3})\/(\d{3})(?:[^\d].*)?$/;
+const NESTED_PATH = /^chapter_(\d{2})(?:[^\d/][^/]*)?\/scene_(\d{3})(?:[^\d/][^/]*)?\/(\d{3})(?:[^\d].*)?$/;
 
 /** Flat game name (`e01_005_103`) for a `.linscript` at `relativePath` inside a mod script dir, or null. */
 export function flatScriptName(relativePath: string): string | null {
