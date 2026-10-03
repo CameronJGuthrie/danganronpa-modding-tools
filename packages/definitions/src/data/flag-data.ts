@@ -12,14 +12,22 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
     6: { name: "TruthBulletEnabled" },
     7: { name: "SaveEnabled" },
     12: { name: "RoomExitEnabled" },
+    13: { name: "TrialRetry" }, // False at every trial start, True when "Yes" is picked at the game-over prompt
   },
   [FlagGroup.MapUnlock]: {
+    // Areas on the map screen; every scene setup script rewrites all ten bits. 5-9 are not identified
+    0: { name: "Floor1" },
+    1: { name: "Floor2" },
+    2: { name: "Floor3" },
+    3: { name: "Floor4" },
+    4: { name: "Floor5" },
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.MonocoinCollected]: {
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.FreeTimeEvent]: {
+    0: { name: "FreeTimeSpent" }, // set by "Spend some time with X", tested before each free-time character handler
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.ObjectInvestigated]: {
