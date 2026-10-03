@@ -1,15 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { describeScript, roomName } from "../../data/room";
 import { buildControlFlow, type LabelRef, parseScriptLines } from "../../script/controlFlow";
+import { buildFlowGraph } from "../../script/flowGraph";
 import { parseObjectNames, referencedObjectIds } from "../../script/objectNames";
 import { AllLines } from "./AllLines";
+import { FlowDiagram } from "./FlowDiagram";
 import { FlowTree } from "./FlowTree";
 import { NodeDetails } from "./NodeDetails";
 import { ObjectNamesPanel } from "./ObjectNamesPanel";
 
+/** What the right-hand pane shows: the script's lines, or the flowchart. */
+export type ScriptPane = "script" | "flow";
+
+export const SCRIPT_PANES: Record<ScriptPane, string> = {
+  script: "Script",
+  flow: "Flow",
+};
+
 type ScriptViewProps = {
   /** True when the source is the copy in the mod directory rather than the file picked in the tree. */
   fromMod?: boolean;
+  pane: ScriptPane;
+  onPaneChange: (pane: ScriptPane) => void;
   /** Shown as the root of the flow tree, e.g. the file name without extension. */
   scriptName: string;
   source: string;
@@ -18,22 +30,35 @@ type ScriptViewProps = {
 };
 
 /**
- * Two-pane read-only script view: a control-flow tree on the left, the selected node's lines on
- * the right. Mount it with a `key` per script so opening another file starts from fresh state.
+ * Two-pane read-only script view: a control-flow tree on the left and, on the right, either the
+ * selected node's lines or the flowchart of the whole script, switched by a pair of sub-tabs.
+ * Mount it with a `key` per script so opening another file starts from fresh state.
  */
-export function ScriptView({ fromMod = false, scriptName, source, reveal = null }: ScriptViewProps) {
+export function ScriptView({
+  fromMod = false,
+  pane,
+  onPaneChange,
+  scriptName,
+  source,
+  reveal = null,
+}: ScriptViewProps) {
   const flow = useMemo(() => buildControlFlow(source, scriptName), [source, scriptName]);
+  const graph = useMemo(() => (pane === "flow" ? buildFlowGraph(flow, source) : null), [pane, flow, source]);
   const [selectedId, setSelectedId] = useState<string>(flow.root.id);
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   // "View All" shows every line of the script, indented, instead of one node's actions. It is the
   // starting view; picking a node in the tree switches to that node's actions.
   const [viewAll, setViewAll] = useState(true);
+  // A line picked in the flowchart; shown in the all-lines view like a search hit, until the next hit
+  const [ownReveal, setOwnReveal] = useState<{ line: number } | null>(null);
   // A revealed line lives in the all-lines view, so showing one switches back to it
   useEffect(() => {
     if (reveal !== null) {
       setViewAll(true);
+      setOwnReveal(null);
     }
   }, [reveal]);
+  const shownReveal = ownReveal ?? reveal;
   const allLines = useMemo(() => (viewAll ? parseScriptLines(source) : []), [viewAll, source]);
   // Per-script object names from the Meta() block, and which ids the body actually refers to
   const objectNames = useMemo(() => parseObjectNames(source), [source]);
@@ -59,6 +84,15 @@ export function ScriptView({ fromMod = false, scriptName, source, reveal = null 
       return next;
     });
   }, []);
+
+  const showLine = useCallback(
+    (line: number) => {
+      setOwnReveal({ line });
+      setViewAll(true);
+      onPaneChange("script");
+    },
+    [onPaneChange],
+  );
 
   const jumpToLabel = useCallback((label: LabelRef) => {
     const ownerId = flowRef.current.labelOwners.get(label);
@@ -99,22 +133,61 @@ export function ScriptView({ fromMod = false, scriptName, source, reveal = null 
           <ObjectNamesPanel names={objectNames} uses={objectUses} />
         </div>
       </aside>
-      <section className="relative flex-1 min-w-0 rounded bg-white dark:bg-slate-800 shadow-sm">
-        <div className="flex h-full min-h-0 flex-col p-4">
-          {viewAll ? (
-            <AllLines
-              title={flow.root.title}
-              lines={allLines}
-              labelOwners={flow.labelOwners}
-              reveal={reveal}
-              onSelect={selectNode}
-              onJump={jumpToLabel}
+      <section className="relative flex flex-1 min-w-0 flex-col rounded bg-white dark:bg-slate-800 shadow-sm">
+        <PaneTabs pane={pane} onPaneChange={onPaneChange} />
+        {pane === "script" ? (
+          <div className="flex min-h-0 flex-1 flex-col px-4 pb-4">
+            {viewAll ? (
+              <AllLines
+                title={flow.root.title}
+                lines={allLines}
+                labelOwners={flow.labelOwners}
+                reveal={shownReveal}
+                onSelect={selectNode}
+                onJump={jumpToLabel}
+              />
+            ) : (
+              <NodeDetails node={selected} labelOwners={flow.labelOwners} onSelect={selectNode} onJump={jumpToLabel} />
+            )}
+          </div>
+        ) : (
+          graph !== null && (
+            <FlowDiagram
+              graph={graph}
+              highlight={viewAll || selected.kind === "script" ? null : selected}
+              onShowLine={showLine}
             />
-          ) : (
-            <NodeDetails node={selected} labelOwners={flow.labelOwners} onSelect={selectNode} onJump={jumpToLabel} />
-          )}
-        </div>
+          )
+        )}
       </section>
     </>
+  );
+}
+
+/** The Script / Flow sub-tabs along the top of the right-hand pane. */
+function PaneTabs({ pane, onPaneChange }: { pane: ScriptPane; onPaneChange: (pane: ScriptPane) => void }) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Script pane"
+      className="flex shrink-0 gap-1 border-b border-slate-200 px-4 pt-2 pb-2 dark:border-slate-700"
+    >
+      {(Object.keys(SCRIPT_PANES) as ScriptPane[]).map((name) => (
+        <button
+          key={name}
+          type="button"
+          role="tab"
+          aria-selected={pane === name}
+          className={`rounded px-2.5 py-0.5 text-sm ${
+            pane === name
+              ? "bg-blue-500 font-semibold text-white"
+              : "bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500"
+          }`}
+          onClick={() => onPaneChange(name)}
+        >
+          {SCRIPT_PANES[name]}
+        </button>
+      ))}
+    </div>
   );
 }

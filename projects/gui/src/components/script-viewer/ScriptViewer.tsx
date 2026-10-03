@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppContext } from "../../state/AppContext";
 import { ScriptFileTree } from "./ScriptFileTree";
-import { ScriptView } from "./ScriptView";
+import { type ScriptPane, ScriptView } from "./ScriptView";
 
 const STORAGE = {
   directory: "scriptViewer.directory",
   file: "scriptViewer.file",
   collapsed: "scriptViewer.treeCollapsed",
+  pane: "scriptViewer.pane",
 } as const;
 
 type OpenScript = {
@@ -20,14 +21,16 @@ type OpenScript = {
 
 /**
  * The Script Viewer tab: a collapsible tree of `.linscript` files on the far left, and the
- * read-only view of the chosen file beside it. The folder, the open file and the panel state are
- * remembered.
+ * read-only view of the chosen file beside it, as its lines or as a flowchart. The folder, the
+ * open file, the panel state and the chosen pane are remembered.
  */
 export function ScriptViewer() {
   const { workbenchRoot, workbenchRootLoaded } = useAppContext();
   const [directory, setDirectory] = useState<string | null>(() => read(STORAGE.directory));
   const [selectedPath, setSelectedPath] = useState<string | null>(() => read(STORAGE.file));
   const [collapsed, setCollapsed] = useState(() => read(STORAGE.collapsed) === "true");
+  // Whether the right-hand pane shows the script's lines or its flowchart; kept across files
+  const [pane, setPane] = useState<ScriptPane>(() => (read(STORAGE.pane) === "flow" ? "flow" : "script"));
   const [script, setScript] = useState<OpenScript | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   // Scripts with a copy in the mod directory, starred in the tree
@@ -38,6 +41,10 @@ export function ScriptViewer() {
   const selectScript = useCallback((relativePath: string, line?: number) => {
     setSelectedPath(relativePath);
     setReveal(line === undefined ? null : { line });
+    if (line !== undefined) {
+      // A search hit is a line, which only the script pane can show
+      setPane("script");
+    }
   }, []);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: the mod directory lives in the workbench, so refresh when it changes
@@ -109,6 +116,7 @@ export function ScriptViewer() {
   useEffect(() => write(STORAGE.directory, directory), [directory]);
   useEffect(() => write(STORAGE.file, selectedPath), [selectedPath]);
   useEffect(() => write(STORAGE.collapsed, String(collapsed)), [collapsed]);
+  useEffect(() => write(STORAGE.pane, pane), [pane]);
 
   const chooseDirectory = useCallback(async () => {
     const result = await window.electron.openDirectoryDialog();
@@ -136,6 +144,8 @@ export function ScriptViewer() {
         <ScriptView
           key={open.filePath}
           fromMod={open.fromMod}
+          pane={pane}
+          onPaneChange={setPane}
           scriptName={scriptName(open.path)}
           source={open.source}
           reveal={reveal}

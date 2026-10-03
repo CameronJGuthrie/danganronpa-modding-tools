@@ -87,6 +87,8 @@ The library API is pure: readers return a `Script`, writers take one plus a `Wri
 ## gui
 Electron desktop app for browsing Danganronpa assets, read-only. Features a character sprite viewer, a Script Viewer (control-flow tree, all-lines view, text search, object names from the `Meta()` block; a script's mod copy is shown when one exists), TGA image support and a Run Game button that builds and launches the game.
 
+The Script Viewer's right pane has two sub-tabs, Script (the lines) and Flow (a flowchart). `src/script/controlFlow.ts` parses the source into the tree the left pane shows; `src/script/flowGraph.ts` turns that tree into boxes (runs of instructions, split at labels), diamonds (conditions, with "yes" to the `Goto` target and "no" to the fallthrough), labelled fan-outs for menus and handler groups, and terminals (`StopScript`, `Return`, `LoadScript`), dropping code nothing flows into; `src/script/flowLayout.ts` sizes the shapes and lays them out with `@dagrejs/dagre`; `FlowDiagram.tsx` draws them as SVG with drag-to-pan and wheel zoom. Clicking a shape selects it, double-click (or "Show in script") opens its line in the Script pane, and picking a node in the tree outlines and centres its shapes.
+
 ## pak-archiver
 Utility for extracting, creating, and modifying PAK archive files. Handles nested archives and detects GMO/TGA file types.
 

@@ -6,7 +6,8 @@
  *  - `OnCharacter(n)` / `OnObject(n)` register interaction handlers; each handler's body is
  *    the indented lines that follow it, and the group is closed by `OnObject(255)`.
  *  - `SetOption(n)` (or its labelled sugar `Option(n, "label")`) registers a menu option; the body
- *    is the indented lines that follow it, and the menu is closed by `SetOption(255)`.
+ *    is the indented lines that follow it, and the menu is closed by `SetOption(255)`. Menus appear
+ *    at the top level (a room's choices) as well as inside handlers.
  *  - `Meta()` at the top level starts the per-script annotations (object, character and option names) that run to the end
  *    of the file.
  *
@@ -112,14 +113,17 @@ export function parseScriptLines(source: string): ScriptLine[] {
       return;
     }
     open = Math.max(parenDepth(text), 0);
+    // Join the continuation lines to read the whole statement, without closing `open`: the
+    // following iterations still need to see those lines as continuations
     let statement = text;
-    for (let next = index + 1; open > 0 && next < rawLines.length; next++) {
+    let unclosed = open;
+    for (let next = index + 1; unclosed > 0 && next < rawLines.length; next++) {
       const continued = rawLines[next].trim();
       if (continued === "") {
         continue;
       }
       statement += ` ${continued}`;
-      open += parenDepth(continued);
+      unclosed += parenDepth(continued);
     }
     const match = statement.match(/^(\w+)\((.*)\)$/s);
     const functionName = match ? match[1] : text;
@@ -249,7 +253,7 @@ export function jumpTarget(line: ScriptLine): LabelRef | undefined {
 const LABEL_NAME_ENTRY = /^LabelName\(\s*(\d+)\s*,\s*([A-Za-z_]\w*)\s*\)$/;
 
 /** The `LabelName(id, Name)` entries of the `Meta()` block, if the script has one. */
-function parseLabelNames(lines: readonly ScriptLine[]): Map<number, string> {
+export function parseLabelNames(lines: readonly ScriptLine[]): Map<number, string> {
   const names = new Map<number, string>();
   const start = lines.findIndex((line) => line.functionName === "Meta");
   if (start === -1) {
@@ -341,6 +345,16 @@ class FlowBuilder {
         const [group, next] = this.parseHandlerGroup(lines, i, line.depth);
         this.addChild(root, group);
         block = this.createNode("block", "", next < lines.length ? lines[next].lineNumber : group.endLine);
+        blockHasBody = false;
+        i = next;
+        continue;
+      }
+
+      if (isOptionRegistration(line)) {
+        flushBlock();
+        const [menu, next] = this.parseMenu(lines, i, line.depth);
+        this.addChild(root, menu);
+        block = this.createNode("block", "", next < lines.length ? lines[next].lineNumber : menu.endLine);
         blockHasBody = false;
         i = next;
         continue;
