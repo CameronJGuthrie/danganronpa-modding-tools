@@ -599,8 +599,8 @@ describe("named arguments", () => {
       "SetFlag(CharacterInvestigated, Makoto, True)\nSetFlag(CharacterDead, Celeste, True)\nSetFlag(ObjectInvestigated, 5, True)\nSetFlag(CharacterInvestigated, Reset, False)\nSetFlag(90, 0, True)\n",
     );
     assert.equal(
-      roundTrip("SetFlag(0, 4, 1)\nSetFlag(0, 13, 0)\nSetFlag(1, 32, 0)\nSetFlag(20, 5, 1)\n"),
-      "SetFlag(System, HandbookEnabled, True)\nSetFlag(System, 13, False)\nSetFlag(MapUnlock, Reset, False)\nSetFlag(Skills, Charisma, True)\n",
+      roundTrip("SetFlag(0, 4, 1)\nSetFlag(0, 2, 0)\nSetFlag(1, 32, 0)\nSetFlag(20, 5, 1)\n"),
+      "SetFlag(System, HandbookEnabled, True)\nSetFlag(System, 2, False)\nSetFlag(MapUnlock, Reset, False)\nSetFlag(Skills, Charisma, True)\n",
     );
     assert.equal(
       writeSourceText(readSource("SetFlag(System, HandbookEnabled, True)\nSetFlag(System, 4, True)\n")),
