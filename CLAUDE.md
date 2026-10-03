@@ -2,7 +2,7 @@
 
 ## Repository layout
 Libraries and scripts live under `packages/`, applications under `projects/`:
-- `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`, plus lookup tables under `src/data/` (sound, music and movie names, voice line transcripts, character, sprite, present, flag, variable, UI and background names) used by both the extension and the GUI. It has no build step: its `exports` point at `src/index.ts`, so every consumer imports the TypeScript source. Enums are plain objects made with `defineEnum` in `src/enum.ts` (same shape as a numeric enum, including the value-to-name reverse mapping) so the package stays erasable for Node's type stripping and `erasableSyntaxOnly`; use `typeof Character.Makoto` when a member is needed as a type
+- `packages/definitions` - the `linscript-definitions` package: shared enums such as `LinscriptInstructionName`, `Character`, `Chapter`, plus lookup tables under `src/data/` (sound, music and movie names, voice line transcripts, character, sprite, present, flag, variable, UI, background, skill, text-style and truth-bullet names) used by both the extension and the GUI. It has no build step: its `exports` point at `src/index.ts`, so every consumer imports the TypeScript source. Enums are plain objects made with `defineEnum` in `src/enum.ts` (same shape as a numeric enum, including the value-to-name reverse mapping) so the package stays erasable for Node's type stripping and `erasableSyntaxOnly`; use `typeof Character.Makoto` when a member is needed as a type
 - `packages/lin-compiler` - TypeScript `.lin` <-> `.linscript` (de)compiler library. There is no command-line tool: the scripts package, the GUI and the extension call the library directly
 - `packages/scripts` - TypeScript automation scripts, run directly via Node type stripping (root `pnpm run ...` commands)
 - `projects/vscode-extension` - the `lindecompilerhelper` VSCode extension. `tsc` only typechecks it; esbuild bundles `src/extension.ts`, the tests and the grammar builder into `out/`, which is how the extension host loads the definitions source
@@ -12,10 +12,11 @@ Libraries and scripts live under `packages/`, applications under `projects/`:
 All but `projects/gui` are pnpm workspace packages (see `pnpm-workspace.yaml`).
 
 ## Opcode Investigation:
-Use `pnpm run investigate` to analyze opcode usage patterns across all linscript files:
+Use `pnpm run investigate` to analyze opcode usage patterns across the `.linscript` files in `workbench/exploration`:
 
 ```bash
 # Analyze all uses of an opcode (default: sorted by frequency)
+# The filter is required and must have one entry per argument of the opcode
 pnpm run investigate <opcode> [x,x,x]
 
 # Filter by specific argument values (use 'x' for any value)
@@ -53,8 +54,8 @@ WAD → PAK → (GMO | TGA | PAK | ?)
    - Requires LLFS unwrapper or compiler update
 
 **Extraction steps:**
-1. Extract `.wad` archives using `unwad.py` to get `.pak` files or direct `.lin` files
-2. For PAK files: Extract using `unpak.py` to get individual files
+1. Extract `.wad` archives with `packages/scripts/src/formats/wad-archiver.ts` (or `pnpm run unpack` for both base WADs) to get `.pak` files or direct `.lin` files
+2. For PAK files: extract with `packages/scripts/src/formats/pak-archiver.ts` (`pnpm run extract-recursive` walks nested PAKs)
 
 ## lin-compiler
 `.linscript` is not a live format. It is still being designed and has no external consumers, so opcode names and argument sugar can change freely; regenerate `workbench/` with `pnpm run reset` after a rename rather than keeping compatibility shims.
@@ -93,7 +94,7 @@ Utility for extracting, creating, and modifying PAK archive files. Handles neste
 
 ## scripts
 TypeScript automation scripts for common modding operations, kept under `packages/scripts/src/` in subdirectories by purpose:
-- `lib/` - shared helpers with no side effects on import (`errors.ts`, `steam-paths.ts`, `paths.ts` for repo/workbench/CLI paths)
+- `lib/` - shared helpers with no side effects on import (`errors.ts`, `steam-paths.ts`, `paths.ts` for repo/workbench/CLI paths, `mod-scripts.ts` for the mod script layout rules)
 - `formats/` - binary format libraries with a CLI tail (`wad-archiver`, `pak-archiver`, `spike-chunsoft-decompress`, `gxt-to-png`)
 - `setup/` - getting game data into the workbench (`zip-game-files`, `unpack-base-files`, `extract-linscript`, `extract-recursive`, `validate-paks`)
 - `mod/` - the edit/build/test loop (`select`, `verify`, `build`, `gift-dialogue`)
