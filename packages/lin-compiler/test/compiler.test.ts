@@ -394,7 +394,7 @@ describe("Text sugar", () => {
 describe("Meta block", () => {
   const source = [
     "OnObject(Monitor)",
-    "    ObjectState(Camera, 1, 0, 0, 0)",
+    "    ObjectState(Camera, Visible, Interactable)",
     "OnObject(254)",
     "    Speaker(Makoto)",
     "OnObject(255)",

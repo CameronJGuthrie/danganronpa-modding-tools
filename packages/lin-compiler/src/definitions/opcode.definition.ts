@@ -9,6 +9,8 @@ import {
   flagNamesByFlagGroup,
   LogicalJoin,
   Music,
+  ObjectInteraction,
+  ObjectVisibility,
   SpritePosition,
   SpriteTransition,
   Student,
@@ -51,7 +53,7 @@ export interface OpcodeRow {
   hidden?: true;
 }
 
-const { Byte, UInt16BE } = ParameterType;
+const { Byte, UInt16BE, UInt16LE } = ParameterType;
 
 function fixed(layout: readonly Parameter[]): ArgumentSpec {
   return { kind: "fixed", layout };
@@ -153,7 +155,7 @@ export const opcodes = {
   SpriteFlash:           { id: 0x20, args: bytes(5) },
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
   ScreenFade:            { id: 0x22, args: bytes(3), hidden: true }, // FadeIn / FadeOut / FadeOutThenWait sugar
-  ObjectState:           { id: 0x23, args: fixed([objectId, Byte, Byte, Byte, Byte]) },
+  ObjectState:           { id: 0x23, args: fixed([objectId, named(UInt16LE, ObjectVisibility), named(UInt16LE, ObjectInteraction)]) },
   SetUI:                 { id: 0x25, args: fixed([named(Byte, UserInterface), named(Byte, UiVisibility)]) },
   SetFlag:               { id: 0x26, args: fixed([flagGroup, flagOffset, bool]) },
   OnCharacter:           { id: 0x27, args: fixed([characterId]), block: true },
