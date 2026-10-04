@@ -1,17 +1,18 @@
 import * as vscode from "vscode";
 import { textStyleColor } from "linscript-definitions";
 import { instructions } from "../instructions";
-import { logDebug, logError, logWarning } from "../output";
+import { logError, logWarning } from "../output";
 import type { LinscriptInstruction } from "../instructions/linscript-instruction";
 import { argumentNames } from "../util/argument-names";
+import { type ScopedNames, scopedNamesFromDocument } from "../util/script-meta";
 import {
   createCompleteFunctionRegex,
+  createQuoteChecker,
   createVarargsRegex,
   getArgumentsFromFunctionLike,
   getColorTextMatch,
   getColorTextRegex,
   getTextFunctionRegex,
-  isInsideQuotes,
   stripBranchJump,
 } from "../util/string-util";
 import {
@@ -59,6 +60,17 @@ const highlightDecorationTypeMap: {
   }),
 );
 
+/** How long typing must pause before the file is re-decorated. */
+const TYPING_DEBOUNCE_MS = 150;
+
+/** Per-pass state shared by every match in a document, computed once in `updateDecorations`. */
+type DocumentContext = {
+  document: vscode.TextDocument;
+  documentText: string;
+  isInsideQuotes: (position: number) => boolean;
+  scopedNames: ScopedNames;
+};
+
 export function registerDecoration() {
   const updateDecorations = (editor: vscode.TextEditor) => {
     const document = editor.document;
@@ -73,6 +85,13 @@ export function registerDecoration() {
     const showFunctionDecorations = getShowFunctionDecorations();
 
     const documentText = document.getText();
+    // Shared by every match in this pass: which offsets sit inside a string, and the Meta() name tables
+    const context: DocumentContext = {
+      document,
+      documentText,
+      isInsideQuotes: createQuoteChecker(documentText),
+      scopedNames: scopedNamesFromDocument(documentText),
+    };
 
     // Add parameter enrichment
     const hintDecorations: vscode.DecorationOptions[] = [];
@@ -90,22 +109,11 @@ export function registerDecoration() {
         ? createVarargsRegex(functionDetails.name, branch)
         : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length, required, branch);
 
-      // Debug logging for If
-      if (functionDetails.name === "If") {
-        logDebug(`If regex: /${completeFunctionRegex.source}/`);
-        const matches = documentText.match(completeFunctionRegex);
-        logDebug(`If matches found: ${matches ? matches.length : 0}`);
-        if (matches && matches.length > 0) {
-          logDebug(`First match: ${matches[0]}`);
-        }
-      }
-
       try {
         enrichParameters(
           completeFunctionRegex,
-          documentText,
+          context,
           functionDetails,
-          document,
           hintDecorations,
           functionDecorationsByType,
           showParameterDecorations,
@@ -166,8 +174,18 @@ export function registerDecoration() {
     }
   };
 
+  // Typing re-decorates the whole file, so a burst of keystrokes is coalesced into one pass
+  let pendingUpdate: ReturnType<typeof setTimeout> | undefined;
+  const cancelPendingUpdate = () => {
+    if (pendingUpdate !== undefined) {
+      clearTimeout(pendingUpdate);
+      pendingUpdate = undefined;
+    }
+  };
+
   // Listen for changes in the active text editor
   vscode.window.onDidChangeActiveTextEditor((editor) => {
+    cancelPendingUpdate();
     if (editor) {
       updateDecorations(editor);
     }
@@ -177,7 +195,14 @@ export function registerDecoration() {
   vscode.workspace.onDidChangeTextDocument((event) => {
     const editor = vscode.window.activeTextEditor;
     if (editor && event.document === editor.document) {
-      updateDecorations(editor);
+      cancelPendingUpdate();
+      pendingUpdate = setTimeout(() => {
+        pendingUpdate = undefined;
+        const current = vscode.window.activeTextEditor;
+        if (current && current.document === event.document) {
+          updateDecorations(current);
+        }
+      }, TYPING_DEBOUNCE_MS);
     }
   });
 
@@ -231,27 +256,28 @@ function addParameterDecoration(
 
 function enrichParameters(
   regexp: RegExp,
-  documentText: string,
+  context: DocumentContext,
   functionDetails: LinscriptInstruction,
-  document: vscode.TextDocument,
   hintDecorations: vscode.DecorationOptions[],
   functionDecorationsByType: vscode.DecorationOptions[][],
   showParameterDecorations: boolean,
   showFunctionDecorations: boolean,
 ) {
+  const { document, documentText } = context;
   for (const match of documentText.matchAll(regexp)) {
     const matchIndex = match.index!;
     const matchLength = match[0].length;
     const matchEndIndex = matchIndex + matchLength;
 
     // Skip if this match is inside quotes
-    if (isInsideQuotes(documentText, matchIndex)) {
+    if (context.isInsideQuotes(matchIndex)) {
       continue;
     }
 
     // A condition's trailing Goto(label) is decorated as its own Goto call, not as one of these arguments
     const callText = functionDetails.branch ? stripBranchJump(match[0]) : match[0];
-    const args = getArgumentsFromFunctionLike(callText, argumentNames(functionDetails, callText, documentText));
+    const names = argumentNames(functionDetails, callText, context.scopedNames);
+    const args = getArgumentsFromFunctionLike(callText, names);
     // Omitted optional arguments take their defaults so decorations see the compiled values
     const argValues = functionDetails.varargs
       ? args.map((arg) => arg.value)

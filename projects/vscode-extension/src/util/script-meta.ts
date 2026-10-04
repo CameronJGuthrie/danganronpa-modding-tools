@@ -8,22 +8,35 @@ export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = { 18: "Exi
  * enum (`{ 20: "Monitor", Monitor: 20 }`) so it can stand in for a parameter's `names`.
  */
 export function objectNamesFromDocument(documentText: string): ArgumentNames {
-  return scopedNamesFromDocument(documentText, "Object", {});
+  return declaredNamesFromDocument(documentText, "Object", {});
 }
 
 /** The character-slot names a file declares with `Character(id, Name)`, for `OnCharacter`. */
 export function characterNamesFromDocument(documentText: string): ArgumentNames {
-  return scopedNamesFromDocument(documentText, "Character", {});
+  return declaredNamesFromDocument(documentText, "Character", {});
 }
 
 /** The option names in effect for a file: the defaults plus its `Meta()` block's `Option(id, Name)` entries. */
 export function optionNamesFromDocument(documentText: string): ArgumentNames {
-  return scopedNamesFromDocument(documentText, "Option", DEFAULT_OPTION_NAMES);
+  return declaredNamesFromDocument(documentText, "Option", DEFAULT_OPTION_NAMES);
 }
 
 /** The label names a file declares with `LabelName(id, Name)`, for `Label` and `Goto`. */
 export function labelNamesFromDocument(documentText: string): ArgumentNames {
-  return scopedNamesFromDocument(documentText, "LabelName", {});
+  return declaredNamesFromDocument(documentText, "LabelName", {});
+}
+
+/** The name tables a file's `Meta()` block declares, one per parameter scope. */
+export type ScopedNames = Readonly<Record<"Object" | "Character" | "Option" | "Label", ArgumentNames>>;
+
+/** All four scoped name tables of a file, for callers that resolve many calls in one document. */
+export function scopedNamesFromDocument(documentText: string): ScopedNames {
+  return {
+    Object: objectNamesFromDocument(documentText),
+    Character: characterNamesFromDocument(documentText),
+    Option: optionNamesFromDocument(documentText),
+    Label: labelNamesFromDocument(documentText),
+  };
 }
 
 /** The `Meta()` entry that declares names for a scoped parameter, e.g. `LabelName` for the `Label` scope. */
@@ -31,7 +44,7 @@ export function metaEntryForScope(scope: "Object" | "Character" | "Option" | "La
   return scope === "Label" ? "LabelName" : scope;
 }
 
-function scopedNamesFromDocument(
+function declaredNamesFromDocument(
   documentText: string,
   entry: "Object" | "Character" | "Option" | "LabelName",
   defaults: Readonly<Record<number, string>>,

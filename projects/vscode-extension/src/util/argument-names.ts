@@ -1,33 +1,20 @@
 import type { LinscriptInstruction } from "../instructions/linscript-instruction";
-import {
-  characterNamesFromDocument,
-  labelNamesFromDocument,
-  objectNamesFromDocument,
-  optionNamesFromDocument,
-} from "./script-meta";
+import { type ScopedNames, scopedNamesFromDocument } from "./script-meta";
 import { getArgumentsFromFunctionLike } from "./string-util";
 
 /**
  * Name tables per argument position, expanding a varargs head/tail pattern to the actual count.
- * Parameters scoped to the document (object, character, option and label ids) take their table from its `Meta()` block.
+ * Parameters scoped to the document (object, character, option and label ids) take their table
+ * from its `Meta()` block. A caller resolving many calls in one document passes the block's
+ * tables (`scopedNamesFromDocument`) so it is parsed once rather than per call.
  */
-export function argumentNames(functionDetails: LinscriptInstruction, call: string, documentText: string) {
+export function argumentNames(functionDetails: LinscriptInstruction, call: string, document: string | ScopedNames) {
   const { varargNames } = functionDetails;
   if (!functionDetails.varargs || !varargNames) {
-    return functionDetails.parameters.map((parameter) => {
-      switch (parameter.scope) {
-        case "Object":
-          return objectNamesFromDocument(documentText);
-        case "Character":
-          return characterNamesFromDocument(documentText);
-        case "Option":
-          return optionNamesFromDocument(documentText);
-        case "Label":
-          return labelNamesFromDocument(documentText);
-        default:
-          return parameter.namesBy ?? parameter.names;
-      }
-    });
+    const scoped = typeof document === "string" ? scopedNamesFromDocument(document) : document;
+    return functionDetails.parameters.map((parameter) =>
+      parameter.scope ? scoped[parameter.scope] : (parameter.namesBy ?? parameter.names),
+    );
   }
   const count = getArgumentsFromFunctionLike(call).length;
   const { head, tail } = varargNames;

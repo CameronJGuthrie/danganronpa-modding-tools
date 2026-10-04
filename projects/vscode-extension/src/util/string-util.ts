@@ -184,6 +184,35 @@ export function isInsideQuotes(text: string, position: number): boolean {
 }
 
 /**
+ * `isInsideQuotes` for many positions in the same text: the unescaped quotes are located once and
+ * each lookup is a binary search over them, instead of a rescan of the text from its start.
+ */
+export function createQuoteChecker(text: string): (position: number) => boolean {
+  const quotes: number[] = [];
+  let from = text.indexOf('"');
+  while (from !== -1) {
+    if (from === 0 || text[from - 1] !== "\\") {
+      quotes.push(from);
+    }
+    from = text.indexOf('"', from + 1);
+  }
+  return (position) => {
+    // Number of quotes strictly before `position`
+    let low = 0;
+    let high = quotes.length;
+    while (low < high) {
+      const mid = (low + high) >> 1;
+      if (quotes[mid] < position) {
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+    return low % 2 === 1;
+  };
+}
+
+/**
  * Creates a regex that matches a function call at the start of a line with capturing groups for each argument.
  * E.g., createStartOfLineFunctionRegex("Goto", 1) => /^Goto\((\d+)\)/
  * E.g., createStartOfLineFunctionRegex("LoadScript", 3) => /^LoadScript\((\d+),\s*(\d+),\s*(\d+)\)/

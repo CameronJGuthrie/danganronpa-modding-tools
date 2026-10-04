@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { log, logError } from "../../output";
-import { createCompleteFunctionRegex, getArgumentsFromFunctionLike, isInsideQuotes } from "../../util/string-util";
+import { createCompleteFunctionRegex, createQuoteChecker, getArgumentsFromFunctionLike } from "../../util/string-util";
 import { getAudioPlayerManager } from "./audio-player-manager";
 import type { AudioTestConfig } from "./test-controller-config";
 
@@ -252,11 +252,12 @@ function collectMatches<TInfo>(
   pattern: { paramCount: number; requiredParamCount: number },
 ): vscode.TestItem[] {
   const items: vscode.TestItem[] = [];
+  const isInsideQuotes = createQuoteChecker(text);
 
   for (const match of text.matchAll(regex)) {
     const matchIndex = match.index!;
 
-    if (isInsideQuotes(text, matchIndex)) {
+    if (isInsideQuotes(matchIndex)) {
       continue;
     }
 

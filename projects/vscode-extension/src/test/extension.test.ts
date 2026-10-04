@@ -9,6 +9,7 @@ import {
   getColorTextMatch,
   getColorTextRegex,
   getTextFunctionRegex,
+  createQuoteChecker,
   isInsideQuotes,
 } from "../util/string-util";
 
@@ -54,6 +55,15 @@ suite("Extension Test Suite", () => {
     // Position of "Voice" in text3 (outside quotes, after a quoted string)
     const posAfterQuotes = text3.indexOf("Voice");
     assert.equal(isInsideQuotes(text3, posAfterQuotes), false, "Voice after quotes should not be inside quotes");
+  });
+
+  test("createQuoteChecker agrees with isInsideQuotes at every offset", () => {
+    const text = 'Text("a \\"quoted\\" Voice(0)") Voice(1)\nSpeaker(Makoto) Text("Goto(5)")\n"unterminated Goto(1)';
+    const isInside = createQuoteChecker(text);
+    for (let offset = 0; offset <= text.length; offset++) {
+      assert.equal(isInside(offset), isInsideQuotes(text, offset), `offset ${offset}`);
+    }
+    assert.equal(createQuoteChecker("no quotes here")(5), false);
   });
 
   test("full parameter function regex should not match inside quotes", () => {
