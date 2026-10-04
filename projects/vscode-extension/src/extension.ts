@@ -5,6 +5,7 @@ import { registerSoundTestController } from "./features/audio/controllers/sound-
 import { registerSoundBTestController } from "./features/audio/controllers/soundb-test-controller";
 import { registerVoiceTestController } from "./features/audio/controllers/voice-test-controller";
 import { getCompiler } from "./features/compiler";
+import { registerCompletionProvider } from "./features/completion";
 import { toggleFunctionDecorations, toggleParameterDecorations } from "./features/configuration";
 import { registerDecoration } from "./features/decoration";
 import { registerDiagnostics } from "./features/diagnostics";
@@ -26,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
   registerDiagnostics(context);
   registerDefinitionProvider(context);
   registerHoverProvider(context);
+  registerCompletionProvider(context);
   registerVoiceTestController(context);
   registerSoundTestController(context);
   registerSoundBTestController(context);
