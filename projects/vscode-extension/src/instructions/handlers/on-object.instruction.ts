@@ -4,7 +4,7 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 export const onObjectInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.OnObject,
   description:
-    "Opens the handler block that runs when the player examines a map object named with Object(id, Name) in Meta().",
+    "Opens the handler block that runs when the player examines a map object named with ObjectName(id, Name) in Meta().",
   parameters: [
     {
       name: "objectId",

@@ -38,7 +38,7 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
   },
   [FlagGroup.SceneFlags]: {
     // Scratch slots whose meaning changes per script (e.g. "room intro seen", "first free time taken");
-    // scripts name them with SceneFlag(id, Name) in their Meta() block
+    // scripts name them with SceneFlagName(id, Name) in their Meta() block
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.CharacterDead]: characterData,

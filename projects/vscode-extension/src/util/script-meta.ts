@@ -8,17 +8,17 @@ export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = { 18: "Exi
  * enum (`{ 20: "Monitor", Monitor: 20 }`) so it can stand in for a parameter's `names`.
  */
 export function objectNamesFromDocument(documentText: string): ArgumentNames {
-  return declaredNamesFromDocument(documentText, "Object", {});
+  return declaredNamesFromDocument(documentText, "ObjectName", {});
 }
 
-/** The character-slot names a file declares with `Character(id, Name)`, for `OnCharacter`. */
+/** The character-slot names a file declares with `CharacterName(id, Name)`, for `OnCharacter`. */
 export function characterNamesFromDocument(documentText: string): ArgumentNames {
-  return declaredNamesFromDocument(documentText, "Character", {});
+  return declaredNamesFromDocument(documentText, "CharacterName", {});
 }
 
-/** The option names in effect for a file: the defaults plus its `Meta()` block's `Option(id, Name)` entries. */
+/** The option names in effect for a file: the defaults plus its `Meta()` block's `OptionName(id, Name)` entries. */
 export function optionNamesFromDocument(documentText: string): ArgumentNames {
-  return declaredNamesFromDocument(documentText, "Option", DEFAULT_OPTION_NAMES);
+  return declaredNamesFromDocument(documentText, "OptionName", DEFAULT_OPTION_NAMES);
 }
 
 /** The label names a file declares with `LabelName(id, Name)`, for `Label` and `Goto`. */
@@ -26,9 +26,9 @@ export function labelNamesFromDocument(documentText: string): ArgumentNames {
   return declaredNamesFromDocument(documentText, "LabelName", {});
 }
 
-/** The SceneFlags slot names a file declares with `SceneFlag(id, Name)`, for `SetFlag` and `IfFlag` on that group. */
+/** The SceneFlags slot names a file declares with `SceneFlagName(id, Name)`, for `SetFlag` and `IfFlag` on that group. */
 export function sceneFlagNamesFromDocument(documentText: string): ArgumentNames {
-  return declaredNamesFromDocument(documentText, "SceneFlag", {});
+  return declaredNamesFromDocument(documentText, "SceneFlagName", {});
 }
 
 /** The name tables a file's `Meta()` block declares, one per parameter scope. */
@@ -45,14 +45,17 @@ export function scopedNamesFromDocument(documentText: string): ScopedNames {
   };
 }
 
-/** The `Meta()` entry that declares names for a scoped parameter, e.g. `LabelName` for the `Label` scope. */
-export function metaEntryForScope(scope: ParameterScopeName): string {
-  return scope === "Label" ? "LabelName" : scope;
+/** The `Meta()` entry that declares names for a scoped parameter: the scope with `Name` appended, e.g. `LabelName`. */
+export function metaEntryForScope(scope: ParameterScopeName): MetaEntryName {
+  return `${scope}Name`;
 }
+
+/** The entries a `Meta()` block may hold, mirroring `META_*` in lin-compiler's `opcodes/meta.ts`. */
+export type MetaEntryName = `${ParameterScopeName}Name`;
 
 function declaredNamesFromDocument(
   documentText: string,
-  entry: "Object" | "Character" | "Option" | "LabelName" | "SceneFlag",
+  entry: MetaEntryName,
   defaults: Readonly<Record<number, string>>,
 ): ArgumentNames {
   const declared: Record<number, string> = { ...defaults };

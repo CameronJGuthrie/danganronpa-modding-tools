@@ -130,7 +130,7 @@ it prints `OK`.
 ## 5. Populate Meta()
 
 For each `OnObject(N)` (and matching `ObjectState(N, ...)`) whose handler text
-identifies the object, add `Object(N, Name)` to the `Meta()` block at the bottom of the
+identifies the object, add `ObjectName(N, Name)` to the `Meta()` block at the bottom of the
 file and replace the numeric references with the name. Conventions from existing files:
 
 - PascalCase identifiers; suffix doors with `_Door` (`Bathroom_Door`, `Gym_Door`),
@@ -140,12 +140,12 @@ file and replace the numeric references with the name. Conventions from existing
 - Check `workbench/tone/rooms.md` for the map first and reuse the names it lists;
   add the room, or any new names, to that file afterwards.
 - If the file has no `Meta()` block, add one after the final `StopScript()` with a blank
-  line before it. Keep any existing `Option(...)` rows.
-- Object ids and option ids are separate namespaces; only add `Option(n, Name)` when the
+  line before it. Keep any existing `OptionName(...)` rows.
+- Object ids and option ids are separate namespaces; only add `OptionName(n, Name)` when the
   script's own labels make the meaning unambiguous (`"Yes"`/`"No"` → `Yes`/`No`).
 
 Also name the characters the script places for investigation: every setup `Sprite(N, Name, 0, Set, spot)`
-line (fourth argument `Set`) that has an `OnCharacter(N)` handler gets `Character(N, Name)`, and the
+line (fourth argument `Set`) that has an `OnCharacter(N)` handler gets `CharacterName(N, Name)`, and the
 handler is written `OnCharacter(Name)`. Use the student's first name as the identifier (`Taka`,
 `Mukuro` for `Speaker(Mukuro)`); leave 254/255 and slots with no `Sprite` numeric.
 

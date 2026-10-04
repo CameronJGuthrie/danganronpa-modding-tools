@@ -7,7 +7,7 @@ export const FlagGroup = defineEnum({
   FreeTimeEvent: 12,
   ObjectInvestigated: 13,
   MapInvestigated: 14,
-  SceneFlags: 15, // per-scene scratch booleans: cleared by every scene entry script, slots handed out from 0 as a scene needs them; named per script with SceneFlag(id, Name) in Meta()
+  SceneFlags: 15, // per-scene scratch booleans: cleared by every scene entry script, slots handed out from 0 as a scene needs them; named per script with SceneFlagName(id, Name) in Meta()
   CharacterDead: 16,
   Skills: 20, // offset is a Skill id; engine-owned, only read by scripts (coin pickup bonus)
   Skills2: 22, // offset is a Skill id; engine-owned, only read by scripts (free-time bonuses). Distinction from 20 unknown

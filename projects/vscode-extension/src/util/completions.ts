@@ -2,7 +2,7 @@ import { instructions } from "../instructions";
 import type { LinscriptInstruction, ParameterMeta } from "../instructions/linscript-instruction";
 import { argumentNames } from "./argument-names";
 import { argumentIndexAt, findCallAt, lookupInstruction, resolveTable } from "./call-at";
-import { type ScopedNames, scopedNamesFromDocument } from "./script-meta";
+import { type MetaEntryName, type ScopedNames, scopedNamesFromDocument } from "./script-meta";
 import { type ArgumentNames, getArgumentsFromFunctionLike, isInsideQuotes, stripBranchJump } from "./string-util";
 
 /** One suggestion, independent of the editor API so the engine can be unit tested. */
@@ -44,7 +44,9 @@ const WORD_CHAR = /\w/;
  * argument (`SetFlag(System, ` lists the System flags) or the document's `Meta()` names
  * (`OnObject(` lists the declared objects). A branch condition also offers `Goto` for its jump, and
  * the trailing arguments of `Text("...", ` are instructions again. Nothing is offered inside a
- * string or after a `#` comment.
+ * string or after a `#` comment. `insideMeta` says whether a `Meta()` line precedes the cursor
+ * (`isInsideMeta`): only the block's entries (`ObjectName`, `LabelName`, ...) are offered there,
+ * and none of them before it.
  */
 export function completionsAt(
   lineText: string,
@@ -121,22 +123,24 @@ export function isInsideMeta(documentText: string, offset: number): boolean {
   return /^\s*Meta\(\s*\)\s*$/m.test(documentText.slice(0, offset));
 }
 
-/** The entries a `Meta()` block may hold, mirroring `META_*` in lin-compiler's `opcodes/meta.ts`. */
-const META_ENTRIES: ReadonlySet<string> = new Set(["Object", "Character", "Option", "LabelName", "SceneFlag"]);
+/** The entries a `Meta()` block may hold. */
+const META_ENTRIES: ReadonlySet<string> = new Set<MetaEntryName>([
+  "ObjectName",
+  "CharacterName",
+  "OptionName",
+  "LabelName",
+  "SceneFlagName",
+]);
 
 /**
  * The instructions that may start a statement, alphabetically: inside the `Meta()` block only its
- * entries, outside it everything but those entries (with `Option` kept, as the menu-choice sugar).
+ * entries, outside it everything but those entries.
  * The parentheses are inserted unless the word is already followed by one.
  */
 function instructionCompletions(lineText: string, replaceEnd: number, insideMeta: boolean): Completion[] {
   const hasParens = /^\s*\(/.test(lineText.slice(replaceEnd));
   return Object.values(instructions)
-    .filter((instruction) =>
-      insideMeta
-        ? META_ENTRIES.has(instruction.name)
-        : instruction.name === "Option" || !META_ENTRIES.has(instruction.name),
-    )
+    .filter((instruction) => (insideMeta ? META_ENTRIES.has(instruction.name) : !META_ENTRIES.has(instruction.name)))
     .map((instruction) => instructionCompletion(instruction, hasParens))
     .sort((a, b) => a.label.localeCompare(b.label, "en"));
 }

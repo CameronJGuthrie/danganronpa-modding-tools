@@ -83,7 +83,7 @@ export type ParameterMeta = {
   namesBy?: DependentNames;
   /**
    * Name table declared by the document itself rather than a shared enum: `Object` resolves names
-   * from the file's `Meta()` block (`Object(20, Monitor)` lets the body say `OnObject(Monitor)`);
+   * from the file's `Meta()` block (`ObjectName(20, Monitor)` lets the body say `OnObject(Monitor)`);
    * `Label` names come from `LabelName(5, HatedGift)` entries.
    */
   scope?: "Object" | "Character" | "Option" | "Label" | "SceneFlag";

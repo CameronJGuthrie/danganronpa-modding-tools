@@ -61,7 +61,7 @@ export type ScopeTables = Partial<Readonly<Record<ParameterScope, NamedValues>>>
  * flag offset of `SetFlag` is a skill id only when the flag group is a skill group.
  * `dependsOn` is relative (-1 is the previous slot) so it also works inside repeated layouts.
  * `scopeBy` adds a per-script table for some controlling values: the `SceneFlags` group's offsets
- * are named by the script's `SceneFlag(id, Name)` entries, which are merged over (and may override)
+ * are named by the script's `SceneFlagName(id, Name)` entries, which are merged over (and may override)
  * the fixed `namesBy` table for that value. `unless` switches the names off entirely when another
  * slot holds one of the listed values: the room of `RunScript` is a plain index when the scene is a
  * subroutine library.

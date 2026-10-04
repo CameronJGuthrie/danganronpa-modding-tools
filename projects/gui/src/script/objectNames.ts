@@ -2,7 +2,7 @@
  * Per-script object names, kept in the `Meta()` block at the bottom of a `.linscript` file:
  *
  *     Meta()
- *       Object(20, Monitor)
+ *       ObjectName(20, Monitor)
  *
  * With a name declared, the body writes `OnObject(Monitor)` and `ObjectState(Monitor, ...)` in
  * place of the id. This module reads the block out of source text so the viewer can list the
@@ -12,7 +12,7 @@
 export type ObjectNames = ReadonlyMap<number, string>;
 
 const META_LINE = /^Meta\s*\(\s*\)$/;
-const OBJECT_ENTRY = /^Object\s*\(\s*(\d+)\s*,\s*([A-Za-z_]\w*)\s*\)$/;
+const OBJECT_ENTRY = /^ObjectName\s*\(\s*(\d+)\s*,\s*([A-Za-z_]\w*)\s*\)$/;
 /** Instructions whose first argument is an object id. */
 const OBJECT_REFERENCE = /^(\s*)(OnObject|ObjectState)\((\s*)([^,)]*?)(\s*)([,)].*)$/;
 

@@ -381,9 +381,9 @@ class FlowBuilder {
     }
     const count = (name: string) =>
       meta.items.filter((item) => item.kind === "line" && item.line.functionName === name).length;
-    const objects = count("Object");
-    const characters = count("Character");
-    const options = count("Option");
+    const objects = count("ObjectName");
+    const characters = count("CharacterName");
+    const options = count("OptionName");
     const labels = count("LabelName");
     const parts = [`${objects} object name${objects === 1 ? "" : "s"}`];
     if (characters > 0) {

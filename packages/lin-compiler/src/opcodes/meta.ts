@@ -9,30 +9,30 @@ import { splitArgs } from "../parameter.ts";
  * entry per line:
  *
  *     Meta()
- *       Object(20, Monitor)
- *       Object(21, Camera)
- *       Character(0, Sayaka)
- *       Option(3, Leave)
+ *       ObjectName(20, Monitor)
+ *       ObjectName(21, Camera)
+ *       CharacterName(0, Sayaka)
+ *       OptionName(3, Leave)
  *       LabelName(5, HatedGift)
- *       SceneFlag(1, RoomIntroSeen)
+ *       SceneFlagName(1, RoomIntroSeen)
  *
  * Entries:
  *
- * - `Object(id, Name)` names an object id, so the body reads `OnObject(Monitor)` and
+ * - `ObjectName(id, Name)` names an object id, so the body reads `OnObject(Monitor)` and
  *   `ObjectState(Monitor, ...)` instead of `OnObject(20)`.
  *
- * - `Character(id, Name)` names a placed-character slot for `OnCharacter`. The id is the first
+ * - `CharacterName(id, Name)` names a placed-character slot for `OnCharacter`. The id is the first
  *   argument of the `PlaceSprite(...)` that placed the character, not the `Character` enum, so the
  *   same student can hold a different slot in every script.
  *
- * - `Option(id, Name)` names a menu option id for `SetOption` and the `Option(id, "label")` sugar.
+ * - `OptionName(id, Name)` names a menu option id for `SetOption` and the `Option(id, "label")` sugar.
  *   Every script starts with `DEFAULT_OPTION_NAMES`, which a declared entry may override; only
  *   declared entries are written back.
  *
  * - `LabelName(id, Name)` names a jump label, so `Label(5)` / `Goto(5)` read `Label(HatedGift)` /
  *   `Goto(HatedGift)`. Label ids are 16-bit; every other id is a byte.
  *
- * - `SceneFlag(id, Name)` names a slot of the `SceneFlags` flag group, the per-scene scratch
+ * - `SceneFlagName(id, Name)` names a slot of the `SceneFlags` flag group, the per-scene scratch
  *   booleans every scene entry script resets, so `SetFlag(SceneFlags, 1, True)` reads
  *   `SetFlag(SceneFlags, RoomIntroSeen, True)`. The group's fixed `Reset` name still applies.
  *
@@ -50,21 +50,21 @@ import { splitArgs } from "../parameter.ts";
 /** Source name of the block opener. */
 export const META = "Meta";
 /** Source name of an object-name entry inside the block. */
-export const META_OBJECT = "Object";
+export const META_OBJECT = "ObjectName";
 /** Source name of a character-slot-name entry inside the block. */
-export const META_CHARACTER = "Character";
-/** Source name of an option-name entry inside the block (the same word as the body sugar). */
-export const META_OPTION = "Option";
+export const META_CHARACTER = "CharacterName";
+/** Source name of an option-name entry inside the block. */
+export const META_OPTION = "OptionName";
 /** Source name of a label-name entry inside the block. */
 export const META_LABEL = "LabelName";
 /** Source name of a scene-flag-slot entry inside the block. */
-export const META_SCENE_FLAG = "SceneFlag";
+export const META_SCENE_FLAG = "SceneFlagName";
 
 /**
  * Option ids every script can name without declaring them: 18 and 19 register the handlers that
  * run when the player backs out of a menu. The choices themselves (1, 2, ...) mean something
  * different in every script, so their names are declared per file in the `Meta()` block, e.g.
- * `Option(1, Yes)`.
+ * `OptionName(1, Yes)`.
  */
 export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = {
   18: "Exit_1",

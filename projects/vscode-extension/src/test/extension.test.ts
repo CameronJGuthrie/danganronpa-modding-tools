@@ -282,7 +282,7 @@ suite("Extension Test Suite", () => {
     );
     assert.strictEqual(validateCall(instructions.SetFlag, "SetFlag(System, Nothing, True)", NO_SCOPED_NAMES).length, 1);
 
-    const scoped = scopedNamesFromDocument("Meta()\n  Object(20, Monitor)\n  LabelName(5, HatedGift)\n");
+    const scoped = scopedNamesFromDocument("Meta()\n  ObjectName(20, Monitor)\n  LabelName(5, HatedGift)\n");
     assert.deepStrictEqual(validateCall(instructions.OnObject, "OnObject(Monitor)", scoped), []);
     assert.strictEqual(validateCall(instructions.OnObject, "OnObject(Door)", scoped).length, 1);
     // A condition's jump is validated as its own Goto call, not as one of the condition's arguments
@@ -293,7 +293,7 @@ suite("Extension Test Suite", () => {
     assert.deepStrictEqual(validateCall(instructions.Goto, "Goto(HatedGift)", scoped), []);
     assert.strictEqual(validateCall(instructions.Goto, "Goto(Nowhere)", scoped).length, 1);
     // Meta() entries declare names rather than use them
-    assert.deepStrictEqual(validateCall(instructions.Object, "Object(20, Monitor)", scoped), []);
+    assert.deepStrictEqual(validateCall(instructions.ObjectName, "ObjectName(20, Monitor)", scoped), []);
   });
 
   test("validateCallSyntax reports negative, non-numeric and empty arguments as errors", () => {
@@ -346,7 +346,7 @@ suite("Extension Test Suite", () => {
     assert.match("Music(DanganRonpa, -1, 60)", createLooseCallRegex("Music"));
     assert.match("Music(DanganRonpa, 100)", createLooseCallRegex("Music"));
     assert.match("If(0, ==, -5, Goto(3))", createLooseCallRegex("If"));
-    assert.doesNotMatch("OnObject(Monitor)", createLooseCallRegex("Object"));
+    assert.doesNotMatch("OnObject(Monitor)", createLooseCallRegex("ObjectName"));
     assert.doesNotMatch('RawText("hi")', createLooseCallRegex("Text"));
   });
 });

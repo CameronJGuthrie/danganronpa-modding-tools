@@ -48,11 +48,12 @@ import { onObjectInstruction } from "./handlers/on-object.instruction";
 import { optionInstruction } from "./handlers/option.instruction";
 import { setOptionInstruction } from "./handlers/set-option.instruction";
 import type { LinscriptInstruction } from "./linscript-instruction";
-import { characterInstruction } from "./meta/character.instruction";
+import { characterNameInstruction } from "./meta/character-name.instruction";
 import { labelNameInstruction } from "./meta/label-name.instruction";
 import { metaInstruction } from "./meta/meta.instruction";
-import { objectInstruction } from "./meta/object.instruction";
-import { sceneFlagInstruction } from "./meta/scene-flag.instruction";
+import { objectNameInstruction } from "./meta/object-name.instruction";
+import { optionNameInstruction } from "./meta/option-name.instruction";
+import { sceneFlagNameInstruction } from "./meta/scene-flag-name.instruction";
 import { loadMapInstruction } from "./scene/load-map.instruction";
 import { mapCharacterInstruction } from "./scene/map-character.instruction";
 import { mapClearAllInstruction } from "./scene/map-clear-all.instruction";
@@ -67,7 +68,7 @@ import { timeInstruction } from "./scene/time.instruction";
 export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<LinscriptInstruction>>> = {
   [LinscriptInstructionName.Animation]: animationInstruction,
   [LinscriptInstructionName.CameraFlash]: cameraFlashInstruction,
-  [LinscriptInstructionName.Character]: characterInstruction,
+  [LinscriptInstructionName.CharacterName]: characterNameInstruction,
   [LinscriptInstructionName.FadeIn]: fadeInInstruction,
   [LinscriptInstructionName.FadeOut]: fadeOutInstruction,
   [LinscriptInstructionName.FadeOutThenWait]: fadeOutThenWaitInstruction,
@@ -89,17 +90,18 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.Meta]: metaInstruction,
   [LinscriptInstructionName.Movie]: movieInstruction,
   [LinscriptInstructionName.Music]: musicInstruction,
-  [LinscriptInstructionName.Object]: objectInstruction,
+  [LinscriptInstructionName.ObjectName]: objectNameInstruction,
   [LinscriptInstructionName.ObjectState]: objectStateInstruction,
   [LinscriptInstructionName.OnCharacter]: onCharacterInstruction,
   [LinscriptInstructionName.OnObject]: onObjectInstruction,
   [LinscriptInstructionName.Option]: optionInstruction,
+  [LinscriptInstructionName.OptionName]: optionNameInstruction,
   [LinscriptInstructionName.PostProcessingEffect]: postProcessingEffectInstruction,
   [LinscriptInstructionName.RawText]: rawTextInstruction,
   [LinscriptInstructionName.ReceivePresent]: receivePresentInstruction,
   [LinscriptInstructionName.Return]: returnInstruction,
   [LinscriptInstructionName.RunScript]: runScriptInstruction,
-  [LinscriptInstructionName.SceneFlag]: sceneFlagInstruction,
+  [LinscriptInstructionName.SceneFlagName]: sceneFlagNameInstruction,
   [LinscriptInstructionName.ScreenFlash]: screenFlashInstruction,
   [LinscriptInstructionName.SetFlag]: setFlagInstruction,
   [LinscriptInstructionName.SetOption]: setOptionInstruction,

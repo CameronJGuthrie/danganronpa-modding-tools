@@ -34,7 +34,7 @@ export interface ScriptMeta {
   labels: Readonly<Record<number, string>>;
   /**
    * Names for this script's `SceneFlags` slots, the per-scene scratch flags `SetFlag(SceneFlags, n, …)`
-   * and `IfFlag(SceneFlags, n, …)` use; declared with `SceneFlag(id, Name)`.
+   * and `IfFlag(SceneFlags, n, …)` use; declared with `SceneFlagName(id, Name)`.
    */
   sceneFlags: Readonly<Record<number, string>>;
 }

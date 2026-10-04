@@ -2,11 +2,14 @@ import * as assert from "node:assert";
 import { instructions } from "../instructions";
 import { completionsAt, contextAt, isInsideMeta } from "../util/completions";
 
-const META = ["Meta()", "  Object(20, Monitor)", "  LabelName(5, HatedGift)", "  SceneFlag(1, RoomIntroSeen)"].join(
-  "\n",
-);
+const META = [
+  "Meta()",
+  "  ObjectName(20, Monitor)",
+  "  LabelName(5, HatedGift)",
+  "  SceneFlagName(1, RoomIntroSeen)",
+].join("\n");
 
-const META_ENTRIES = ["Character", "LabelName", "Object", "Option", "SceneFlag"];
+const META_ENTRIES = ["CharacterName", "LabelName", "ObjectName", "OptionName", "SceneFlagName"];
 
 const labels = (line: string, character = line.length, document = "") =>
   completionsAt(line, character, document).items.map((item) => item.label);
@@ -15,12 +18,13 @@ suite("Completions", () => {
   test("a blank line offers every body instruction alphabetically", () => {
     const items = labels("");
     const expected = Object.keys(instructions)
-      .filter((name) => name === "Option" || !META_ENTRIES.includes(name))
+      .filter((name) => !META_ENTRIES.includes(name))
       .sort((a, b) => a.localeCompare(b, "en"));
     assert.deepStrictEqual(items, expected);
     assert.deepStrictEqual(labels("    "), expected);
     assert.ok(items.includes("Meta"));
     assert.ok(items.includes("Option"));
+    assert.ok(!items.includes("OptionName"));
     assert.ok(!items.includes("LabelName"));
   });
 

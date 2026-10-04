@@ -86,7 +86,7 @@ const flagGroup = named(Byte, FlagGroup);
  * A flag offset byte, written by name when the flag is known: the flag names in `linscript-definitions`
  * (`HandbookEnabled`, `Reset`, ...), a character id for `CharacterDead` and a skill id for the
  * skill groups. The table depends on the flag group just before it; unknown offsets keep the number.
- * `SceneFlags` slots are also named per script by `SceneFlag(id, Name)` in the `Meta()` block.
+ * `SceneFlags` slots are also named per script by `SceneFlagName(id, Name)` in the `Meta()` block.
  */
 const flagOffset: Parameter = {
   type: Byte,
@@ -96,7 +96,7 @@ const flagOffset: Parameter = {
 };
 /** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
 const objectId: Parameter = { type: Byte, scope: "Object" };
-/** A placed-character slot, named per script by `Character(id, Name)` in the `Meta()` block. */
+/** A placed-character slot, named per script by `CharacterName(id, Name)` in the `Meta()` block. */
 const characterId: Parameter = { type: Byte, scope: "Character" };
 /** A menu option id byte, written by name: the defaults (`Yes`, `No`, `Exit_1`, `Exit_2`) or the script's `Meta()` entries. */
 const optionId: Parameter = { type: Byte, scope: "Option" };

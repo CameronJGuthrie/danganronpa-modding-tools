@@ -170,7 +170,7 @@ describe("compile and decompile", () => {
     assert.equal(writeSourceText(script), 'Text("one")\nRawText("two\\n")\nGoto(1)\nWaitInput()\n');
   });
 
-  test("Option(n, label) stands for SetOption plus its RawText label and WaitFrame", () => {
+  test("OptionName(n, label) stands for SetOption plus its RawText label and WaitFrame", () => {
     const source = 'Option(1, "Yes")\n    Goto(5)\nOption(2, "No")\n    Goto(6)\nSetOption(Exit_1)\nSetOption(255)\n';
     const script = readSource(
       'Option(1, "Yes")\n    Goto(5)\nOption(2, "No")\n    Goto(6)\nSetOption(18)\nSetOption(255)\n',
@@ -400,8 +400,8 @@ describe("Meta block", () => {
     "OnObject(255)",
     "",
     "Meta()",
-    "    Object(20, Monitor)",
-    "    Object(21, Camera)",
+    "    ObjectName(20, Monitor)",
+    "    ObjectName(21, Camera)",
     "",
   ].join("\n");
 
@@ -427,9 +427,9 @@ describe("Meta block", () => {
     assert.equal(writeSourceText(script), source);
   });
 
-  test("Character(id, Name) names OnCharacter slots separately from object ids", () => {
+  test("CharacterName(id, Name) names OnCharacter slots separately from object ids", () => {
     const source =
-      "OnCharacter(Sayaka)\n    Goto(1)\nOnCharacter(3)\nOnCharacter(255)\nOnObject(Sayaka_Seat)\nOnObject(255)\n\nMeta()\n    Object(0, Sayaka_Seat)\n    Character(0, Sayaka)\n";
+      "OnCharacter(Sayaka)\n    Goto(1)\nOnCharacter(3)\nOnCharacter(255)\nOnObject(Sayaka_Seat)\nOnObject(255)\n\nMeta()\n    ObjectName(0, Sayaka_Seat)\n    CharacterName(0, Sayaka)\n";
     const script = readSource(source);
     assert.deepEqual(script.meta, {
       objects: { 0: "Sayaka_Seat" },
@@ -453,8 +453,8 @@ describe("Meta block", () => {
   });
 
   test("numbers are accepted for named objects and unnamed ids stay numeric", () => {
-    const script = readSource("OnObject(20)\nOnObject(22)\nMeta()\n    Object(20, Monitor)\n");
-    assert.equal(writeSourceText(script), "OnObject(Monitor)\nOnObject(22)\n\nMeta()\n    Object(20, Monitor)\n");
+    const script = readSource("OnObject(20)\nOnObject(22)\nMeta()\n    ObjectName(20, Monitor)\n");
+    assert.equal(writeSourceText(script), "OnObject(Monitor)\nOnObject(22)\n\nMeta()\n    ObjectName(20, Monitor)\n");
   });
 
   test("the block is dropped by the binary", () => {
@@ -471,7 +471,7 @@ describe("Meta block", () => {
 
   test("exit option ids have default names and Meta() names the choices or overrides a default", () => {
     const source =
-      'Option(Yes, "Sure")\n    Goto(1)\nOption(No, "Nope")\n    Goto(2)\nOption(Leave, "Leave")\n    Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n    Option(1, Yes)\n    Option(2, No)\n    Option(3, Leave)\n';
+      'Option(Yes, "Sure")\n    Goto(1)\nOption(No, "Nope")\n    Goto(2)\nOption(Leave, "Leave")\n    Goto(3)\nSetOption(Exit_1)\nSetOption(Exit_2)\nSetOption(255)\n\nMeta()\n    OptionName(1, Yes)\n    OptionName(2, No)\n    OptionName(3, Leave)\n';
     const script = readSource(source);
     assert.deepEqual(script.meta, {
       objects: {},
@@ -492,12 +492,12 @@ describe("Meta block", () => {
     );
     assert.throws(() => readSource("SetOption(Yes)\n"), /unknown name 'Yes'/);
     assert.equal(
-      writeSourceText(readSource("SetOption(18)\nMeta()\n    Option(18, Back)\n")),
-      "SetOption(Back)\n\nMeta()\n    Option(18, Back)\n",
+      writeSourceText(readSource("SetOption(18)\nMeta()\n    OptionName(18, Back)\n")),
+      "SetOption(Back)\n\nMeta()\n    OptionName(18, Back)\n",
     );
     assert.equal(
-      writeSourceText(readSource("SetOption(2)\nMeta()\n    Option(2, Decline)\n")),
-      "SetOption(Decline)\n\nMeta()\n    Option(2, Decline)\n",
+      writeSourceText(readSource("SetOption(2)\nMeta()\n    OptionName(2, Decline)\n")),
+      "SetOption(Decline)\n\nMeta()\n    OptionName(2, Decline)\n",
     );
   });
 
@@ -538,25 +538,25 @@ describe("Meta block", () => {
       ["OnObject(Monitor)\n", /unknown name 'Monitor'/],
       [
         "Meta()\n    Speaker(Makoto)\n",
-        /only Object\(id, Name\), Character\(id, Name\), Option\(id, Name\), LabelName\(id, Name\), SceneFlag\(id, Name\) entries/,
+        /only ObjectName\(id, Name\), CharacterName\(id, Name\), OptionName\(id, Name\), LabelName\(id, Name\), SceneFlagName\(id, Name\) entries/,
       ],
       ["OnCharacter(Sayaka)\n", /unknown name 'Sayaka'/],
-      ["Meta()\n    Character(0, Sayaka)\n    Character(1, Sayaka)\n", /already used/],
-      ["Meta()\n    Option(3, Exit_1)\n", /already used by default option 18/],
-      ["Meta()\n    Option(3, Leave)\n    Option(4, Leave)\n", /already used/],
+      ["Meta()\n    CharacterName(0, Sayaka)\n    CharacterName(1, Sayaka)\n", /already used/],
+      ["Meta()\n    OptionName(3, Exit_1)\n", /already used by default option 18/],
+      ["Meta()\n    OptionName(3, Leave)\n    OptionName(4, Leave)\n", /already used/],
       ["SetOption(Leave)\n", /unknown name 'Leave'/],
-      ["Meta()\n    Object(20)\n", /expects 2 arguments/],
-      ["Meta()\n    Object(255, Close)\n", /0 to 254/],
-      ["Meta()\n    Object(20, 12)\n", /must be an identifier/],
-      ["Meta()\n    Object(20, A)\n    Object(20, B)\n", /already named 'A'/],
-      ["Meta()\n    Object(20, A)\n    Object(21, A)\n", /already used/],
+      ["Meta()\n    ObjectName(20)\n", /expects 2 arguments/],
+      ["Meta()\n    ObjectName(255, Close)\n", /0 to 254/],
+      ["Meta()\n    ObjectName(20, 12)\n", /must be an identifier/],
+      ["Meta()\n    ObjectName(20, A)\n    ObjectName(20, B)\n", /already named 'A'/],
+      ["Meta()\n    ObjectName(20, A)\n    ObjectName(21, A)\n", /already used/],
       ["Meta(1)\n", /takes no arguments/],
     ];
     for (const [text, message] of cases) {
       assert.throws(() => readSource(text), message, text);
     }
     assert.throws(
-      () => readSource("Speaker(Makoto)\nMeta()\n    Object(20, A)\n    Object(x, B)\n"),
+      () => readSource("Speaker(Makoto)\nMeta()\n    ObjectName(20, A)\n    ObjectName(x, B)\n"),
       (error: unknown) => {
         assert.ok(error instanceof SourceError);
         assert.equal(error.line, 4);
@@ -700,9 +700,9 @@ describe("named arguments", () => {
     assert.throws(() => readSource("SetFlag(SceneFlags, Taka, 1)\n"), /unknown name 'Taka'/);
   });
 
-  test("SceneFlag() in Meta() names a SceneFlags slot for SetFlag and IfFlag", () => {
+  test("SceneFlagName() in Meta() names a SceneFlags slot for SetFlag and IfFlag", () => {
     const source =
-      "SetFlag(SceneFlags, RoomIntroSeen, True)\nSetFlag(SceneFlags, 2, False)\nSetFlag(SceneFlags, Reset, False)\nIfFlag(SceneFlags, RoomIntroSeen, !=, False, And, FreeTimeEvent, FreeTimeSpent, !=, True,\n    Goto(1))\n\nMeta()\n    SceneFlag(1, RoomIntroSeen)\n";
+      "SetFlag(SceneFlags, RoomIntroSeen, True)\nSetFlag(SceneFlags, 2, False)\nSetFlag(SceneFlags, Reset, False)\nIfFlag(SceneFlags, RoomIntroSeen, !=, False, And, FreeTimeEvent, FreeTimeSpent, !=, True,\n    Goto(1))\n\nMeta()\n    SceneFlagName(1, RoomIntroSeen)\n";
     const script = readSource(source);
     assert.deepEqual(script.entries.slice(0, 4), [
       { opcode: 0x26, args: [15, 1, 1] },
@@ -713,19 +713,20 @@ describe("named arguments", () => {
     assert.equal(writeSourceText(script), source);
     // The name belongs to the SceneFlags group only, and other groups' slots stay numeric
     assert.throws(
-      () => readSource("SetFlag(ObjectInvestigated, RoomIntroSeen, True)\nMeta()\n    SceneFlag(1, RoomIntroSeen)\n"),
+      () =>
+        readSource("SetFlag(ObjectInvestigated, RoomIntroSeen, True)\nMeta()\n    SceneFlagName(1, RoomIntroSeen)\n"),
       /unknown name 'RoomIntroSeen'/,
     );
     assert.equal(
       writeSourceText(
         readSource(
-          "SetFlag(SceneFlags, 1, True)\nSetFlag(ObjectInvestigated, 1, True)\nMeta()\n    SceneFlag(1, Seen)\n",
+          "SetFlag(SceneFlags, 1, True)\nSetFlag(ObjectInvestigated, 1, True)\nMeta()\n    SceneFlagName(1, Seen)\n",
         ),
       ),
-      "SetFlag(SceneFlags, Seen, True)\nSetFlag(ObjectInvestigated, 1, True)\n\nMeta()\n    SceneFlag(1, Seen)\n",
+      "SetFlag(SceneFlags, Seen, True)\nSetFlag(ObjectInvestigated, 1, True)\n\nMeta()\n    SceneFlagName(1, Seen)\n",
     );
     assert.throws(
-      () => readSource("Meta()\n    SceneFlag(1, A)\n    SceneFlag(1, B)\n"),
+      () => readSource("Meta()\n    SceneFlagName(1, A)\n    SceneFlagName(1, B)\n"),
       /scene flag 1 is already named 'A'/,
     );
   });
