@@ -20,16 +20,16 @@ export const placeSpriteInstruction: LinscriptInstruction = {
     "Places a character in a slot without showing a bust-up; sugar for Sprite(slot, character, expression, 0, 0). The slot is what Character(id, Name) in Meta() and OnCharacter refer to.",
   parameters: [
     {
-      name: "slot",
+      name: "objectId",
     },
     {
       name: "character",
-      description: "The character placed in the slot; only the students, Junko, Alter Ego and Usami have sprites",
+      description: "The character placed; only the students, Junko, Alter Ego and Usami have sprites",
       names: CharacterSprite,
     },
     {
       name: "expression",
-      description: "The sprite shown if the slot is later revealed; Invisible (98) is a transparent sprite",
+      description: "The sprite shown if the object is later revealed; Invisible (98) is a transparent sprite",
       namesBy: { argument: -1, tables: spriteNamesByCharacter },
     },
   ] as const,
