@@ -52,9 +52,17 @@ export const rooms: Readonly<{ [roomId: number]: RoomMeta }> = {
   [Room.PhysicsEquipmentRoom]: { name: "Physics Equipment Room" },
   [Room.Classroom3A]: { name: "Classroom 3-A" },
   [Room.Classroom3B]: { name: "Classroom 3-B" },
-  // Map roster position of Kyoko and Aoi while they stand in the 3F hallway outside the rec room (chapter 4 scene 15)
-  54: { name: "3F Hallway position?", uncertain: true },
+  // 49 is never loaded. Its only uses are `LoadScript(3, 40, 49)` and `LoadScript(3, 38, 49)` in the
+  // router script e03_000_049, and neither e03_040_049 nor e03_038_049 exists; no script loads map
+  // 49 and no roster entry uses it. By the floor numbering (41–52 are 3F) it would be a 3F room.
   49: { name: "3F room (dead LoadScript target in chapter 3)?", uncertain: true },
+  // 54 appears only in e04_015_041 (3F hallway, chapter 4 scene 15, Sakura's body discovery):
+  // `MapCharacter(54, Kyoko, True)` / `MapCharacter(54, Aoi, True)` directly after
+  // `LoadMap(Hallway3F, 0, 255)`, while the same script places both with `PlaceSprite(2, Kyoko, 0)`
+  // and `PlaceSprite(3, Aoi, 0)` and the dialogue is "In the rec room...!". So the two are standing
+  // in the 3F hallway but the Monopad roster is given 54, which suggests a position within the
+  // hallway (outside the rec room) rather than a separate room.
+  54: { name: "3F Hallway position?", uncertain: true },
   [Room.Hallway4F]: { name: "4F Hallway" },
   [Room.ChemLabVariant]: { name: "Chem Lab (door variant)" },
   [Room.ChemLab]: { name: "Chem Lab" },
@@ -77,10 +85,19 @@ export const rooms: Readonly<{ [roomId: number]: RoomMeta }> = {
   [Room.Classroom5A]: { name: "Classroom 5-A" },
   [Room.Classroom5B]: { name: "Classroom 5-B" },
   [Room.Classroom5CBloodstains]: { name: "Classroom 5-C (bloodstains)" },
-  // Map roster position of Hiro while he stands in the 5F hallway (chapter 5 scene 13)
-  95: { name: "5F Hallway position?", uncertain: true },
-  // Map roster position of Byakuya, Hiro, Aoi and Toko in chapter 5 scene 22, none of whom is placed in a 5F script
+  // 82 appears only in the chapter 5 scene 22 entry script e05_022_000, as the roster room of
+  // Byakuya, Hiro, Aoi and Toko (`MapCharacter(82, Byakuya, True)` and three more) right before
+  // `LoadScript(5, 22, Hallway5F)`. No scene 22 script places any of the four with `PlaceSprite`,
+  // and the 5F hallway text (e05_022_081) is Makoto alone testing the garden key on the bio lab
+  // door. 81–92 are the 5F ids, so 82 is a 5F location the roster can show but the player never
+  // visits in that scene; it may be the same kind of hallway position marker as 54 and 95.
   82: { name: "5F position?", uncertain: true },
+  // 95 appears only in chapter 5 scene 13: `MapCharacter(95, Hiro, True)` directly after
+  // `LoadMap(Hallway5F, 0, 255)` in e05_013_081, and again in the roster list of e05_013_103
+  // (`Garden` for Byakuya and Toko, `Dojo` for Aoi, 95 for Hiro). e05_013_081 is the only scene 13
+  // script that places Hiro (`PlaceSprite`), so he is standing in the 5F hallway while the roster
+  // is given 95, the same pattern as 54 on the 3rd floor.
+  95: { name: "5F Hallway position?", uncertain: true },
   [Room.DormHallway]: { name: "Dorm Hallway" },
   [Room.MakotosRoom]: { name: "Makoto's Room" },
   [Room.MakotosRoomCrimeScene]: { name: "Makoto's Room (Chapter 1 crime scene)" },
@@ -116,12 +133,21 @@ export const rooms: Readonly<{ [roomId: number]: RoomMeta }> = {
   [Room.DormLockerRoom2F]: { name: "Dorm 2F Locker Room" },
   [Room.HeadmastersRoom]: { name: "Headmaster's Room" },
   [Room.HeadmastersRoomInner]: { name: "Headmaster's Room (inner)" },
-  // A chapter 6 room whose only exit is the ruined 2F dorm hallway; its script has no objects or text
+  // 153 has two scripts, e06_000_153 and e06_007_153 (chapter 6 only). Both open with
+  // `LoadMap(153, 0, 255)` then `LoadMap(DormHallway2FRuined, 1, 255)`, and their only handler is
+  // the "Leave the area?" prompt that runs `LoadScript(6, 0, DormHallway2FRuined)`: no objects, no
+  // characters and no narration name the place. It is therefore a room off the ruined 2F dorm
+  // hallway (148) that chapter 6 lets the player step into and straight back out of; 149–152 are
+  // the ruined dorm room, the locker room and the headmaster's room, which leaves this one unnamed.
   153: { name: "Dorm 2F room (ruined wing)?", uncertain: true },
   [Room.IncineratorChapter1]: { name: "Incinerator (Chapter 1)" },
   [Room.LockerDisorganized]: { name: "Locker (disorganized)" },
   [Room.LockerPocketbook]: { name: "Locker (pocketbook)" },
-  // Alter Ego (MapCharacter_20) is placed here alongside the Headmaster's Office, Data Center and Bio Lab in chapter 5 scene 22
+  // 161 appears once, in the chapter 5 scene 22 entry script e05_022_000:
+  // `MapCharacter(161, MapCharacter_20, True)` as the last of four roster entries for
+  // MapCharacter_20 (probably Alter Ego), after `HeadmastersOffice`, `DataCenter` and `BioLab`.
+  // No script is named *_161 and nothing loads it as a map, so it is a roster-only location; it
+  // sits just past the dormitory ids (101–160) and may be another position marker like 54/82/95.
   161: { name: "Alter Ego position (Chapter 5)?", uncertain: true },
   [Room.DemoTrialRoom]: { name: "Demo: Trial Room" },
   [Room.DemoMakotosRoom]: { name: "Demo: Makoto's Room" },
@@ -143,9 +169,18 @@ export const rooms: Readonly<{ [roomId: number]: RoomMeta }> = {
   [Room.TrialRoomMapChapter5]: { name: "Trial Room map (Chapter 5)" },
   [Room.TrialRoomMapChapter6]: { name: "Trial Room map (Chapter 6)" },
   [Room.DemoMakotosRoomCrimeScene]: { name: "Demo: Makoto's Room (crime scene)" },
-  // School Mode only: loaded by the rest/talk menu and the scene that lines every student up
+  // 248 is loaded only by School Mode (chapter 9): `LoadMap(248, 0, 255)` in every option of the
+  // rest/talk menu of e09_601_000, each followed by `RunScript(9, 90, 200)` and a student's line,
+  // and at the top of e09_602_100, which then places all sixteen students in a row
+  // (`PlaceSprite(0, Taka, 0)`, `Sprite(1, Byakuya, 0, Set, Left)`, ...). No story chapter uses it
+  // and no *_248 script exists, so it is a School Mode set where the cast gathers; which one is
+  // untested in game.
   248: { name: "School Mode gathering?", uncertain: true },
-  // School Mode only, written after the textbox is hidden; probably "no map"
+  // 255 is loaded only by School Mode: `LoadMap(255, 0, 255)` after "*Sigh*" and
+  // `SetUI(Textbox, Hidden)` in e09_900_016, e09_900_100 and e09_900_101, and `LoadMap(255, 0, 0)`
+  // at the end of the menus in e09_600_000, e09_601_000 and e09_201_003. Nothing is loaded with it
+  // afterwards and 255 is the engine's "none" elsewhere (`SetOption(255)`, `Music(Stop)`), so it
+  // most likely unloads the current map rather than naming one.
   255: { name: "No map?", uncertain: true },
 };
 
