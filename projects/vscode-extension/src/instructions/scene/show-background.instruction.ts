@@ -4,7 +4,7 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 export const showBackgroundInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.ShowBackground,
   description:
-    "Shows a background by id in the given state; the scripts mostly call ShowBackground(0, n) between ScreenFade calls.",
+    "Shows a background by id in the given state; the scripts mostly call ShowBackground(0, n) between FadeOut and FadeIn.",
   parameters: [
     {
       name: "backgroundId",

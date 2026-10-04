@@ -4,6 +4,7 @@ import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { BinaryError } from "../errors.ts";
 import { formatArgs } from "../opcodes/arguments.ts";
 import { branchJump, formatBranch, isConditionEntry } from "../opcodes/branch.ts";
+import { formatFade, isScreenFade } from "../opcodes/fade.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMap, isMapState } from "../opcodes/map.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
@@ -68,7 +69,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     return opcode;
   };
 
-  /** One instruction as `Name(args)`, applying the Wait, Time, Present, PlaceSprite and map sugar and named arguments. */
+  /** One instruction as `Name(args)`, applying the Wait, Time, Present, fade, PlaceSprite and map sugar and named arguments. */
   const formatEntry = (entry: ScriptEntry): string => {
     const opcode = knownOpcode(entry);
     if (isWait(entry)) {
@@ -83,6 +84,10 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     }
     if (isMapState(entry)) {
       const { name, args } = formatMap(entry);
+      return `${name}(${args})`;
+    }
+    if (isScreenFade(entry)) {
+      const { name, args } = formatFade(entry);
       return `${name}(${args})`;
     }
     if (isPlaceSprite(entry)) {

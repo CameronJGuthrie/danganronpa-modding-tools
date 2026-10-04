@@ -1,6 +1,9 @@
 export const LinscriptInstructionName = {
   Animation: "Animation",
   CameraFlash: "CameraFlash",
+  FadeIn: "FadeIn", // Sugar for ScreenFade(0, colour, frames): reveals the screen from a full-screen colour
+  FadeOut: "FadeOut", // Sugar for ScreenFade(1, colour, frames): covers the screen with a full-screen colour
+  FadeOutThenWait: "FadeOutThenWait", // Sugar for ScreenFade(101, colour, frames): FadeOut that finishes before the script continues, used before leaving a script
   Character: "Character", // Source-only: `Character(id, Name)` inside Meta() names a placed-character slot for the file
   Goto: "Goto",
   If: "If",
@@ -33,7 +36,6 @@ export const LinscriptInstructionName = {
   Return: "Return",
   RunScript: "RunScript",
   SceneFlag: "SceneFlag", // Source-only: `SceneFlag(id, Name)` inside Meta() names a SceneFlags slot for the file
-  ScreenFade: "ScreenFade",
   ScreenFlash: "ScreenFlash",
   SetFlag: "SetFlag",
   SetOption: "SetOption",

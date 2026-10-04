@@ -872,6 +872,39 @@ describe("Present sugar", () => {
   });
 });
 
+describe("Fade sugar", () => {
+  const fade = (args: number[]) => ({ entries: [{ opcode: 0x22, args }] });
+
+  test("FadeIn, FadeOut and FadeOutThenWait compile to ScreenFade(direction, colour, frames)", () => {
+    assert.deepEqual(readSource("FadeIn(Black, 24)\n").entries[0], { opcode: 0x22, args: [0, 1, 24] });
+    assert.deepEqual(readSource("FadeOut(DefaultBlack, 1)\n").entries[0], { opcode: 0x22, args: [1, 0, 1] });
+    assert.deepEqual(readSource("FadeOutThenWait(White, 8)\n").entries[0], { opcode: 0x22, args: [101, 2, 8] });
+    assert.throws(() => readSource("FadeIn(Black)\n"), /FadeIn expects 2 arguments/);
+    assert.throws(() => readSource("FadeOut(Bogus, 24)\n"), /unknown fade colour 'Bogus'/);
+    // Only names are accepted for the colour, and the frame count is a byte
+    assert.throws(() => readSource("FadeOut(1, 24)\n"), /unknown fade colour '1'/);
+    assert.throws(() => readSource("FadeOut(Black, 300)\n"), /invalid Byte argument/);
+  });
+
+  test("ScreenFade is not a source instruction", () => {
+    assert.throws(() => readSource("ScreenFade(1, 1, 24)\n"), /'ScreenFade' is not a source instruction/);
+  });
+
+  test("ScreenFade entries decompile as sugar and round-trip", () => {
+    assert.equal(writeSourceText(fade([0, 1, 24])), "FadeIn(Black, 24)\n");
+    assert.equal(writeSourceText(fade([1, 0, 1])), "FadeOut(DefaultBlack, 1)\n");
+    assert.equal(writeSourceText(fade([101, 1, 24])), "FadeOutThenWait(Black, 24)\n");
+    assert.equal(writeSourceText(fade([1, 3, 24])), "FadeOut(Red, 24)\n");
+    assert.equal(roundTrip("FadeOutThenWait(White, 64)\n"), "FadeOutThenWait(White, 64)\n");
+  });
+
+  test("bytes the sugar cannot express are an error", () => {
+    assert.throws(() => writeSourceText(fade([2, 1, 24])), /direction 2/);
+    assert.throws(() => writeSourceText(fade([100, 1, 24])), /direction 100/);
+    assert.throws(() => writeSourceText(fade([1, 4, 24])), /unknown fade colour 4/);
+  });
+});
+
 describe("Mode sugar", () => {
   const setUi = (ui: number, visibility: number) => ({ opcode: 0x25, args: [ui, visibility] });
   const speaker = (character: number) => ({ opcode: 0x21, args: [character] });

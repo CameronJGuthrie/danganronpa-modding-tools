@@ -152,7 +152,7 @@ export const opcodes = {
   ScreenFlash:           { id: 0x1f, args: bytes(7) },
   SpriteFlash:           { id: 0x20, args: bytes(5) },
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
-  ScreenFade:            { id: 0x22, args: bytes(3) },
+  ScreenFade:            { id: 0x22, args: bytes(3), hidden: true }, // FadeIn / FadeOut / FadeOutThenWait sugar
   ObjectState:           { id: 0x23, args: fixed([objectId, Byte, Byte, Byte, Byte]) },
   SetUI:                 { id: 0x25, args: fixed([named(Byte, UserInterface), named(Byte, UiVisibility)]) },
   SetFlag:               { id: 0x26, args: fixed([flagGroup, flagOffset, bool]) },

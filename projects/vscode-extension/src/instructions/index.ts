@@ -22,10 +22,12 @@ import { waitFrameInstruction } from "./dialogue/wait-frame.instruction";
 import { waitInputInstruction } from "./dialogue/wait-input.instruction";
 import { animationInstruction } from "./effect/animation.instruction";
 import { cameraFlashInstruction } from "./effect/camera-flash.instruction";
+import { fadeInInstruction } from "./effect/fade-in.instruction";
+import { fadeOutInstruction } from "./effect/fade-out.instruction";
+import { fadeOutThenWaitInstruction } from "./effect/fade-out-then-wait.instruction";
 import { movieInstruction } from "./effect/movie.instruction";
 import { placeSpriteInstruction } from "./effect/place-sprite.instruction";
 import { postProcessingEffectInstruction } from "./effect/post-processing-effect.instruction";
-import { screenFadeInstruction } from "./effect/screen-fade.instruction";
 import { screenFlashInstruction } from "./effect/screen-flash.instruction";
 import { setUiInstruction } from "./effect/set-ui.instruction";
 import { spriteInstruction } from "./effect/sprite.instruction";
@@ -66,6 +68,9 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.Animation]: animationInstruction,
   [LinscriptInstructionName.CameraFlash]: cameraFlashInstruction,
   [LinscriptInstructionName.Character]: characterInstruction,
+  [LinscriptInstructionName.FadeIn]: fadeInInstruction,
+  [LinscriptInstructionName.FadeOut]: fadeOutInstruction,
+  [LinscriptInstructionName.FadeOutThenWait]: fadeOutThenWaitInstruction,
   [LinscriptInstructionName.GivePresent]: givePresentInstruction,
   [LinscriptInstructionName.Goto]: gotoInstruction,
   [LinscriptInstructionName.If]: ifInstruction,
@@ -95,7 +100,6 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.Return]: returnInstruction,
   [LinscriptInstructionName.RunScript]: runScriptInstruction,
   [LinscriptInstructionName.SceneFlag]: sceneFlagInstruction,
-  [LinscriptInstructionName.ScreenFade]: screenFadeInstruction,
   [LinscriptInstructionName.ScreenFlash]: screenFlashInstruction,
   [LinscriptInstructionName.SetFlag]: setFlagInstruction,
   [LinscriptInstructionName.SetOption]: setOptionInstruction,

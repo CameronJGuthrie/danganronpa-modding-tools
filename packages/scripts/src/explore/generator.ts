@@ -43,12 +43,12 @@ function getLine(line: string): string {
 // }
 
 for (let i = 0; i < 1; i++) {
-  result += getLine(`ScreenFade(101, 1, 24)`);
-  result += getLine(`ScreenFade(1, ${i}, 60)`);
-  result += getLine(`ScreenFade(0, ${i}, 60)`);
-  result += getLine(`ScreenFade(101, 1, 24)`);
-  result += getLine(`ScreenFade(0, ${i}, 60)`);
-  result += getLine(`ScreenFade(1, ${i}, 60)`);
+  result += getLine(`FadeOutThenWait(Black, 24)`);
+  result += getLine(`FadeOut(Black, 60)`);
+  result += getLine(`FadeIn(Black, 60)`);
+  result += getLine(`FadeOutThenWait(Black, 24)`);
+  result += getLine(`FadeIn(Black, 60)`);
+  result += getLine(`FadeOut(Black, 60)`);
 }
 
 clipboardy.write(result.trimEnd()).then(() => console.log(`Copied ${result.length} characters`));

@@ -22,6 +22,7 @@ export * from "./data/variable-data.ts";
 export * from "./data/voice/index.ts";
 export * from "./data-util.ts";
 export * from "./enum.ts";
+export * from "./fade-colour.ts";
 export * from "./filter.ts";
 export * from "./flag-group.ts";
 export * from "./linscript-instruction-name.ts";
