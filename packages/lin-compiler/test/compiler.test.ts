@@ -463,7 +463,7 @@ describe("Meta block", () => {
     assert.equal(
       writeSourceText(readCompiled(writeCompiledBytes(script))),
       source
-        .replace(/\n\nMeta[^]*$/, "\n")
+        .replace(/\n\nMeta.*$/s, "\n")
         .replace("Monitor", "20")
         .replace("Camera", "21"),
     );
