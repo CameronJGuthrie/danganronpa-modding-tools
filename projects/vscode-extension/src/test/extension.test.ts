@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { Character, comparisonOperators } from "linscript-definitions";
+import { Character, comparisonOperators, RESET_FLAGS } from "linscript-definitions";
 // Import the instructions record from instructions/index.ts to avoid drift
 import { instructions } from "../instructions";
 import {
@@ -201,6 +201,16 @@ suite("Extension Test Suite", () => {
       getArgumentsFromFunctionLike("SetFlag(ObjectInvestigated, 5, 1)", setFlagNames).map((a) => a.value),
       [13, 5, 1],
     );
+    // Flag names from flag-data resolve too, in whichever group declares them
+    assert.deepStrictEqual(
+      getArgumentsFromFunctionLike("SetFlag(System, HandbookEnabled, True)", setFlagNames).map((a) => a.value),
+      [0, 4, 1],
+    );
+    assert.deepStrictEqual(
+      getArgumentsFromFunctionLike("SetFlag(MapUnlock, Reset, False)", setFlagNames)[1].value,
+      RESET_FLAGS,
+    );
+    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("SetFlag(System, Floor1, True)", setFlagNames)[1].value));
   });
 
   test("the Speaker decoration resolves a character name", () => {

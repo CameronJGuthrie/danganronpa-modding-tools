@@ -8,6 +8,7 @@ import {
   FlagGroup,
   flagNamesByFlagGroup,
   LogicalJoin,
+  Music,
   SpritePosition,
   SpriteTransition,
   Student,
@@ -119,7 +120,7 @@ export const opcodes = {
   Animation:             { id: 0x06, args: fixed([UInt16BE, Byte, Byte, Byte, Byte, Byte, Byte]) },
   // The volume byte of Voice, Sound and SoundB is 100 in nearly every game script, so source may omit it
   Voice:                 { id: 0x08, args: fixed([named(Byte, VoiceCharacter), named(Byte, Chapter), UInt16BE, volume]) },
-  Music:                 { id: 0x09, args: bytes(3) },
+  Music:                 { id: 0x09, args: fixed([named(Byte, Music), Byte, Byte]) },
   Sound:                 { id: 0x0a, args: fixed([UInt16BE, volume]) },
   SoundB:                { id: 0x0b, args: fixed([Byte, volume]) },
   TruthBulletFlag:       { id: 0x0c, args: bytes(2) },

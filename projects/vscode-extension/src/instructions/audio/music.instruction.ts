@@ -1,4 +1,4 @@
-import { LinscriptInstructionName, musics } from "linscript-definitions";
+import { LinscriptInstructionName, Music, musics } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";
 
 export const musicInstruction: LinscriptInstruction = {
@@ -7,6 +7,7 @@ export const musicInstruction: LinscriptInstruction = {
   parameters: [
     {
       name: "musicId",
+      names: Music,
       values: musics,
     },
     {
@@ -20,14 +21,11 @@ export const musicInstruction: LinscriptInstruction = {
     },
   ] as const,
   decorations([musicId, _volume]) {
-    if (musicId === 255) {
+    if (musicId === Music.Stop) {
       return `🎵 Music Off 🚫`;
     }
 
-    return [
-      {
-        contentText: `🎵 ${musics[musicId].name}`,
-      },
-    ];
+    const name = musics[musicId]?.name;
+    return [{ contentText: name === undefined ? `🎵 Unknown music ${musicId}` : `🎵 ${name}` }];
   },
 };

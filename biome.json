@@ -25,7 +25,8 @@
       "preset": "recommended",
       "style": {
         "useConst": "warn",
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useTemplate": "off"
       },
       "suspicious": {
         "noExplicitAny": "warn",

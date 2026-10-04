@@ -1,10 +1,10 @@
 import {
   Bool,
-  Character,
   comparisonOperatorSymbols,
   comparisonOperators,
   FlagGroup,
   flagDataByFlagGroup,
+  flagNamesByFlagGroup,
   flagGroups,
   isFlagGroup,
   isLogicalCompare,
@@ -15,11 +15,8 @@ import {
 } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";
 
-/** The offset after a character flag group is a character id; after other groups it stays numeric. */
-const characterOffset = {
-  argument: -1,
-  tables: { [FlagGroup.CharacterInvestigated]: Character, [FlagGroup.CharacterDead]: Character },
-};
+/** The offset's names depend on the flag group: known flag names, plus character and skill ids for those groups. */
+const flagOffset = { argument: -1, tables: flagNamesByFlagGroup };
 
 export const ifFlagInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.IfFlag,
@@ -28,8 +25,8 @@ export const ifFlagInstruction: LinscriptInstruction = {
   branch: true,
   varargs: true,
   varargNames: {
-    head: [FlagGroup, characterOffset, comparisonOperators, Bool],
-    tail: [LogicalJoin, FlagGroup, characterOffset, comparisonOperators, Bool],
+    head: [FlagGroup, flagOffset, comparisonOperators, Bool],
+    tail: [LogicalJoin, FlagGroup, flagOffset, comparisonOperators, Bool],
   },
   parameters: [],
   decorations: (args) => {

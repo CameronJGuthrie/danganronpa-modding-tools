@@ -2,6 +2,7 @@ import {
   Character,
   isChapter,
   isCharacter,
+  Music,
   movies,
   musics,
   sounds,
@@ -29,8 +30,8 @@ export function lineComment(line: ScriptLine): string | undefined {
       return id === undefined ? undefined : (transitionSounds[id]?.name ?? `Unknown sound ${id}`);
     }
     case "Music": {
-      const id = toNumber(first);
-      if (id === 255) {
+      const id = toNumber(first, Music);
+      if (id === Music.Stop) {
         return "Music off";
       }
       return id === undefined ? undefined : (musics[id]?.name ?? `Unknown music ${id}`);

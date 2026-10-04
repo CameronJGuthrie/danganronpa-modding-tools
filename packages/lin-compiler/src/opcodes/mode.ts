@@ -15,10 +15,13 @@ import { parseParameter } from "./arguments.ts";
  *   dialogue, plus `SetUI(Name, Shown)` and the `Speaker`. The character defaults to Makoto, who does all the thinking and most of the
  *   talking. Every shipped line that switches the Thinking toggle has the name plate on, so the name
  *   toggle is implied: compiling always emits it, and decompiling absorbs one when it is in the run.
+ *   The exception is `Mode(Thinking, Blank)`: there is no name to show, so the plate is emitted
+ *   `Hidden`, and a Thinking toggle with `Name Hidden` before `Speaker(Blank)` decompiles back to it.
  * - `Mode(System)` stands for `SetUI(Textbox, Shown)`, `SetUI(Name, Hidden)` plus `Speaker(Blank)`:
  *   unattributed text such as sound effects and tutorial prompts. The character argument is only needed where a shipped script
  *   left a different character in the speaker register, `Mode(System, Makoto)`; nothing is drawn
- *   either way. A Thinking toggle in the same run stays plain before it.
+ *   either way. A Thinking toggle in the same run stays plain before it (unless the speaker is Blank,
+ *   which is the `Mode(Thinking, Blank)` case above).
  *
  * The game writes the toggles as part of a run of `SetUI` lines (`CameraLook Hidden`,
  * `Thinking Shown`, `Name Shown`, `Textbox Shown`) that ends in `Speaker`, so the opcodes are usually
@@ -93,7 +96,8 @@ export function planModeSugar(entries: readonly ScriptEntry[], skipped: Readonly
       }
     }
     let chosen: ModePlan | undefined;
-    if (name !== undefined && entries[name].args[1] === UiVisibility.Hidden) {
+    const hidden = name !== undefined && entries[name].args[1] === UiVisibility.Hidden;
+    if (hidden && (thinking === undefined || entry.args[0] !== SYSTEM_CHARACTER)) {
       chosen = { name };
     } else if (thinking !== undefined) {
       chosen = name === undefined ? { thinking } : { thinking, name };
@@ -145,7 +149,10 @@ export function expandMode(argsText: string, line: number): ScriptEntry[] {
   return [
     textbox,
     { opcode: Opcode.SetUI, args: [UserInterface.Thinking, mode] },
-    { opcode: Opcode.SetUI, args: [UserInterface.Name, UiVisibility.Shown] },
+    {
+      opcode: Opcode.SetUI,
+      args: [UserInterface.Name, character[0] === SYSTEM_CHARACTER ? UiVisibility.Hidden : UiVisibility.Shown],
+    },
     { opcode: Opcode.Speaker, args: character },
   ];
 }

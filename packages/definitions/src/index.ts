@@ -12,6 +12,7 @@ export * from "./logical-compare.ts";
 export * from "./logical-join.ts";
 export * from "./map-character.ts";
 export * from "./mode.ts";
+export * from "./music.ts";
 export * from "./present.ts";
 export * from "./skill.ts";
 export * from "./sprite-position.ts";

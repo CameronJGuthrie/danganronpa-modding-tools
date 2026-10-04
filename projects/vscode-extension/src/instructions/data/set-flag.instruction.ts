@@ -1,9 +1,9 @@
 import {
   Bool,
-  Character,
   characterData,
   FlagGroup,
   flagDataByFlagGroup,
+  flagNamesByFlagGroup,
   flagGroups,
   isCharacter,
   isFlagGroup,
@@ -23,10 +23,7 @@ export const setFlagInstruction: LinscriptInstruction = {
     },
     {
       name: "offset",
-      namesBy: {
-        argument: -1,
-        tables: { [FlagGroup.CharacterInvestigated]: Character, [FlagGroup.CharacterDead]: Character },
-      },
+      namesBy: { argument: -1, tables: flagNamesByFlagGroup },
     },
     {
       name: "value",
