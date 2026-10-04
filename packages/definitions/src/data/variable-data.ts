@@ -1,5 +1,5 @@
-import { Variable } from "../variable.ts";
 import { flatMapProperty } from "../data-util.ts";
+import { Variable } from "../variable.ts";
 import { characterData } from "./character-data.ts";
 
 type VariableValueDetail = {

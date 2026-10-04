@@ -1,17 +1,17 @@
 import { writeFile } from "node:fs/promises";
 import { Opcode } from "../definitions/opcode.definition.ts";
-import { BinaryError } from "../errors.ts";
 import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
+import { BinaryError } from "../errors.ts";
 import { formatArgs } from "../opcodes/arguments.ts";
 import { branchJump, formatBranch, isConditionEntry } from "../opcodes/branch.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMap, isMapState } from "../opcodes/map.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
-import { formatMode, MODE, planModeSugar, type ModePlan } from "../opcodes/mode.ts";
+import { formatMode, MODE, type ModePlan, planModeSugar } from "../opcodes/mode.ts";
 import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
 import { formatPlaceSprite, isPlaceSprite, PLACE_SPRITE } from "../opcodes/placeSprite.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
-import { planTextSugar, textSourceForm, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { planTextSugar, TEXT_SUGAR, textSourceForm } from "../opcodes/textSugar.ts";
 import { formatTime, isTime, TIME } from "../opcodes/time.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 

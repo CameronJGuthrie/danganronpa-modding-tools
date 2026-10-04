@@ -4,12 +4,12 @@ import { Character, comparisonOperators, RESET_FLAGS } from "linscript-definitio
 import { instructions } from "../instructions";
 import {
   createCompleteFunctionRegex,
+  createQuoteChecker,
   createVarargsRegex,
   getArgumentsFromFunctionLike,
   getColorTextMatch,
   getColorTextRegex,
   getTextFunctionRegex,
-  createQuoteChecker,
   isInsideQuotes,
 } from "../util/string-util";
 

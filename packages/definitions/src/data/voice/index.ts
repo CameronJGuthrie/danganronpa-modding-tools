@@ -1,4 +1,4 @@
-import { type Chapter } from "../../chapter.ts";
+import type { Chapter } from "../../chapter.ts";
 import { Character } from "../../character.ts";
 
 import { byakuyaVoiceLines } from "./byakuya-voice-lines.ts";

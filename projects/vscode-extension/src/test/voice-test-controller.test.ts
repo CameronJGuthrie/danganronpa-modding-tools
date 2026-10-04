@@ -27,7 +27,6 @@ suite("Voice Test Controller Test Suite", () => {
     assert.strictEqual("Voice(1, 1, 100)\nVoice(2, 2, 200, 80)".match(regex())?.length, 2);
   });
 
-
   test("Voice lines inside quotes are detected correctly", () => {
     const testContent = `ScriptType(2)
 Text("Voice(1, 1, 100, 100)")

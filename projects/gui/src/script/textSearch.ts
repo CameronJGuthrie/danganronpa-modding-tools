@@ -15,12 +15,7 @@ const STYLE_TAGS = /<\/?[A-Za-z][A-Za-z0-9]*>|<style \d+>|<CLT[^>]*>/g;
  * becomes a single space, so `we\nwent` reads `we went`.
  */
 export function readableText(literal: string): string {
-  return literal
-    .replace(STYLE_TAGS, "")
-    .replace(/\\n/g, " ")
-    .replace(/\\(.)/g, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
+  return literal.replace(STYLE_TAGS, "").replace(/\\n/g, " ").replace(/\\(.)/g, "$1").replace(/\s+/g, " ").trim();
 }
 
 /** The readable text of a `Text("...")` / `RawText("...")` source line, or undefined for any other line. */

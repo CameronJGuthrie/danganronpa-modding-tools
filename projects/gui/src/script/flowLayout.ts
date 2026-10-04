@@ -85,7 +85,8 @@ export function layoutFlowGraph(graph: FlowGraph): FlowLayout {
   });
   const edges: PositionedEdge[] = graph.edges.map((edge) => {
     const placed = g.edge(edge.from, edge.to, edge.id);
-    const labelAt = edge.label !== undefined && placed.x !== undefined ? { x: placed.x, y: placed.y as number } : undefined;
+    const labelAt =
+      edge.label !== undefined && placed.x !== undefined ? { x: placed.x, y: placed.y as number } : undefined;
     return { edge, points: placed.points, labelAt };
   });
 
@@ -109,7 +110,8 @@ function measure(node: GraphNode): { rows: string[]; width: number; height: numb
       return {
         rows,
         width: textWidth("x".repeat(longest)) + PADDING_X * 2,
-        height: (rows.length + titleRows) * FONT.lineHeight + PADDING_Y * 2 + (titleRows > 0 && rows.length > 0 ? 4 : 0),
+        height:
+          (rows.length + titleRows) * FONT.lineHeight + PADDING_Y * 2 + (titleRows > 0 && rows.length > 0 ? 4 : 0),
       };
     }
     case "decision": {

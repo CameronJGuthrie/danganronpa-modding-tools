@@ -137,7 +137,9 @@ function emitLines(emitter: Emitter, present: string, lines: Line[]): string[] {
       case "say": {
         const spriteId = emitter.spriteIds.get(line.sprite);
         if (spriteId === undefined) {
-          throw new Error(`${present}: ${name} has no sprite named ${line.sprite} (known: ${[...emitter.spriteIds.keys()].join(", ")})`);
+          throw new Error(
+            `${present}: ${name} has no sprite named ${line.sprite} (known: ${[...emitter.spriteIds.keys()].join(", ")})`,
+          );
         }
         if (line.sprite !== sprite) {
           out.push(`Sprite(0, ${name}, ${spriteId}, FadeIn, Center)`);
@@ -304,7 +306,9 @@ async function main(): Promise<void> {
 
   const scriptPath = await findModScript(MOD_SCRIPT_DIR, flatName);
   if (scriptPath === null) {
-    throw new Error(`${name}'s gift script ${flatName} is not in ${MOD_SCRIPT_DIR}; run \`pnpm select ${flatName}.linscript\` first`);
+    throw new Error(
+      `${name}'s gift script ${flatName} is not in ${MOD_SCRIPT_DIR}; run \`pnpm select ${flatName}.linscript\` first`,
+    );
   }
 
   const emitter: Emitter = {

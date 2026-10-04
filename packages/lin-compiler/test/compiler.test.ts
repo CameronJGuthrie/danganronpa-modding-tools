@@ -697,10 +697,17 @@ describe("named arguments", () => {
       /unknown name 'RoomIntroSeen'/,
     );
     assert.equal(
-      writeSourceText(readSource("SetFlag(SceneFlags, 1, True)\nSetFlag(ObjectInvestigated, 1, True)\nMeta()\n    SceneFlag(1, Seen)\n")),
+      writeSourceText(
+        readSource(
+          "SetFlag(SceneFlags, 1, True)\nSetFlag(ObjectInvestigated, 1, True)\nMeta()\n    SceneFlag(1, Seen)\n",
+        ),
+      ),
       "SetFlag(SceneFlags, Seen, True)\nSetFlag(ObjectInvestigated, 1, True)\n\nMeta()\n    SceneFlag(1, Seen)\n",
     );
-    assert.throws(() => readSource("Meta()\n    SceneFlag(1, A)\n    SceneFlag(1, B)\n"), /scene flag 1 is already named 'A'/);
+    assert.throws(
+      () => readSource("Meta()\n    SceneFlag(1, A)\n    SceneFlag(1, B)\n"),
+      /scene flag 1 is already named 'A'/,
+    );
   });
 
   test("IfFlag is a repeating condition with named groups, offsets and operators", () => {
@@ -816,7 +823,10 @@ describe("Time sugar", () => {
 describe("PlaceSprite sugar", () => {
   test("PlaceSprite(slot, character, expression) compiles to Sprite with zero transition and position", () => {
     assert.deepEqual(readSource("PlaceSprite(10, Chihiro, 0)\n").entries[0], { opcode: 0x1e, args: [10, 14, 0, 0, 0] });
-    assert.deepEqual(readSource("PlaceSprite(0, Toko, Invisible)\n").entries[0], { opcode: 0x1e, args: [0, 10, 98, 0, 0] });
+    assert.deepEqual(readSource("PlaceSprite(0, Toko, Invisible)\n").entries[0], {
+      opcode: 0x1e,
+      args: [0, 10, 98, 0, 0],
+    });
     assert.deepEqual(readSource("PlaceSprite(5, 3, 98)\n").entries[0], { opcode: 0x1e, args: [5, 3, 98, 0, 0] });
     assert.throws(() => readSource("PlaceSprite(1, Kyoko)\n"), /PlaceSprite expects 3 arguments/);
     assert.throws(() => readSource("PlaceSprite(1, Kyoko, Bogus)\n"), /unknown name 'Bogus'/);

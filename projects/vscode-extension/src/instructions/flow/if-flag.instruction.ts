@@ -4,8 +4,8 @@ import {
   comparisonOperators,
   FlagGroup,
   flagDataByFlagGroup,
-  flagNamesByFlagGroup,
   flagGroups,
+  flagNamesByFlagGroup,
   isFlagGroup,
   isLogicalCompare,
   isLogicalJoin,
@@ -13,8 +13,8 @@ import {
   LinscriptInstructionName,
   LogicalJoin,
 } from "linscript-definitions";
-import type { LinscriptInstruction } from "../linscript-instruction";
 import type { DependentNames } from "../../util/string-util";
+import type { LinscriptInstruction } from "../linscript-instruction";
 
 /**
  * The offset's names depend on the flag group: known flag names, plus character and skill ids for

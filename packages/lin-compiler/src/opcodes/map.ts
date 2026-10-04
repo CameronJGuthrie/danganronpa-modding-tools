@@ -106,7 +106,10 @@ export function expandMap(name: MapSugarName, argsText: string, line: number): S
   const values = splitArgs(argsText);
   const expect = (count: number, shape: string) => {
     if (values.length !== count) {
-      throw new SourceError(line, `${name} expects ${count} argument${count === 1 ? "" : "s"}${shape}, got ${values.length}`);
+      throw new SourceError(
+        line,
+        `${name} expects ${count} argument${count === 1 ? "" : "s"}${shape}, got ${values.length}`,
+      );
     }
   };
   if (name === MAP_CHARACTER) {

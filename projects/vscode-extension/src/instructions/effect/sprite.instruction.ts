@@ -6,8 +6,8 @@ import {
   isSpriteTransition,
   LinscriptInstructionName,
   SpritePosition,
-  spriteNamesByCharacter,
   SpriteTransition,
+  spriteNamesByCharacter,
   sprites,
 } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";

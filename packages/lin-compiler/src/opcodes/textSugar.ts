@@ -174,7 +174,11 @@ export function planTextSugar(entries: readonly ScriptEntry[]): TextSugarPlan {
       const candidate = entries[next];
       if (candidate.opcode === Opcode.WaitFrame) {
         next++;
-      } else if (candidate.opcode === Opcode.TextStyle && styles < expectedStyles.length && sameEntry(candidate, expectedStyles[styles])) {
+      } else if (
+        candidate.opcode === Opcode.TextStyle &&
+        styles < expectedStyles.length &&
+        sameEntry(candidate, expectedStyles[styles])
+      ) {
         styles++;
         next++;
       } else {

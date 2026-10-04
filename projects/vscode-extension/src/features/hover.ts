@@ -1,11 +1,17 @@
 import * as vscode from "vscode";
 import { instructions } from "../instructions";
-import { logDebug } from "../output";
 import type { LinscriptInstruction, ParameterMeta } from "../instructions/linscript-instruction";
+import { logDebug } from "../output";
 import { argumentNames } from "../util/argument-names";
 import { metaEntryForScope } from "../util/script-meta";
-import { type ArgumentNameSource, type ArgumentNames, isDependent } from "../util/string-util";
-import { getArgumentsFromFunctionLike, isInsideQuotes, stripBranchJump } from "../util/string-util";
+import {
+  type ArgumentNameSource,
+  type ArgumentNames,
+  getArgumentsFromFunctionLike,
+  isDependent,
+  isInsideQuotes,
+  stripBranchJump,
+} from "../util/string-util";
 
 /**
  * Hover documentation for `.linscript` files.

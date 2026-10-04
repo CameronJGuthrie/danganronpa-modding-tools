@@ -41,7 +41,8 @@ export function formatPresent(entry: ScriptEntry): { name: PresentSugarName; arg
     throw new BinaryError(`Present expects 3 bytes, got ${entry.args.length}`);
   }
   const [id, operation, quantity] = entry.args;
-  const name = operation === Arithmetic.Subtract ? GIVE_PRESENT : operation === Arithmetic.Add ? RECEIVE_PRESENT : undefined;
+  const name =
+    operation === Arithmetic.Subtract ? GIVE_PRESENT : operation === Arithmetic.Add ? RECEIVE_PRESENT : undefined;
   if (name === undefined) {
     throw new BinaryError(`Present uses arithmetic mode ${operation}; only += and -= are understood`);
   }

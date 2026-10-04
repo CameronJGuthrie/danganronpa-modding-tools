@@ -7,26 +7,30 @@ export const dialogue: GiftDialogue = {
   presents: {
     MineralWater: {
       reaction: "Okay",
-      brief: [
-        "Sayaka is disappointed but lets slip that she is a bottled water snob",
-      ],
+      brief: ["Sayaka is disappointed but lets slip that she is a bottled water snob"],
       lines: [
         say("Concerned", "Huh? Mineral water? Oh. Well. That's... hydrating.", "Huh?"),
-        say("Neutral", "Which spring is it from? It doesn't say. It just says \"spring.\"", "Umm..."),
-        say("Serious", "I only drink glacier water, Makoto. Bottled at source, carbon neutral, slightly judgmental.", "I mean..."),
+        say("Neutral", 'Which spring is it from? It doesn\'t say. It just says "spring."', "Umm..."),
+        say(
+          "Serious",
+          "I only drink glacier water, Makoto. Bottled at source, carbon neutral, slightly judgmental.",
+          "I mean...",
+        ),
         makoto("It's water, Sayaka."),
         say("BlushingSmiling", "And this is a bottle. We're both learning things today.", "*Giggle*"),
       ],
     },
     ColaCola: {
       reaction: "Disliked",
-      brief: [
-        "Sayaka thinks Makoto is trying to end her career",
-      ],
+      brief: ["Sayaka thinks Makoto is trying to end her career"],
       lines: [
         say("Scared", "Ah! Makoto, is this cola?", "Ah!"),
         makoto("Yeah. It's a drink. People drink it."),
-        say("DissociatingOutburst", "Do you know what sugar does to a pop idol's skin? To her voice? To her contract?", "Why? Why?"),
+        say(
+          "DissociatingOutburst",
+          "Do you know what sugar does to a pop idol's skin? To her voice? To her contract?",
+          "Why? Why?",
+        ),
         say("Dissociating", "This isn't a gift. This is a career-ending event in a can.", "*Sigh*"),
         makoto("I can take it back..."),
         say("Serious", "No. I'll keep it. As evidence.", "Hold on a second..."),
@@ -34,23 +38,23 @@ export const dialogue: GiftDialogue = {
     },
     CivetCoffee: {
       reaction: "Okay",
-      brief: [
-        "Sayaka says she thought civet coffee was great until she learned how it was made",
-      ],
+      brief: ["Sayaka says she thought civet coffee was great until she learned how it was made"],
       lines: [
         say("Cheerful", "Ah! Civet coffee! I used to love this stuff.", 40),
         say("Neutral", "Then someone explained how it's made.", "But,"),
         makoto("How is it made?"),
-        say("ShyEyesAverted", "A small animal eats the beans, Makoto. And then... the beans continue their journey.", "You see,"),
+        say(
+          "ShyEyesAverted",
+          "A small animal eats the beans, Makoto. And then... the beans continue their journey.",
+          "You see,",
+        ),
         think("Oh. OH."),
         say("Smiling", "Anyway, thanks! I'll regift it to Byakuya.", "Okay."),
       ],
     },
     RoseHipTea: {
       reaction: "Liked",
-      brief: [
-        "Sayaka muses that her grandma used to like this tea",
-      ],
+      brief: ["Sayaka muses that her grandma used to like this tea"],
       lines: [
         say("Wistful", "Rose hip tea... My grandma used to drink this every single evening.", "Ummm..."),
         say("Smiling", "She said it kept her young. She was ninety-one and still doing the splits."),
@@ -60,9 +64,7 @@ export const dialogue: GiftDialogue = {
     },
     SeaSalt: {
       reaction: "Okay",
-      brief: [
-        "Sayaka is baffled and hardly knows what to say, settling with a sideways compliment",
-      ],
+      brief: ["Sayaka is baffled and hardly knows what to say, settling with a sideways compliment"],
       lines: [
         say("Concerned", "Huh? Salt?", "Huh?"),
         say("Thinking", "Ummm... From the... sea. Sea salt. From the sea.", "Ummm..."),
@@ -72,13 +74,15 @@ export const dialogue: GiftDialogue = {
     },
     PotatoChips: {
       reaction: "Disliked",
-      brief: [
-        "Sayaka hates potato chips because she say Hifumi eating them earlier",
-      ],
+      brief: ["Sayaka hates potato chips because she say Hifumi eating them earlier"],
       lines: [
         say("DissociatingOutburst", "Oh no! Not chips!", "Oh no!"),
         makoto("What's wrong with chips?"),
-        say("Dissociating", "I... watched Hifumi eat a bag of these an hour ago. With his whole face. I can still hear it.", "I..."),
+        say(
+          "Dissociating",
+          "I... watched Hifumi eat a bag of these an hour ago. With his whole face. I can still hear it.",
+          "I...",
+        ),
         say("Serious", "He didn't chew, Makoto. He absorbed them."),
         makoto("Okay, that's fair."),
       ],
@@ -92,7 +96,11 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("Cheerful", "Ah! A rainbow biscuit decoration! It's so retro and cute.", 40),
-        say("BlushingSmiling", "I'll put it on my shelf next to the other things I'm never allowed to eat.", "I'm so happy!"),
+        say(
+          "BlushingSmiling",
+          "I'll put it on my shelf next to the other things I'm never allowed to eat.",
+          "I'm so happy!",
+        ),
         think("She thinks it's a decoration. She thinks food is a decoration."),
         think("I guess that's what a career diet does to you. That's kind of sad, actually."),
       ],
@@ -128,7 +136,11 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("Wistful", "Cup noodles... I used to make these every night, waiting up for Dad to get home.", "*Sigh*"),
         say("Crying", "Sometimes he did."),
-        say("Concerned", "Sorry about that. That got heavy. Can you do your thing where you just don't notice stuff?", "Sorry about that."),
+        say(
+          "Concerned",
+          "Sorry about that. That got heavy. Can you do your thing where you just don't notice stuff?",
+          "Sorry about that.",
+        ),
         makoto("My... thing?"),
         say("Smiling", "Your superpower! Blissful ignorance. Please forget all my problems. Also, you're a virgin."),
         makoto("Wait, what?!", "Wait, what?!"),
@@ -138,12 +150,14 @@ export const dialogue: GiftDialogue = {
     },
     RoyalCurry: {
       reaction: "Liked",
-      brief: [
-        "Sayaka likes curry. Her manager doesn't let her eat it often.",
-      ],
+      brief: ["Sayaka likes curry. Her manager doesn't let her eat it often."],
       lines: [
         say("Cheerful", "Curry! Real curry! With the little flakes of... whatever these are!", "I'm so happy!"),
-        say("ShyEyesAverted", "Um... my manager only lets me have it twice a year. My birthday, and if we hit a sales target.", "Um..."),
+        say(
+          "ShyEyesAverted",
+          "Um... my manager only lets me have it twice a year. My birthday, and if we hit a sales target.",
+          "Um...",
+        ),
         makoto("That's a weird rule."),
         say("Determined", "I've hit the target every year, Makoto. Every. Year."),
       ],
@@ -170,7 +184,11 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("Serious", "Makoto. Be honest. Did this fall out of the MonoMono Machine?", "Um, listen."),
         makoto("...Maybe."),
-        say("DissociatingOutburst", "This school doesn't even have a pool! What am I floating in? My feelings?", "Why? Why?"),
+        say(
+          "DissociatingOutburst",
+          "This school doesn't even have a pool! What am I floating in? My feelings?",
+          "Why? Why?",
+        ),
         makoto("Oh, sorry. I panicked at the machine.", "Oh, sorry."),
         say("Concerned", "Hold on a second... You're just offloading junk on me, aren't you?", "Hold on a second..."),
       ],
@@ -188,7 +206,11 @@ export const dialogue: GiftDialogue = {
         say("HandOverMouth", "Ah! This is huge! Thank you, but I couldn't finish all this alone.", 40),
         say("Shy", "Um... we could share it? If you wanted. No pressure. It's just food.", "Um..."),
         makoto("Sure!"),
-        say("BlushingSmiling", "There's something special about sharing a meal, you know? It says, \"I trust you with my\"", "I'm so happy!"),
+        say(
+          "BlushingSmiling",
+          'There\'s something special about sharing a meal, you know? It says, "I trust you with my"',
+          "I'm so happy!",
+        ),
         think("Oh wow, there's a whole egg roll in here."),
         say("BlushingSmiling", "...blah blah blah feelings blah blah blah closeness blah..."),
         think("Is that a tiny octopus wiener? It is. It's got little eyes."),
@@ -217,14 +239,18 @@ export const dialogue: GiftDialogue = {
       brief: [
         "Sayaka and Makoto talk more about the crane that they saw in school together.",
         "Sayaka confesses to Makoto that she is scared of cranes. Makoto thinks that he is scared",
-        "of Sayaka and she throws her hands up in shock. She seems to have read his mind. \"I'm psychic\".",
+        'of Sayaka and she throws her hands up in shock. She seems to have read his mind. "I\'m psychic".',
         "Makoto nervously laughs, which Sayaka then follows up on with lots of laughter. Slightly crazy,",
         "but you wouldn't catch Makoto thinking the word 'crazy' after that. He does anyway.",
       ],
       lines: [
         say("Smiling", "Hi, Makoto! Birdseed! Is this for the crane we saw by the trash room?", "Hi, Makoto!"),
         makoto("Yeah, I thought you might want to feed it."),
-        say("ScaredEyesAverted", "Um... can I tell you something? I'm scared of cranes. The legs. The neck. The eyes that know things.", 47),
+        say(
+          "ScaredEyesAverted",
+          "Um... can I tell you something? I'm scared of cranes. The legs. The neck. The eyes that know things.",
+          47,
+        ),
         think("Honestly, right now I'm a little scared of Sayaka."),
         say("DissociatingOutburst", "Ah, ah! Rude! I heard that!", "Ah, ah!"),
         makoto("W-What are you doing?!", "W-What are you doing?!"),
@@ -242,7 +268,11 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("Cheerful", "Ah! A kitty! Look at its little face!", 40),
-        say("Wistful", "There was a stray outside my old apartment. I fed him every morning for two years.", "You see,"),
+        say(
+          "Wistful",
+          "There was a stray outside my old apartment. I fed him every morning for two years.",
+          "You see,",
+        ),
         makoto("What was his name?"),
         say("BlushingSmiling", "Mr. Contractual Obligation. Long story. My agency named him.", "*Giggle*"),
       ],
@@ -255,7 +285,11 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("Neutral", "Wow. Okay. That is... a lot of cringe in one bracelet.", "Okay."),
-        say("ShyEyesAverted", "An \"everlasting\" bracelet. From a capsule machine. In a murder school. Deeply, deeply cringe.", "I mean..."),
+        say(
+          "ShyEyesAverted",
+          'An "everlasting" bracelet. From a capsule machine. In a murder school. Deeply, deeply cringe.',
+          "I mean...",
+        ),
         think("She's smiling though. She means it in a nice way. I think."),
         say("BlushingSmiling", "I'm going to wear it forever, you absolute dork.", "But that's why."),
         think("She sure is rude about being nice."),
@@ -263,9 +297,7 @@ export const dialogue: GiftDialogue = {
     },
     LoveStatusRing: {
       reaction: "Loved",
-      brief: [
-        "Sayaka thinks it is shiny any barely pays any attention to Makoto after he gives it to her.",
-      ],
+      brief: ["Sayaka thinks it is shiny any barely pays any attention to Makoto after he gives it to her."],
       lines: [
         say("Cheerful", "Ah! Ooh! Shiny!", 40),
         makoto("So, I was thinking, maybe later we could..."),
@@ -284,7 +316,11 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("Scared", "Ah! Makoto, a diamond? Are you... proposing?", "Ah!"),
         makoto("What? No! It's a gift! Just a gift!", "What?"),
-        say("Dissociating", "Th-that's... what Mom's third husband said. \"Just a gift.\" Then the paperwork started.", "Th-that's..."),
+        say(
+          "Dissociating",
+          "Th-that's... what Mom's third husband said. \"Just a gift.\" Then the paperwork started.",
+          "Th-that's...",
+        ),
         say("DissociatingOutburst", "Why? Why do adults always want to sign things?", "Why? Why?"),
         makoto("I'm not an adult! I'm not signing anything!"),
         say("Serious", "That's exactly what an adult would say."),
@@ -303,21 +339,31 @@ export const dialogue: GiftDialogue = {
         makoto("Full disclosure: this came out of the MonoMono Machine. It has the school logo on it."),
         makoto("I couldn't look at it anymore. So now it's your problem."),
         say("HandOverMouth", "You know what? That's refreshing.", "*Giggle*"),
-        say("Smiling", "I talked to Leon for thirty seconds earlier and he lied about his height, his band, and his name.", "You see,"),
+        say(
+          "Smiling",
+          "I talked to Leon for thirty seconds earlier and he lied about his height, his band, and his name.",
+          "You see,",
+        ),
         makoto("His name?"),
-        say("Neutral", "He said it was \"Leon Thunderfist.\""),
+        say("Neutral", 'He said it was "Leon Thunderfist."'),
       ],
     },
     BlueberryPerfume: {
       reaction: "Okay",
-      brief: [
-        "Mild response. She's not very big on perfume, nor are most Japanese girls.",
-      ],
+      brief: ["Mild response. She's not very big on perfume, nor are most Japanese girls."],
       lines: [
         say("Neutral", "Perfume. Blueberry. Okay.", 36),
-        say("Thinking", "I don't really wear perfume. Most girls I know don't. We mostly just smell like shampoo.", "Ummm..."),
+        say(
+          "Thinking",
+          "I don't really wear perfume. Most girls I know don't. We mostly just smell like shampoo.",
+          "Ummm...",
+        ),
         makoto("Oh."),
-        say("Smiling", "It's fine! I'll spray it on Hifumi when he's not looking. For everyone's sake.", "But that's why."),
+        say(
+          "Smiling",
+          "It's fine! I'll spray it on Hifumi when he's not looking. For everyone's sake.",
+          "But that's why.",
+        ),
       ],
     },
     ScarabBrooch: {
@@ -341,9 +387,7 @@ export const dialogue: GiftDialogue = {
     },
     GodofWarCharm: {
       reaction: "Disliked",
-      brief: [
-        "Sayaka doesn't really like this.",
-      ],
+      brief: ["Sayaka doesn't really like this."],
       lines: [
         say("Concerned", "Umm... A charm for the god of war?", "Umm..."),
         say("Neutral", "I'm a pop idol, Makoto. The only war I'm in is with the tabloids.", "I mean..."),
@@ -379,7 +423,11 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("DissociatingOutburst", "Glasses? GLASSES? Are you calling me a nerd, Makoto?", "Why? Why?"),
         makoto("No! I just..."),
-        say("Serious", "What's going on? You want me to play DMD with you? Watch anime? Start Craft?", "What's going on?"),
+        say(
+          "Serious",
+          "What's going on? You want me to play DMD with you? Watch anime? Start Craft?",
+          "What's going on?",
+        ),
         makoto("It's D and D. And StarCraft. And no!"),
         say("Dissociating", "Oh, so you DO know. Of course you know.", "Ah?"),
         makoto("Okay, okay, just give them back..."),
@@ -409,7 +457,9 @@ export const dialogue: GiftDialogue = {
         "He falls over in the process, and Sayaka then and only then finds it amusing.",
       ],
       lines: [
-        makoto("Ladies and gentlemen, introducing the Roller Slipper! Wheels in the heel! Just lean back and glide like..."),
+        makoto(
+          "Ladies and gentlemen, introducing the Roller Slipper! Wheels in the heel! Just lean back and glide like...",
+        ),
         makoto("Whoa! Whoa, whoa! Aaah!", "*Gasp*"),
         raw("Sound(28)"),
         say("Neutral", "..."),
@@ -420,10 +470,7 @@ export const dialogue: GiftDialogue = {
     },
     RedScarf: {
       reaction: "Liked",
-      brief: [
-        "Sayaka takes the scarf with no further context, and she looks happy.",
-        "She liked it.",
-      ],
+      brief: ["Sayaka takes the scarf with no further context, and she looks happy.", "She liked it."],
       lines: [
         say("Smiling", "Ah! A scarf!", 40),
         say("BlushingSmiling", "..."),
@@ -442,7 +489,11 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("Concerned", "Makoto. A leaf. You've given me a leaf to wear.", "Um, listen."),
         say("Serious", "I'm going to ask you some questions and I need you to be honest."),
-        say("Thinking", "Were you dropped as a baby? Lead paint in the house? Did your mother drink while she was...", "Ummm..."),
+        say(
+          "Thinking",
+          "Were you dropped as a baby? Lead paint in the house? Did your mother drink while she was...",
+          "Ummm...",
+        ),
         makoto("Hey!"),
         say("HandOverMouth", "Oh, you poor thing. You poor, poor thing.", "*Giggle*"),
         think("She didn't like the leaf. She really liked making fun of me, though."),
@@ -462,7 +513,11 @@ export const dialogue: GiftDialogue = {
         makoto("Aye aye, Captain! Uh... land ho!"),
         say("DissociatingOutburst", "Ah, ah! Don't you dare speak of women with such vulgarity!", "Ah, ah!"),
         makoto("What? I just said land..."),
-        say("Serious", "And don't command a lady without saying please. I'll land when I feel like landing.", "Um, listen."),
+        say(
+          "Serious",
+          "And don't command a lady without saying please. I'll land when I feel like landing.",
+          "Um, listen.",
+        ),
         makoto("I... really don't know what to say.", "I... really don't know what to say."),
         say("Smiling", "Cause I'm your assistant. First mate, I mean. Arrr.", "Cause I'm your assistant."),
       ],
@@ -482,9 +537,7 @@ export const dialogue: GiftDialogue = {
     },
     FreshBindings: {
       reaction: "Okay",
-      brief: [
-        "Makoto honestly doesn't know what this is, and Sayaka doesn't know either.",
-      ],
+      brief: ["Makoto honestly doesn't know what this is, and Sayaka doesn't know either."],
       lines: [
         makoto("So, this is... fresh bindings."),
         say("Thinking", "Bindings for what?", "Ummm..."),
@@ -502,21 +555,27 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("DissociatingOutburst", "Ah! Is that... JIMMY DECAY?!", "Ah!"),
-        say("Cheerful", "I have every album! Every bootleg! I have a tooth he threw into a crowd once!", "I'm so happy!"),
+        say(
+          "Cheerful",
+          "I have every album! Every bootleg! I have a tooth he threw into a crowd once!",
+          "I'm so happy!",
+        ),
         makoto("A tooth?"),
-        say("BlushingSmiling", "Makoto! Look at this label! \"One of one hundred.\" Only a hundred of these exist!", "Makoto!"),
+        say(
+          "BlushingSmiling",
+          'Makoto! Look at this label! "One of one hundred." Only a hundred of these exist!',
+          "Makoto!",
+        ),
         makoto("If the label's telling the truth..."),
         say("Determined", "Jimmy Decay doesn't lie. He only decays."),
       ],
     },
     EmperorsThong: {
       reaction: "Disliked",
-      brief: [
-        "Sayaka is embarassed by this. She says she's disappointed in Makoto.",
-      ],
+      brief: ["Sayaka is embarassed by this. She says she's disappointed in Makoto."],
       lines: [
         say("ShyEyesAverted", "Um... Makoto. What is this.", "Um..."),
-        makoto("It said \"Emperor's\" on it, so I thought it was fancy..."),
+        makoto('It said "Emperor\'s" on it, so I thought it was fancy...'),
         say("Scared", "Th-that's... a thong. You gave me a thong. In public.", "Th-that's..."),
         say("Serious", "I'm disappointed in you.", "*Sigh*"),
         think("Yeah. Me too."),
@@ -524,9 +583,7 @@ export const dialogue: GiftDialogue = {
     },
     HandBra: {
       reaction: "Hated",
-      brief: [
-        "Sayaka is embarassed by this. She says she's disappointed in Makoto.",
-      ],
+      brief: ["Sayaka is embarassed by this. She says she's disappointed in Makoto."],
       lines: [
         say("Scared", "Ah! What is this?!", "Ah!"),
         makoto("It's a... hand... it holds..."),
@@ -544,7 +601,11 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("Serious", "Swimwear. There's no pool here, Makoto.", "Um, listen."),
         makoto("There might be a pool on another floor!"),
-        say("Dissociating", "You don't know that. So the only reason to give a girl swimwear in a building with no pool is...", "You see,"),
+        say(
+          "Dissociating",
+          "You don't know that. So the only reason to give a girl swimwear in a building with no pool is...",
+          "You see,",
+        ),
         say("DissociatingOutburst", "Makoto! ...that you're a no-good horny teenager!", "Makoto!"),
         makoto("That's not... I mean... it was in the machine..."),
         say("Concerned", "Hold on a second. Is everything in that machine like this?", "Hold on a second..."),
@@ -552,9 +613,7 @@ export const dialogue: GiftDialogue = {
     },
     DemonAngelPrincessFigure: {
       reaction: "Okay",
-      brief: [
-        "Sayaka accepts the gift. She clearly doesn't know what this thing is, though.",
-      ],
+      brief: ["Sayaka accepts the gift. She clearly doesn't know what this thing is, though."],
       lines: [
         say("Smiling", "Ah! Thank you! It's a... princess? Demon? Angel?", 40),
         makoto("All three, I think."),
@@ -611,9 +670,7 @@ export const dialogue: GiftDialogue = {
     },
     QualityChinchillaCover: {
       reaction: "Disliked",
-      brief: [
-        "This is junk to Sayaka. What would she do with a bike seat cover?",
-      ],
+      brief: ["This is junk to Sayaka. What would she do with a bike seat cover?"],
       lines: [
         say("Concerned", "Huh? A bike seat cover? Makoto, where's the bike?", "Huh?"),
         makoto("There isn't one."),
@@ -624,9 +681,7 @@ export const dialogue: GiftDialogue = {
     },
     KirlianCamera: {
       reaction: "Okay",
-      brief: [
-        "A weird camera with no film. Alright.",
-      ],
+      brief: ["A weird camera with no film. Alright."],
       lines: [
         say("Thinking", "A camera. Does it have film?", "Ummm..."),
         makoto("No."),
@@ -656,7 +711,11 @@ export const dialogue: GiftDialogue = {
         "Makoto says he just stuffed it into the e-Handbook. Sayaka for once is the one taken aback.",
       ],
       lines: [
-        say("Concerned", "Makoto, that's an entire tumbleweed. Where were you even keeping that?", "Hold on a second..."),
+        say(
+          "Concerned",
+          "Makoto, that's an entire tumbleweed. Where were you even keeping that?",
+          "Hold on a second...",
+        ),
         makoto("In the e-Handbook."),
         say("Scared", "Huh? ...What?", "Huh?"),
         makoto("I just kind of stuffed it in there. It fit."),
@@ -688,7 +747,11 @@ export const dialogue: GiftDialogue = {
         "awkwardly long silence. Sayaka seems unbothered by the silence.",
       ],
       lines: [
-        say("BlushingSmiling", "Roses in a test tube! That's so cute. Little flowers in a little jar.", "I'm so happy!"),
+        say(
+          "BlushingSmiling",
+          "Roses in a test tube! That's so cute. Little flowers in a little jar.",
+          "I'm so happy!",
+        ),
         say("Thinking", "What do you think it feels like? Being in a glass tube?", "Hey, um..."),
         makoto("I... don't know."),
         say("Smiling", "..."),
@@ -706,8 +769,12 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("BlushingSmiling", "...Makoto... They're beautiful.", "...Makoto..."),
-        say("BlushingSmiling", "How did I get so lucky? To be stuck in here with such a nice Makoto.", "*Relieved sigh*"),
-        makoto("What do you mean, \"such a nice\" Makoto?"),
+        say(
+          "BlushingSmiling",
+          "How did I get so lucky? To be stuck in here with such a nice Makoto.",
+          "*Relieved sigh*",
+        ),
+        makoto('What do you mean, "such a nice" Makoto?'),
         say("Smiling", "I mean... the other Makotos just don't measure up. You're the best one by far.", "I mean..."),
         think("Other Makotos? How many Makotos does she know?!"),
       ],
@@ -717,7 +784,7 @@ export const dialogue: GiftDialogue = {
       brief: [
         "Sayaka dislikes the idea of a whip. This spawns a discussion on slavery",
         "that Makoto keeps trying to dip out of, without success.",
-        "Makoto zones out, and sums up in thought: \"Slavery: bad\"",
+        'Makoto zones out, and sums up in thought: "Slavery: bad"',
       ],
       lines: [
         say("Concerned", "A whip? I don't like whips. They remind me of plantation history.", "Umm..."),
@@ -732,9 +799,7 @@ export const dialogue: GiftDialogue = {
     },
     Zantetsuken: {
       reaction: "Disliked",
-      brief: [
-        "Some kind of toy sword. Does Makoto think she is a 7 year old boy?",
-      ],
+      brief: ["Some kind of toy sword. Does Makoto think she is a 7 year old boy?"],
       lines: [
         say("Concerned", "Huh? A toy sword?", "Huh?"),
         say("Serious", "Makoto, do you think I'm a seven-year-old boy?", "Um, listen."),
@@ -744,9 +809,7 @@ export const dialogue: GiftDialogue = {
     },
     Muramasa: {
       reaction: "Disliked",
-      brief: [
-        "Some kind of toy sword. Does Makoto think she is a 7 year old boy?",
-      ],
+      brief: ["Some kind of toy sword. Does Makoto think she is a 7 year old boy?"],
       lines: [
         say("Concerned", "Huh? Another toy sword?", "Huh?"),
         say("Serious", "Do I look like a seven-year-old boy to you?", "Um, listen."),
@@ -756,9 +819,7 @@ export const dialogue: GiftDialogue = {
     },
     RaygunZurion: {
       reaction: "Disliked",
-      brief: [
-        "Some kind of toy gun. Does Makoto think she is a 7 year old boy?",
-      ],
+      brief: ["Some kind of toy gun. Does Makoto think she is a 7 year old boy?"],
       lines: [
         say("Concerned", "Huh? A ray gun. Pew pew.", "Huh?"),
         say("Serious", "Makoto. Seven. Year. Old. Boy. Is that what you see when you look at me?", "Um, listen."),
@@ -777,7 +838,11 @@ export const dialogue: GiftDialogue = {
         say("Cheerful", "Ah! The Golden Gun! From James Pond!", 40),
         say("Wistful", "Dad and I watched that every Friday. In English. With no subtitles.", "You see,"),
         makoto("So you understood it?"),
-        say("Smiling", "Not a single word. We made up what they were saying. Pond was a dentist in our version.", "*laughs*"),
+        say(
+          "Smiling",
+          "Not a single word. We made up what they were saying. Pond was a dentist in our version.",
+          "*laughs*",
+        ),
         say("BlushingSmiling", "Best Fridays of my life."),
       ],
     },
@@ -791,7 +856,11 @@ export const dialogue: GiftDialogue = {
         makoto("I figured this might be decent for self defense. You know, just in case."),
         say("Smiling", "Huh? Oh, I don't need armor. I have you for that.", "Huh?"),
         makoto("...Huh?", "Huh?"),
-        say("Determined", "Cause I'm your assistant, and you're my self defense. You'd stand between me and anything.", "Cause I'm your assistant."),
+        say(
+          "Determined",
+          "Cause I'm your assistant, and you're my self defense. You'd stand between me and anything.",
+          "Cause I'm your assistant.",
+        ),
         think("Would I? Would I really? I'm five foot three."),
       ],
     },
@@ -821,7 +890,7 @@ export const dialogue: GiftDialogue = {
         makoto("Okay, so, this is a receiver. It receives... well, actually it doesn't receive anything. It's silent."),
         say("Neutral", "So it does nothing.", 36),
         makoto("It does it very quietly."),
-        say("Serious", "You're giving me junk, Makoto. Just say it. Say \"Sayaka, here is some junk.\"", "Um, listen."),
+        say("Serious", 'You\'re giving me junk, Makoto. Just say it. Say "Sayaka, here is some junk."', "Um, listen."),
         makoto("...Sayaka, here is some junk."),
         say("Concerned", "Rude.", "*Sigh*"),
       ],
@@ -862,7 +931,11 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("Concerned", "A baseball. Oh, that reminds me of Leon.", "Ah?"),
-        say("Serious", "Why? Why does he dye his hair like that? Why does he talk like that? Why does he exist like that?", "Why? Why?"),
+        say(
+          "Serious",
+          "Why? Why does he dye his hair like that? Why does he talk like that? Why does he exist like that?",
+          "Why? Why?",
+        ),
         makoto("He said he'd quit baseball to become a punk rocker."),
         say("Dissociating", "He is a human toilet brush, Makoto. A toilet brush with a goatee.", "I mean..."),
         makoto("Yeah.", "Yeah."),
@@ -870,9 +943,7 @@ export const dialogue: GiftDialogue = {
     },
     AntiqueDoll: {
       reaction: "Liked",
-      brief: [
-        "A skilled craftsman has made this. Makoto is just relieved to get the doll out of his room.",
-      ],
+      brief: ["A skilled craftsman has made this. Makoto is just relieved to get the doll out of his room."],
       lines: [
         say("Smiling", "Ah! An antique doll! Look at the detail on the eyes. A real craftsman made this.", 40),
         say("BlushingSmiling", "The eyes almost follow you. I love it.", "I'm so happy!"),
@@ -882,9 +953,7 @@ export const dialogue: GiftDialogue = {
     },
     CrystalSkull: {
       reaction: "Okay",
-      brief: [
-        "A gimmicky thing. Sayaka thinks it's just okay.",
-      ],
+      brief: ["A gimmicky thing. Sayaka thinks it's just okay."],
       lines: [
         say("Thinking", "A crystal skull. Hm.", "Ummm..."),
         say("Neutral", "It's fine. It's a skull. Made of crystal. That's the whole thing.", 36),
@@ -894,9 +963,7 @@ export const dialogue: GiftDialogue = {
     },
     GoldenAirplane: {
       reaction: "Okay",
-      brief: [
-        "A gimmicky thing. Sayaka thinks it's just okay.",
-      ],
+      brief: ["A gimmicky thing. Sayaka thinks it's just okay."],
       lines: [
         say("Thinking", "A golden airplane. Hm.", "Ummm..."),
         say("Neutral", "It's fine. It's a plane. It's gold. That's the whole thing.", 36),
@@ -906,9 +973,7 @@ export const dialogue: GiftDialogue = {
     },
     PrinceShotokusGlobe: {
       reaction: "Okay",
-      brief: [
-        "A gimmicky thing. Sayaka thinks it's just okay.",
-      ],
+      brief: ["A gimmicky thing. Sayaka thinks it's just okay."],
       lines: [
         say("Thinking", "A globe. Hm.", "Ummm..."),
         say("Neutral", "It's fine. It's a globe. It's... a globe.", 36),
@@ -926,7 +991,11 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("Cheerful", "Ah! A moon rock! Oh, this is great. You know they didn't land in 1969, right?", 40),
         makoto("...They didn't?"),
-        say("Determined", "1992. Everything before that was a soundstage in Nevada. Look at the shadows, Makoto.", "You see,"),
+        say(
+          "Determined",
+          "1992. Everything before that was a soundstage in Nevada. Look at the shadows, Makoto.",
+          "You see,",
+        ),
         think("I'm going to turn my ears off now. Nod and smile. Nod and smile."),
         say("Serious", "...and that's why the flag was waving. Are you listening?", "But that's why."),
         makoto("Mm-hmm.", "Mm-hmm."),
@@ -934,9 +1003,7 @@ export const dialogue: GiftDialogue = {
     },
     AsurasTears: {
       reaction: "Okay",
-      brief: [
-        "Some kind of ancient artifact? It came of of a MonoMono capsule so probably not.",
-      ],
+      brief: ["Some kind of ancient artifact? It came of of a MonoMono capsule so probably not."],
       lines: [
         say("Thinking", "Is this an ancient artifact? It looks like an ancient artifact.", "Ummm..."),
         makoto("It came out of a capsule machine for a hundred yen."),
@@ -971,8 +1038,12 @@ export const dialogue: GiftDialogue = {
       lines: [
         say("Scared", "Ah! Math? MATH?!", "Ah!"),
         makoto("Wait, it's math?"),
-        say("DissociatingOutburst", "Unsolved math problems, Makoto! Seven of them! You absolute cretin! How dare you!", "Why? Why?"),
-        makoto("I didn't check! I just saw \"prize\" on the cover!"),
+        say(
+          "DissociatingOutburst",
+          "Unsolved math problems, Makoto! Seven of them! You absolute cretin! How dare you!",
+          "Why? Why?",
+        ),
+        makoto('I didn\'t check! I just saw "prize" on the cover!'),
         say("Dissociating", "You've handed me homework with no due date. Forever homework.", "*Sigh*"),
         think("I should have read it. I should have read anything."),
       ],
@@ -1012,7 +1083,7 @@ export const dialogue: GiftDialogue = {
         "By the time he has finished thinking, Sayaka has already grabbed it.",
       ],
       lines: [
-        think("Hold on. Wasn't this game banned? Something about the violence being \"obscene even by...\""),
+        think('Hold on. Wasn\'t this game banned? Something about the violence being "obscene even by..."'),
         say("Cheerful", "Ah! Ooh! Mine!", 40),
         think("...and it's gone. She just grabbed it out of my hands."),
         say("Smiling", "I've heard about this one. Thanks, Makoto!", "I'm so happy!"),
@@ -1020,13 +1091,15 @@ export const dialogue: GiftDialogue = {
     },
     TipsTips: {
       reaction: "Okay",
-      brief: [
-        "A tips guide for video games. Sayaka likes it about as much as most people like a cookie.",
-      ],
+      brief: ["A tips guide for video games. Sayaka likes it about as much as most people like a cookie."],
       lines: [
         say("Neutral", "A tips guide. For video games. Okay.", 36),
         makoto("You like it?"),
-        say("Smiling", "About as much as anyone likes being handed one cookie. It's a cookie. I'm not mad.", "I mean..."),
+        say(
+          "Smiling",
+          "About as much as anyone likes being handed one cookie. It's a cookie. I'm not mad.",
+          "I mean...",
+        ),
       ],
     },
     MaidensHandbag: {
@@ -1044,24 +1117,24 @@ export const dialogue: GiftDialogue = {
     },
     KokeshiDynamo: {
       reaction: "Hated",
-      brief: [
-        "TODO",
-      ],
+      brief: ["TODO"],
       lines: [
         makoto("It's a kokeshi doll! Traditional! But it... vibrates? For some reason?"),
         say("Scared", "Ah! Makoto. Makoto, no.", "Ah!"),
         makoto("What? It's a doll. Isn't it a doll?"),
         say("DissociatingOutburst", "That is NOT a doll! Why would you hand me this?!", "Why? Why?"),
-        say("Dissociating", "It was so strange... Did you really not know? Did you really think...", "It was so strange."),
+        say(
+          "Dissociating",
+          "It was so strange... Did you really not know? Did you really think...",
+          "It was so strange.",
+        ),
         think("What am I missing here? It's shaped like a doll. It's painted like a doll."),
         say("Serious", "We're never speaking of this again.", "Um, listen."),
       ],
     },
     TheSecondButton: {
       reaction: "Disliked",
-      brief: [
-        "Sayaka: you're giving me a button? Why?",
-      ],
+      brief: ["Sayaka: you're giving me a button? Why?"],
       lines: [
         say("Thinking", "A button. You're giving me a button? Why?", "Ummm..."),
         makoto("It's the second button! From a uniform! It's a... it's a tradition?"),
@@ -1072,10 +1145,7 @@ export const dialogue: GiftDialogue = {
     },
     SomeonesGraduationAlbum: {
       reaction: "Okay",
-      brief: [
-        "Makoto seems to be offloading random junk. Sayaka tells him to just put it back where",
-        "he found it.",
-      ],
+      brief: ["Makoto seems to be offloading random junk. Sayaka tells him to just put it back where", "he found it."],
       lines: [
         say("Concerned", "Makoto, this is somebody else's graduation album.", "Hold on a second..."),
         makoto("I know."),
@@ -1086,9 +1156,7 @@ export const dialogue: GiftDialogue = {
     },
     Vise: {
       reaction: "Disliked",
-      brief: [
-        "Sayaka drops the vice on Makoto's foot. Was that on purpose? She didn't like the gift anyway",
-      ],
+      brief: ["Sayaka drops the vice on Makoto's foot. Was that on purpose? She didn't like the gift anyway"],
       lines: [
         say("Neutral", "A vise. Hm. Heavy.", "Ah?"),
         raw("Sound(28)"),
@@ -1107,7 +1175,11 @@ export const dialogue: GiftDialogue = {
         "Makoto deems it not worth the effort to correct her.",
       ],
       lines: [
-        say("Determined", "A sacred sprig! This comes from Yggdrasil, the tree where Amaterasu hid from Osiris.", "You see,"),
+        say(
+          "Determined",
+          "A sacred sprig! This comes from Yggdrasil, the tree where Amaterasu hid from Osiris.",
+          "You see,",
+        ),
         makoto("That's... three different..."),
         say("Determined", "And Zeus used its branches to build the ark. Everyone knows that.", "But that's why."),
         think("Japanese, Norse, Egyptian and Greek. All at once. All wrong."),
@@ -1128,9 +1200,7 @@ export const dialogue: GiftDialogue = {
     },
     Oblaat: {
       reaction: "Okay",
-      brief: [
-        "An edible wrapper. Sayaka is confused to be given just the wrapper on its own.",
-      ],
+      brief: ["An edible wrapper. Sayaka is confused to be given just the wrapper on its own."],
       lines: [
         say("Thinking", "Oblaat? The edible wrapper?", "Ummm..."),
         makoto("Yeah."),
@@ -1141,9 +1211,7 @@ export const dialogue: GiftDialogue = {
     },
     WaterFlute: {
       reaction: "Liked",
-      brief: [
-        "The water flute is a bit of fun. Sayaka seems to be cheered up by the sounds it makes.",
-      ],
+      brief: ["The water flute is a bit of fun. Sayaka seems to be cheered up by the sounds it makes."],
       lines: [
         say("Smiling", "Ah! A water flute! Hold on, let me fill it...", 40),
         say("Cheerful", "It sounds like a drunk bird!", "*Giggle*"),
@@ -1168,9 +1236,7 @@ export const dialogue: GiftDialogue = {
     },
     SmallLight: {
       reaction: "Liked",
-      brief: [
-        "The flashlight might come in handy. Sayaka is happy that Makoto is planning ahead.",
-      ],
+      brief: ["The flashlight might come in handy. Sayaka is happy that Makoto is planning ahead."],
       lines: [
         say("Smiling", "Ah! A flashlight! That's smart. If the power goes out down here we're going to want this.", 40),
         makoto("Yeah, I figured it might come in handy."),
@@ -1179,11 +1245,9 @@ export const dialogue: GiftDialogue = {
     },
     VoiceChangingBowtie: {
       reaction: "Okay",
-      brief: [
-        "The label reads 'voice changing voice tie",
-      ],
+      brief: ["The label reads 'voice changing voice tie"],
       lines: [
-        say("Thinking", "The label says \"Voice Changing Voice Tie.\"", "Ummm..."),
+        say("Thinking", 'The label says "Voice Changing Voice Tie."', "Ummm..."),
         makoto("Voice tie?"),
         say("Neutral", "That's what it says. Voice Tie. Twice.", "I mean..."),
         makoto("Does it change your voice?"),
@@ -1207,9 +1271,7 @@ export const dialogue: GiftDialogue = {
     },
     NovelistsFountainPen: {
       reaction: "Okay",
-      brief: [
-        "A fountain pen. Makoto gets ink on himself while fishing it out of his pocket.",
-      ],
+      brief: ["A fountain pen. Makoto gets ink on himself while fishing it out of his pocket."],
       lines: [
         makoto("Hold on, I've got it right here in my... ugh."),
         say("HandOverMouth", "Ah! Makoto, your hand is black.", "Ah!"),
@@ -1291,7 +1353,11 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("Cheerful", "Ah! A green costume! I wore one just like this at an elementary school visit once.", 40),
-        say("Wistful", "I was a dinosaur. The kids chased me around the gym for an hour. I've never felt so famous.", "You see,"),
+        say(
+          "Wistful",
+          "I was a dinosaur. The kids chased me around the gym for an hour. I've never felt so famous.",
+          "You see,",
+        ),
         say("BlushingSmiling", "That was a good day.", "That's good."),
       ],
     },
@@ -1303,7 +1369,11 @@ export const dialogue: GiftDialogue = {
       ],
       lines: [
         say("Cheerful", "Ah! A red costume! I wore one just like this for an elementary school visit.", 40),
-        say("Wistful", "I was a dragon. One kid cried, then hugged my leg for twenty minutes. I've never felt so loved.", "You see,"),
+        say(
+          "Wistful",
+          "I was a dragon. One kid cried, then hugged my leg for twenty minutes. I've never felt so loved.",
+          "You see,",
+        ),
         say("BlushingSmiling", "That was a good day.", "That's good."),
       ],
     },

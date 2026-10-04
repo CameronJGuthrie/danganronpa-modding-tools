@@ -1,8 +1,8 @@
-import * as vscode from "vscode";
 import { textStyleColor } from "linscript-definitions";
+import * as vscode from "vscode";
 import { instructions } from "../instructions";
-import { logError, logWarning } from "../output";
 import type { LinscriptInstruction } from "../instructions/linscript-instruction";
+import { logError, logWarning } from "../output";
 import { argumentNames } from "../util/argument-names";
 import { type ScopedNames, scopedNamesFromDocument } from "../util/script-meta";
 import {

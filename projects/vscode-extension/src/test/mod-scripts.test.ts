@@ -1,4 +1,4 @@
-import * as assert from "assert";
+import * as assert from "node:assert";
 import { explorationScriptPath, flatScriptName } from "danganronpa-scripts/src/lib/mod-scripts.ts";
 
 suite("flatScriptName", () => {

@@ -1,10 +1,10 @@
 import * as path from "node:path";
 import {
   type Character,
+  characterData,
   isChapter,
   isCharacter,
   voiceLinesByCharacterByChapter,
-  characterData,
 } from "linscript-definitions";
 import type * as vscode from "vscode";
 import { instructions } from "../../../instructions";

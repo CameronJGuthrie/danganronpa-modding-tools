@@ -60,11 +60,7 @@ export function planOptionSugar(entries: readonly ScriptEntry[]): Set<number> {
 }
 
 /** The argument text of an `Option(...)` for the SetOption at `index`; the plan has checked the shape. */
-export function formatOption(
-  entries: readonly ScriptEntry[],
-  index: number,
-  scopes: ScopeTables,
-): string {
+export function formatOption(entries: readonly ScriptEntry[], index: number, scopes: ScopeTables): string {
   const label = entries[index + 1];
   const text = "text" in label ? (labelText(label.text) ?? label.text) : "";
   return `${formatArgs(setOption.args, entries[index], { scopes })}, ${formatTextArgument(text)}`;

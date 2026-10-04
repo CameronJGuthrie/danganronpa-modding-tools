@@ -1,6 +1,13 @@
 import { type PointerEvent as ReactPointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FlowGraph, GraphEdgeKind, GraphNode } from "../../script/flowGraph";
-import { FONT, type FlowLayout, layoutFlowGraph, type Point, type PositionedEdge, type PositionedNode } from "../../script/flowLayout";
+import {
+  type FlowLayout,
+  FONT,
+  layoutFlowGraph,
+  type Point,
+  type PositionedEdge,
+  type PositionedNode,
+} from "../../script/flowLayout";
 
 type FlowDiagramProps = {
   graph: FlowGraph;
@@ -132,7 +139,13 @@ export function FlowDiagram({ graph, highlight = null, onShowLine }: FlowDiagram
     if (event.button !== 0) {
       return;
     }
-    drag.current = { startX: event.clientX, startY: event.clientY, originX: transform.x, originY: transform.y, moved: false };
+    drag.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: transform.x,
+      originY: transform.y,
+      moved: false,
+    };
   };
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const state = drag.current;
@@ -164,7 +177,7 @@ export function FlowDiagram({ graph, highlight = null, onShowLine }: FlowDiagram
   /** True while the pointer-up that ends a drag is still dispatching its click. */
   const wasDrag = () => drag.current?.moved === true;
 
-  const selected = selectedId === null ? null : layout.nodes.find(({ node }) => node.id === selectedId) ?? null;
+  const selected = selectedId === null ? null : (layout.nodes.find(({ node }) => node.id === selectedId) ?? null);
 
   if (graph.nodes.length <= 1) {
     return (
@@ -250,7 +263,11 @@ export function FlowDiagram({ graph, highlight = null, onShowLine }: FlowDiagram
       >
         <div className="pointer-events-auto flex items-center gap-1 rounded bg-white/90 p-1 shadow dark:bg-slate-700/90">
           <ToolbarButton onClick={() => zoomBy(1 / 1.25)} title="Zoom out" label="−" />
-          <ToolbarButton onClick={fit} title="Fit the whole chart in view" label={`${Math.round(transform.k * 100)}%`} />
+          <ToolbarButton
+            onClick={fit}
+            title="Fit the whole chart in view"
+            label={`${Math.round(transform.k * 100)}%`}
+          />
           <ToolbarButton onClick={() => zoomBy(1.25)} title="Zoom in" label="+" />
           <span className="px-1 text-slate-500 dark:text-slate-400">
             {graph.nodes.length} shapes · {graph.edges.length} arrows
@@ -376,12 +393,26 @@ function Shape({ placed, selected, highlighted, onClick, onDoubleClick }: ShapeP
           strokeDasharray={node.kind === "missing" ? "5 3" : undefined}
         />
       )}
-      {node.kind === "block" ? <BlockText node={node} rows={rows} left={left} top={top} /> : <CentredText rows={rows} x={x} y={y} bold={node.kind !== "decision"} />}
+      {node.kind === "block" ? (
+        <BlockText node={node} rows={rows} left={left} top={top} />
+      ) : (
+        <CentredText rows={rows} x={x} y={y} bold={node.kind !== "decision"} />
+      )}
     </g>
   );
 }
 
-function BlockText({ node, rows, left, top }: { node: Extract<GraphNode, { kind: "block" }>; rows: string[]; left: number; top: number }) {
+function BlockText({
+  node,
+  rows,
+  left,
+  top,
+}: {
+  node: Extract<GraphNode, { kind: "block" }>;
+  rows: string[];
+  left: number;
+  top: number;
+}) {
   const hasTitle = node.title !== "";
   const textX = left + ROW_PADDING_X;
   // Baseline of the first row: top padding plus most of the row height
@@ -413,7 +444,10 @@ function CentredText({ rows, x, y, bold }: { rows: string[]; x: number; y: numbe
   const totalHeight = rows.length * FONT.lineHeight;
   const first = y - totalHeight / 2 + FONT.lineHeight * 0.75;
   return (
-    <g className={`pointer-events-none font-mono ${TEXT_CLASS} ${bold ? "font-semibold" : ""}`} style={{ fontSize: FONT.size }}>
+    <g
+      className={`pointer-events-none font-mono ${TEXT_CLASS} ${bold ? "font-semibold" : ""}`}
+      style={{ fontSize: FONT.size }}
+    >
       {rows.map((row, index) => (
         <text
           // biome-ignore lint/suspicious/noArrayIndexKey: rows are positional text with no identity
@@ -538,14 +572,29 @@ function diamondBoundary(placed: PositionedNode, toward: Point): Point {
 function Legend() {
   return (
     <div className="pointer-events-none absolute bottom-2 left-2 flex flex-wrap gap-x-3 gap-y-1 rounded bg-white/90 px-2 py-1 text-[11px] text-slate-600 shadow dark:bg-slate-700/90 dark:text-slate-300">
-      <LegendItem shape={<rect x="1" y="2" width="14" height="10" rx="2" className={SHAPE_FILL.block} />} label="Instructions" />
+      <LegendItem
+        shape={<rect x="1" y="2" width="14" height="10" rx="2" className={SHAPE_FILL.block} />}
+        label="Instructions"
+      />
       <LegendItem shape={<polygon points="8,1 15,7 8,13 1,7" className={SHAPE_FILL.decision} />} label="Condition" />
       <LegendItem shape={<polygon points="4,2 15,2 12,12 1,12" className={SHAPE_FILL.menu} />} label="Menu" />
-      <LegendItem shape={<rect x="1" y="2" width="14" height="10" rx="4" className={SHAPE_FILL.handlers} />} label="Handlers" />
-      <LegendItem shape={<rect x="1" y="2" width="14" height="10" rx="5" className={SHAPE_FILL.end} />} label="Start / stop" />
-      <LegendItem shape={<line x1="1" y1="7" x2="15" y2="7" strokeWidth="2" className={EDGE_STROKE.yes} />} label="yes" />
+      <LegendItem
+        shape={<rect x="1" y="2" width="14" height="10" rx="4" className={SHAPE_FILL.handlers} />}
+        label="Handlers"
+      />
+      <LegendItem
+        shape={<rect x="1" y="2" width="14" height="10" rx="5" className={SHAPE_FILL.end} />}
+        label="Start / stop"
+      />
+      <LegendItem
+        shape={<line x1="1" y1="7" x2="15" y2="7" strokeWidth="2" className={EDGE_STROKE.yes} />}
+        label="yes"
+      />
       <LegendItem shape={<line x1="1" y1="7" x2="15" y2="7" strokeWidth="2" className={EDGE_STROKE.no} />} label="no" />
-      <LegendItem shape={<line x1="1" y1="7" x2="15" y2="7" strokeWidth="2" strokeDasharray="3 2" className={EDGE_STROKE.jump} />} label="Goto" />
+      <LegendItem
+        shape={<line x1="1" y1="7" x2="15" y2="7" strokeWidth="2" strokeDasharray="3 2" className={EDGE_STROKE.jump} />}
+        label="Goto"
+      />
     </div>
   );
 }
