@@ -9,5 +9,6 @@
     "editor.insertSpaces": true,
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "search.useIgnoreFiles": false
+  "search.useIgnoreFiles": false,
+  "git.repositoryScanMaxDepth": 2
 }
