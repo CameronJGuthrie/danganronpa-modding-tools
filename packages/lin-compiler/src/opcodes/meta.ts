@@ -16,25 +16,35 @@ import { splitArgs } from "../parameter.ts";
  *       LabelName(5, HatedGift)
  *       SceneFlag(1, RoomIntroSeen)
  *
- * `Object(id, Name)` names an object id, so the body can say `OnObject(Monitor)` instead of
- * `OnObject(20)`. `Character(id, Name)` names a placed-character slot the same way for
- * `OnCharacter`; the id is the first argument of the `Sprite(...)` that placed the character, not the
- * `Character` enum, so the same student can hold a different slot in every script. Objects and
- * character slots are two halves of what looks like one table of interactable targets in a room:
- * every script that has `OnCharacter` handlers also has `OnObject` ones, placed characters take
- * ids 0 to 18 (`PlaceSprite` and `OnCharacter` never use a higher id) and objects take 20 to 48
- * (`ObjectState` and `OnObject` never use a lower one, other than the 254 "no target" handler and
- * the closing 255). They are still separate entries here because different opcodes bind to each
- * range and a name declared for one is never meaningful to the other. `Option(id, Name)`
- * names a menu option id for `SetOption` and the `Option(id, "label")` sugar. Every script starts with `DEFAULT_OPTION_NAMES`, which a declared
- * entry may override; only declared entries are written back. `LabelName(id, Name)` names a jump
- * label so `Label(5)` / `Goto(5)` read `Label(HatedGift)` / `Goto(HatedGift)`; label ids are 16-bit.
- * `SceneFlag(id, Name)` names a slot of the `SceneFlags` flag group, the per-scene scratch booleans
- * every scene entry script resets, so `SetFlag(SceneFlags, 1, True)` reads
- * `SetFlag(SceneFlags, RoomIntroSeen, True)`; the group's fixed `Reset` name still applies.
- * Names are identifiers, unique within the file per kind, and each id is named once. The block is terminated by the end of the file;
- * nothing but these entries, blank lines and comments may follow it. Compiling to `.lin` drops
- * the block, and decompiling produces none.
+ * Entries:
+ *
+ * - `Object(id, Name)` names an object id, so the body reads `OnObject(Monitor)` and
+ *   `ObjectState(Monitor, ...)` instead of `OnObject(20)`.
+ *
+ * - `Character(id, Name)` names a placed-character slot for `OnCharacter`. The id is the first
+ *   argument of the `PlaceSprite(...)` that placed the character, not the `Character` enum, so the
+ *   same student can hold a different slot in every script.
+ *
+ * - `Option(id, Name)` names a menu option id for `SetOption` and the `Option(id, "label")` sugar.
+ *   Every script starts with `DEFAULT_OPTION_NAMES`, which a declared entry may override; only
+ *   declared entries are written back.
+ *
+ * - `LabelName(id, Name)` names a jump label, so `Label(5)` / `Goto(5)` read `Label(HatedGift)` /
+ *   `Goto(HatedGift)`. Label ids are 16-bit; every other id is a byte.
+ *
+ * - `SceneFlag(id, Name)` names a slot of the `SceneFlags` flag group, the per-scene scratch
+ *   booleans every scene entry script resets, so `SetFlag(SceneFlags, 1, True)` reads
+ *   `SetFlag(SceneFlags, RoomIntroSeen, True)`. The group's fixed `Reset` name still applies.
+ *
+ * Objects and character slots look like two halves of one table of interactable targets in a
+ * room: every script with `OnCharacter` handlers also has `OnObject` ones, characters take ids
+ * 0 to 18 and objects 20 to 48 (plus the 254 "no target" handler and the closing 255), and the
+ * ranges never overlap. They stay separate entries because different opcodes bind to each range,
+ * so a name declared for one is never meaningful to the other.
+ *
+ * Rules: names are identifiers, unique within the file per kind, and each id is named once. The
+ * block runs to the end of the file; nothing but these entries, blank lines and comments may
+ * follow it. Compiling to `.lin` drops the block, and decompiling produces none.
  */
 
 /** Source name of the block opener. */
