@@ -26,7 +26,7 @@ Opcode | Name| Description | Arguments
 `0x06` | Animation | Plays an animation | 16BE animation ID, then 6 unknown arguments
 `0x07` | __unused__
 `0x08` | Voice | Plays character audio. This is organised by chapter and by character, and the arguments select the clip using these groups. | Byte character ID, Byte chapter, 16BE voice ID, Byte volume
-`0x09` | Music | Play music audio. | Byte music ID, Byte volume, Byte fade in frames
+`0x09` | Music | Play music audio. | Byte music ID, Byte volume (fade-out frames when the ID is 255, stop), Byte fade in frames
 `0x0A` | Sound | Play sound effect. | 16BE sound ID. Byte volume
 `0x0B` | SoundB | Play sound effect from a different bank. | 16BE sound ID. Byte volume
 `0x0C` | TruthBulletFlag | Add or remove truth bullets | Byte operation, Byte value

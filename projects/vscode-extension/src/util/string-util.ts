@@ -2,10 +2,11 @@ import { textStyleForTag } from "linscript-definitions";
 
 /**
  * One source argument: a decimal number, a bare identifier such as a character name
- * (`Speaker(Makoto)`), or a comparison operator (`If(0, <=, 5)`). Names are resolved to numbers by
+ * (`Speaker(Makoto)`), or a comparison or arithmetic operator (`If(0, <=, 5)`, `SetVariable(Wait, +=, 2)`).
+ * Names are resolved to numbers by
  * `getArgumentsFromFunctionLike`.
  */
-const ARGUMENT = "(?:\\d+|[A-Za-z_]\\w*|[<>!=]=?)";
+const ARGUMENT = "(?:\\d+|[A-Za-z_]\\w*|[-+<>!=]=?)";
 
 /** The jump a condition carries as its last argument: `, Goto(label)`. */
 const BRANCH_JUMP = `\\s*,\\s*Goto\\s*\\(\\s*${ARGUMENT}\\s*\\)`;
@@ -88,6 +89,16 @@ export function createCompleteFunctionRegex(
   return regexPattern;
 }
 
+/**
+ * Match every call of `functionName`, however malformed its arguments, so that negative numbers,
+ * wrong argument counts and the like can be reported: anything up to the closing parenthesis, with
+ * one level of nested calls allowed for a condition's `Goto(label)`. Quoted strings are not
+ * understood, so this is not for the instructions that take one.
+ */
+export function createLooseCallRegex(functionName: string): RegExp {
+  return new RegExp(`\\b${functionName}\\s*\\((?:[^()"]|\\([^()"]*\\))*\\)`, "g");
+}
+
 export function createVarargsRegex(functionName: string, branch = false): RegExp {
   // Match function name followed by parentheses with any number of comma-separated arguments
   // Pattern: FunctionName( arg [, arg]* ) — a condition ends with its jump, Goto(label)
@@ -135,9 +146,9 @@ export function getColorTextMatch(
 /**
  * Extract the arguments of a call such as `Speaker(Makoto)` or `Sound(219, 100)`.
  *
- * Each argument is returned with its offset in `functionLike` and its numeric value. A named
- * argument is resolved through `names[argIndex]` when given; a name with no table (or one that is
- * not in the table) yields `NaN`.
+ * Each argument is returned with its source text, its offset in `functionLike` and its numeric
+ * value. A named argument is resolved through `names[argIndex]` when given; a name with no table
+ * (or one that is not in the table) yields `NaN`.
  */
 export function getArgumentsFromFunctionLike(functionLike: string, names: readonly ArgumentNameSource[] = []) {
   const regex = /(\w+)\(([^)]*)\)/; // Match function calls
@@ -148,7 +159,7 @@ export function getArgumentsFromFunctionLike(functionLike: string, names: readon
       .split(",")
       .map((param) => param.trim())
       .filter((param) => param !== ""); // Filter out empty strings (from empty parentheses)
-    const results: { stringIndex: number; value: number }[] = [];
+    const results: { text: string; stringIndex: number; value: number }[] = [];
 
     // Find the opening parenthesis position to start searching for params after it
     const openParenIndex = functionLike.indexOf("(", match.index);
@@ -157,9 +168,8 @@ export function getArgumentsFromFunctionLike(functionLike: string, names: readon
     params.forEach((param, argIndex) => {
       const startIndex = functionLike.indexOf(param, currentIndex);
 
-      const source = names[argIndex];
-      const table = isDependent(source) ? source.tables[results[argIndex + source.argument]?.value] : source;
-      results.push({ stringIndex: startIndex, value: resolveArgument(param, table) });
+      const table = argumentTable(names, argIndex, results);
+      results.push({ text: param, stringIndex: startIndex, value: resolveArgument(param, table) });
 
       currentIndex = startIndex + param.length;
     });
@@ -170,12 +180,34 @@ export function getArgumentsFromFunctionLike(functionLike: string, names: readon
   return []; // Return empty array if no match is found
 }
 
+/** The table that applies to argument `index` of a call, given the arguments resolved before it. */
+export function argumentTable(
+  names: readonly ArgumentNameSource[],
+  index: number,
+  resolved: readonly { value: number }[],
+): ArgumentNames | undefined {
+  const source = names[index];
+  return isDependent(source) ? source.tables[resolved[index + source.argument]?.value] : source;
+}
+
+/** The value `name` stands for in `names`, if it is one of the table's names. */
+export function valueOfName(names: ArgumentNames | undefined, name: string): number | undefined {
+  const value = names && Object.hasOwn(names, name) ? names[name] : undefined;
+  return typeof value === "number" ? value : undefined;
+}
+
+/** Whether `value` has a name in `names`. */
+export function hasNamedValue(names: ArgumentNames | undefined, value: number): boolean {
+  return names !== undefined && typeof names[value] === "string";
+}
+
+/** Whether a source argument is written as a plain decimal number rather than a name or symbol. */
+export function isNumericArgument(text: string): boolean {
+  return /^\d+$/.test(text);
+}
+
 function resolveArgument(text: string, names: ArgumentNames | undefined): number {
-  const value = names && Object.hasOwn(names, text) ? names[text] : undefined;
-  if (typeof value === "number") {
-    return value;
-  }
-  return /^\d+$/.test(text) ? Number(text) : Number.NaN;
+  return valueOfName(names, text) ?? (isNumericArgument(text) ? Number(text) : Number.NaN);
 }
 
 export function countOccurances(needle: string, haystack: string) {

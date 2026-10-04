@@ -38,6 +38,9 @@ export type ParameterMetaValue =
       description?: string;
     };
 
+/** An inclusive span of accepted numbers. */
+export type ParameterRange = { readonly min: number; readonly max: number };
+
 export type ParameterMeta = {
   /**
    * The name of the parameter.
@@ -56,6 +59,15 @@ export type ParameterMeta = {
    * of `Voice`, `Sound` and `SoundB` defaults to 100. The decorator fills it in the same way.
    */
   defaultValue?: number;
+  /**
+   * The numbers this argument accepts, inclusive. A plain number outside it that is not one of the
+   * parameter's named values is reported as a warning in the Problems tab (`features/diagnostics.ts`);
+   * without a range any number is accepted. Names are checked against the tables regardless. A
+   * function form picks the range from the call's resolved argument values (an unresolved name is
+   * `NaN`), or returns undefined to accept any number: the second byte of `Music` is a volume when a
+   * track starts but a fade-out frame count when it stops.
+   */
+  range?: ParameterRange | ((args: readonly number[]) => ParameterRange | undefined);
   /**
    * Enum whose member names may appear in source instead of the number, e.g. `Character` lets the
    * decompiler write `Speaker(Makoto)`. The decorator resolves such names back to their value.

@@ -3,7 +3,8 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 
 export const musicInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.Music,
-  description: "Starts a background music track with a fade-in in frames; id 255 stops the current track.",
+  description:
+    "Starts a background music track at a volume with a fade-in in frames; Stop (255) fades the current track out over the second argument's frames.",
   parameters: [
     {
       name: "musicId",
@@ -12,7 +13,10 @@ export const musicInstruction: LinscriptInstruction = {
     },
     {
       name: "volume",
-      description: "Always 100",
+      description:
+        "Volume (0-100, nearly always 100) when a track starts; the fade-out length in frames when the track is Stop",
+      // The shipped scripts stop with 0, 60, 90, 120 or 180 frames (224 twice), so the volume range only applies to a start
+      range: ([musicId]) => (musicId === Music.Stop ? undefined : { min: 0, max: 100 }),
     },
     {
       name: "fadeInTime",

@@ -2,8 +2,10 @@ import * as assert from "node:assert";
 import { Character, comparisonOperators, RESET_FLAGS } from "linscript-definitions";
 // Import the instructions record from instructions/index.ts to avoid drift
 import { instructions } from "../instructions";
+import { scopedNamesFromDocument } from "../util/script-meta";
 import {
   createCompleteFunctionRegex,
+  createLooseCallRegex,
   createQuoteChecker,
   createVarargsRegex,
   getArgumentsFromFunctionLike,
@@ -12,6 +14,9 @@ import {
   getTextFunctionRegex,
   isInsideQuotes,
 } from "../util/string-util";
+import { validateCall, validateCallSyntax } from "../util/validate-arguments";
+
+const NO_SCOPED_NAMES = scopedNamesFromDocument("");
 
 suite("Extension Test Suite", () => {
   test("Sample test", () => {
@@ -130,13 +135,13 @@ suite("Extension Test Suite", () => {
 
   test("argument extractor", () => {
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Movie(0, 2, 3)"), [
-      { stringIndex: 6, value: 0 },
-      { stringIndex: 9, value: 2 },
-      { stringIndex: 12, value: 3 },
+      { text: "0", stringIndex: 6, value: 0 },
+      { text: "2", stringIndex: 9, value: 2 },
+      { text: "3", stringIndex: 12, value: 3 },
     ]);
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Movie(0, 2)"), [
-      { stringIndex: 6, value: 0 },
-      { stringIndex: 9, value: 2 },
+      { text: "0", stringIndex: 6, value: 0 },
+      { text: "2", stringIndex: 9, value: 2 },
     ]);
   });
 
@@ -151,17 +156,17 @@ suite("Extension Test Suite", () => {
   });
 
   test("argument extractor with single argument", () => {
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetFlag(12)"), [{ stringIndex: 8, value: 12 }]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetFlag(12)"), [{ text: "12", stringIndex: 8, value: 12 }]);
 
     // With whitespace
-    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetFlag( 12 )"), [{ stringIndex: 9, value: 12 }]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetFlag( 12 )"), [{ text: "12", stringIndex: 9, value: 12 }]);
   });
 
   test("argument extractor handles zero values", () => {
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Func(0, 0, 0)"), [
-      { stringIndex: 5, value: 0 },
-      { stringIndex: 8, value: 0 },
-      { stringIndex: 11, value: 0 },
+      { text: "0", stringIndex: 5, value: 0 },
+      { text: "0", stringIndex: 8, value: 0 },
+      { text: "0", stringIndex: 11, value: 0 },
     ]);
   });
 
@@ -172,10 +177,10 @@ suite("Extension Test Suite", () => {
     assert.doesNotMatch('Speaker("Makoto")', createCompleteFunctionRegex("Speaker", 1));
 
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Speaker(Makoto)", [Character]), [
-      { stringIndex: 8, value: Character.Makoto },
+      { text: "Makoto", stringIndex: 8, value: Character.Makoto },
     ]);
     assert.deepStrictEqual(getArgumentsFromFunctionLike("Speaker(15)", [Character]), [
-      { stringIndex: 8, value: Character.Monokuma },
+      { text: "15", stringIndex: 8, value: Character.Monokuma },
     ]);
     assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Speaker(Nobody)", [Character])[0].value));
     assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Speaker(Makoto)")[0].value));
@@ -237,5 +242,111 @@ suite("Extension Test Suite", () => {
     for (const [key, meta] of Object.entries(instructions)) {
       assert.strictEqual(meta.name, key, `Instruction registered under "${key}" is named "${meta.name}"`);
     }
+  });
+
+  test("validateCall accepts known names and numbers within range", () => {
+    assert.deepStrictEqual(validateCall(instructions.Music, "Music(DanganRonpa, 100, 60)", NO_SCOPED_NAMES), []);
+    assert.deepStrictEqual(validateCall(instructions.Music, "Music(55, 0, 0)", NO_SCOPED_NAMES), []);
+    // The second byte is a fade-out length when the track stops, so the volume range does not apply
+    assert.deepStrictEqual(validateCall(instructions.Music, "Music(Stop, 180, 0)", NO_SCOPED_NAMES), []);
+    // A slot without a range accepts any number, so unresearched sprite ids are not reported
+    assert.deepStrictEqual(
+      validateCall(instructions.Sprite, "Sprite(0, Taka, 6, FadeIn, Center)", NO_SCOPED_NAMES),
+      [],
+    );
+  });
+
+  test("validateCall reports an unknown name", () => {
+    const problems = validateCall(instructions.Music, "Music(HappyBirthday, 100, 60)", NO_SCOPED_NAMES);
+    assert.strictEqual(problems.length, 1);
+    assert.strictEqual(problems[0].stringIndex, "Music(".length);
+    assert.strictEqual(problems[0].length, "HappyBirthday".length);
+    assert.match(problems[0].message, /Unknown musicId 'HappyBirthday'/);
+  });
+
+  test("validateCall reports a number outside the parameter's range", () => {
+    const problems = validateCall(instructions.Music, "Music(DanganRonpa, 101, 60)", NO_SCOPED_NAMES);
+    assert.strictEqual(problems.length, 1);
+    assert.strictEqual(problems[0].stringIndex, "Music(DanganRonpa, ".length);
+    assert.match(problems[0].message, /volume 101 is outside the valid range 0 to 100/);
+    assert.deepStrictEqual(
+      validateCall(instructions.Voice, "Voice(Makoto, Chapter_1, 5, 200)", NO_SCOPED_NAMES).length,
+      1,
+    );
+  });
+
+  test("validateCall resolves names through dependent and document-scoped tables", () => {
+    assert.deepStrictEqual(
+      validateCall(instructions.SetFlag, "SetFlag(System, HandbookEnabled, True)", NO_SCOPED_NAMES),
+      [],
+    );
+    assert.strictEqual(validateCall(instructions.SetFlag, "SetFlag(System, Nothing, True)", NO_SCOPED_NAMES).length, 1);
+
+    const scoped = scopedNamesFromDocument("Meta()\n  Object(20, Monitor)\n  LabelName(5, HatedGift)\n");
+    assert.deepStrictEqual(validateCall(instructions.OnObject, "OnObject(Monitor)", scoped), []);
+    assert.strictEqual(validateCall(instructions.OnObject, "OnObject(Door)", scoped).length, 1);
+    // A condition's jump is validated as its own Goto call, not as one of the condition's arguments
+    assert.deepStrictEqual(
+      validateCall(instructions.IfRelationship, "IfRelationship(Sayaka, >, 0, Goto(HatedGift))", scoped),
+      [],
+    );
+    assert.deepStrictEqual(validateCall(instructions.Goto, "Goto(HatedGift)", scoped), []);
+    assert.strictEqual(validateCall(instructions.Goto, "Goto(Nowhere)", scoped).length, 1);
+    // Meta() entries declare names rather than use them
+    assert.deepStrictEqual(validateCall(instructions.Object, "Object(20, Monitor)", scoped), []);
+  });
+
+  test("validateCallSyntax reports negative, non-numeric and empty arguments as errors", () => {
+    assert.deepStrictEqual(validateCallSyntax(instructions.Music, "Music(DanganRonpa, 100, 60)"), []);
+    assert.deepStrictEqual(validateCallSyntax(instructions.Music, "Music( DanganRonpa ,100,60 )"), []);
+    // Arithmetic operators are symbols, not negative numbers
+    assert.deepStrictEqual(validateCallSyntax(instructions.SetVariable, "SetVariable(Variable_13, -=, 2000)"), []);
+    assert.deepStrictEqual(
+      validateCall(instructions.SetVariable, "SetVariable(Variable_13, -=, 2000)", NO_SCOPED_NAMES),
+      [],
+    );
+
+    const negative = validateCallSyntax(instructions.Music, "Music(DanganRonpa, -1, 60)");
+    assert.strictEqual(negative.length, 1);
+    assert.strictEqual(negative[0].severity, "error");
+    assert.strictEqual(negative[0].stringIndex, "Music(DanganRonpa, ".length);
+    assert.strictEqual(negative[0].length, 2);
+    assert.match(negative[0].message, /Negative argument '-1'/);
+
+    assert.match(
+      validateCallSyntax(instructions.Music, "Music(DanganRonpa, 1.5, 60)")[0].message,
+      /'1.5' is not a number or a name/,
+    );
+    assert.match(
+      validateCallSyntax(instructions.Music, "Music(DanganRonpa, 0x10, 60)")[0].message,
+      /'0x10' is not a number/,
+    );
+    assert.match(validateCallSyntax(instructions.Music, "Music(DanganRonpa, , 60)")[0].message, /Empty argument/);
+  });
+
+  test("validateCallSyntax reports the wrong number of arguments", () => {
+    assert.match(
+      validateCallSyntax(instructions.Music, "Music(DanganRonpa, 100)")[0].message,
+      /expects 3 argument\(s\), got 2/,
+    );
+    assert.match(
+      validateCallSyntax(instructions.Voice, "Voice(Makoto, Chapter_1)")[0].message,
+      /expects 3 to 4 argument\(s\), got 2/,
+    );
+    assert.deepStrictEqual(validateCallSyntax(instructions.Voice, "Voice(Makoto, Chapter_1, 5)"), []);
+    assert.deepStrictEqual(validateCallSyntax(instructions.StopScript, "StopScript()"), []);
+    // Varargs take any count; a condition must still end with its jump
+    assert.deepStrictEqual(validateCallSyntax(instructions.If, "If(0, ==, 5, Or, 8, !=, 9, Goto(3))"), []);
+    assert.match(validateCallSyntax(instructions.If, "If(0, ==, 5)")[0].message, /must end with its jump/);
+    assert.match(validateCallSyntax(instructions.If, "If(0, ==, -5, Goto(3))")[0].message, /Negative argument '-5'/);
+  });
+
+  test("the loose call regex matches malformed calls but not other instructions' names", () => {
+    // A fresh regex per assertion: a global regex keeps its lastIndex between matches
+    assert.match("Music(DanganRonpa, -1, 60)", createLooseCallRegex("Music"));
+    assert.match("Music(DanganRonpa, 100)", createLooseCallRegex("Music"));
+    assert.match("If(0, ==, -5, Goto(3))", createLooseCallRegex("If"));
+    assert.doesNotMatch("OnObject(Monitor)", createLooseCallRegex("Object"));
+    assert.doesNotMatch('RawText("hi")', createLooseCallRegex("Text"));
   });
 });

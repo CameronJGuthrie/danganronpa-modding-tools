@@ -32,6 +32,7 @@ export const voiceInstruction: LinscriptInstruction = {
       name: "volume",
       description: "Volume; every game script uses 100, so source normally omits it",
       defaultValue: 100,
+      range: { min: 0, max: 100 },
     },
   ] as const,
   decorations([character, chapter, voiceId, _volume]) {

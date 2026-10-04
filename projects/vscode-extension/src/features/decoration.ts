@@ -4,11 +4,10 @@ import { instructions } from "../instructions";
 import type { LinscriptInstruction } from "../instructions/linscript-instruction";
 import { logError, logWarning } from "../output";
 import { argumentNames } from "../util/argument-names";
+import { createCallRegex, requiredParameterCount } from "../util/calls";
 import { type ScopedNames, scopedNamesFromDocument } from "../util/script-meta";
 import {
-  createCompleteFunctionRegex,
   createQuoteChecker,
-  createVarargsRegex,
   getArgumentsFromFunctionLike,
   getColorTextMatch,
   getColorTextRegex,
@@ -103,11 +102,7 @@ export function registerDecoration() {
     }
 
     Object.values(instructions).forEach((functionDetails) => {
-      const required = requiredParameterCount(functionDetails);
-      const branch = functionDetails.branch === true;
-      const completeFunctionRegex = functionDetails.varargs
-        ? createVarargsRegex(functionDetails.name, branch)
-        : createCompleteFunctionRegex(functionDetails.name, functionDetails.parameters.length, required, branch);
+      const completeFunctionRegex = createCallRegex(functionDetails);
 
       try {
         enrichParameters(
@@ -397,9 +392,4 @@ function addFunctionDecoration(
       }
     });
   }
-}
-
-/** Leading parameters that source must always write, i.e. all but those with a `defaultValue`. */
-function requiredParameterCount(functionDetails: LinscriptInstruction): number {
-  return functionDetails.parameters.filter((param) => param.defaultValue === undefined).length;
 }

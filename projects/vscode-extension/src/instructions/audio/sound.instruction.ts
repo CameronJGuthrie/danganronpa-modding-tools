@@ -13,6 +13,7 @@ export const soundInstruction: LinscriptInstruction = {
       name: "volume",
       description: "Volume; omitted in source when it is the usual 100",
       defaultValue: 100,
+      range: { min: 0, max: 100 },
     },
   ] as const,
   decorations([soundId, _volume]) {
