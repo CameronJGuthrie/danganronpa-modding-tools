@@ -19,7 +19,13 @@ import { splitArgs } from "../parameter.ts";
  * `Object(id, Name)` names an object id, so the body can say `OnObject(Monitor)` instead of
  * `OnObject(20)`. `Character(id, Name)` names a placed-character slot the same way for
  * `OnCharacter`; the id is the first argument of the `Sprite(...)` that placed the character, not the
- * `Character` enum, so the same student can hold a different slot in every script. `Option(id, Name)`
+ * `Character` enum, so the same student can hold a different slot in every script. Objects and
+ * character slots are two halves of what looks like one table of interactable targets in a room:
+ * every script that has `OnCharacter` handlers also has `OnObject` ones, placed characters take
+ * ids 0 to 18 (`PlaceSprite` and `OnCharacter` never use a higher id) and objects take 20 to 48
+ * (`ObjectState` and `OnObject` never use a lower one, other than the 254 "no target" handler and
+ * the closing 255). They are still separate entries here because different opcodes bind to each
+ * range and a name declared for one is never meaningful to the other. `Option(id, Name)`
  * names a menu option id for `SetOption` and the `Option(id, "label")` sugar. Every script starts with `DEFAULT_OPTION_NAMES`, which a declared
  * entry may override; only declared entries are written back. `LabelName(id, Name)` names a jump
  * label so `Label(5)` / `Goto(5)` read `Label(HatedGift)` / `Goto(HatedGift)`; label ids are 16-bit.
