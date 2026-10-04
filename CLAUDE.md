@@ -110,7 +110,7 @@ TypeScript automation scripts for common modding operations, kept under `package
 
 Scripts resolve repository paths through `lib/paths.ts` rather than counting `..` segments, so they can move between subdirectories freely.
 
-They are run directly by Node's type stripping - there is no build step, so `node packages/scripts/src/mod/build.ts` just works (requires Node >= 22.18). Because Node strips types rather than transforming syntax, these files must stay erasable: no `enum`, no `namespace`, no constructor parameter properties. `tsc` enforces this via `erasableSyntaxOnly`. Local imports name the real `.ts` file (`../lib/steam-paths.ts`), which is what Node resolves at runtime.
+They are run directly by Node's type stripping - there is no build step, so `node packages/scripts/src/mod/build.ts` just works (requires Node >= 26). Because Node strips types rather than transforming syntax, these files must stay erasable: no `enum`, no `namespace`, no constructor parameter properties. `tsc` enforces this via `erasableSyntaxOnly`. Local imports name the real `.ts` file (`../lib/steam-paths.ts`), which is what Node resolves at runtime.
 
 Typecheck with `pnpm --filter danganronpa-scripts run typecheck` (emits nothing).
 

@@ -6,7 +6,7 @@
  - And, a huge wealth of information lies in this attempted modding framework, it has been very helpful https://github.com/SpiralFramework/Spiral
 
 ## Requirements
- - `Node.js` 22.18 or newer https://nodejs.org/en/download (the scripts run TypeScript directly via Node's built-in type stripping)
+ - `Node.js` 26 or newer https://nodejs.org/en/download (the scripts run TypeScript directly via Node's built-in type stripping)
  - `ffmpeg` (optional, for audio preview in vscode) https://ffmpeg.org/download.html (This doesn't seem to work on Windows)
  - `Danganronpa Trigger Happy Havoc` on Steam. Other versions currently unsupported.
 

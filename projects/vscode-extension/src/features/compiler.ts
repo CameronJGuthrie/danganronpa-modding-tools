@@ -67,7 +67,9 @@ export class CompilerClient {
         entry.reject(new Error(response.error));
       }
     });
-    worker.on("error", (error) => this.workerDied(worker, error));
+    worker.on("error", (error: unknown) =>
+      this.workerDied(worker, error instanceof Error ? error : new Error(String(error))),
+    );
     worker.on("exit", (code) => this.workerDied(worker, new Error(`Compiler worker exited with code ${code}`)));
     this.worker = worker;
     return worker;
