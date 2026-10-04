@@ -9,6 +9,7 @@ import { formatMap, isMapState } from "../opcodes/map.ts";
 import { formatMeta, scopeTables } from "../opcodes/meta.ts";
 import { formatMode, MODE, planModeSugar, type ModePlan } from "../opcodes/mode.ts";
 import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
+import { formatPlaceSprite, isPlaceSprite, PLACE_SPRITE } from "../opcodes/placeSprite.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
 import { planTextSugar, textSourceForm, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { formatTime, isTime, TIME } from "../opcodes/time.ts";
@@ -67,7 +68,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     return opcode;
   };
 
-  /** One instruction as `Name(args)`, applying the Wait, Time, Present and map sugar and named arguments. */
+  /** One instruction as `Name(args)`, applying the Wait, Time, Present, PlaceSprite and map sugar and named arguments. */
   const formatEntry = (entry: ScriptEntry): string => {
     const opcode = knownOpcode(entry);
     if (isWait(entry)) {
@@ -83,6 +84,9 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     if (isMapState(entry)) {
       const { name, args } = formatMap(entry);
       return `${name}(${args})`;
+    }
+    if (isPlaceSprite(entry)) {
+      return `${PLACE_SPRITE}(${formatPlaceSprite(entry, scopes)})`;
     }
     return `${opcode.name}(${formatArgs(opcode.args, entry, { scopes })})`;
   };

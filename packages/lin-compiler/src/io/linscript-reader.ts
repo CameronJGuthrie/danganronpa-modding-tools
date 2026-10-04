@@ -7,6 +7,7 @@ import { expandBranch, isCondition } from "../opcodes/branch.ts";
 import { getOpcodeByName } from "../opcodes/lookup.ts";
 import { META, parseMeta, type SourceLine, scopeTables } from "../opcodes/meta.ts";
 import { expandOption, OPTION } from "../opcodes/option.ts";
+import { expandPlaceSprite, PLACE_SPRITE } from "../opcodes/placeSprite.ts";
 import { expandMode, MODE } from "../opcodes/mode.ts";
 import { expandMap, isMapSugarName } from "../opcodes/map.ts";
 import { expandPresent, isPresentSugarName } from "../opcodes/present.ts";
@@ -121,6 +122,9 @@ function parseOpcodeLine(name: string, argsText: string, line: number, scopes: S
   }
   if (name === MODE) {
     return expandMode(argsText, line);
+  }
+  if (name === PLACE_SPRITE) {
+    return [expandPlaceSprite(argsText, line, scopes)];
   }
   if (isPresentSugarName(name)) {
     return [expandPresent(name, argsText, line)];

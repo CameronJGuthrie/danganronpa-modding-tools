@@ -10,6 +10,7 @@ import {
   LogicalJoin,
   Music,
   SpritePosition,
+  spriteNamesByCharacter,
   SpriteTransition,
   Student,
   UiVisibility,
@@ -98,6 +99,16 @@ const optionId: Parameter = { type: Byte, scope: "Option" };
 const labelId: Parameter = { type: UInt16BE, scope: "Label" };
 /** A 0/1 byte, written as `False` / `True`. */
 const bool = named(Byte, Bool);
+/** A character id with bust-up sprites: the second argument of `Sprite`. */
+const spriteCharacter = named(Byte, CharacterSprite);
+/**
+ * A sprite expression id, named per character by `spriteNamesByCharacter` (`Invisible` for the
+ * transparent sprite 98; the rest stay numeric until named). The table depends on the character
+ * just before it.
+ */
+export const spriteExpression: Parameter = { type: Byte, dependsOn: -1, namesBy: spriteNamesByCharacter };
+/** The leading `(slot, character, expression)` of `Sprite`, which `PlaceSprite` shares. */
+export const SPRITE_HEAD: readonly Parameter[] = [Byte, spriteCharacter, spriteExpression];
 /** An arithmetic mode byte, written as `=`, `+=` or `-=`. */
 const arithmetic = named(Byte, arithmeticOperators);
 /** A comparison operator byte, written as `==`, `!=`, `<`, `<=`, `>` or `>=`. */
@@ -137,7 +148,7 @@ export const opcodes = {
   StopScript:            { id: 0x1a, args: bytes(0) },
   RunScript:             { id: 0x1b, args: bytes(3) },
   Return:                { id: 0x1c, args: bytes(0) },
-  Sprite:                { id: 0x1e, args: fixed([Byte, named(Byte, CharacterSprite), Byte, named(Byte, SpriteTransition), named(Byte, SpritePosition)]) },
+  Sprite:                { id: 0x1e, args: fixed([...SPRITE_HEAD, named(Byte, SpriteTransition), named(Byte, SpritePosition)]) },
   ScreenFlash:           { id: 0x1f, args: bytes(7) },
   SpriteFlash:           { id: 0x20, args: bytes(5) },
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },

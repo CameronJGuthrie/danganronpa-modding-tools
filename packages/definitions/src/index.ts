@@ -35,6 +35,7 @@ export * from "./data/flag-data.ts";
 export * from "./data/present-data.ts";
 export * from "./data/skill-data.ts";
 export * from "./data/sprite/index.ts";
+export * from "./data/sprite-name-data.ts";
 export * from "./data/text-style-data.ts";
 export * from "./data/truth-bullet-data.ts";
 export * from "./data/user-interface-data.ts";

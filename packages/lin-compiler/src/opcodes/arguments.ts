@@ -127,7 +127,7 @@ function formatFixed(layout: readonly Parameter[], args: readonly number[], scop
   return args.length === layoutBytes(layout) ? formatByLayout(layout, args, scopes) : formatRawBytes(args);
 }
 
-function parseFixed(
+export function parseFixed(
   name: string,
   layout: readonly Parameter[],
   argsText: string,

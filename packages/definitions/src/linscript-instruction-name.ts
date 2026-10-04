@@ -25,6 +25,7 @@ export const LinscriptInstructionName = {
   OnCharacter: "OnCharacter",
   OnObject: "OnObject",
   Option: "Option", // Sugar for SetOption(n) + RawText("label\n") + WaitFrame: a labelled menu choice
+  PlaceSprite: "PlaceSprite", // Sugar for Sprite(slot, character, expression, 0, 0): places a character in a slot without showing a bust-up
   PostProcessingEffect: "PostProcessingEffect",
   GivePresent: "GivePresent", // Sugar for Present(id, -=, 1): the player hands a gift over
   ReceivePresent: "ReceivePresent", // Sugar for Present(id, +=, 1): the player is awarded an item

@@ -6,6 +6,7 @@ import {
   isSpriteTransition,
   LinscriptInstructionName,
   SpritePosition,
+  spriteNamesByCharacter,
   SpriteTransition,
   sprites,
 } from "linscript-definitions";
@@ -14,7 +15,7 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 export const spriteInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.Sprite,
   description:
-    "Shows, hides or places a character bust-up in a slot with a transition and screen position. A Set transition on a slot makes it a placed, interactable character.",
+    "Shows, hides or places a character bust-up in a slot with a transition and screen position. A Set transition on a slot makes it a placed, interactable character; with position 0 that is written as PlaceSprite.",
   parameters: [
     {
       name: "objectId",
@@ -26,8 +27,9 @@ export const spriteInstruction: LinscriptInstruction = {
     },
     {
       name: "spriteId",
-      description: "The expression; 98 clears the slot's bust-up and 97 is only used with RemoveFromMap",
-      unknown: true,
+      description:
+        "The expression; Invisible (98) is a transparent sprite that keeps the character placed but unseen, and 97 is only used with RemoveFromMap",
+      namesBy: { argument: -1, tables: spriteNamesByCharacter },
     },
     {
       name: "transition",

@@ -57,9 +57,10 @@ describe("compile and decompile", () => {
     );
     assert.equal(
       writeSourceText(script),
-      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, AlterEgo, 1, FadeIn, Center)\nSprite(0, 19, 0, Set, Leftmost)\nSprite(0, Makoto, 0, 11, 11)\n",
+      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, AlterEgo, 1, FadeIn, Center)\nPlaceSprite(0, 19, 0)\nSprite(0, Makoto, 0, 11, 11)\n",
     );
-    assert.throws(() => readSource("Sprite(0, Headmaster, 0, 0, 0)\n"), SourceError);
+    assert.throws(() => readSource("Sprite(0, Headmaster, 0, 0, 1)\n"), SourceError);
+    assert.throws(() => readSource("PlaceSprite(0, Headmaster, 0)\n"), SourceError);
     assert.throws(() => readSource("Sprite(0, Makoto, 0, Vanish, 0)\n"), SourceError);
   });
 
@@ -809,6 +810,26 @@ describe("Time sugar", () => {
       roundTrip("SetVariable(0, 1, 1)\nSetVariable(0, 0, 60)\n"),
       "SetVariable(Time, +=, 1)\nSetVariable(Time, =, 60)\n",
     );
+  });
+});
+
+describe("PlaceSprite sugar", () => {
+  test("PlaceSprite(slot, character, expression) compiles to Sprite with zero transition and position", () => {
+    assert.deepEqual(readSource("PlaceSprite(10, Chihiro, 0)\n").entries[0], { opcode: 0x1e, args: [10, 14, 0, 0, 0] });
+    assert.deepEqual(readSource("PlaceSprite(0, Toko, Invisible)\n").entries[0], { opcode: 0x1e, args: [0, 10, 98, 0, 0] });
+    assert.deepEqual(readSource("PlaceSprite(5, 3, 98)\n").entries[0], { opcode: 0x1e, args: [5, 3, 98, 0, 0] });
+    assert.throws(() => readSource("PlaceSprite(1, Kyoko)\n"), /PlaceSprite expects 3 arguments/);
+    assert.throws(() => readSource("PlaceSprite(1, Kyoko, Bogus)\n"), /unknown name 'Bogus'/);
+  });
+
+  test("Sprite entries with zero transition and position decompile as PlaceSprite", () => {
+    assert.equal(roundTrip("Sprite(1, Kyoko, 0, 0, 0)\n"), "PlaceSprite(1, Kyoko, 0)\n");
+    assert.equal(roundTrip("Sprite(1, Kyoko, 98, Set, Leftmost)\n"), "PlaceSprite(1, Kyoko, Invisible)\n");
+    assert.equal(roundTrip("PlaceSprite(10, Chihiro, 0)\n"), "PlaceSprite(10, Chihiro, 0)\n");
+    // Any other transition or position byte stays a plain Sprite
+    assert.equal(roundTrip("Sprite(0, Taka, 6, FadeIn, Center)\n"), "Sprite(0, Taka, 6, FadeIn, Center)\n");
+    assert.equal(roundTrip("Sprite(2, Celeste, 0, Set, 21)\n"), "Sprite(2, Celeste, 0, Set, 21)\n");
+    assert.equal(roundTrip("Sprite(0, Toko, 98, Set, Center)\n"), "Sprite(0, Toko, Invisible, Set, Center)\n");
   });
 });
 

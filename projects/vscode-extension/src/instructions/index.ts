@@ -27,6 +27,7 @@ import { postProcessingEffectInstruction } from "./effect/post-processing-effect
 import { screenFadeInstruction } from "./effect/screen-fade.instruction";
 import { screenFlashInstruction } from "./effect/screen-flash.instruction";
 import { setUiInstruction } from "./effect/set-ui.instruction";
+import { placeSpriteInstruction } from "./effect/place-sprite.instruction";
 import { spriteInstruction } from "./effect/sprite.instruction";
 import { spriteFlashInstruction } from "./effect/sprite-flash.instruction";
 import { trialCameraInstruction } from "./effect/trial-camera.instruction";
@@ -105,6 +106,7 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.SoundB]: soundBInstruction,
   [LinscriptInstructionName.Mode]: modeInstruction,
   [LinscriptInstructionName.Speaker]: speakerInstruction,
+  [LinscriptInstructionName.PlaceSprite]: placeSpriteInstruction,
   [LinscriptInstructionName.Sprite]: spriteInstruction,
   [LinscriptInstructionName.SpriteFlash]: spriteFlashInstruction,
   [LinscriptInstructionName.StopScript]: stopScriptInstruction,
