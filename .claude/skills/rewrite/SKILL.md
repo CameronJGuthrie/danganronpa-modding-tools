@@ -86,20 +86,20 @@ Makoto in particular: he resents school, but he is not a school-hatred machine. 
 some of his thoughts should route back to it; he should also be tired, petty about
 whoever just spoke to him, wryly observant, or briefly and grudgingly sincere.
 
-## 3a. Invert double-negative conditions
+## 3a. Write flag conditions positively
 
-While in the file, rewrite any flag condition that tests `!=, False` as its positive
-form `==, True`, in every clause of an `And` chain too:
+While in the file, rewrite any flag condition that tests with `!=` as its `==` form, in
+every clause of an `And` chain too: `!=, False` becomes `==, True` and `!=, True`
+becomes `==, False`.
 
 ```
 IfFlag(SceneFlags, 3, !=, False,          IfFlag(SceneFlags, 3, ==, True,
     Goto(500))                       ->       Goto(500))
 ```
 
-The bytes differ (operator 0 vs 1, value 0 vs 1) but the meaning is identical for a
-boolean flag, and the positive form is what a reader expects. Write `==`, not `=`: the
-decompiler emits `==` and `=` is only accepted as an alias on compile. Leave `!=, True`
-alone; "not set" is a single negation and reads fine.
+The bytes differ (operator 0 vs 1, value flipped) but the meaning is identical for a
+boolean flag, and the `==` form is what a reader expects. Write `==`, not `=`: the
+decompiler emits `==` and `=` is only accepted as an alias on compile.
 
 ## 3b. Write the replacement map
 
