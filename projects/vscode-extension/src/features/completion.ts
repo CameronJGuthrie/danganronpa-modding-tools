@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { logDebug } from "../output";
-import { type Completion, completionsAt, contextAt } from "../util/completions";
+import { type Completion, completionsAt, contextAt, isInsideMeta } from "../util/completions";
 
 /**
  * Context-aware autocomplete for `.linscript` files, built on `util/completions.ts`: instruction
@@ -22,7 +22,9 @@ export class LinscriptCompletionProvider implements vscode.CompletionItemProvide
     if (context.triggerCharacter === " " && contextAt(lineText, position.character).kind !== "argument") {
       return undefined;
     }
-    const result = completionsAt(lineText, position.character, document.getText());
+    const documentText = document.getText();
+    const insideMeta = isInsideMeta(documentText, document.offsetAt(position.with(undefined, 0)));
+    const result = completionsAt(lineText, position.character, documentText, insideMeta);
     if (result.items.length === 0) {
       return undefined;
     }

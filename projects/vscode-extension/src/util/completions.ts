@@ -46,12 +46,17 @@ const WORD_CHAR = /\w/;
  * the trailing arguments of `Text("...", ` are instructions again. Nothing is offered inside a
  * string or after a `#` comment.
  */
-export function completionsAt(lineText: string, character: number, document: string | ScopedNames): CompletionResult {
+export function completionsAt(
+  lineText: string,
+  character: number,
+  document: string | ScopedNames,
+  insideMeta = false,
+): CompletionResult {
   const { replaceStart, replaceEnd } = wordAt(lineText, character);
   const context = contextAt(lineText, character);
   const items =
     context.kind === "instruction"
-      ? instructionCompletions(lineText, replaceEnd)
+      ? instructionCompletions(lineText, replaceEnd, insideMeta)
       : context.kind === "argument"
         ? argumentCompletions(context, lineText, replaceStart, document)
         : [];
@@ -111,10 +116,27 @@ function wordAt(lineText: string, character: number): { replaceStart: number; re
   return { replaceStart: start, replaceEnd: end };
 }
 
-/** Every instruction, alphabetically; the parentheses are inserted unless the word is already followed by one. */
-function instructionCompletions(lineText: string, replaceEnd: number): Completion[] {
+/** Whether the cursor at `offset` of `documentText` is below a `Meta()` line, i.e. inside the file's annotation block. */
+export function isInsideMeta(documentText: string, offset: number): boolean {
+  return /^\s*Meta\(\s*\)\s*$/m.test(documentText.slice(0, offset));
+}
+
+/** The entries a `Meta()` block may hold, mirroring `META_*` in lin-compiler's `opcodes/meta.ts`. */
+const META_ENTRIES: ReadonlySet<string> = new Set(["Object", "Character", "Option", "LabelName", "SceneFlag"]);
+
+/**
+ * The instructions that may start a statement, alphabetically: inside the `Meta()` block only its
+ * entries, outside it everything but those entries (with `Option` kept, as the menu-choice sugar).
+ * The parentheses are inserted unless the word is already followed by one.
+ */
+function instructionCompletions(lineText: string, replaceEnd: number, insideMeta: boolean): Completion[] {
   const hasParens = /^\s*\(/.test(lineText.slice(replaceEnd));
   return Object.values(instructions)
+    .filter((instruction) =>
+      insideMeta
+        ? META_ENTRIES.has(instruction.name)
+        : instruction.name === "Option" || !META_ENTRIES.has(instruction.name),
+    )
     .map((instruction) => instructionCompletion(instruction, hasParens))
     .sort((a, b) => a.label.localeCompare(b.label, "en"));
 }

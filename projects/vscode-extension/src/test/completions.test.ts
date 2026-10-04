@@ -1,20 +1,43 @@
 import * as assert from "node:assert";
 import { instructions } from "../instructions";
-import { completionsAt, contextAt } from "../util/completions";
+import { completionsAt, contextAt, isInsideMeta } from "../util/completions";
 
 const META = ["Meta()", "  Object(20, Monitor)", "  LabelName(5, HatedGift)", "  SceneFlag(1, RoomIntroSeen)"].join(
   "\n",
 );
 
+const META_ENTRIES = ["Character", "LabelName", "Object", "Option", "SceneFlag"];
+
 const labels = (line: string, character = line.length, document = "") =>
   completionsAt(line, character, document).items.map((item) => item.label);
 
 suite("Completions", () => {
-  test("a blank line offers every instruction alphabetically", () => {
+  test("a blank line offers every body instruction alphabetically", () => {
     const items = labels("");
-    const expected = Object.keys(instructions).sort((a, b) => a.localeCompare(b, "en"));
+    const expected = Object.keys(instructions)
+      .filter((name) => name === "Option" || !META_ENTRIES.includes(name))
+      .sort((a, b) => a.localeCompare(b, "en"));
     assert.deepStrictEqual(items, expected);
     assert.deepStrictEqual(labels("    "), expected);
+    assert.ok(items.includes("Meta"));
+    assert.ok(items.includes("Option"));
+    assert.ok(!items.includes("LabelName"));
+  });
+
+  test("inside the Meta block only its entries are offered", () => {
+    const inside = completionsAt("  ", 2, META, true).items.map((item) => item.label);
+    assert.deepStrictEqual(inside, META_ENTRIES);
+    const partial = completionsAt("  La", 4, META, true).items.map((item) => item.label);
+    assert.deepStrictEqual(partial, META_ENTRIES);
+  });
+
+  test("isInsideMeta finds a Meta() line before the cursor", () => {
+    const body = `Speaker(Makoto)\n${META}`;
+    assert.strictEqual(isInsideMeta(body, 0), false);
+    assert.strictEqual(isInsideMeta(body, body.indexOf("Meta()")), false);
+    assert.strictEqual(isInsideMeta(body, body.indexOf("  Object")), true);
+    assert.strictEqual(isInsideMeta(body, body.length), true);
+    assert.strictEqual(isInsideMeta('Text("Meta()")\n', 15), false);
   });
 
   test("a partly typed name offers instructions and replaces the word", () => {
