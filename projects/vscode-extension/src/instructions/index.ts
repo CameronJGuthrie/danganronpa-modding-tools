@@ -49,6 +49,7 @@ import { characterInstruction } from "./meta/character.instruction";
 import { labelNameInstruction } from "./meta/label-name.instruction";
 import { metaInstruction } from "./meta/meta.instruction";
 import { objectInstruction } from "./meta/object.instruction";
+import { sceneFlagInstruction } from "./meta/scene-flag.instruction";
 import { loadMapInstruction } from "./scene/load-map.instruction";
 import { mapCharacterInstruction } from "./scene/map-character.instruction";
 import { mapClearAllInstruction } from "./scene/map-clear-all.instruction";
@@ -92,6 +93,7 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.ReceivePresent]: receivePresentInstruction,
   [LinscriptInstructionName.Return]: returnInstruction,
   [LinscriptInstructionName.RunScript]: runScriptInstruction,
+  [LinscriptInstructionName.SceneFlag]: sceneFlagInstruction,
   [LinscriptInstructionName.ScreenFade]: screenFadeInstruction,
   [LinscriptInstructionName.ScreenFlash]: screenFlashInstruction,
   [LinscriptInstructionName.SetFlag]: setFlagInstruction,

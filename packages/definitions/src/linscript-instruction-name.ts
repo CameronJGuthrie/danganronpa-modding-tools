@@ -31,6 +31,7 @@ export const LinscriptInstructionName = {
   RawText: "RawText", // The binary text opcode; Text is sugar that adds WaitFrame/TextStyle/WaitInput
   Return: "Return",
   RunScript: "RunScript",
+  SceneFlag: "SceneFlag", // Source-only: `SceneFlag(id, Name)` inside Meta() names a SceneFlags slot for the file
   ScreenFade: "ScreenFade",
   ScreenFlash: "ScreenFlash",
   SetFlag: "SetFlag",

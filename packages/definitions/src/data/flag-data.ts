@@ -36,8 +36,9 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
   [FlagGroup.MapInvestigated]: {
     [RESET_FLAGS]: { name: "Reset" },
   },
-  [FlagGroup.CharacterInvestigated]: {
-    ...characterData,
+  [FlagGroup.SceneFlags]: {
+    // Scratch slots whose meaning changes per script (e.g. "room intro seen", "first free time taken");
+    // scripts name them with SceneFlag(id, Name) in their Meta() block
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.CharacterDead]: characterData,
@@ -57,7 +58,7 @@ export const flagNamesByFlagGroup: Readonly<Record<FlagGroup, Readonly<Record<st
   [FlagGroup.FreeTimeEvent]: namesOf(FlagGroup.FreeTimeEvent),
   [FlagGroup.ObjectInvestigated]: namesOf(FlagGroup.ObjectInvestigated),
   [FlagGroup.MapInvestigated]: namesOf(FlagGroup.MapInvestigated),
-  [FlagGroup.CharacterInvestigated]: namesOf(FlagGroup.CharacterInvestigated, Character),
+  [FlagGroup.SceneFlags]: namesOf(FlagGroup.SceneFlags),
   [FlagGroup.CharacterDead]: namesOf(FlagGroup.CharacterDead, Character),
   [FlagGroup.Skills]: namesOf(FlagGroup.Skills, Skill),
   [FlagGroup.Skills2]: namesOf(FlagGroup.Skills2, Skill),

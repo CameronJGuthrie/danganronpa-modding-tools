@@ -45,7 +45,7 @@ export function isOptional(parameter: Parameter): parameter is OptionalParameter
  * Name tables that are not fixed by the opcode table but supplied per script, e.g. the object,
  * character and label names a `.linscript` file declares in its `Meta()` block.
  */
-export type ParameterScope = "Object" | "Option" | "Character" | "Label";
+export type ParameterScope = "Object" | "Option" | "Character" | "Label" | "SceneFlag";
 
 /** A slot whose names come from the script being read or written (see `ParameterScope`). */
 export type ScopedParameter = {
@@ -58,13 +58,17 @@ export type ScopeTables = Partial<Readonly<Record<ParameterScope, NamedValues>>>
 
 /**
  * A slot whose name table depends on the value of an earlier slot in the same layout, e.g. the
- * flag offset of `SetFlag` is a character id only when the flag group is a character group.
+ * flag offset of `SetFlag` is a skill id only when the flag group is a skill group.
  * `dependsOn` is relative (-1 is the previous slot) so it also works inside repeated layouts.
+ * `scopeBy` adds a per-script table for some controlling values: the `SceneFlags` group's offsets
+ * are named by the script's `SceneFlag(id, Name)` entries, which are merged over (and may override)
+ * the fixed `namesBy` table for that value.
  */
 export type DependentParameter = {
   readonly type: ParameterType;
   readonly dependsOn: number;
   readonly namesBy: Readonly<Record<number, NamedValues>>;
+  readonly scopeBy?: Readonly<Record<number, ParameterScope>>;
 };
 
 export function parameterTypeOf(parameter: Parameter): ParameterType {
@@ -94,7 +98,16 @@ export function namesFor(
     return undefined;
   }
   const controlling = values[index + parameter.dependsOn];
-  return controlling === undefined ? undefined : parameter.namesBy[controlling];
+  if (controlling === undefined) {
+    return undefined;
+  }
+  const fixed = parameter.namesBy[controlling];
+  const scope = parameter.scopeBy?.[controlling];
+  const scoped = scope === undefined ? undefined : scopes[scope];
+  if (scoped === undefined) {
+    return fixed;
+  }
+  return fixed === undefined ? scoped : { ...fixed, ...scoped };
 }
 
 /** The name for `value` in `names`, if it has one. */

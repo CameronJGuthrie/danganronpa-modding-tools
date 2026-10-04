@@ -24,13 +24,24 @@ export function stripBranchJump(callText: string): string {
 /** A numeric enum object (or similar table) mapping argument names to their values. */
 export type ArgumentNames = Readonly<Record<string, string | number>>;
 
-/** A name table selected by the resolved value of a nearby argument (`argument` is a relative index). */
-export type DependentNames = { argument: number; tables: Readonly<Record<number, ArgumentNames>> };
+/**
+ * A name table selected by the resolved value of a nearby argument (`argument` is a relative index).
+ * `scopes` names, per key value, the document scope whose `Meta()` names extend that table; see
+ * `argumentNames`, which merges them in before the table is used.
+ */
+export type DependentNames = {
+  argument: number;
+  tables: Readonly<Record<number, ArgumentNames>>;
+  scopes?: Readonly<Record<number, ParameterScopeName>>;
+};
+
+/** The kinds of names a `.linscript` file declares in its `Meta()` block. */
+export type ParameterScopeName = "Object" | "Character" | "Option" | "Label" | "SceneFlag";
 
 /** How to resolve one argument position: a fixed table, a dependent table, or nothing. */
 export type ArgumentNameSource = ArgumentNames | DependentNames | undefined;
 
-function isDependent(source: ArgumentNameSource): source is DependentNames {
+export function isDependent(source: ArgumentNameSource): source is DependentNames {
   return source !== undefined && "tables" in source;
 }
 

@@ -4,7 +4,7 @@ import { logDebug } from "../output";
 import type { LinscriptInstruction, ParameterMeta } from "../instructions/linscript-instruction";
 import { argumentNames } from "../util/argument-names";
 import { metaEntryForScope } from "../util/script-meta";
-import type { ArgumentNameSource, ArgumentNames, DependentNames } from "../util/string-util";
+import { type ArgumentNameSource, type ArgumentNames, isDependent } from "../util/string-util";
 import { getArgumentsFromFunctionLike, isInsideQuotes, stripBranchJump } from "../util/string-util";
 
 /**
@@ -159,10 +159,6 @@ function argumentRange(line: number, callStart: number, callText: string, argInd
 
 function lookupInstruction(name: string): LinscriptInstruction | undefined {
   return Object.hasOwn(instructions, name) ? instructions[name as keyof typeof instructions] : undefined;
-}
-
-function isDependent(source: ArgumentNameSource): source is DependentNames {
-  return source !== undefined && "tables" in source;
 }
 
 /** The concrete name table for one argument, following a dependent table to the argument it keys on. */

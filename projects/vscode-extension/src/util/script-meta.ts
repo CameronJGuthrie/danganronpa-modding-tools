@@ -1,4 +1,4 @@
-import type { ArgumentNames } from "./string-util";
+import type { ArgumentNames, ParameterScopeName } from "./string-util";
 
 /** Option ids every script can name without declaring them; mirrors `DEFAULT_OPTION_NAMES` in lin-compiler. */
 export const DEFAULT_OPTION_NAMES: Readonly<Record<number, string>> = { 18: "Exit_1", 19: "Exit_2" };
@@ -26,27 +26,33 @@ export function labelNamesFromDocument(documentText: string): ArgumentNames {
   return declaredNamesFromDocument(documentText, "LabelName", {});
 }
 
-/** The name tables a file's `Meta()` block declares, one per parameter scope. */
-export type ScopedNames = Readonly<Record<"Object" | "Character" | "Option" | "Label", ArgumentNames>>;
+/** The SceneFlags slot names a file declares with `SceneFlag(id, Name)`, for `SetFlag` and `IfFlag` on that group. */
+export function sceneFlagNamesFromDocument(documentText: string): ArgumentNames {
+  return declaredNamesFromDocument(documentText, "SceneFlag", {});
+}
 
-/** All four scoped name tables of a file, for callers that resolve many calls in one document. */
+/** The name tables a file's `Meta()` block declares, one per parameter scope. */
+export type ScopedNames = Readonly<Record<ParameterScopeName, ArgumentNames>>;
+
+/** All scoped name tables of a file, for callers that resolve many calls in one document. */
 export function scopedNamesFromDocument(documentText: string): ScopedNames {
   return {
     Object: objectNamesFromDocument(documentText),
     Character: characterNamesFromDocument(documentText),
     Option: optionNamesFromDocument(documentText),
     Label: labelNamesFromDocument(documentText),
+    SceneFlag: sceneFlagNamesFromDocument(documentText),
   };
 }
 
 /** The `Meta()` entry that declares names for a scoped parameter, e.g. `LabelName` for the `Label` scope. */
-export function metaEntryForScope(scope: "Object" | "Character" | "Option" | "Label"): string {
+export function metaEntryForScope(scope: ParameterScopeName): string {
   return scope === "Label" ? "LabelName" : scope;
 }
 
 function declaredNamesFromDocument(
   documentText: string,
-  entry: "Object" | "Character" | "Option" | "LabelName",
+  entry: "Object" | "Character" | "Option" | "LabelName" | "SceneFlag",
   defaults: Readonly<Record<number, string>>,
 ): ArgumentNames {
   const declared: Record<number, string> = { ...defaults };

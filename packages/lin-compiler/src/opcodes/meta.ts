@@ -14,6 +14,7 @@ import { splitArgs } from "../parameter.ts";
  *       Character(0, Sayaka)
  *       Option(3, Leave)
  *       LabelName(5, HatedGift)
+ *       SceneFlag(1, RoomIntroSeen)
  *
  * `Object(id, Name)` names an object id, so the body can say `OnObject(Monitor)` instead of
  * `OnObject(20)`. `Character(id, Name)` names a placed-character slot the same way for
@@ -22,6 +23,9 @@ import { splitArgs } from "../parameter.ts";
  * names a menu option id for `SetOption` and the `Option(id, "label")` sugar. Every script starts with `DEFAULT_OPTION_NAMES`, which a declared
  * entry may override; only declared entries are written back. `LabelName(id, Name)` names a jump
  * label so `Label(5)` / `Goto(5)` read `Label(HatedGift)` / `Goto(HatedGift)`; label ids are 16-bit.
+ * `SceneFlag(id, Name)` names a slot of the `SceneFlags` flag group, the per-scene scratch booleans
+ * every scene entry script resets, so `SetFlag(SceneFlags, 1, True)` reads
+ * `SetFlag(SceneFlags, RoomIntroSeen, True)`; the group's fixed `Reset` name still applies.
  * Names are identifiers, unique within the file per kind, and each id is named once. The block is terminated by the end of the file;
  * nothing but these entries, blank lines and comments may follow it. Compiling to `.lin` drops
  * the block, and decompiling produces none.
@@ -37,6 +41,8 @@ export const META_CHARACTER = "Character";
 export const META_OPTION = "Option";
 /** Source name of a label-name entry inside the block. */
 export const META_LABEL = "LabelName";
+/** Source name of a scene-flag-slot entry inside the block. */
+export const META_SCENE_FLAG = "SceneFlag";
 
 /**
  * Option ids every script can name without declaring them: 18 and 19 register the handlers that
@@ -62,6 +68,7 @@ const ENTRIES: Readonly<Record<string, { scope: ParameterScope; key: keyof Scrip
     [META_CHARACTER]: { scope: "Character", key: "characters", noun: "character", maxId: MAX_ID },
     [META_OPTION]: { scope: "Option", key: "options", noun: "option", maxId: MAX_ID },
     [META_LABEL]: { scope: "Label", key: "labels", noun: "label", maxId: MAX_LABEL_ID },
+    [META_SCENE_FLAG]: { scope: "SceneFlag", key: "sceneFlags", noun: "scene flag", maxId: MAX_ID },
   };
 
 const EMPTY_META = (): Record<keyof ScriptMeta, Record<number, string>> => ({
@@ -69,6 +76,7 @@ const EMPTY_META = (): Record<keyof ScriptMeta, Record<number, string>> => ({
   characters: {},
   options: {},
   labels: {},
+  sceneFlags: {},
 });
 
 /** One line of source with its 1-based line number, as the reader has already trimmed it. */
@@ -88,6 +96,7 @@ export function parseMeta(lines: readonly SourceLine[]): ScriptMeta {
     characters: new Set(),
     options: new Set(),
     labels: new Set(),
+    sceneFlags: new Set(),
   };
 
   for (const { line, text } of lines) {
@@ -156,8 +165,8 @@ export function formatMeta(meta: ScriptMeta | undefined, indent: string): string
 
 /**
  * The scoped name tables a script's meta provides for reading and writing its arguments. A script
- * without meta still gets the default option names and empty object, character and label tables, so a stray name is
- * reported as unknown rather than as a malformed number.
+ * without meta still gets the default option names and empty object, character, label and scene-flag
+ * tables, so a stray name is reported as unknown rather than as a malformed number.
  */
 export function scopeTables(meta: ScriptMeta | undefined): ScopeTables {
   return {
@@ -165,6 +174,7 @@ export function scopeTables(meta: ScriptMeta | undefined): ScopeTables {
     Character: twoWay(meta?.characters ?? {}),
     Option: twoWay({ ...DEFAULT_OPTION_NAMES, ...(meta?.options ?? {}) }),
     Label: twoWay(meta?.labels ?? {}),
+    SceneFlag: twoWay(meta?.sceneFlags ?? {}),
   };
 }
 

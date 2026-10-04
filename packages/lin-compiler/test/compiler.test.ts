@@ -411,6 +411,7 @@ describe("Meta block", () => {
       characters: {},
       options: {},
       labels: {},
+      sceneFlags: {},
     });
     assert.deepEqual(
       script.entries.map((e) => [e.opcode, ...e.args]),
@@ -434,6 +435,7 @@ describe("Meta block", () => {
       characters: { 0: "Sayaka" },
       options: {},
       labels: {},
+      sceneFlags: {},
     });
     assert.deepEqual(
       script.entries.filter((entry) => entry.opcode === Opcode.OnCharacter).map((entry) => entry.args),
@@ -475,6 +477,7 @@ describe("Meta block", () => {
       characters: {},
       options: { 1: "Yes", 2: "No", 3: "Leave" },
       labels: {},
+      sceneFlags: {},
     });
     assert.deepEqual(
       script.entries.filter((e) => e.opcode === Opcode.SetOption).map((e) => e.args[0]),
@@ -506,6 +509,7 @@ describe("Meta block", () => {
       characters: {},
       options: {},
       labels: { 5: "HatedGift", 300: "Later" },
+      sceneFlags: {},
     });
     assert.deepEqual(script.entries.slice(0, 3), [
       { opcode: Opcode.Label, args: [0, 5] },
@@ -533,7 +537,7 @@ describe("Meta block", () => {
       ["OnObject(Monitor)\n", /unknown name 'Monitor'/],
       [
         "Meta()\n    Speaker(Makoto)\n",
-        /only Object\(id, Name\), Character\(id, Name\), Option\(id, Name\), LabelName\(id, Name\) entries/,
+        /only Object\(id, Name\), Character\(id, Name\), Option\(id, Name\), LabelName\(id, Name\), SceneFlag\(id, Name\) entries/,
       ],
       ["OnCharacter(Sayaka)\n", /unknown name 'Sayaka'/],
       ["Meta()\n    Character(0, Sayaka)\n    Character(1, Sayaka)\n", /already used/],
@@ -655,7 +659,7 @@ describe("named arguments", () => {
   test("flag groups are named and known offsets become flag, character or skill names", () => {
     assert.equal(
       roundTrip("SetFlag(15, 0, 1)\nSetFlag(16, 12, 1)\nSetFlag(13, 5, 1)\nSetFlag(15, 32, 0)\nSetFlag(90, 0, 1)\n"),
-      "SetFlag(CharacterInvestigated, Makoto, True)\nSetFlag(CharacterDead, Celeste, True)\nSetFlag(ObjectInvestigated, 5, True)\nSetFlag(CharacterInvestigated, Reset, False)\nSetFlag(90, 0, True)\n",
+      "SetFlag(SceneFlags, 0, True)\nSetFlag(CharacterDead, Celeste, True)\nSetFlag(ObjectInvestigated, 5, True)\nSetFlag(SceneFlags, Reset, False)\nSetFlag(90, 0, True)\n",
     );
     assert.equal(
       roundTrip("SetFlag(0, 4, 1)\nSetFlag(0, 2, 0)\nSetFlag(1, 32, 0)\nSetFlag(20, 5, 1)\n"),
@@ -670,19 +674,43 @@ describe("named arguments", () => {
       opcode: 0x26,
       args: [16, 12, 1],
     });
-    // A character name is only meaningful after a character group
+    // A character name is only meaningful after a character group; SceneFlags slots are not characters
     assert.throws(() => readSource("SetFlag(ObjectInvestigated, Celeste, 1)\n"), /unknown name 'Celeste'/);
+    assert.throws(() => readSource("SetFlag(SceneFlags, Taka, 1)\n"), /unknown name 'Taka'/);
+  });
+
+  test("SceneFlag() in Meta() names a SceneFlags slot for SetFlag and IfFlag", () => {
+    const source =
+      "SetFlag(SceneFlags, RoomIntroSeen, True)\nSetFlag(SceneFlags, 2, False)\nSetFlag(SceneFlags, Reset, False)\nIfFlag(SceneFlags, RoomIntroSeen, !=, False, And, FreeTimeEvent, FreeTimeSpent, !=, True,\n    Goto(1))\n\nMeta()\n    SceneFlag(1, RoomIntroSeen)\n";
+    const script = readSource(source);
+    assert.deepEqual(script.entries.slice(0, 4), [
+      { opcode: 0x26, args: [15, 1, 1] },
+      { opcode: 0x26, args: [15, 2, 0] },
+      { opcode: 0x26, args: [15, 32, 0] },
+      { opcode: 0x35, args: [15, 1, 0, 0, 6, 12, 0, 0, 1] },
+    ]);
+    assert.equal(writeSourceText(script), source);
+    // The name belongs to the SceneFlags group only, and other groups' slots stay numeric
+    assert.throws(
+      () => readSource("SetFlag(ObjectInvestigated, RoomIntroSeen, True)\nMeta()\n    SceneFlag(1, RoomIntroSeen)\n"),
+      /unknown name 'RoomIntroSeen'/,
+    );
+    assert.equal(
+      writeSourceText(readSource("SetFlag(SceneFlags, 1, True)\nSetFlag(ObjectInvestigated, 1, True)\nMeta()\n    SceneFlag(1, Seen)\n")),
+      "SetFlag(SceneFlags, Seen, True)\nSetFlag(ObjectInvestigated, 1, True)\n\nMeta()\n    SceneFlag(1, Seen)\n",
+    );
+    assert.throws(() => readSource("Meta()\n    SceneFlag(1, A)\n    SceneFlag(1, B)\n"), /scene flag 1 is already named 'A'/);
   });
 
   test("IfFlag is a repeating condition with named groups, offsets and operators", () => {
     const source = "IfFlag(15, 12, 0, 0, Goto(1))\nIfFlag(13, 20, 1, 1, 7, 16, 3, 0, 0, Goto(2))\nSpeaker(Taka)\n";
     assert.equal(
       roundTrip(source),
-      "IfFlag(CharacterInvestigated, Celeste, !=, False,\n    Goto(1))\nIfFlag(ObjectInvestigated, 20, ==, True, Or, CharacterDead, Mondo, !=, False,\n    Goto(2))\nSpeaker(Taka)\n",
+      "IfFlag(SceneFlags, 12, !=, False,\n    Goto(1))\nIfFlag(ObjectInvestigated, 20, ==, True, Or, CharacterDead, Mondo, !=, False,\n    Goto(2))\nSpeaker(Taka)\n",
     );
-    assert.deepEqual(readSource("IfFlag(CharacterInvestigated, Celeste, !=, False, Goto(1))\n").entries[0], {
+    assert.deepEqual(readSource("IfFlag(CharacterDead, Celeste, !=, False, Goto(1))\n").entries[0], {
       opcode: 0x35,
-      args: [15, 12, 0, 0],
+      args: [16, 12, 0, 0],
     });
   });
 

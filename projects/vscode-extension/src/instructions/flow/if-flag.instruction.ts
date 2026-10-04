@@ -14,9 +14,17 @@ import {
   LogicalJoin,
 } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";
+import type { DependentNames } from "../../util/string-util";
 
-/** The offset's names depend on the flag group: known flag names, plus character and skill ids for those groups. */
-const flagOffset = { argument: -1, tables: flagNamesByFlagGroup };
+/**
+ * The offset's names depend on the flag group: known flag names, plus character and skill ids for
+ * those groups, and the document's `SceneFlag(id, Name)` entries for the SceneFlags group.
+ */
+const flagOffset: DependentNames = {
+  argument: -1,
+  tables: flagNamesByFlagGroup,
+  scopes: { [FlagGroup.SceneFlags]: "SceneFlag" },
+};
 
 export const ifFlagInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.IfFlag,

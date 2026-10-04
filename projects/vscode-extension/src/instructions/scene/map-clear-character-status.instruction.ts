@@ -4,7 +4,7 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 /**
  * Source-only sugar for `MapState(255, 0, 252)`. NOT TESTED IN GAME: the name is the most likely
  * reading of where the scripts write it (paired with MapIcons at every scene and day boundary,
- * right after the CharacterInvestigated flags are reset), not an observed effect.
+ * right after the SceneFlags are reset), not an observed effect.
  */
 export const mapClearCharacterStatusInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.MapClearCharacterStatus,

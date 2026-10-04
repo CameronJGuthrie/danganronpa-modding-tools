@@ -17,7 +17,7 @@ import { parseParameter } from "./arguments.ts";
  * the character byte becomes a payload rather than a character:
  *
  * - 252 `MapClearCharacterStatus()`: payload 0. Paired with `MapIcons` at every scene and day
- *   boundary, directly after the `CharacterInvestigated` flags are reset, and never before a
+ *   boundary, directly after the `SceneFlags` are reset, and never before a
  *   roster or after a walk-off. Presumed to clear the per-character state the map keeps (talked
  *   to today, free-time marker). NOT TESTED IN GAME: the name is the most likely reading of its
  *   placement in the scripts, not an observed effect.

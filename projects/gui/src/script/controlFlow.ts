@@ -8,7 +8,7 @@
  *  - `SetOption(n)` (or its labelled sugar `Option(n, "label")`) registers a menu option; the body
  *    is the indented lines that follow it, and the menu is closed by `SetOption(255)`. Menus appear
  *    at the top level (a room's choices) as well as inside handlers.
- *  - `Meta()` at the top level starts the per-script annotations (object, character and option names) that run to the end
+ *  - `Meta()` at the top level starts the per-script annotations (object, character, option, label and scene-flag names) that run to the end
  *    of the file.
  *
  * `Goto(n)` lines, and the `Goto(n)` a condition carries as its last argument

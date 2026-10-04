@@ -64,7 +64,9 @@ export type ParameterMeta = {
   /**
    * Name table chosen by the value of another argument: `argument` is relative (-1 is the previous
    * argument) and `tables` is keyed by that argument's value. Used where a slot's meaning depends
-   * on context, e.g. SetFlag's offset is a character id only for the character flag groups.
+   * on context, e.g. SetFlag's offset is a skill id only for the skill flag groups. `scopes` names
+   * the document scope whose `Meta()` entries extend the table for a given key value, e.g. the
+   * `SceneFlag(id, Name)` entries for the SceneFlags group.
    */
   namesBy?: DependentNames;
   /**
@@ -72,7 +74,7 @@ export type ParameterMeta = {
    * from the file's `Meta()` block (`Object(20, Monitor)` lets the body say `OnObject(Monitor)`);
    * `Label` names come from `LabelName(5, HatedGift)` entries.
    */
-  scope?: "Object" | "Character" | "Option" | "Label";
+  scope?: "Object" | "Character" | "Option" | "Label" | "SceneFlag";
   /**
    * Map of numbers to LinscriptValue, can be a simple string but might also indicate typing for other params
    */

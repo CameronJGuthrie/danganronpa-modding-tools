@@ -32,6 +32,11 @@ export interface ScriptMeta {
   options: Readonly<Record<number, string>>;
   /** Names for this script's jump labels, as used by `Label` and `Goto`; declared with `LabelName(id, Name)`. */
   labels: Readonly<Record<number, string>>;
+  /**
+   * Names for this script's `SceneFlags` slots, the per-scene scratch flags `SetFlag(SceneFlags, n, …)`
+   * and `IfFlag(SceneFlags, n, …)` use; declared with `SceneFlag(id, Name)`.
+   */
+  sceneFlags: Readonly<Record<number, string>>;
 }
 
 export interface Script {

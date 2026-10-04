@@ -74,17 +74,19 @@ function none(): ArgumentSpec {
   return { kind: "fixed", layout: [] };
 }
 
-/** A flag group byte, written by name (`CharacterInvestigated`); unknown groups stay numeric. */
+/** A flag group byte, written by name (`SceneFlags`); unknown groups stay numeric. */
 const flagGroup = named(Byte, FlagGroup);
 /**
  * A flag offset byte, written by name when the flag is known: the flag names in `linscript-definitions`
- * (`HandbookEnabled`, `Reset`, ...), a character id for the character groups and a skill id for the
+ * (`HandbookEnabled`, `Reset`, ...), a character id for `CharacterDead` and a skill id for the
  * skill groups. The table depends on the flag group just before it; unknown offsets keep the number.
+ * `SceneFlags` slots are also named per script by `SceneFlag(id, Name)` in the `Meta()` block.
  */
 const flagOffset: Parameter = {
   type: Byte,
   dependsOn: -1,
   namesBy: flagNamesByFlagGroup,
+  scopeBy: { [FlagGroup.SceneFlags]: "SceneFlag" },
 };
 /** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
 const objectId: Parameter = { type: Byte, scope: "Object" };

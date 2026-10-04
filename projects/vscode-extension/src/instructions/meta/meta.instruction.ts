@@ -9,6 +9,6 @@ export const metaInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.Meta,
   annotation: true,
   description:
-    "Opens the block of per-script annotations (Object, Character, Option and LabelName entries) at the bottom of the file.",
+    "Opens the block of per-script annotations (Object, Character, Option, LabelName and SceneFlag entries) at the bottom of the file.",
   parameters: [] as const,
 };

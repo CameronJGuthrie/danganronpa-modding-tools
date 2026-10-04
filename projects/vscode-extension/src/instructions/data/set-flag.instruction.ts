@@ -15,7 +15,7 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 export const setFlagInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.SetFlag,
   description:
-    "Sets a boolean flag in a flag group, such as whether a character has been investigated or is dead. Read back with IfFlag.",
+    "Sets a boolean flag in a flag group, such as a per-scene SceneFlags slot or whether a character is dead. Read back with IfFlag.",
   parameters: [
     {
       name: "flagGroup",
@@ -23,7 +23,7 @@ export const setFlagInstruction: LinscriptInstruction = {
     },
     {
       name: "offset",
-      namesBy: { argument: -1, tables: flagNamesByFlagGroup },
+      namesBy: { argument: -1, tables: flagNamesByFlagGroup, scopes: { [FlagGroup.SceneFlags]: "SceneFlag" } },
     },
     {
       name: "value",
@@ -43,7 +43,7 @@ export const setFlagInstruction: LinscriptInstruction = {
       return [{ contentText: `Reset ${flagGroups[group]}`, color: color }];
     }
 
-    if ((group === FlagGroup.CharacterDead || group === FlagGroup.CharacterInvestigated) && isCharacter(offset)) {
+    if (group === FlagGroup.CharacterDead && isCharacter(offset)) {
       color = characterData[offset].color;
     }
 
