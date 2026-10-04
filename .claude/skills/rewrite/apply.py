@@ -3,7 +3,7 @@
 then compile/decompile with the CLI and diff the text lines.
 
 usage: apply.py <file.linscript> <map.json>
-Run from the repository root (needs projects/cli/src/cli.ts).
+Run from the repository root; the round trip uses roundtrip.ts next to this file (lin-compiler library).
 """
 import json, os, re, subprocess, sys, tempfile
 
@@ -18,6 +18,8 @@ def visible(s):
 bad = []
 for k, v in R.items():
     vis = visible(v)
+    if len(vis) > 1 and vis[-1] == "":
+        vis.pop()  # a RawText line's trailing \n is not a third line
     if len(vis) > MAX_LINES or any(len(l) > MAX_WIDTH for l in vis):
         bad.append(f"WIDTH {[len(l) for l in vis]}: {v}")
     ko, kc = k.count("<thought>"), k.count("</thought>")
@@ -43,11 +45,11 @@ open(path, "w", encoding="utf-8").write(out)
 
 tmp = tempfile.mkdtemp()
 lin, back = os.path.join(tmp, "out.lin"), os.path.join(tmp, "back.linscript")
-cli = ["node", "projects/cli/src/cli.ts", "-s"]
-for cmd in (cli + [path, lin], cli + ["-d", lin, back]):
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    if r.returncode:
-        print("CLI FAILED:", " ".join(cmd)); print(r.stdout, r.stderr); sys.exit(1)
+here = os.path.dirname(os.path.abspath(__file__))
+cmd = ["node", os.path.join(here, "roundtrip.ts"), path, lin, back]
+r = subprocess.run(cmd, capture_output=True, text=True)
+if r.returncode:
+    print("COMPILER FAILED:", " ".join(cmd)); print(r.stdout, r.stderr); sys.exit(1)
 texts = lambda p: [l.strip() for l in open(p, encoding="utf-8") if re.match(r"\s*(Raw)?Text\(", l)]
 a, b = texts(path), texts(back)
 if a != b:
