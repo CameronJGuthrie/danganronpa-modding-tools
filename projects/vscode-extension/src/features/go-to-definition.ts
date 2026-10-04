@@ -1,12 +1,24 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { explorationScriptPath, findModScript } from "danganronpa-scripts/src/lib/mod-scripts.ts";
+import { roomNamesByChapter, SUBROUTINE_SCENES } from "linscript-definitions";
 import * as vscode from "vscode";
 import { log } from "../output";
 import { labelNamesFromDocument } from "../util/script-meta";
-import { createStartOfLineFunctionRegex } from "../util/string-util";
+import { createStartOfLineCallRegex, createStartOfLineFunctionRegex } from "../util/string-util";
 import { modScriptDir } from "./scripts";
 import { getWorkbenchRoot } from "./workspace";
+
+/**
+ * The third argument of LoadScript / RunScript as a number: a Room name resolves through the
+ * chapter's table (story chapters only, and not the subroutine-library scenes), anything else
+ * must be the number itself.
+ */
+function resolveRoom(chapter: number, scene: number, text: string): number {
+  const names = SUBROUTINE_SCENES.includes(scene) ? undefined : roomNamesByChapter[chapter];
+  const named = names === undefined || !Object.hasOwn(names, text) ? undefined : names[text];
+  return typeof named === "number" ? named : parseInt(text, 10);
+}
 
 /**
  * Provides "Go to Definition" (Ctrl+Click) functionality for .linscript files
@@ -42,21 +54,21 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     }
 
     // Check if we're on a LoadScript line
-    const loadScriptMatch = lineText.match(createStartOfLineFunctionRegex("LoadScript", 3));
+    const loadScriptMatch = lineText.match(createStartOfLineCallRegex("LoadScript", 3));
     if (loadScriptMatch && (word === "LoadScript" || lineText.startsWith("LoadScript"))) {
       const chapter = parseInt(loadScriptMatch[1], 10);
       const episode = parseInt(loadScriptMatch[2], 10);
-      const scene = parseInt(loadScriptMatch[3], 10);
+      const scene = resolveRoom(chapter, episode, loadScriptMatch[3]);
       log(`LoadScript detected: ${chapter}, ${episode}, ${scene}`);
       return this.findScriptFile(chapter, episode, scene);
     }
 
     // Check if we're on a RunScript line
-    const runScriptMatch = lineText.match(createStartOfLineFunctionRegex("RunScript", 3));
+    const runScriptMatch = lineText.match(createStartOfLineCallRegex("RunScript", 3));
     if (runScriptMatch && (word === "RunScript" || lineText.startsWith("RunScript"))) {
       const chapter = parseInt(runScriptMatch[1], 10);
       const episode = parseInt(runScriptMatch[2], 10);
-      const scene = parseInt(runScriptMatch[3], 10);
+      const scene = resolveRoom(chapter, episode, runScriptMatch[3]);
       log(`RunScript detected: ${chapter}, ${episode}, ${scene}`);
       return this.findScriptFile(chapter, episode, scene);
     }

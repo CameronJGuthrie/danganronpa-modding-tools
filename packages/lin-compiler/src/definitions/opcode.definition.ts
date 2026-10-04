@@ -11,9 +11,12 @@ import {
   Music,
   ObjectInteraction,
   ObjectVisibility,
+  Room,
+  roomNamesByChapter,
   SpritePosition,
   SpriteTransition,
   Student,
+  SUBROUTINE_SCENES,
   spriteNamesByCharacter,
   UiVisibility,
   UserInterface,
@@ -121,6 +124,19 @@ const join = named(Byte, LogicalJoin);
 const volume = optional(Byte, 100);
 /** A variable id, written by name (`Scene`) when the variable is known; the value it is compared with stays numeric. */
 const variable = named(UInt16BE, Variable);
+/** A room (map area) id, written by its `Room` name (`DormHallway`); ids whose location is uncertain stay numeric. */
+const room = named(Byte, Room);
+/**
+ * The third group of a script name in `LoadScript` / `RunScript`: a `Room` id when the chapter two
+ * slots earlier is a story chapter, a bare index for Free Time (8) and School Mode (9) and for the
+ * subroutine-library scenes (198, 199, 255) of every chapter.
+ */
+const scriptRoom: Parameter = {
+  type: Byte,
+  dependsOn: -2,
+  namesBy: roomNamesByChapter,
+  unless: { dependsOn: -1, values: SUBROUTINE_SCENES },
+};
 
 // biome-ignore format: keep the table columns aligned
 /** Every known binary opcode, keyed by source name. Add a row here to teach the compiler a new one. */
@@ -145,10 +161,10 @@ export const opcodes = {
   StudentReportInfo:     { id: 0x10, args: bytes(3) },
   StudentRelationship:   { id: 0x11, args: fixed([named(Byte, Student), arithmetic, UInt16BE]) },
   TrialCamera:           { id: 0x14, args: fixed([Byte, UInt16BE]) },
-  LoadMap:               { id: 0x15, args: bytes(3) },
-  LoadScript:            { id: 0x19, args: bytes(3) },
+  LoadMap:               { id: 0x15, args: fixed([room, Byte, Byte]) },
+  LoadScript:            { id: 0x19, args: fixed([Byte, Byte, scriptRoom]) },
   StopScript:            { id: 0x1a, args: bytes(0) },
-  RunScript:             { id: 0x1b, args: bytes(3) },
+  RunScript:             { id: 0x1b, args: fixed([Byte, Byte, scriptRoom]) },
   Return:                { id: 0x1c, args: bytes(0) },
   Sprite:                { id: 0x1e, args: fixed([...SPRITE_HEAD, named(Byte, SpriteTransition), named(Byte, SpritePosition)]) },
   ScreenFlash:           { id: 0x1f, args: bytes(7) },

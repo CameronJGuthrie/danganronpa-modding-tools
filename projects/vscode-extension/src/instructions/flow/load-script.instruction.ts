@@ -1,4 +1,4 @@
-import { LinscriptInstructionName } from "linscript-definitions";
+import { LinscriptInstructionName, roomDisplayName, roomNamesByChapter } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";
 
 export const loadScriptInstruction: LinscriptInstruction = {
@@ -16,13 +16,17 @@ export const loadScriptInstruction: LinscriptInstruction = {
     },
     {
       name: "Script",
-      description: "Third group of three digits",
+      description:
+        "Third group of three digits: the Room the script plays in for story chapters (written by name), an index for Free Time (8) and School Mode (9)",
+      namesBy: { argument: -2, tables: roomNamesByChapter },
     },
   ] as const,
   decorations([episode, scene, script]) {
     const episodePadded = `${episode}`.padStart(2, "0");
     const scenePadded = `${scene}`.padStart(3, "0");
     const scriptPadded = `${script}`.padStart(3, "0");
-    return `script e${episodePadded}_${scenePadded}_${scriptPadded}`;
+    const room = Object.hasOwn(roomNamesByChapter, episode) ? roomDisplayName(script) : undefined;
+    const where = room === undefined ? "" : ` (${room})`;
+    return `script e${episodePadded}_${scenePadded}_${scriptPadded}${where}`;
   },
 };

@@ -1,17 +1,18 @@
-import { Bool, MapCharacter } from "linscript-definitions";
+import { Bool, MapCharacter, Room } from "linscript-definitions";
 import { Opcode } from "../definitions/opcode.definition.ts";
 import { nameOfValue, ParameterType, valueOfName } from "../definitions/parameter.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { BinaryError, SourceError } from "../errors.ts";
-import { parseArg, splitArgs } from "../parameter.ts";
+import { splitArgs } from "../parameter.ts";
 import { parseParameter } from "./arguments.ts";
 
 /**
  * Source-only sugar for the binary `MapState` opcode (0x01), whose bytes are `(room, character,
  * mode)`. It maintains the roster the Monopad map and the room scripts consult: which character is
- * in which room. The room is the number of the room's script (`MapCharacter(136, Aoi, True)` puts
- * Aoi in `e01_008_136`), and the mode is `True`/`False` for present or absent; characters are
- * marked absent after they walk off or have been talked to.
+ * in which room. The room is the number of the room's script (`MapCharacter(Kitchen, Aoi, True)`
+ * puts Aoi in `e01_008_136`), written by its `Room` name when it has one, and the mode is
+ * `True`/`False` for present or absent; characters are marked absent after they walk off or have
+ * been talked to.
  *
  * A mode above 251 turns the opcode into a reset, always written with room 255 ("all rooms"), and
  * the character byte becomes a payload rather than a character:
@@ -78,7 +79,11 @@ export function formatMap(entry: ScriptEntry): { name: MapSugarName; args: strin
     if (room === ALL_ROOMS) {
       throw new BinaryError(`MapState places a character in room ${ALL_ROOMS}, which is reserved for the reset forms`);
     }
-    const args = [room, nameOfValue(MapCharacter, character) ?? character, nameOfValue(Bool, mode)];
+    const args = [
+      nameOfValue(Room, room) ?? room,
+      nameOfValue(MapCharacter, character) ?? character,
+      nameOfValue(Bool, mode),
+    ];
     return { name: MAP_CHARACTER, args: args.join(", ") };
   }
   const name = RESET_NAME[mode] as MapSugarName | undefined;
@@ -114,7 +119,7 @@ export function expandMap(name: MapSugarName, argsText: string, line: number): S
   };
   if (name === MAP_CHARACTER) {
     expect(3, " (room, character, present)");
-    const [room] = parseArg(ParameterType.Byte, values[0], line);
+    const [room] = parseParameter(ParameterType.Byte, Room, values[0], line);
     if (room === ALL_ROOMS) {
       throw new SourceError(line, `room ${ALL_ROOMS} is reserved for the map reset forms`);
     }

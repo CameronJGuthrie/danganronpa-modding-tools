@@ -62,13 +62,16 @@ export type ScopeTables = Partial<Readonly<Record<ParameterScope, NamedValues>>>
  * `dependsOn` is relative (-1 is the previous slot) so it also works inside repeated layouts.
  * `scopeBy` adds a per-script table for some controlling values: the `SceneFlags` group's offsets
  * are named by the script's `SceneFlag(id, Name)` entries, which are merged over (and may override)
- * the fixed `namesBy` table for that value.
+ * the fixed `namesBy` table for that value. `unless` switches the names off entirely when another
+ * slot holds one of the listed values: the room of `RunScript` is a plain index when the scene is a
+ * subroutine library.
  */
 export type DependentParameter = {
   readonly type: ParameterType;
   readonly dependsOn: number;
   readonly namesBy: Readonly<Record<number, NamedValues>>;
   readonly scopeBy?: Readonly<Record<number, ParameterScope>>;
+  readonly unless?: { readonly dependsOn: number; readonly values: readonly number[] };
 };
 
 export function parameterTypeOf(parameter: Parameter): ParameterType {
@@ -100,6 +103,12 @@ export function namesFor(
   const controlling = values[index + parameter.dependsOn];
   if (controlling === undefined) {
     return undefined;
+  }
+  if (parameter.unless !== undefined) {
+    const guard = values[index + parameter.unless.dependsOn];
+    if (guard === undefined || parameter.unless.values.includes(guard)) {
+      return undefined;
+    }
   }
   const fixed = parameter.namesBy[controlling];
   const scope = parameter.scopeBy?.[controlling];

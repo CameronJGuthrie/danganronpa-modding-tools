@@ -232,3 +232,12 @@ export function createStartOfLineFunctionRegex(functionName: string, numArgs: nu
   const argsPattern = Array(numArgs).fill("(\\d+)").join(",\\s*");
   return new RegExp(`^${functionName}\\(${argsPattern}\\)`);
 }
+
+/**
+ * Like `createStartOfLineFunctionRegex`, but each argument may be a number or a name (`MakotosRoom`).
+ * E.g., createStartOfLineCallRegex("LoadScript", 3) => /^LoadScript\((\w+),\s*(\w+),\s*(\w+)\)/
+ */
+export function createStartOfLineCallRegex(functionName: string, numArgs: number): RegExp {
+  const argsPattern = Array(numArgs).fill("(\\w+)").join(",\\s*");
+  return new RegExp(`^${functionName}\\(${argsPattern}\\)`);
+}

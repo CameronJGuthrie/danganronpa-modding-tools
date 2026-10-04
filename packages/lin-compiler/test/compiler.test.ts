@@ -593,6 +593,26 @@ describe("named arguments", () => {
     });
   });
 
+  test("room ids are written by Room name in LoadMap, MapCharacter and story-chapter script calls", () => {
+    assert.equal(
+      roundTrip("LoadMap(101, 1, 255)\nLoadMap(248, 1, 255)\nMapCharacter(136, 3, True)\nMapCharacter(54, 3, False)\n"),
+      "LoadMap(DormHallway, 1, 255)\nLoadMap(248, 1, 255)\nMapCharacter(Kitchen, Mondo, True)\nMapCharacter(54, Mondo, False)\n",
+    );
+    // The third argument is a room only when the chapter is a story chapter; Free Time (8) and
+    // School Mode (9) use it as an index, and the scene-entry script 0 has no room name
+    assert.equal(
+      roundTrip(
+        "LoadScript(1, 9, 103)\nLoadScript(1, 9, 0)\nLoadScript(8, 2, 103)\nRunScript(3, 12, 1)\nRunScript(9, 90, 1)\n",
+      ),
+      "LoadScript(1, 9, MakotosRoom)\nLoadScript(1, 9, 0)\nLoadScript(8, 2, 103)\nRunScript(3, 12, Hallway1F)\nRunScript(9, 90, 1)\n",
+    );
+    assert.deepEqual(readSource("LoadScript(1, 9, MakotosRoom)\nMapCharacter(Kitchen, Mondo, True)\n").entries, [
+      { opcode: 0x19, args: [1, 9, 103] },
+      { opcode: 0x01, args: [136, 3, 1] },
+    ]);
+    assert.throws(() => readSource("LoadScript(8, 2, MakotosRoom)\n"), /MakotosRoom/);
+  });
+
   test("SetUI names both arguments and leaves unknown ids and modes numeric", () => {
     assert.equal(
       roundTrip("SetUI(1, 0)\nSetUI(1, 1)\nSetUI(18, 3)\nSetUI(60, 1)\n"),
@@ -1119,8 +1139,8 @@ describe("Map sugar", () => {
 
   test("MapState entries decompile as sugar and round-trip byte for byte", () => {
     const source =
-      "MapClearCharacterStatus()\nMapIcons(True)\nMapClearPositions()\nMapCharacter(136, Aoi, True)\n" +
-      "MapCharacter(119, MapCharacter_20, False)\nMapCharacter(1, 16, True)\nMapIcons(False)\nMapClearAll()\n";
+      "MapClearCharacterStatus()\nMapIcons(True)\nMapClearPositions()\nMapCharacter(Kitchen, Aoi, True)\n" +
+      "MapCharacter(SayakasRoom, MapCharacter_20, False)\nMapCharacter(Hallway1F, 16, True)\nMapIcons(False)\nMapClearAll()\n";
     assert.equal(roundTrip(source), source);
     assert.equal(writeSourceText(mapState([255, 1, 253])), "MapIcons(True)\n");
   });
