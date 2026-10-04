@@ -10,7 +10,7 @@
 import { createWriteStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { join } from "node:path";
-import archiver from "archiver";
+import { type ArchiverError, ZipArchive } from "archiver";
 import { errorMessage } from "../lib/errors.ts";
 import { WORKBENCH_DIR } from "../lib/paths.ts";
 import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
@@ -27,7 +27,7 @@ async function zipGameFiles(): Promise<void> {
 
   // Create output stream
   const output = createWriteStream(OUTPUT_ZIP);
-  const archive = archiver("zip", {
+  const archive = new ZipArchive({
     zlib: { level: 9 }, // Maximum compression
   });
 
@@ -38,11 +38,11 @@ async function zipGameFiles(): Promise<void> {
     console.log(`✓ Total size: ${sizeMB} MB`);
   });
 
-  archive.on("error", (err) => {
+  archive.on("error", (err: ArchiverError) => {
     throw err;
   });
 
-  archive.on("warning", (err) => {
+  archive.on("warning", (err: ArchiverError) => {
     if (err.code === "ENOENT") {
       console.warn(`Warning: ${err.message}`);
     } else {
