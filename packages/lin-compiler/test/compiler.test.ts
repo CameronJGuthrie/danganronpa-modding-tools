@@ -60,17 +60,6 @@ describe("compile and decompile", () => {
     assert.throws(() => readSource("Sprite(0, Makoto, 0, Vanish, 0)\n"), SourceError);
   });
 
-  test("LoadSprite names its sprite sheet, with placeholders for the unidentified sheets", () => {
-    const script = readSource(
-      "LoadSprite(135, 8, 1)\nLoadSprite(119, 20, 1)\nLoadSprite(1, SpriteSheet_29, 1)\nLoadSprite(1, 16, 1)\n",
-    );
-    assert.equal(
-      writeSourceText(script),
-      "LoadSprite(135, Kyoko, 1)\nLoadSprite(119, SpriteSheet_20, 1)\nLoadSprite(1, SpriteSheet_29, 1)\nLoadSprite(1, 16, 1)\n",
-    );
-    assert.throws(() => readSource("LoadSprite(1, Junko, 1)\n"), SourceError);
-  });
-
   test("Voice names its character and chapter", () => {
     const script = readSource("Voice(18, 2, 71)\nVoice(Usami, Chapter_99, 2)\nVoice(0, 10, 5)\nVoice(17, 7, 1)\n");
     assert.equal(
@@ -892,5 +881,52 @@ describe("binary edge cases", () => {
 
   test("unknown script types are an error", () => {
     assert.throws(() => readCompiled(Uint8Array.from([9, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0])), /unknown script type 9/);
+  });
+});
+
+describe("Map sugar", () => {
+  const mapState = (args: number[]) => ({ entries: [{ opcode: 0x01, args }] });
+
+  test("MapCharacter compiles to MapState(room, character, 0|1) and names the map characters", () => {
+    assert.deepEqual(readSource("MapCharacter(136, Aoi, True)\n").entries[0], { opcode: 0x01, args: [136, 9, 1] });
+    assert.deepEqual(readSource("MapCharacter(101, Leon, False)\n").entries[0], { opcode: 0x01, args: [101, 4, 0] });
+    assert.deepEqual(readSource("MapCharacter(135, MapCharacter_20, True)\n").entries[0], { opcode: 0x01, args: [135, 20, 1] });
+    assert.deepEqual(readSource("MapCharacter(1, 16, True)\n").entries[0], { opcode: 0x01, args: [1, 16, 1] });
+    assert.throws(() => readSource("MapCharacter(1, Junko, True)\n"), /unknown name 'Junko'/);
+    assert.throws(() => readSource("MapCharacter(1, Aoi, 1)\n"), /expected True or False/);
+    assert.throws(() => readSource("MapCharacter(255, Aoi, True)\n"), /room 255 is reserved/);
+    assert.throws(() => readSource("MapCharacter(1, Aoi)\n"), /MapCharacter expects 3 arguments/);
+  });
+
+  test("the reset forms compile to room 255 with their mode byte", () => {
+    assert.deepEqual(readSource("MapClearCharacterStatus()\n").entries[0], { opcode: 0x01, args: [255, 0, 252] });
+    assert.deepEqual(readSource("MapIcons(True)\n").entries[0], { opcode: 0x01, args: [255, 1, 253] });
+    assert.deepEqual(readSource("MapIcons(False)\n").entries[0], { opcode: 0x01, args: [255, 0, 253] });
+    assert.deepEqual(readSource("MapClearPositions()\n").entries[0], { opcode: 0x01, args: [255, 0, 254] });
+    assert.deepEqual(readSource("MapClearAll()\n").entries[0], { opcode: 0x01, args: [255, 0, 255] });
+    assert.throws(() => readSource("MapIcons()\n"), /MapIcons expects 1 argument/);
+    assert.throws(() => readSource("MapIcons(Makoto)\n"), /expected True or False/);
+    assert.throws(() => readSource("MapClearAll(0)\n"), /MapClearAll expects 0 arguments/);
+  });
+
+  test("MapState is not a source instruction", () => {
+    assert.throws(() => readSource("MapState(1, 0, 1)\n"), /'MapState' is not a source instruction/);
+    assert.throws(() => readSource("LoadSprite(1, 0, 1)\n"), /unknown opcode 'LoadSprite'/);
+  });
+
+  test("MapState entries decompile as sugar and round-trip byte for byte", () => {
+    const source =
+      "MapClearCharacterStatus()\nMapIcons(True)\nMapClearPositions()\nMapCharacter(136, Aoi, True)\n" +
+      "MapCharacter(119, MapCharacter_20, False)\nMapCharacter(1, 16, True)\nMapIcons(False)\nMapClearAll()\n";
+    assert.equal(roundTrip(source), source);
+    assert.equal(writeSourceText(mapState([255, 1, 253])), "MapIcons(True)\n");
+  });
+
+  test("MapState bytes outside the five forms are a decompile error", () => {
+    assert.throws(() => writeSourceText(mapState([255, 0, 1])), /reserved for the reset forms/);
+    assert.throws(() => writeSourceText(mapState([255, 0, 7])), /mode 7 is not understood/);
+    assert.throws(() => writeSourceText(mapState([3, 0, 254])), /expects room 255, got 3/);
+    assert.throws(() => writeSourceText(mapState([255, 2, 253])), /expects a 0 or 1 payload/);
+    assert.throws(() => writeSourceText(mapState([255, 1, 252])), /expects a 0 payload/);
   });
 });

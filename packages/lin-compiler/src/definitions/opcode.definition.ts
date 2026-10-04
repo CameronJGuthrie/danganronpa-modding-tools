@@ -9,7 +9,6 @@ import {
   flagNamesByFlagGroup,
   LogicalJoin,
   SpritePosition,
-  SpriteSheet,
   SpriteTransition,
   Student,
   UiVisibility,
@@ -111,7 +110,7 @@ const variable = named(UInt16BE, Variable);
 /** Every known binary opcode, keyed by source name. Add a row here to teach the compiler a new one. */
 export const opcodes = {
   Type:                  { id: 0x00, args: { kind: "type" } },
-  LoadSprite:            { id: 0x01, args: fixed([Byte, named(Byte, SpriteSheet), Byte]) },
+  MapState:              { id: 0x01, args: bytes(3), hidden: true }, // MapCharacter / MapIcons / MapClear* sugar (opcodes/map.ts)
   /** The binary text opcode. In source, `Text(...)` is sugar (see `textSugar.ts`); `RawText` is the escape hatch. */
   RawText:               { id: 0x02, args: { kind: "text" } },
   TextStyle:             { id: 0x03, args: bytes(1) },

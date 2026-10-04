@@ -11,7 +11,11 @@ export const LinscriptInstructionName = {
   LabelName: "LabelName", // Source-only: `LabelName(id, Name)` inside Meta() names a jump label for the file
   LoadMap: "LoadMap",
   LoadScript: "LoadScript",
-  LoadSprite: "LoadSprite",
+  MapCharacter: "MapCharacter", // Sugar for the hidden MapState(room, character, True|False) opcode: a character's room on the map roster
+  MapClearAll: "MapClearAll", // Sugar for MapState(255, 0, 255): resets every map table at once
+  MapClearCharacterStatus: "MapClearCharacterStatus", // Sugar for MapState(255, 0, 252): resets the per-character status the map keeps (untested in game)
+  MapClearPositions: "MapClearPositions", // Sugar for MapState(255, 0, 254): removes every character from every room
+  MapIcons: "MapIcons", // Sugar for MapState(255, True|False, 253): toggles the map's character icons (untested in game)
   Meta: "Meta", // Source-only: opens the block of per-script annotations at the bottom of a file
   Mode: "Mode", // Sugar for SetUI(Thinking, …) + SetUI(Name, Shown) + Speaker(character), or SetUI(Name, Hidden) + Speaker(Blank) for System: who is talking and whether aloud
   Movie: "Movie",

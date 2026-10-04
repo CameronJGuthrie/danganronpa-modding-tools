@@ -22,7 +22,6 @@ import { waitFrameInstruction } from "./dialogue/wait-frame.instruction";
 import { waitInputInstruction } from "./dialogue/wait-input.instruction";
 import { animationInstruction } from "./effect/animation.instruction";
 import { cameraFlashInstruction } from "./effect/camera-flash.instruction";
-import { loadSpriteInstruction } from "./effect/load-sprite.instruction";
 import { movieInstruction } from "./effect/movie.instruction";
 import { postProcessingEffectInstruction } from "./effect/post-processing-effect.instruction";
 import { screenFadeInstruction } from "./effect/screen-fade.instruction";
@@ -51,6 +50,11 @@ import { labelNameInstruction } from "./meta/label-name.instruction";
 import { metaInstruction } from "./meta/meta.instruction";
 import { objectInstruction } from "./meta/object.instruction";
 import { loadMapInstruction } from "./scene/load-map.instruction";
+import { mapCharacterInstruction } from "./scene/map-character.instruction";
+import { mapClearAllInstruction } from "./scene/map-clear-all.instruction";
+import { mapClearCharacterStatusInstruction } from "./scene/map-clear-character-status.instruction";
+import { mapClearPositionsInstruction } from "./scene/map-clear-positions.instruction";
+import { mapIconsInstruction } from "./scene/map-icons.instruction";
 import { objectStateInstruction } from "./scene/object-state.instruction";
 import { showBackgroundInstruction } from "./scene/show-background.instruction";
 import { timeInstruction } from "./scene/time.instruction";
@@ -70,7 +74,11 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.LabelName]: labelNameInstruction,
   [LinscriptInstructionName.LoadMap]: loadMapInstruction,
   [LinscriptInstructionName.LoadScript]: loadScriptInstruction,
-  [LinscriptInstructionName.LoadSprite]: loadSpriteInstruction,
+  [LinscriptInstructionName.MapCharacter]: mapCharacterInstruction,
+  [LinscriptInstructionName.MapClearAll]: mapClearAllInstruction,
+  [LinscriptInstructionName.MapClearCharacterStatus]: mapClearCharacterStatusInstruction,
+  [LinscriptInstructionName.MapClearPositions]: mapClearPositionsInstruction,
+  [LinscriptInstructionName.MapIcons]: mapIconsInstruction,
   [LinscriptInstructionName.Meta]: metaInstruction,
   [LinscriptInstructionName.Movie]: movieInstruction,
   [LinscriptInstructionName.Music]: musicInstruction,

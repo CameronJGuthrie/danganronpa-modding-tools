@@ -18,7 +18,7 @@ This is just a summary. For more on these, find the corresponding `*-meta.ts` in
 Opcode | Name| Description | Arguments
 -|-|-|-
 `0x00` | ScriptType | This defines how many Text opcodes are used within the LIN file.  | 16LE
-`0x01` | LoadSprite | Not much known. | 3 bytes. Not much known.
+`0x01` | MapState | Maintains the map roster: which character is in which room, as the Monopad map and the room scripts see it. Source writes it only as sugar: `MapCharacter(room, character, True\|False)`, `MapIcons(True\|False)`, `MapClearCharacterStatus()`, `MapClearPositions()`, `MapClearAll()`. | Byte room (the room script's number, 255 = all rooms), Byte character (a student id; 20, 29 and 30 are unidentified), Byte mode (0 absent, 1 present, 252 clear character status, 253 icons on/off with the character byte as the 0/1 payload, 254 clear positions, 255 clear all). 252 and 253 are inferred from script placement and not yet tested in game.
 `0x02` | Text | Contains an index to the text dictionary | 16LE
 `0x03` | TextStyle | Contains the text style, used in conjunction with \<CLT> tags. It's not clear why this is required for the text decoration to work. | Text style ID.
 `0x04` | PostProcessingEffect | A fullscreen filter | 4 args, not confirmed.

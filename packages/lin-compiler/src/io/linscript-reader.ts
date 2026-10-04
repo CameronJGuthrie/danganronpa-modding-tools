@@ -8,6 +8,7 @@ import { getOpcodeByName } from "../opcodes/lookup.ts";
 import { META, parseMeta, type SourceLine, scopeTables } from "../opcodes/meta.ts";
 import { expandOption, OPTION } from "../opcodes/option.ts";
 import { expandMode, MODE } from "../opcodes/mode.ts";
+import { expandMap, isMapSugarName } from "../opcodes/map.ts";
 import { expandPresent, isPresentSugarName } from "../opcodes/present.ts";
 import { expandText, isTrailingEntry, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { expandTime, TIME } from "../opcodes/time.ts";
@@ -123,6 +124,9 @@ function parseOpcodeLine(name: string, argsText: string, line: number, scopes: S
   }
   if (isPresentSugarName(name)) {
     return [expandPresent(name, argsText, line)];
+  }
+  if (isMapSugarName(name)) {
+    return [expandMap(name, argsText, line)];
   }
   const opcode = getOpcodeByName(name);
   if (opcode !== undefined) {

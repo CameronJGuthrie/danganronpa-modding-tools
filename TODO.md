@@ -4,7 +4,6 @@
 
  - Confirm whether it is correct to show characters names in cases of `IfFlag` (might be object ids)
  - Investigate `ShowBackground` opcode 
- - Investigate `LoadSprite` opcode
  - Investigate `LoadMap` opcode (see Spiral, it had some more info)
  - Investigate `Sprite` opcode args (see Spiral, it had some more info)
  - Investigate `Background` opcode args
@@ -24,6 +23,7 @@
  - ~~Improve printing for `Sound` (max value 65536)~~
  - ~~Investigate `AddTruthBullet` opcode (link to enum)~~
  - ~~Improve printing for `Speaker`~~
+ - ~~Investigate `LoadSprite` opcode~~ (now the `MapCharacter` / `MapIcons` / `MapClear*` sugar; 252 and 253 still need an in-game test)
 
 
 ### Compiler / Decompiler
