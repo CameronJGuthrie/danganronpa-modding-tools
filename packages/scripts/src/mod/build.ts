@@ -8,6 +8,7 @@ import { compileDirectory } from "lin-compiler";
 import { errorMessage } from "../lib/errors.ts";
 import { collectModScripts, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
 import { PROJECT_ROOT, WAD_ARCHIVER_CLI as WAD_ARCHIVER, WORKBENCH_DIR } from "../lib/paths.ts";
+import { ProgressBar } from "../lib/progress.ts";
 import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 // Constants
@@ -16,6 +17,24 @@ const MODS_DIR = join(WORKBENCH_DIR, "mod");
 const EXTRACTED_DIR = join(WORKBENCH_DIR, "modded");
 /** Flattened copies of the authored scripts are compiled here, so no `.lin` lands in `mod/`. */
 const BUILD_DIR = join(WORKBENCH_DIR, "build");
+/** `--verbose` logs every step and file; otherwise each WAD gets a progress bar. */
+const VERBOSE = process.argv.slice(2).includes("--verbose");
+
+/** The current WAD's progress bar; null in verbose mode. */
+let progress: ProgressBar | null = null;
+
+/** Step detail, printed only with `--verbose`. */
+function log(message: string): void {
+  if (VERBOSE) {
+    console.log(message);
+  }
+}
+
+/** Errors are printed in both modes, clearing the progress bar first so they get their own line. */
+function logError(message: string): void {
+  progress?.clear();
+  console.error(message);
+}
 
 /**
  * Gather every authored `.linscript` (flat or `chapter_CC/scene_SSS/NNN.linscript`) into one
@@ -23,17 +42,17 @@ const BUILD_DIR = join(WORKBENCH_DIR, "build");
  * the mod has no scripts.
  */
 async function organiseLinscripts(modPath: string, buildPath: string): Promise<string | null> {
-  console.log("  Organising .linscript files...");
+  log("  Organising .linscript files...");
 
   const modScriptDir = join(modPath, ...SCRIPT_DIR_SEGMENTS);
   if (!existsSync(modScriptDir)) {
-    console.log("  No script directory found, skipping linscript compilation");
+    log("  No script directory found, skipping linscript compilation");
     return null;
   }
 
   const scripts = await collectModScripts(modScriptDir);
   if (scripts.size === 0) {
-    console.log("  No .linscript files found, skipping linscript compilation");
+    log("  No .linscript files found, skipping linscript compilation");
     return null;
   }
 
@@ -41,38 +60,53 @@ async function organiseLinscripts(modPath: string, buildPath: string): Promise<s
   await rm(buildPath, { recursive: true, force: true });
   await mkdir(stagingDir, { recursive: true });
 
+  // One step per script compiled, plus one for packing the WAD
+  progress?.setTotal(scripts.size + 1);
+
   for (const script of scripts.values()) {
     const source = relative(modScriptDir, script.path);
     const target = `${script.name}.linscript`;
     if (source !== target) {
-      console.log(`    ${source} -> ${target}`);
+      log(`    ${source} -> ${target}`);
     }
     await copyFile(script.path, join(stagingDir, target));
   }
 
-  console.log(`  ✓ Organised ${scripts.size} .linscript file(s)`);
+  log(`  ✓ Organised ${scripts.size} .linscript file(s)`);
   return stagingDir;
 }
 
 /** Compile every staged `.linscript` in place; returns how many succeeded, or throws when any fail. */
 async function compileLinscripts(stagingDir: string): Promise<number> {
-  console.log("  Compiling .linscript files...");
+  log("  Compiling .linscript files...");
 
-  const result = await compileDirectory(stagingDir);
+  let started = false;
+  const result = await compileDirectory(stagingDir, (fileName) => {
+    // Called before each file, so the previous one has finished
+    if (started) {
+      progress?.tick(fileName);
+    } else {
+      progress?.setStatus(fileName);
+      started = true;
+    }
+  });
+  if (started) {
+    progress?.tick("compiled");
+  }
   for (const failure of result.failed) {
-    console.error(`    ${basename(failure.file)}: ${failure.error.message}`);
+    logError(`    ${basename(failure.file)}: ${failure.error.message}`);
   }
   if (result.failed.length > 0) {
-    console.error("  ✗ Linscript compilation failed");
+    logError("  ✗ Linscript compilation failed");
     throw new Error(`Linscript compilation failed (${result.failed.length} file(s))`);
   }
 
-  console.log(`  ✓ Compiled ${result.succeeded.length} .linscript file(s) to .lin`);
+  log(`  ✓ Compiled ${result.succeeded.length} .linscript file(s) to .lin`);
   return result.succeeded.length;
 }
 
 async function moveCompiledLins(stagingDir: string, extractedPath: string): Promise<void> {
-  console.log("  Moving compiled .lin files to modded directory...");
+  log("  Moving compiled .lin files to modded directory...");
 
   const extractedScriptDir = join(extractedPath, ...SCRIPT_DIR_SEGMENTS);
   await mkdir(extractedScriptDir, { recursive: true });
@@ -82,11 +116,11 @@ async function moveCompiledLins(stagingDir: string, extractedPath: string): Prom
   for (const name of lins) {
     await rename(join(stagingDir, name), join(extractedScriptDir, name));
   }
-  console.log(`  ✓ Moved ${lins.length} compiled .lin file(s)`);
+  log(`  ✓ Moved ${lins.length} compiled .lin file(s)`);
 }
 
 async function buildMods(): Promise<void> {
-  console.log(`Using game directory: ${GAME_DIR}\n`);
+  log(`Using game directory: ${GAME_DIR}\n`);
 
   // Check if mod directory exists
   if (!existsSync(MODS_DIR)) {
@@ -120,13 +154,17 @@ async function buildMods(): Promise<void> {
     const wadName = `${modDir}.wad`;
     const outputPath = join(GAME_DIR, wadName);
 
-    console.log(`\nBuilding ${wadName}...`);
+    log(`\nBuilding ${wadName}...`);
+    if (!VERBOSE) {
+      progress = new ProgressBar(wadName, 1);
+    }
 
     // Check if corresponding modded directory exists
     const extractedPath = join(EXTRACTED_DIR, modDir);
     if (!existsSync(extractedPath)) {
-      console.error(`  ✗ Extracted directory not found: ${extractedPath}`);
-      console.error(`  Please extract ${wadName} first`);
+      logError(`  ✗ Extracted directory not found: ${extractedPath}`);
+      logError(`  Please extract ${wadName} first`);
+      progress = null;
       errorCount++;
       continue;
     }
@@ -144,21 +182,25 @@ async function buildMods(): Promise<void> {
       }
 
       // Step 4: Use wad-archiver to pack the modded directory
-      execSync(`node "${WAD_ARCHIVER}" create "${extractedPath}" "${outputPath}"`, {
+      progress?.setStatus("packing");
+      execSync(`node "${WAD_ARCHIVER}" create ${VERBOSE ? "" : "--silent "}"${extractedPath}" "${outputPath}"`, {
         stdio: "inherit",
         cwd: PROJECT_ROOT,
       });
 
-      console.log(`✓ Successfully built ${wadName} to game directory`);
+      log(`✓ Successfully built ${wadName} to game directory`);
+      progress?.tick("done");
+      progress?.finish(`✓ ${wadName}`);
       successCount++;
     } catch (error) {
-      console.error(`  ${errorMessage(error)}`);
-      console.error(`✗ Failed to build ${wadName}`);
+      logError(`  ${errorMessage(error)}`);
+      logError(`✗ Failed to build ${wadName}`);
       errorCount++;
     }
+    progress = null;
   }
 
-  console.log(`\n=== Build Complete ===`);
+  log(`\n=== Build Complete ===`);
   console.log(`WADs built: ${successCount}`);
   console.log(`WADs failed: ${errorCount}`);
   console.log(`Linscripts compiled: ${totalLinscriptsCompiled}`);
