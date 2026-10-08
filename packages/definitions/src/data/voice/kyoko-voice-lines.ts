@@ -686,7 +686,7 @@ export const kyokoVoiceLines: ChapterVoiceLines = {
     65: "Wrong.",
     66: "I...",
     67: "You.",
-    68: "Now, F.",
+    68: "Now... if...",
     69: "Thank you.",
     70: "Makoto.",
     71: "Isn't it obvious?",
