@@ -320,6 +320,37 @@ async function writePak(pak: Pak, outputPath: string, inputFiles: InputFile[]): 
   }
 }
 
+/**
+ * Rewrite the archive at `sourcePath` to `outputPath` with the entries in `replacements`
+ * (keyed by entry index) swapped for the given bytes. The entry count is kept: an index the
+ * archive does not have is an error rather than an appended entry. Offsets are written absolute,
+ * as `readPak` expects and as the shipped `script_pak_eNN.pak` files are laid out.
+ */
+async function rebuildPak(sourcePath: string, replacements: Map<number, Buffer>, outputPath: string): Promise<void> {
+  const { pak, buffer } = await readPak(sourcePath);
+
+  for (const index of replacements.keys()) {
+    if (pak.entries[index] === undefined) {
+      throw new Error(`${basename(sourcePath)} has ${pak.entries.length} entries, so there is no entry ${index} to replace`);
+    }
+  }
+
+  const contents = pak.entries.map(
+    (entry) => replacements.get(entry.index) ?? buffer.subarray(entry.offset, entry.offset + entry.size),
+  );
+
+  const headerSize = 4 + contents.length * 4;
+  const header = Buffer.alloc(headerSize);
+  let headerOffset = writeU32LE(header, contents.length, 0);
+  let dataOffset = headerSize;
+  for (const content of contents) {
+    headerOffset = writeU32LE(header, dataOffset, headerOffset);
+    dataOffset += content.length;
+  }
+
+  await writeFile(outputPath, Buffer.concat([header, ...contents]));
+}
+
 async function flatWalk(dir: string): Promise<string[]> {
   const files: string[] = [];
 
@@ -752,7 +783,7 @@ async function main(): Promise<void> {
 }
 
 // Export functions for use by other scripts
-export { extractPak, FileTypeChecker, linkGMOName, readPak };
+export { extractPak, FileTypeChecker, linkGMOName, readPak, rebuildPak };
 
 // Only run main if this is the entry point
 if (import.meta.url === `file://${process.argv[1]}`) {

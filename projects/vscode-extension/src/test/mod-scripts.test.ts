@@ -1,5 +1,11 @@
 import * as assert from "node:assert";
-import { explorationScriptPath, flatScriptName } from "danganronpa-scripts/src/lib/mod-scripts.ts";
+import {
+  explorationScriptPath,
+  flatScriptName,
+  isPakDirectory,
+  pakEntryIndex,
+  pakFileName,
+} from "danganronpa-scripts/src/lib/mod-scripts.ts";
 
 suite("flatScriptName", () => {
   const cases: Array<[string, string | null]> = [
@@ -33,5 +39,33 @@ suite("explorationScriptPath", () => {
 
   test("rejects anything that is not a script name", () => {
     assert.throws(() => explorationScriptPath("e01_005_103.linscript"));
+  });
+});
+
+suite("pak directories", () => {
+  test("isPakDirectory needs the prefix and a name", () => {
+    assert.strictEqual(isPakDirectory("pak_script_pak_e00"), true);
+    assert.strictEqual(isPakDirectory("pak_"), false);
+    assert.strictEqual(isPakDirectory("script_pak_e00"), false);
+    assert.strictEqual(isPakDirectory("chapter_01"), false);
+  });
+
+  test("pakFileName strips the prefix and adds .pak", () => {
+    assert.strictEqual(pakFileName("pak_script_pak_e00"), "script_pak_e00.pak");
+    assert.throws(() => pakFileName("script_pak_e00"));
+  });
+
+  test("pakEntryIndex reads the leading digits", () => {
+    const cases: Array<[string, number | null]> = [
+      ["0002.linscript", 2],
+      ["0002_NewGame.linscript", 2],
+      ["3.tga", 3],
+      ["12", 12],
+      ["NewGame.linscript", null],
+      ["", null],
+    ];
+    for (const [input, expected] of cases) {
+      assert.strictEqual(pakEntryIndex(input), expected, input);
+    }
   });
 });
