@@ -3,41 +3,29 @@
 /**
  * unpack-base-files.ts
  *
- * Extracts dr1_data_us.wad and dr1_data.wad from base_files.zip and unpacks all files to workbench/modded/
+ * Restores dr1_data_us.wad and dr1_data.wad from workbench/base_files/ and unpacks all files to workbench/modded/
  * This gives you a fresh copy of all base game files for modding.
  */
 
 import { exec } from "node:child_process";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import unzipper from "unzipper";
+import { restoreWad, type WadFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
-const BASE_FILES_ZIP = join(WORKBENCH_DIR, "base_files.zip");
 const MODDED_DIR = join(WORKBENCH_DIR, "modded");
 const DR1_DATA_US_DIR = join(MODDED_DIR, "dr1_data_us");
 const DR1_DATA_DIR = join(MODDED_DIR, "dr1_data");
 
-async function extractWadFromZip(wadFileName: string): Promise<string> {
-  console.log(`Extracting ${wadFileName} from base_files.zip...`);
+async function restoreWadToTemp(wadFileName: WadFile): Promise<string> {
+  console.log(`Restoring ${wadFileName} from base_files...`);
 
-  const zipBuffer = await readFile(BASE_FILES_ZIP);
-  const directory = await unzipper.Open.buffer(zipBuffer);
-
-  const wadFile = directory.files.find((f) => f.path === wadFileName);
-
-  if (!wadFile) {
-    throw new Error(`${wadFileName} not found in base_files.zip`);
-  }
-
-  const wadBuffer = await wadFile.buffer();
   const tempWadPath = join(WORKBENCH_DIR, `temp_${wadFileName}`);
-
-  await writeFile(tempWadPath, wadBuffer);
-  console.log(`Extracted to ${tempWadPath}`);
+  await restoreWad(wadFileName, tempWadPath);
+  console.log(`Restored to ${tempWadPath}`);
 
   return tempWadPath;
 }
@@ -69,14 +57,14 @@ async function main(): Promise<void> {
 
     // Extract and process dr1_data_us.wad
     console.log("Processing dr1_data_us.wad...");
-    const tempWadPathUs = await extractWadFromZip("dr1_data_us.wad");
+    const tempWadPathUs = await restoreWadToTemp("dr1_data_us.wad");
     await extractWadContents(tempWadPathUs, DR1_DATA_US_DIR);
     await cleanup(tempWadPathUs);
     console.log("✓ dr1_data_us.wad extracted to workbench/modded/dr1_data_us/\n");
 
     // Extract and process dr1_data.wad
     console.log("Processing dr1_data.wad...");
-    const tempWadPath = await extractWadFromZip("dr1_data.wad");
+    const tempWadPath = await restoreWadToTemp("dr1_data.wad");
     await extractWadContents(tempWadPath, DR1_DATA_DIR);
     await cleanup(tempWadPath);
     console.log("✓ dr1_data.wad extracted to workbench/modded/dr1_data/\n");

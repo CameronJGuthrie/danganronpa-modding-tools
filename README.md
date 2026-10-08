@@ -40,7 +40,7 @@ All but `projects/gui` are pnpm workspace packages; the GUI is installed and run
     pnpm install
     ```
 
-2. Run the first time setup script (this will take a while and around 3GB of disk space to zip up the game's files, then create the working files)
+2. Run the first time setup script (this takes a while and around 2GB of disk space to back up the game's files, then creates the working files)
 
     ```bash
     pnpm run setup

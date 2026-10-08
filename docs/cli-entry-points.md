@@ -19,7 +19,7 @@ modding operation, grouped by caller, and the scripts nothing calls.
 
 | pnpm command | Script | Shells out to |
 |---|---|---|
-| `setup` | `setup/zip-game-files.ts`, then `unpack`, then `reset` | |
+| `setup` | `setup/backup-game-files.ts`, then `unpack`, then `reset` | |
 | `unpack` | `setup/unpack-base-files.ts` | external tool via `exec` (line 52) |
 | `reset` | `setup/extract-linscript.ts` | `wad-archiver.ts extract`, then `cli.ts -s -d <dir>` |
 | `extract-recursive`, `extract-recursive:all` | `setup/extract-recursive.ts` | imports `extractPak`; hardcodes `node projects/cli/src/cli.ts -d` (line 245, cwd-dependent) |

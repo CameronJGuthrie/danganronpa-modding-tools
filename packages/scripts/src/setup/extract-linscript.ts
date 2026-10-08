@@ -2,37 +2,25 @@
 
 import { exec } from "node:child_process";
 import { existsSync } from "node:fs";
-import { chmod, copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, copyFile, mkdir, readdir, rm } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { decompileDirectory } from "lin-compiler";
-import unzipper from "unzipper";
+import { restoreWad } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { explorationScriptPath } from "../lib/mod-scripts.ts";
 import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
-const BASE_FILES_ZIP = join(WORKBENCH_DIR, "base_files.zip");
 const TEMP_DIR = join(WORKBENCH_DIR, "temp_extract");
 const EXPLORATION_DIR = join(WORKBENCH_DIR, "exploration");
 
-async function extractWadFromZip(): Promise<string> {
-  console.log("Extracting dr1_data_us.wad from base_files.zip...");
+async function restoreWadToTemp(): Promise<string> {
+  console.log("Restoring dr1_data_us.wad from base_files...");
 
-  const zipBuffer = await readFile(BASE_FILES_ZIP);
-  const directory = await unzipper.Open.buffer(zipBuffer);
-
-  const wadFile = directory.files.find((f) => f.path === "dr1_data_us.wad");
-
-  if (!wadFile) {
-    throw new Error("dr1_data_us.wad not found in base_files.zip");
-  }
-
-  const wadBuffer = await wadFile.buffer();
   const tempWadPath = join(TEMP_DIR, "dr1_data_us.wad");
-
   await mkdir(TEMP_DIR, { recursive: true });
-  await writeFile(tempWadPath, wadBuffer);
+  await restoreWad("dr1_data_us.wad", tempWadPath);
 
   return tempWadPath;
 }
@@ -122,8 +110,8 @@ async function main(): Promise<void> {
   try {
     console.log("Starting linscript extraction...\n");
 
-    // Step 1: Extract WAD from ZIP
-    const wadPath = await extractWadFromZip();
+    // Step 1: Restore WAD from the backup
+    const wadPath = await restoreWadToTemp();
 
     // Step 2: Extract WAD contents
     const extractDir = await extractWadContents(wadPath);
