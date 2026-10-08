@@ -186,7 +186,7 @@ export const opcodes = {
   IfFlag:                { id: 0x35, args: { kind: "repeat", head: [flagGroup, flagOffset, compare, bool], tail: [join, flagGroup, flagOffset, compare, bool] } },
   /** `value1, operand, value2` followed by any number of `joiner, value1, operand, value2`. */
   If:                    { id: 0x36, args: { kind: "repeat", head: [variable, compare, UInt16BE], tail: [join, variable, compare, UInt16BE] } },
-  IfFreeTimeEvent:       { id: 0x38, args: fixed([named(UInt16BE, Student), compare, UInt16BE]) },
+  IfFreeTimeEvent:       { id: 0x38, args: { kind: "repeat", head: [named(UInt16BE, Student), compare, UInt16BE], tail: [join, named(UInt16BE, Student), compare, UInt16BE] } }, // chained with Or in e08_010_050
   IfRelationship:        { id: 0x39, args: fixed([named(UInt16BE, Student), compare, UInt16BE]) },
   WaitInput:             { id: 0x3a, args: none() },
   WaitFrame:             { id: 0x3b, args: none() },

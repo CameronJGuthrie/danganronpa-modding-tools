@@ -52,6 +52,7 @@ test("every game script round-trips through source and back", {
   for (const line of unreadable) {
     t.diagnostic(line);
   }
-  // A handful of shipped scripts contain bytes the reader rejects; anything beyond that is a regression
-  assert.ok(unreadable.length <= 2, `unexpected unreadable files:\n${unreadable.join("\n")}`);
+  // e10_000_137 is an untranslated leftover in an older opcode layout (5-byte IfFlag heads, an
+  // opcode 0x18, 2-byte SetVariable) that the reader cannot parse; anything beyond it is a regression
+  assert.ok(unreadable.length <= 1, `unexpected unreadable files:\n${unreadable.join("\n")}`);
 });

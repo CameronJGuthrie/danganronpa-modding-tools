@@ -634,6 +634,12 @@ describe("named arguments", () => {
       ),
       "IfRelationship(Mondo, <, 20,\n    Goto(1))\nIfRelationship(Sayaka, >, 0,\n    Goto(2))\nIfFreeTimeEvent(Mondo, >, 0,\n    Goto(3))\nIfFreeTimeEvent(Sayaka, !=, 2,\n    Goto(4))\n",
     );
+    // IfFreeTimeEvent chains with And/Or like If (e08_010_050 tests three counts with Or)
+    assert.equal(
+      roundTrip("IfFreeTimeEvent(10, 0, 5, 7, 10, 0, 6, 7, 10, 0, 7, Goto(1))\nSpeaker(Taka)\n"),
+      "IfFreeTimeEvent(Toko, !=, 5, Or, Toko, !=, 6, Or, Toko, !=, 7,\n    Goto(1))\nSpeaker(Taka)\n",
+    );
+    assert.throws(() => readSource("IfFreeTimeEvent(Toko, !=, 5, Or, Goto(1))\n"), /3 \+ 4n arguments/);
     // Bare = is accepted for ==, and numbers still work everywhere
     assert.deepEqual(readSource("If(0, =, 5, Goto(1))\n").entries[0].args, [0, 0, 1, 0, 5]);
     assert.deepEqual(readSource("If(0, 1, 5, Goto(1))\n").entries[0].args, [0, 0, 1, 0, 5]);
