@@ -2,7 +2,7 @@ import { LinscriptInstructionName, roomDisplayName, roomNamesByChapter } from "l
 import type { LinscriptInstruction } from "../linscript-instruction";
 
 // This can point to scripts that don't seem to exist?
-// E.g. getting a Monocoin RunScript(8, 30, 0) for which there is no e08_030_000.lin
+// E.g. getting a Monocoin pickup RunScript(8, 30, 0) for which there is no e08_030_000.lin
 export const runScriptInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.RunScript,
   description:

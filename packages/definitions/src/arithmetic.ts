@@ -28,7 +28,7 @@ export const arithmeticOperatorSymbols: Readonly<Record<Arithmetic, string>> = {
 
 /**
  * Arithmetic modes as a name table for `.linscript`: symbol -> value and value -> symbol, the same
- * shape as a numeric enum object, so `SetVariable(Monocoin, +=, 5)` reads and writes like an
+ * shape as a numeric enum object, so `SetVariable(MonocoinPickup, +=, 5)` reads and writes like an
  * assignment statement.
  */
 export const arithmeticOperators: Readonly<Record<string, string | number>> = Object.freeze({

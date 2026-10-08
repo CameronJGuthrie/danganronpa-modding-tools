@@ -47,7 +47,10 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
     24: "Nonstop Debate",
     25: "Class Trial",
   },
-  [Variable.Variable_16]: undefined, // Something to do with the minigame. Values seen are 1 and 200.
+  // The player's Monocoin balance, only ever written. The coin-pickup subroutine `e08_030_000` does `+= 1`
+  // (`+= 3` with the Raise skill), the demo (chapter 10) does `+= 1` when an object is first examined and
+  // resets it to 0 in `e10_000_000`, and School Mode's `e09_200_000` does `+= 200` for Monokuma's reward.
+  [Variable.Monocoins]: undefined,
   [Variable.Regulations]: undefined,
   [Variable.LogicDifficulty]: undefined, // Trials test `!= 2` (Mean) to pick a vaguer hint after a wrong answer. Only written in the Japanese prototype scripts.
   [Variable.Scene]: undefined,
@@ -59,7 +62,9 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
     3: "3",
     4: "4",
   },
-  [Variable.Monocoin]: undefined, // Monocoin? It's always succeeded by RunScript(8, 30, 0)
+  // Not the balance (see Monocoins): the pickup slot 0–31 a room script sets before `RunScript(8, 30, 0)`,
+  // which `e08_030_000` compares against to pick the `MonocoinCollected` flag to set.
+  [Variable.MonocoinPickup]: undefined,
   [Variable.Variable_48]: undefined, // Only seems to be used in japanese game files
   [Variable.Variable_50]: undefined, // Something to do with the minigame. Value is always 1.
   [Variable.Variable_56]: { ...flatMapProperty(characterData, "name") }, // Something to do with the minigame. Value is characterId.

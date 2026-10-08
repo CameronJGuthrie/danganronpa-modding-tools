@@ -14,12 +14,12 @@ export const Variable = defineEnum({
   Variable_13: 13, // →   190 occurrences (2.4%)
   Random: 14, // →   352 occurrences; a percentage roll 0–99: only compared against 25/33/50/66, only ever assigned 0 (reroll)
   GameMode: 15, // →   113 occurrences (1.4%)
-  Variable_16: 16, // →     2 occurrences (0.0%)
+  Monocoins: 16, // →    30 occurrences; the Monocoin balance
   Regulations: 17, // →    40 occurrences (0.5%)
   LogicDifficulty: 19, // →   285 occurrences (3.6%)
   Scene: 20, // →   270 occurrences (3.4%)
   CharactersTalkedTo: 21, // →    45 occurrences (0.6%)
-  Monocoin: 30, // →   182 occurrences (2.3%)
+  MonocoinPickup: 30, // →   182 occurrences; the pickup slot (0–31) passed to the coin subroutine
   Variable_48: 48, // →     5 occurrences (0.1%)
   Variable_50: 50, // →     1 occurrences (0.0%)
   Variable_56: 56, // →    15 occurrences (0.2%)
@@ -50,12 +50,12 @@ export const variables: Readonly<Record<Variable, string>> = {
   [Variable.Variable_13]: "",
   [Variable.Random]: "Random",
   [Variable.GameMode]: "GameMode",
-  [Variable.Variable_16]: "",
+  [Variable.Monocoins]: "Monocoins",
   [Variable.Regulations]: "Regulations",
   [Variable.LogicDifficulty]: "LogicDifficulty",
   [Variable.Scene]: "Scene",
   [Variable.CharactersTalkedTo]: "CharactersTalkedTo",
-  [Variable.Monocoin]: "Monocoin",
+  [Variable.MonocoinPickup]: "Monocoin Pickup",
   [Variable.Variable_48]: "",
   [Variable.Variable_50]: "",
   [Variable.Variable_56]: "",

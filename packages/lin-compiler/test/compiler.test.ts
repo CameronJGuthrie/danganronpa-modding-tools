@@ -246,18 +246,18 @@ describe("compile and decompile", () => {
       writeSourceText(script),
       "If(Scene, !=, 21,\n    Goto(1))\nIf(Scene, !=, 16, Or, Scene, !=, 17,\n    Goto(2))\nIf(49, !=, 0,\n    Goto(3))\n",
     );
-    assert.throws(() => readSource("If(Scene, !=, Monocoin, Goto(1))\n"), SourceError);
+    assert.throws(() => readSource("If(Scene, !=, MonocoinPickup, Goto(1))\n"), SourceError);
   });
 
   test("SetVariable names the variable and the operation", () => {
     const script = readSource(
-      "SetVariable(20, 0, 3)\nSetVariable(Monocoin, +=, 5)\nSetVariable(14, 0, 0)\nSetVariable(49, 0, 0)\n",
+      "SetVariable(20, 0, 3)\nSetVariable(MonocoinPickup, +=, 5)\nSetVariable(14, 0, 0)\nSetVariable(49, 0, 0)\n",
     );
     assert.equal(
       writeSourceText(script),
-      "SetVariable(Scene, =, 3)\nSetVariable(Monocoin, +=, 5)\nSetVariable(Random, =, 0)\nSetVariable(49, =, 0)\n",
+      "SetVariable(Scene, =, 3)\nSetVariable(MonocoinPickup, +=, 5)\nSetVariable(Random, =, 0)\nSetVariable(49, =, 0)\n",
     );
-    assert.throws(() => readSource("SetVariable(Scene, =, Monocoin)\n"), SourceError);
+    assert.throws(() => readSource("SetVariable(Scene, =, MonocoinPickup)\n"), SourceError);
   });
 
   test("textless and text scripts get the right header", () => {
