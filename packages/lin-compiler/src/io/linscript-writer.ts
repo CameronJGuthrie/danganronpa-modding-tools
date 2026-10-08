@@ -4,6 +4,7 @@ import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { BinaryError } from "../errors.ts";
 import { formatArgs } from "../opcodes/arguments.ts";
 import { branchJump, formatBranch, isConditionEntry } from "../opcodes/branch.ts";
+import { formatDebateLabel, isDebateHandlerScript, isDebateLabel } from "../opcodes/debate.ts";
 import { formatFade, isScreenFade } from "../opcodes/fade.ts";
 import { getOpcode, hexOpcodeName } from "../opcodes/lookup.ts";
 import { formatMap, isMapState } from "../opcodes/map.ts";
@@ -49,6 +50,8 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     }
   }
   const scopes = scopeTables(script.meta);
+  // Kind-0 debate labels are statements in a statement script and misses in a handler script
+  const debateHandlers = isDebateHandlerScript(entries);
   // Every condition must carry its Then + Goto, which are written as the condition's last argument
   entries.forEach((entry, index) => {
     if (isConditionEntry(entry)) {
@@ -69,7 +72,7 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     return opcode;
   };
 
-  /** One instruction as `Name(args)`, applying the Wait, Time, Present, fade, PlaceSprite and map sugar and named arguments. */
+  /** One instruction as `Name(args)`, applying the Wait, Time, Present, fade, debate label, PlaceSprite and map sugar and named arguments. */
   const formatEntry = (entry: ScriptEntry): string => {
     const opcode = knownOpcode(entry);
     if (isWait(entry)) {
@@ -88,6 +91,10 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
     }
     if (isScreenFade(entry)) {
       const { name, args } = formatFade(entry);
+      return `${name}(${args})`;
+    }
+    if (isDebateLabel(entry)) {
+      const { name, args } = formatDebateLabel(entry, debateHandlers);
       return `${name}(${args})`;
     }
     if (isPlaceSprite(entry)) {

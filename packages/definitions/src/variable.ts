@@ -11,7 +11,7 @@ export const Variable = defineEnum({
   Variable_10: 10, // →     1 occurrences (0.0%)
   TimeLimit: 11, // →    17 occurrences (0.2%)
   FreeTimeEventCount: 12, // →    40 occurrences (0.5%)
-  Variable_13: 13, // →   190 occurrences (2.4%)
+  Influence: 13, // →   190 occurrences; the class trial Influence gauge (see variable-data.ts)
   Random: 14, // →   352 occurrences; a percentage roll 0–99: only compared against 25/33/50/66, only ever assigned 0 (reroll)
   GameMode: 15, // →   113 occurrences (1.4%)
   Monocoins: 16, // →    30 occurrences; the Monocoin balance
@@ -47,7 +47,7 @@ export const variables: Readonly<Record<Variable, string>> = {
   [Variable.Variable_10]: "",
   [Variable.TimeLimit]: "TimeLimit",
   [Variable.FreeTimeEventCount]: "FreeTimeEventCount",
-  [Variable.Variable_13]: "",
+  [Variable.Influence]: "Influence",
   [Variable.Random]: "Random",
   [Variable.GameMode]: "GameMode",
   [Variable.Monocoins]: "Monocoins",

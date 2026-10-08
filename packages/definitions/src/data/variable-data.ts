@@ -29,7 +29,16 @@ export const variableData: Readonly<Record<Variable, VariableValueDetail | undef
   [Variable.Variable_10]: undefined, // Used once, only set to 0
   [Variable.TimeLimit]: undefined, // 60 or 180, set right before a timed choose-evidence / choose-option prompt in trials.
   [Variable.FreeTimeEventCount]: undefined, // += 1 after StudentReportInfo at the end of each free time event; never read.
-  [Variable.Variable_13]: undefined, // Something to do with the class trial
+  // The class trial's Influence gauge (the trial HUD's health bar), named after the English release's term.
+  // Every wrong answer does `-= 2000` with the buzzer (`Sound(124)`), then `If(Influence, !=, 0)` retries the
+  // prompt and the fall-through runs the chapter's `198` subroutine ("Nobody believes me...", the game over);
+  // the retry option there restores it with `+= 20000`, and a correct timed answer in chapter 3 adds `+= 2000`
+  // (`+= 1000` without the Charisma skill). The 2000 per wrong shot is also the per-statement cost in the
+  // debate's `nonstop_CC_NNN.dat` record. The `= 1` before each timed prompt (next to `TimeLimit`) and the
+  // `= 0` after it closes, or right before the game over, cannot be gauge values: a gauge of 1 would die to the
+  // first `-= 2000`. They read as the engine showing and hiding the gauge, so assignment is inferred to toggle
+  // the HUD while `+=`/`-=` move the value. Untested in game.
+  [Variable.Influence]: undefined,
   // A random percentage, 0-99. `If(Random, >=, 50)` is a coin flip, `> 33` / `> 66` a three-way split;
   // `SetVariable(Random, Assign, 0)` before the test appears to reroll it. Only used in free time, gift and School Mode scripts.
   [Variable.Random]: {

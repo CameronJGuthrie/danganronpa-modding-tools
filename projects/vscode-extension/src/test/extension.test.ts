@@ -300,9 +300,9 @@ suite("Extension Test Suite", () => {
     assert.deepStrictEqual(validateCallSyntax(instructions.Music, "Music(DanganRonpa, 100, 60)"), []);
     assert.deepStrictEqual(validateCallSyntax(instructions.Music, "Music( DanganRonpa ,100,60 )"), []);
     // Arithmetic operators are symbols, not negative numbers
-    assert.deepStrictEqual(validateCallSyntax(instructions.SetVariable, "SetVariable(Variable_13, -=, 2000)"), []);
+    assert.deepStrictEqual(validateCallSyntax(instructions.SetVariable, "SetVariable(Influence, -=, 2000)"), []);
     assert.deepStrictEqual(
-      validateCall(instructions.SetVariable, "SetVariable(Variable_13, -=, 2000)", NO_SCOPED_NAMES),
+      validateCall(instructions.SetVariable, "SetVariable(Influence, -=, 2000)", NO_SCOPED_NAMES),
       [],
     );
 

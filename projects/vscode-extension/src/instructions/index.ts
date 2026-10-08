@@ -21,7 +21,6 @@ import { waitInstruction } from "./dialogue/wait.instruction";
 import { waitFrameInstruction } from "./dialogue/wait-frame.instruction";
 import { waitInputInstruction } from "./dialogue/wait-input.instruction";
 import { animationInstruction } from "./effect/animation.instruction";
-import { cameraFlashInstruction } from "./effect/camera-flash.instruction";
 import { fadeInInstruction } from "./effect/fade-in.instruction";
 import { fadeOutInstruction } from "./effect/fade-out.instruction";
 import { fadeOutThenWaitInstruction } from "./effect/fade-out-then-wait.instruction";
@@ -43,7 +42,16 @@ import { loadScriptInstruction } from "./flow/load-script.instruction";
 import { returnInstruction } from "./flow/return.instruction";
 import { runScriptInstruction } from "./flow/run-script.instruction";
 import { stopScriptInstruction } from "./flow/stop-script.instruction";
+import { debateEndInstruction } from "./handlers/debate-end.instruction";
+import { debateStatementInstruction } from "./handlers/debate-statement.instruction";
 import { onCharacterInstruction } from "./handlers/on-character.instruction";
+import { onDebateCounterInstruction } from "./handlers/on-debate-counter.instruction";
+import { onDebateHitInstruction } from "./handlers/on-debate-hit.instruction";
+import { onDebateInfluenceEmptyInstruction } from "./handlers/on-debate-influence-empty.instruction";
+import { onDebateLoopInstruction } from "./handlers/on-debate-loop.instruction";
+import { onDebateMissInstruction } from "./handlers/on-debate-miss.instruction";
+import { onDebateTimeoutInstruction } from "./handlers/on-debate-timeout.instruction";
+import { onDebateUnknownInstruction } from "./handlers/on-debate-unknown.instruction";
 import { onObjectInstruction } from "./handlers/on-object.instruction";
 import { optionInstruction } from "./handlers/option.instruction";
 import { setOptionInstruction } from "./handlers/set-option.instruction";
@@ -67,7 +75,8 @@ import { timeInstruction } from "./scene/time.instruction";
 /** Every instruction keyed by its name, so lookups are type-checked against the enum. */
 export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<LinscriptInstruction>>> = {
   [LinscriptInstructionName.Animation]: animationInstruction,
-  [LinscriptInstructionName.CameraFlash]: cameraFlashInstruction,
+  [LinscriptInstructionName.DebateEnd]: debateEndInstruction,
+  [LinscriptInstructionName.DebateStatement]: debateStatementInstruction,
   [LinscriptInstructionName.CharacterName]: characterNameInstruction,
   [LinscriptInstructionName.FadeIn]: fadeInInstruction,
   [LinscriptInstructionName.FadeOut]: fadeOutInstruction,
@@ -93,6 +102,13 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.ObjectName]: objectNameInstruction,
   [LinscriptInstructionName.ObjectState]: objectStateInstruction,
   [LinscriptInstructionName.OnCharacter]: onCharacterInstruction,
+  [LinscriptInstructionName.OnDebateCounter]: onDebateCounterInstruction,
+  [LinscriptInstructionName.OnDebateHit]: onDebateHitInstruction,
+  [LinscriptInstructionName.OnDebateInfluenceEmpty]: onDebateInfluenceEmptyInstruction,
+  [LinscriptInstructionName.OnDebateLoop]: onDebateLoopInstruction,
+  [LinscriptInstructionName.OnDebateMiss]: onDebateMissInstruction,
+  [LinscriptInstructionName.OnDebateTimeout]: onDebateTimeoutInstruction,
+  [LinscriptInstructionName.OnDebateUnknown]: onDebateUnknownInstruction,
   [LinscriptInstructionName.OnObject]: onObjectInstruction,
   [LinscriptInstructionName.Option]: optionInstruction,
   [LinscriptInstructionName.OptionName]: optionNameInstruction,

@@ -1025,6 +1025,43 @@ describe("Mode sugar", () => {
   });
 });
 
+describe("Debate label sugar", () => {
+  const label = (id: number) => ({ opcode: 0x2e, args: [Math.floor(id / 256), id % 256] });
+  const script = (...ids: number[]) => ({ entries: ids.map(label) });
+
+  test("each form compiles to DebateLabel with a big-endian id", () => {
+    assert.deepEqual(readSource("DebateStatement(2)\n").entries[0], label(2));
+    assert.deepEqual(readSource("OnDebateMiss(2)\n").entries[0], label(2));
+    assert.deepEqual(readSource("OnDebateHit(6)\n").entries[0], label(10006));
+    assert.deepEqual(readSource("OnDebateCounter(3)\n").entries[0], label(20003));
+    assert.deepEqual(readSource("OnDebateUnknown(0)\n").entries[0], label(30000));
+    assert.deepEqual(readSource("OnDebateLoop()\n").entries[0], label(40000));
+    assert.deepEqual(readSource("OnDebateInfluenceEmpty()\n").entries[0], label(50000));
+    assert.deepEqual(readSource("OnDebateTimeout()\n").entries[0], label(60000));
+    assert.deepEqual(readSource("DebateEnd()\n").entries[0], { opcode: 0x2e, args: [255, 255] });
+    assert.throws(() => readSource("OnDebateHit()\n"), /OnDebateHit expects 1 argument \(statement\), got 0/);
+    assert.throws(() => readSource("OnDebateLoop(1)\n"), /OnDebateLoop expects 0 arguments, got 1/);
+    assert.throws(() => readSource("OnDebateMiss(10000)\n"), /statement must be below 10000/);
+    assert.throws(() => readSource("DebateLabel(0, 1)\n"), /'DebateLabel' is not a source instruction/);
+  });
+
+  test("kind 0 decompiles as a statement unless the script has handlers of a higher kind", () => {
+    assert.equal(writeSourceText(script(0, 1, 65535)), "DebateStatement(0)\nDebateStatement(1)\nDebateEnd()\n");
+    assert.equal(
+      writeSourceText(script(0, 10000, 20003, 30000, 40000, 50000, 60000, 65535)),
+      "OnDebateMiss(0)\nOnDebateHit(0)\nOnDebateCounter(3)\nOnDebateUnknown(0)\nOnDebateLoop()\nOnDebateInfluenceEmpty()\nOnDebateTimeout()\nDebateEnd()\n",
+    );
+    assert.throws(() => writeSourceText(script(40001)), /carries statement 1/);
+  });
+
+  test("the lines after a label are indented until the next label or DebateEnd", () => {
+    const source =
+      "Goto(500)\nOnDebateMiss(0)\n    Speaker(Taka)\nOnDebateMiss(1)\nOnDebateHit(1)\n    Speaker(Byakuya)\nOnDebateTimeout()\n    Goto(2)\nDebateEnd()\nLabel(500)\n";
+    assert.equal(roundTrip(source), source);
+    assert.equal(roundTrip("DebateStatement(0)\n    Speaker(Taka)\nDebateEnd()\nReturn()\n"), "DebateStatement(0)\n    Speaker(Taka)\nDebateEnd()\nReturn()\n");
+  });
+});
+
 describe("block indentation", () => {
   test("block opcodes indent their contents until a 255 closes them", () => {
     const source = "SetOption(1)\nSpeaker(1)\nSetOption(2)\nSpeaker(2)\nSetOption(255)\nSpeaker(3)\n";

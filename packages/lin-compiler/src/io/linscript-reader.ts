@@ -4,6 +4,7 @@ import type { Script, ScriptEntry } from "../definitions/script.definition.ts";
 import { SourceError } from "../errors.ts";
 import { parseEntry, parseTextArgument } from "../opcodes/arguments.ts";
 import { expandBranch, isCondition } from "../opcodes/branch.ts";
+import { expandDebateLabel, isDebateSugarName } from "../opcodes/debate.ts";
 import { expandFade, isFadeSugarName } from "../opcodes/fade.ts";
 import { getOpcodeByName } from "../opcodes/lookup.ts";
 import { expandMap, isMapSugarName } from "../opcodes/map.ts";
@@ -135,6 +136,9 @@ function parseOpcodeLine(name: string, argsText: string, line: number, scopes: S
   }
   if (isMapSugarName(name)) {
     return [expandMap(name, argsText, line)];
+  }
+  if (isDebateSugarName(name)) {
+    return [expandDebateLabel(name, argsText, line)];
   }
   const opcode = getOpcodeByName(name);
   if (opcode !== undefined) {

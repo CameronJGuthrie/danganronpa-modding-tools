@@ -1,6 +1,7 @@
 export const LinscriptInstructionName = {
   Animation: "Animation",
-  CameraFlash: "CameraFlash",
+  DebateEnd: "DebateEnd", // Sugar for DebateLabel(65535): closes a Nonstop Debate statement list or handler table
+  DebateStatement: "DebateStatement", // Sugar for DebateLabel(k) in a statement script: statement k's sprite, voice and text follow
   FadeIn: "FadeIn", // Sugar for ScreenFade(0, colour, frames): reveals the screen from a full-screen colour
   FadeOut: "FadeOut", // Sugar for ScreenFade(1, colour, frames): covers the screen with a full-screen colour
   FadeOutThenWait: "FadeOutThenWait", // Sugar for ScreenFade(101, colour, frames): FadeOut that finishes before the script continues, used before leaving a script
@@ -26,6 +27,13 @@ export const LinscriptInstructionName = {
   ObjectName: "ObjectName", // Source-only: `ObjectName(id, Name)` inside Meta() names an object id for the file
   ObjectState: "ObjectState",
   OnCharacter: "OnCharacter",
+  OnDebateCounter: "OnDebateCounter", // Sugar for DebateLabel(20000 + k): statement k was hit with an absorbed statement
+  OnDebateHit: "OnDebateHit", // Sugar for DebateLabel(10000 + k): statement k was hit with the right Truth Bullet
+  OnDebateInfluenceEmpty: "OnDebateInfluenceEmpty", // Sugar for DebateLabel(50000): the Influence gauge ran out
+  OnDebateLoop: "OnDebateLoop", // Sugar for DebateLabel(40000): the statements repeated without a hit
+  OnDebateMiss: "OnDebateMiss", // Sugar for DebateLabel(k) in a handler script: a wrong shot at statement k
+  OnDebateTimeout: "OnDebateTimeout", // Sugar for DebateLabel(60000): the debate timer ran out
+  OnDebateUnknown: "OnDebateUnknown", // Sugar for DebateLabel(30000 + k): a handler kind that never holds code in the shipped scripts
   OnObject: "OnObject",
   Option: "Option", // Sugar for SetOption(n) + RawText("label\n") + WaitFrame: a labelled menu choice
   OptionName: "OptionName", // Source-only: `OptionName(id, Name)` inside Meta() names a menu option id for the file
