@@ -1,3 +1,5 @@
+import { mkdir } from "node:fs/promises";
+import * as path from "node:path";
 import * as vscode from "vscode";
 import { getAudioPlayerManager } from "./features/audio/audio-player-manager";
 import { registerMusicTestController } from "./features/audio/controllers/music-test-controller";
@@ -11,7 +13,7 @@ import { registerDecoration } from "./features/decoration";
 import { registerDiagnostics } from "./features/diagnostics";
 import { registerDefinitionProvider } from "./features/go-to-definition";
 import { registerHoverProvider } from "./features/hover";
-import { selectScript, verifyScript } from "./features/scripts";
+import { listPakEntries, modPakDir, selectPakEntry, selectScript, verifyScript } from "./features/scripts";
 import { registerWorkbenchRoot, requireWorkbenchRoot } from "./features/workspace";
 import { initializeOutputChannel, log, logError } from "./output";
 
@@ -62,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
       "lindecompilerhelper.verifyFile",
       runScriptCommand("Verify File", (root, file) => verifyScript(getCompiler(context), root, file)),
     ),
+    vscode.commands.registerCommand("lindecompilerhelper.selectPak", (uri: vscode.Uri) => selectPak(context, uri)),
   );
 
   // Register toggle commands for decorations
@@ -91,6 +94,52 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }),
   );
+}
+
+/**
+ * "Select PAK for Modding" on an extracted pak folder: pick the entries to author, make a
+ * `.linscript` for each in the mod's `pak_<folder>` directory and open the first. The directory
+ * is created even when nothing is picked, so entries can be dropped in by hand.
+ */
+async function selectPak(context: vscode.ExtensionContext, uri: vscode.Uri): Promise<void> {
+  const title = "Select PAK for Modding";
+  const rootDir = await requireWorkbenchRoot();
+  if (rootDir === null) {
+    return;
+  }
+  try {
+    const folder = uri.fsPath;
+    const targetDir = modPakDir(rootDir, folder);
+    const entries = await listPakEntries(folder);
+    if (entries.length === 0) {
+      vscode.window.showErrorMessage(`${title}: ${path.basename(folder)} has no .lin or .linscript entries`);
+      return;
+    }
+    const picked = await vscode.window.showQuickPick(
+      entries.map((entry) => ({ label: path.basename(entry.file), description: `entry ${entry.index}`, entry })),
+      { canPickMany: true, title: `${title}: entries of ${path.basename(folder)} to author` },
+    );
+    if (picked === undefined) {
+      return;
+    }
+    await mkdir(targetDir, { recursive: true });
+    const outputs = await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title }, async () => {
+      const compiler = getCompiler(context);
+      const results: string[] = [];
+      for (const item of picked) {
+        results.push(await selectPakEntry(compiler, rootDir, item.entry.file));
+      }
+      return results;
+    });
+    if (outputs.length > 0) {
+      await vscode.window.showTextDocument(vscode.Uri.file(outputs[0]));
+    }
+    await vscode.commands.executeCommand("revealInExplorer", vscode.Uri.file(outputs[0] ?? targetDir));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logError(`${title} failed: ${message}`);
+    vscode.window.showErrorMessage(`${title} failed: ${message}`);
+  }
 }
 
 export function deactivate() {}

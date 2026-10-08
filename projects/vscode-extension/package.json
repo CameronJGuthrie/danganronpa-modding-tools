@@ -44,6 +44,10 @@
         "title": "Verify File"
       },
       {
+        "command": "lindecompilerhelper.selectPak",
+        "title": "Select PAK for Modding"
+      },
+      {
         "command": "lindecompilerhelper.toggleParameterDecorations",
         "title": "LinScript: Toggle Parameter Decorations"
       },
@@ -70,6 +74,11 @@
         {
           "when": "resourceExtname == .lin",
           "command": "lindecompilerhelper.verifyFile",
+          "group": "navigation"
+        },
+        {
+          "when": "explorerResourceIsFolder && resourceFilename =~ /pak/",
+          "command": "lindecompilerhelper.selectPak",
           "group": "navigation"
         }
       ]
