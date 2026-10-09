@@ -73,7 +73,7 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(rootDir, "modded/dr1_data/Dr1/data/us/voice", `dr1_voice_hca_us.awb.${indexStr}.ogg`);
+      return path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/us/voice", `dr1_voice_hca_us.awb.${indexStr}.ogg`);
     },
 
     formatTestLabel: (info: VoiceLineInfo): string => {

@@ -45,7 +45,7 @@ export function registerSoundBTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/bgm", soundInstruction.sourcePath);
+      return path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/all/bgm", soundInstruction.sourcePath);
     },
 
     formatTestLabel: (info: SoundBLineInfo): string => {

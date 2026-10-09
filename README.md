@@ -40,7 +40,7 @@ All but `projects/gui` are pnpm workspace packages; the GUI is installed and run
     pnpm install
     ```
 
-2. Run the first time setup script (this takes a while and around 2GB of disk space to back up the game's files, then creates the working files)
+2. Run the first time setup script (this takes a while and around 6GB of disk space: a copy of the game's WADs in `workbench/base_files/`, then their extracted and decompiled contents in `workbench/exploration/`)
 
     ```bash
     pnpm run setup
@@ -76,7 +76,7 @@ All but `projects/gui` are pnpm workspace packages; the GUI is installed and run
     ```txt
     (in vscode file explorer)
     Locate a .lin file
-    E.g. workbench/modded/dr1_data_us/Dr1/data/us/script/e00_003_001.lin
+    E.g. workbench/exploration/wad_dr1_data_us/Dr1/data/us/script/e00_003_001.lin
 
     Right Click -> Select For Modding
     ```
@@ -118,7 +118,7 @@ new opcodes.
 TypeScript, run directly by Node's type stripping - there is no build step:
 
 ```bash
-node packages/scripts/src/setup/unpack-base-files.ts    # same as: pnpm unpack
+node packages/scripts/src/setup/extract-linscript.ts    # same as: pnpm run reset
 ```
 
 Typechecking is separate from running, and emits nothing:

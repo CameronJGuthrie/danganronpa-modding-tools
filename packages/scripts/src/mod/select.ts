@@ -7,14 +7,14 @@ import { basename, dirname, extname, join, relative } from "node:path";
 import { promisify } from "node:util";
 import { decompileFile } from "lin-compiler";
 import { errorMessage } from "../lib/errors.ts";
-import { explorationScriptPath, findModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
-import { PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
+import { explorationScriptPath, explorationWadDir, findModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
+import { EXPLORATION_DIR, PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 
-const MODDED_DIR = join(projectRoot, "workbench", "modded", "dr1_data_us");
+/** The extracted base game files of dr1_data_us, where the shipped `.lin` scripts are read from. */
+const WAD_DIR = join(EXPLORATION_DIR, explorationWadDir("dr1_data_us"));
 const MOD_DIR = join(projectRoot, "workbench", "mod", "dr1_data_us");
-const EXPLORATION_DIR = join(projectRoot, "workbench", "exploration");
 const MOD_SCRIPT_DIR = join(MOD_DIR, ...SCRIPT_DIR_SEGMENTS);
 
 /**
@@ -36,13 +36,13 @@ function showUsage(): void {
   console.log(`Usage: pnpm select <filepath>
 
 Two modes:
-1. .lin file: Decompiles from workbench/modded/ and places the .linscript in workbench/mod/
+1. .lin file: Decompiles from workbench/exploration/wad_dr1_data_us/ and places the .linscript in workbench/mod/
 2. .linscript file: Copies from workbench/exploration/ to workbench/mod/ with proper structure
 
 Examples:
   pnpm select e01_004_135.lin
   pnpm select Dr1/data/us/script/e01_004_135.lin
-  pnpm select workbench/modded/dr1_data_us/Dr1/data/us/script/e01_004_135.lin
+  pnpm select workbench/exploration/wad_dr1_data_us/Dr1/data/us/script/e01_004_135.lin
 
   pnpm select e01_004_135.linscript
   pnpm select chapter_01/scene_004/e01_004_135.linscript
@@ -52,29 +52,29 @@ Examples:
 function resolveLinFilePath(inputPath: string): string {
   // If it's an absolute path
   if (inputPath.startsWith("/")) {
-    if (!inputPath.startsWith(MODDED_DIR)) {
-      throw new Error(`File must be within ${MODDED_DIR}`);
+    if (!inputPath.startsWith(WAD_DIR)) {
+      throw new Error(`File must be within ${WAD_DIR}`);
     }
     return inputPath;
   }
 
   // If it's a relative path from project root
-  if (inputPath.startsWith("workbench/modded/")) {
+  if (inputPath.startsWith("workbench/exploration/wad_")) {
     return join(projectRoot, inputPath);
   }
 
   // If it's a path relative to dr1_data_us
   if (inputPath.startsWith("Dr1/")) {
-    return join(MODDED_DIR, inputPath);
+    return join(WAD_DIR, inputPath);
   }
 
   // If it's just a filename, assume it's in the script directory
   if (!inputPath.includes("/")) {
-    return join(MODDED_DIR, "Dr1/data/us/script", inputPath);
+    return join(WAD_DIR, "Dr1/data/us/script", inputPath);
   }
 
-  // Otherwise, try treating it as relative to MODDED_DIR
-  return join(MODDED_DIR, inputPath);
+  // Otherwise, try treating it as relative to WAD_DIR
+  return join(WAD_DIR, inputPath);
 }
 
 function resolveLinscriptFilePath(inputPath: string): string {
@@ -110,8 +110,8 @@ async function handleLinFile(inputPath: string): Promise<void> {
     process.exit(1);
   }
 
-  // Calculate the relative path from MODDED_DIR
-  const relativePath = relative(MODDED_DIR, sourceFile);
+  // Calculate the relative path from WAD_DIR
+  const relativePath = relative(WAD_DIR, sourceFile);
 
   // Calculate the output path in MOD_DIR
   const outputBase = basename(sourceFile, ".lin");
@@ -150,9 +150,9 @@ async function handleLinscriptFile(inputPath: string): Promise<void> {
   // Extract the base filename (e.g., e01_004_135 from e01_004_135.linscript)
   const baseFilename = basename(sourceFile, ".linscript");
 
-  // Find the corresponding .lin file in workbench/modded
+  // Find the corresponding .lin file in the extracted WAD
   // All script files are in Dr1/data/us/script/ directory
-  const correspondingLinFile = join(MODDED_DIR, "Dr1/data/us/script", `${baseFilename}.lin`);
+  const correspondingLinFile = join(WAD_DIR, "Dr1/data/us/script", `${baseFilename}.lin`);
 
   if (!existsSync(correspondingLinFile)) {
     console.error(`Error: Corresponding .lin file not found: ${correspondingLinFile}`);

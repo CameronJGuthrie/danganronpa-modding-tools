@@ -47,7 +47,7 @@ export function registerSoundTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path
-      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/se", soundInstruction.sourcePath);
+      return path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/all/se", soundInstruction.sourcePath);
     },
 
     formatTestLabel: (info: SoundLineInfo): string => {

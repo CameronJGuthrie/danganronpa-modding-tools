@@ -13,7 +13,7 @@ pnpm --filter lin-compiler run test        # unit tests, plus a corpus round-tri
 There is no build output: Node runs the TypeScript sources directly via type stripping. There is no command-line tool either; the root `pnpm` scripts, the GUI and the VS Code extension import the library.
 
 The corpus test in `test/corpus.test.ts` decompiles and recompiles every `.lin` under
-`workbench/modded/dr1_data_us/Dr1/data/us/script` and checks the regenerated source is
+`workbench/exploration/wad_dr1_data_us/Dr1/data/us/script` and checks the regenerated source is
 identical. It is skipped when that directory has not been extracted with `pnpm unpack`.
 
 ## Usage

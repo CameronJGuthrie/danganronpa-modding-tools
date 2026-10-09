@@ -11,7 +11,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** Repository root (the directory holding `packages/`, `projects/` and `workbench/`). */
 export const PROJECT_ROOT = join(__dirname, "..", "..", "..", "..");
 
-export const SCRIPTS_SRC = join(PROJECT_ROOT, "packages", "scripts", "src");
 export const WORKBENCH_DIR = join(PROJECT_ROOT, "workbench");
-
-export const WAD_ARCHIVER_CLI = join(SCRIPTS_SRC, "formats", "wad-archiver.ts");
+/** The read-only copy of the game data written by `pnpm run reset` (see `extract-linscript.ts`). */
+export const EXPLORATION_DIR = join(WORKBENCH_DIR, "exploration");

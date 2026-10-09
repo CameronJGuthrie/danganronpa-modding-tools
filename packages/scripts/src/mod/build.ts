@@ -1,22 +1,33 @@
 #!/usr/bin/env node
 
-import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { copyFile, mkdir, readdir, readFile, rename, rm, stat } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
 import { compileDirectory } from "lin-compiler";
 import { rebuildPak } from "../formats/pak-archiver.ts";
+import { createWad, readWadEntry } from "../formats/wad-archiver.ts";
+import { baseFilePath, WAD_FILES, type WadFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
-import { collectModPaks, collectModScripts, type ModPak, type ModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
-import { PROJECT_ROOT, WAD_ARCHIVER_CLI as WAD_ARCHIVER, WORKBENCH_DIR } from "../lib/paths.ts";
+import {
+  collectModPaks,
+  collectModScripts,
+  type ModPak,
+  type ModScript,
+  SCRIPT_DIR_SEGMENTS,
+} from "../lib/mod-scripts.ts";
+import { WORKBENCH_DIR } from "../lib/paths.ts";
 import { ProgressBar } from "../lib/progress.ts";
 import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
 const MODS_DIR = join(WORKBENCH_DIR, "mod");
-const EXTRACTED_DIR = join(WORKBENCH_DIR, "modded");
-/** Flattened copies of the authored scripts are compiled here, so no `.lin` lands in `mod/`. */
+/**
+ * Everything the build produces lives under `workbench/build/<wad>/`, so no `.lin` lands in
+ * `mod/` and nothing else in the workbench is written: `staging/` holds the flattened
+ * `.linscript` copies while they compile, and `overlay/` the files that replace entries of the
+ * base WAD when it is packed.
+ */
 const BUILD_DIR = join(WORKBENCH_DIR, "build");
 /** `--verbose` logs every step and file; otherwise each WAD gets a progress bar. */
 const VERBOSE = process.argv.slice(2).includes("--verbose");
@@ -51,7 +62,11 @@ async function findModScripts(modPath: string): Promise<Map<string, ModScript>> 
  * Copy every authored `.linscript` (flat or `chapter_CC/scene_SSS/NNN.linscript`) into one
  * flat staging directory under their game names. Returns the staging script dir.
  */
-async function organiseLinscripts(modPath: string, buildPath: string, scripts: Map<string, ModScript>): Promise<string> {
+async function organiseLinscripts(
+  modPath: string,
+  buildPath: string,
+  scripts: Map<string, ModScript>,
+): Promise<string> {
   log("  Organising .linscript files...");
 
   const modScriptDir = join(modPath, ...SCRIPT_DIR_SEGMENTS);
@@ -100,35 +115,38 @@ async function compileLinscripts(stagingDir: string): Promise<number> {
   return result.succeeded.length;
 }
 
-async function moveCompiledLins(stagingDir: string, extractedPath: string): Promise<void> {
-  log("  Moving compiled .lin files to modded directory...");
+async function moveCompiledLins(stagingDir: string, overlayDir: string): Promise<void> {
+  log("  Moving compiled .lin files to the overlay...");
 
-  const extractedScriptDir = join(extractedPath, ...SCRIPT_DIR_SEGMENTS);
-  await mkdir(extractedScriptDir, { recursive: true });
+  const overlayScriptDir = join(overlayDir, ...SCRIPT_DIR_SEGMENTS);
+  await mkdir(overlayScriptDir, { recursive: true });
 
-  // Move every compiled .lin into modded/, overwriting the existing ones
   const lins = (await readdir(stagingDir)).filter((name) => name.endsWith(".lin"));
   for (const name of lins) {
-    await rename(join(stagingDir, name), join(extractedScriptDir, name));
+    await rename(join(stagingDir, name), join(overlayScriptDir, name));
   }
   log(`  ✓ Moved ${lins.length} compiled .lin file(s)`);
 }
 
 /**
- * Rewrite the modded copy of `pak.relativePakPath` with the entries authored in its `pak_`
- * directory: `.linscript` entries are staged and compiled under the same relative path in the
- * build directory first, other files are packed as they are. Returns how many entries were
- * compiled.
+ * Write the overlay's copy of `pak.relativePakPath`: the shipped pak from the base WAD with the
+ * entries authored in the mod's `pak_` directory replaced. `.linscript` entries are staged and
+ * compiled under the same relative path first, other files are packed as they are. Returns how
+ * many entries were compiled.
  */
-async function rebuildModPak(pak: ModPak, buildPath: string, extractedPath: string): Promise<number> {
-  const pakPath = join(extractedPath, pak.relativePakPath);
+async function rebuildModPak(pak: ModPak, baseWad: string, stagingRoot: string, overlayDir: string): Promise<number> {
   log(`  Rebuilding ${pak.relativePakPath} (${pak.entries.size} entries)...`);
-  if (!existsSync(pakPath)) {
-    throw new Error(`${pak.relativePakPath} is not in ${extractedPath}; the mod's pak_ directory has nothing to replace entries of`);
-  }
-
-  const stagingDir = join(buildPath, dirname(pak.relativePakPath), basename(pak.path));
+  const stagingDir = join(stagingRoot, dirname(pak.relativePakPath), basename(pak.path));
   await mkdir(stagingDir, { recursive: true });
+
+  const shippedPak = join(stagingDir, basename(pak.relativePakPath));
+  try {
+    await writeFile(shippedPak, await readWadEntry(baseWad, pak.relativePakPath.replace(/\\/g, "/")));
+  } catch (error) {
+    throw new Error(
+      `${pak.relativePakPath} is not in ${basename(baseWad)}; the mod's pak_ directory has nothing to replace entries of (${errorMessage(error)})`,
+    );
+  }
 
   const replacements = new Map<number, Buffer>();
   let compiled = 0;
@@ -140,14 +158,15 @@ async function rebuildModPak(pak: ModPak, buildPath: string, extractedPath: stri
     compiled = await compileLinscripts(stagingDir);
   }
   for (const entry of pak.entries.values()) {
-    const source = entry.compile
-      ? join(stagingDir, `${basename(entry.path, ".linscript")}.lin`)
-      : entry.path;
+    const source = entry.compile ? join(stagingDir, `${basename(entry.path, ".linscript")}.lin`) : entry.path;
     replacements.set(entry.index, await readFile(source));
     log(`    entry ${entry.index} <- ${relative(dirname(pak.path), entry.path)}`);
   }
 
-  await rebuildPak(pakPath, replacements, pakPath);
+  const pakPath = join(overlayDir, pak.relativePakPath);
+  await mkdir(dirname(pakPath), { recursive: true });
+  await rebuildPak(shippedPak, replacements, pakPath);
+  await unlink(shippedPak);
   progress?.tick(basename(pakPath));
   log(`  ✓ Rebuilt ${pak.relativePakPath}`);
   return compiled;
@@ -159,12 +178,6 @@ async function buildMods(): Promise<void> {
   // Check if mod directory exists
   if (!existsSync(MODS_DIR)) {
     console.error(`Error: Mods directory not found: ${MODS_DIR}`);
-    process.exit(1);
-  }
-
-  // Check if wad-archiver exists
-  if (!existsSync(WAD_ARCHIVER)) {
-    console.error(`Error: wad-archiver.ts not found: ${WAD_ARCHIVER}`);
     process.exit(1);
   }
 
@@ -194,11 +207,10 @@ async function buildMods(): Promise<void> {
       progress = new ProgressBar(wadName, 1);
     }
 
-    // Check if corresponding modded directory exists
-    const extractedPath = join(EXTRACTED_DIR, modDir);
-    if (!existsSync(extractedPath)) {
-      logError(`  ✗ Extracted directory not found: ${extractedPath}`);
-      logError(`  Please extract ${wadName} first`);
+    // The mod replaces entries of the backed-up WAD of the same name
+    const baseWad = (WAD_FILES as readonly string[]).includes(wadName) ? baseFilePath(wadName as WadFile) : null;
+    if (baseWad === null || !existsSync(baseWad)) {
+      logError(`  ✗ ${wadName} is not in workbench/base_files; run "pnpm run setup" first`);
       progress = null;
       errorCount++;
       continue;
@@ -206,38 +218,47 @@ async function buildMods(): Promise<void> {
 
     try {
       const buildPath = join(BUILD_DIR, modDir);
+      const stagingRoot = join(buildPath, "staging");
+      const overlayDir = join(buildPath, "overlay");
       const scripts = await findModScripts(modPath);
       const paks = await collectModPaks(modPath);
       await rm(buildPath, { recursive: true, force: true });
 
       // One step per script compiled, one per pak entry compiled plus one per pak rewritten, and one for packing the WAD
-      const pakSteps = paks.reduce((sum, pak) => sum + [...pak.entries.values()].filter((e) => e.compile).length + 1, 0);
+      const pakSteps = paks.reduce(
+        (sum, pak) => sum + [...pak.entries.values()].filter((e) => e.compile).length + 1,
+        0,
+      );
       progress?.setTotal(scripts.size + pakSteps + 1);
 
       if (scripts.size > 0) {
         // Step 1: Flatten the authored .linscript files into the staging directory
-        const stagingDir = await organiseLinscripts(modPath, buildPath, scripts);
+        const stagingDir = await organiseLinscripts(modPath, stagingRoot, scripts);
 
         // Step 2: Compile .linscript files to .lin in the staging directory
         totalLinscriptsCompiled += await compileLinscripts(stagingDir);
 
-        // Step 3: Move compiled .lin files to modded directory
-        await moveCompiledLins(stagingDir, extractedPath);
+        // Step 3: Move compiled .lin files into the overlay
+        await moveCompiledLins(stagingDir, overlayDir);
       } else {
         log("  No .linscript files found, skipping linscript compilation");
       }
 
       // Step 4: Rewrite every .pak that has a pak_ directory in the mod
       for (const pak of paks) {
-        totalLinscriptsCompiled += await rebuildModPak(pak, buildPath, extractedPath);
+        totalLinscriptsCompiled += await rebuildModPak(pak, baseWad, stagingRoot, overlayDir);
         totalPaksRebuilt++;
       }
 
-      // Step 5: Use wad-archiver to pack the modded directory
+      // Step 5: Pack the game's WAD from the base WAD with the overlay's files replacing its entries
       progress?.setStatus("packing");
-      execSync(`node "${WAD_ARCHIVER}" create ${VERBOSE ? "" : "--silent "}"${extractedPath}" "${outputPath}"`, {
-        stdio: "inherit",
-        cwd: PROJECT_ROOT,
+      await mkdir(overlayDir, { recursive: true });
+      await createWad(outputPath, {
+        inputDirs: [overlayDir],
+        baseWad,
+        onFile: (entryPath, source) => {
+          if (source === "input") log(`    ${entryPath}`);
+        },
       });
 
       log(`✓ Successfully built ${wadName} to game directory`);

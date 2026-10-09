@@ -1,6 +1,6 @@
 /**
  * Layout of `workbench/mod/<wad>/Dr1/data/us/script` (and of `workbench/exploration`, see
- * `explorationScriptPath`).
+ * `explorationScriptPath` and `explorationWadDir`).
  *
  * The game wants one flat directory of `eCC_SSS_NNN.lin` files, but authored `.linscript`
  * files may be organised by chapter and scene:
@@ -67,6 +67,14 @@ export function explorationScriptPath(flatName: string): string {
     throw new Error(`Not a script name: ${flatName}`);
   }
   return join(`chapter_${match[1]}`, `scene_${match[2]}`, `${flatName}.linscript`);
+}
+
+/**
+ * The directory inside `workbench/exploration` where `pnpm run reset` extracts a WAD:
+ * `wad_dr1_data_us` for `dr1_data_us.wad` (or for the bare name `dr1_data_us`).
+ */
+export function explorationWadDir(wadName: string): string {
+  return `wad_${wadName.replace(/\.wad$/, "")}`;
 }
 
 export interface ModScript {

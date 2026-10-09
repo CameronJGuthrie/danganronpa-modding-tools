@@ -286,7 +286,12 @@ async function flatWalk(dir: string): Promise<string[]> {
 const COPY_CHUNK = 8 * 1024 * 1024;
 
 /** Copy `size` bytes of `fh` starting at `position` to `out`. */
-async function copyRange(fh: Awaited<ReturnType<typeof open>>, position: number, size: number, out: NodeJS.WritableStream): Promise<void> {
+async function copyRange(
+  fh: Awaited<ReturnType<typeof open>>,
+  position: number,
+  size: number,
+  out: NodeJS.WritableStream,
+): Promise<void> {
   const chunk = Buffer.alloc(Math.min(COPY_CHUNK, size));
   let remaining = size;
   while (remaining > 0) {
@@ -330,7 +335,11 @@ export async function readWadEntry(wadPath: string, entryPath: string): Promise<
 }
 
 /** Extract every entry of `wadPath` under `outputDir`; `onFile` is called with each entry's path first. */
-export async function extractWad(wadPath: string, outputDir: string, onFile?: (entryPath: string) => void): Promise<WadEntry[]> {
+export async function extractWad(
+  wadPath: string,
+  outputDir: string,
+  onFile?: (entryPath: string) => void,
+): Promise<WadEntry[]> {
   const header = await readWadHeader(wadPath);
   const fh = await open(wadPath, "r");
   try {

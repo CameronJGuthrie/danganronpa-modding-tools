@@ -1,131 +1,118 @@
 #!/usr/bin/env node
 
-import { exec } from "node:child_process";
+/**
+ * extract-linscript.ts (`pnpm run reset`)
+ *
+ * Regenerates `workbench/exploration/`, the read-only copy of the game data a modder looks
+ * around in:
+ *
+ *   exploration/wad_<name>/...                       every file of each WAD in base_files
+ *   exploration/chapter_CC/scene_SSS/eCC_SSS_NNN.linscript
+ *                                                    the decompiled scripts of dr1_data_us
+ *
+ * Nothing here is an input to the build: `pnpm run build` packs the game's WADs from
+ * `base_files/` plus the compiled mod, so this directory can be deleted and regenerated freely.
+ */
+
 import { existsSync } from "node:fs";
-import { chmod, copyFile, mkdir, readdir, rm } from "node:fs/promises";
+import { chmod, mkdir, readdir, rm } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
-import { promisify } from "node:util";
-import { decompileDirectory } from "lin-compiler";
-import { requireBaseFile } from "../lib/base-files.ts";
+import { decompileFile } from "lin-compiler";
+import { extractWad, readWadHeader } from "../formats/wad-archiver.ts";
+import { baseFilePath, WAD_FILES } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
-import { explorationScriptPath } from "../lib/mod-scripts.ts";
-import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
+import { explorationScriptPath, explorationWadDir, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
+import { EXPLORATION_DIR } from "../lib/paths.ts";
+import { ProgressBar } from "../lib/progress.ts";
 
-const execAsync = promisify(exec);
-const TEMP_DIR = join(WORKBENCH_DIR, "temp_extract");
-const EXPLORATION_DIR = join(WORKBENCH_DIR, "exploration");
-
-async function extractWadContents(wadPath: string): Promise<string> {
-  console.log("Extracting WAD contents...");
-
-  const extractDir = join(TEMP_DIR, "extracted");
-
-  await mkdir(extractDir, { recursive: true });
-
-  await execAsync(`node "${WAD_ARCHIVER_CLI}" extract "${wadPath}" "${extractDir}" --silent`, {
-    maxBuffer: 50 * 1024 * 1024,
-  });
-
-  return extractDir;
+/** Extract every backed-up WAD to `exploration/wad_<name>/`, replacing what was there. */
+async function extractWads(): Promise<void> {
+  for (const wadFile of WAD_FILES) {
+    const wadPath = baseFilePath(wadFile);
+    if (!existsSync(wadPath)) {
+      console.warn(`Warning: ${wadFile} is not in base_files, skipping`);
+      continue;
+    }
+    const outputDir = join(EXPLORATION_DIR, explorationWadDir(wadFile));
+    await rm(outputDir, { recursive: true, force: true });
+    const total = (await readWadHeader(wadPath)).files.length;
+    const progress = new ProgressBar(wadFile, total);
+    await extractWad(wadPath, outputDir, (entryPath) => progress.tick(entryPath));
+    progress.finish(`✓ ${wadFile}: ${total} files`);
+  }
 }
 
-async function decompileLinFiles(extractDir: string): Promise<string> {
-  console.log("Decompiling .lin files...");
-
-  const scriptDir = join(extractDir, "Dr1/data/us/script");
-
+/**
+ * Decompile every `.lin` of the extracted dr1_data_us script directory into
+ * `exploration/chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`. Returns the written paths.
+ */
+async function decompileScripts(): Promise<string[]> {
+  const scriptDir = join(EXPLORATION_DIR, explorationWadDir("dr1_data_us.wad"), ...SCRIPT_DIR_SEGMENTS);
   if (!existsSync(scriptDir)) {
     throw new Error(`Script directory not found: ${scriptDir}`);
   }
 
-  const result = await decompileDirectory(scriptDir);
-  for (const failure of result.failed) {
-    console.error(`  Failed: ${failure.file}: ${failure.error.message}`);
-  }
-  console.log(`Decompiled ${result.succeeded.length} .lin files`);
-
-  return scriptDir;
-}
-
-/**
- * Copy the decompiled scripts into `workbench/exploration`, organised as
- * `chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`. Returns the absolute destination paths.
- */
-async function copyLinscriptFiles(scriptDir: string): Promise<string[]> {
-  console.log("Copying .linscript files to exploration...");
-
-  await mkdir(EXPLORATION_DIR, { recursive: true });
-
-  const files = await readdir(scriptDir);
-  const linscriptFiles = files.filter((f) => f.endsWith(".linscript"));
-
-  const copied: string[] = [];
-  for (const file of linscriptFiles) {
-    const sourcePath = join(scriptDir, file);
-    const destPath = join(EXPLORATION_DIR, explorationScriptPath(basename(file, ".linscript")));
-    await mkdir(dirname(destPath), { recursive: true });
-
-    // Remove read-only flag if file exists
-    try {
-      await chmod(destPath, 0o644);
-    } catch {
-      // File doesn't exist yet, ignore
+  for (const entry of await readdir(EXPLORATION_DIR)) {
+    if (entry.startsWith("chapter_")) {
+      await rm(join(EXPLORATION_DIR, entry), { recursive: true, force: true });
     }
-
-    await copyFile(sourcePath, destPath);
-    copied.push(destPath);
   }
 
-  console.log(`Copied ${copied.length} .linscript files`);
-  return copied;
-}
-
-async function makeFilesReadonly(files: string[]): Promise<void> {
-  console.log("Making files read-only...");
-
-  for (const filePath of files) {
-    // chmod 0o444 = r--r--r-- (read-only for owner, group, and others)
-    await chmod(filePath, 0o444);
+  const lins = (await readdir(scriptDir)).filter((name) => name.endsWith(".lin")).sort();
+  const progress = new ProgressBar("decompiling", lins.length);
+  const written: string[] = [];
+  const failed: string[] = [];
+  for (const lin of lins) {
+    progress.setStatus(lin);
+    const flatName = basename(lin, ".lin");
+    const output = join(EXPLORATION_DIR, explorationScriptPath(flatName));
+    await mkdir(dirname(output), { recursive: true });
+    try {
+      await decompileFile(join(scriptDir, lin), output);
+      written.push(output);
+    } catch (error) {
+      failed.push(`${lin}: ${errorMessage(error)}`);
+    }
+    progress.tick(lin);
   }
-
-  console.log(`Set ${files.length} files to read-only`);
+  progress.finish(`✓ decompiled ${written.length} scripts`);
+  for (const failure of failed) {
+    console.error(`  Failed: ${failure}`);
+  }
+  return written;
 }
 
-async function cleanup(): Promise<void> {
-  console.log("Cleaning up temporary directory...");
-  await rm(TEMP_DIR, { recursive: true, force: true });
+/** The exploration directory is for reading: every file in it is made read-only. */
+async function makeReadOnly(directory: string): Promise<number> {
+  let count = 0;
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const fullPath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      count += await makeReadOnly(fullPath);
+    } else {
+      await chmod(fullPath, 0o444);
+      count++;
+    }
+  }
+  return count;
 }
 
 async function main(): Promise<void> {
   try {
-    console.log("Starting linscript extraction...\n");
+    console.log("Regenerating workbench/exploration...\n");
+    await mkdir(EXPLORATION_DIR, { recursive: true });
 
-    // Step 1: Extract WAD contents from the backup
-    const extractDir = await extractWadContents(await requireBaseFile("dr1_data_us.wad"));
+    await extractWads();
+    await decompileScripts();
 
-    // Step 2: Decompile .lin files to .linscript
-    const scriptDir = await decompileLinFiles(extractDir);
-
-    // Step 3: Copy .linscript files to exploration, organised by chapter and scene
-    const linscriptFiles = await copyLinscriptFiles(scriptDir);
-
-    // Step 4: Make files read-only
-    await makeFilesReadonly(linscriptFiles);
-
-    // Step 5: Remove temporary directory
-    await cleanup();
-
-    console.log("\n✓ Complete! Linscript files are in exploration/");
+    const count = await makeReadOnly(EXPLORATION_DIR);
+    console.log(`\n✓ Complete! ${count} read-only files in workbench/exploration/`);
   } catch (error) {
     console.error(`Error: ${errorMessage(error)}`);
-
-    // Attempt cleanup on error
-    try {
-      await rm(TEMP_DIR, { recursive: true, force: true });
-    } catch {}
-
     process.exit(1);
   }
 }
 
-main();
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}

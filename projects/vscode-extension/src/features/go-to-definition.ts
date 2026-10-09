@@ -185,13 +185,13 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
       return new vscode.Location(vscode.Uri.file(modPath), new vscode.Position(0, 0));
     }
 
-    // Search in the modded directory
-    const moddedPath = path.join(rootDir, "modded/dr1_data/Dr1/data/all/texture", filename);
+    // Search the extracted game files
+    const explorationPath = path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/all/texture", filename);
 
-    log(`Checking modded path: ${moddedPath}`);
-    if (fs.existsSync(moddedPath)) {
-      log(`Found in mod!`);
-      return new vscode.Location(vscode.Uri.file(moddedPath), new vscode.Position(0, 0));
+    log(`Checking exploration path: ${explorationPath}`);
+    if (fs.existsSync(explorationPath)) {
+      log(`Found in exploration!`);
+      return new vscode.Location(vscode.Uri.file(explorationPath), new vscode.Position(0, 0));
     }
 
     log(`File not found`);

@@ -50,7 +50,7 @@ export function registerMusicTestController(context: vscode.ExtensionContext) {
       }
 
       // Construct the full path using the base path dr1_data/Dr1/data/all/bgm
-      return path.join(rootDir, "modded/dr1_data/Dr1/data/all/bgm", musicData.sourcePath);
+      return path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/all/bgm", musicData.sourcePath);
     },
 
     formatTestLabel: (info: MusicInfo): string => {
