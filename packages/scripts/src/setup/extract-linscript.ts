@@ -7,8 +7,9 @@
  * around in:
  *
  *   exploration/wad_<name>/...     every file of each WAD in base_files, with every `.pak`
- *                                  unpacked into a folder of the same name and every `.lin`
- *                                  decompiled to `.linscript` (the originals removed)
+ *                                  unpacked into a folder of the same name, every `.lin`
+ *                                  decompiled to `.linscript` and every `.tga` converted to
+ *                                  `.tga.png` (the originals removed)
  *   exploration/chapter_CC/scene_SSS/eCC_SSS_NNN.linscript
  *                                  the decompiled scripts of dr1_data_us, by chapter and scene
  *
@@ -22,10 +23,10 @@ import { basename, dirname, join, relative } from "node:path";
 import { extractWad, readWadHeader } from "../formats/wad-archiver.ts";
 import { baseFilePath, WAD_FILES, type WadFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
-import { decompileLinsUnder, extractPaksUnder } from "../lib/extract-tree.ts";
+import { convertTgasUnder, decompileLinsUnder, extractPaksUnder } from "../lib/extract-tree.ts";
 import { explorationScriptPath, explorationWadDir, flatScriptName, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
 import { EXPLORATION_DIR } from "../lib/paths.ts";
-import { ProgressBar } from "../lib/progress.ts";
+import { OverallProgress, ProgressBar } from "../lib/progress.ts";
 
 /**
  * Shipped scripts the decompiler is known not to read. A failure on one of these is expected
@@ -38,31 +39,70 @@ const EXPECTED_FAILURES: ReadonlySet<string> = new Set([
   "e10_000_137.lin",
 ]);
 
+/** The steps of extracting one WAD, in order; each has a progress bar. */
+const WAD_STEPS = ["extract", "paks", "scripts", "textures"] as const;
+type WadStep = (typeof WAD_STEPS)[number];
+
+/** The steps after every WAD is extracted, in order; neither has a bar of its own. */
+const FINAL_STEPS = ["organise", "read-only"] as const;
+type FinalStep = (typeof FINAL_STEPS)[number];
+
+interface ExpectedWad {
+  /** How many paks (nested ones included), scripts and textures the WAD held when last counted. */
+  counts: Record<Exclude<WadStep, "extract">, number>;
+  /** How long each step took, averaged over three runs (`--timings` prints a run's). */
+  seconds: Record<WadStep, number>;
+}
+
+/**
+ * What a run looked like the last time it was measured, used as the progress bars' totals (the
+ * steps only learn their real counts at the end) and as the weights and estimate of the overall
+ * bar. Mods replace files rather than add or remove them, so these stay close; update them from
+ * the "unpacked"/"decompiled"/"converted" lines and from `pnpm run reset --timings` if they drift.
+ */
+const EXPECTED: Record<WadFile, ExpectedWad> = {
+  "dr1_data.wad": {
+    counts: { paks: 400, scripts: 0, textures: 5869 },
+    seconds: { extract: 2.7, paks: 1.5, scripts: 0, textures: 17.3 },
+  },
+  "dr1_data_us.wad": {
+    counts: { paks: 407, scripts: 2177, textures: 6424 },
+    seconds: { extract: 0.9, paks: 1.6, scripts: 0.9, textures: 15.4 },
+  },
+  "dr1_data_keyboard_us.wad": {
+    counts: { paks: 29, scripts: 0, textures: 1140 },
+    seconds: { extract: 0.1, paks: 0.2, scripts: 0, textures: 1.1 },
+  },
+  "dr1_data_keyboard.wad": {
+    counts: { paks: 7, scripts: 0, textures: 180 },
+    seconds: { extract: 0.1, paks: 0.1, scripts: 0, textures: 0.4 },
+  },
+};
+const EXPECTED_FINAL_SECONDS: Record<FinalStep, number> = { organise: 0.2, "read-only": 0.6 };
+
+/** The overall bar's step name for a step of one WAD. */
+function stepName(wadFile: WadFile, step: WadStep): string {
+  return `${wadFile} ${step}`;
+}
+
 /** Extract `wadFile` to `exploration/wad_<name>/`, replacing what was there, and make it browsable. */
-async function extractWadTree(wadFile: WadFile): Promise<string> {
+async function extractWadTree(wadFile: WadFile, overall: OverallProgress): Promise<string> {
   const wadPath = baseFilePath(wadFile);
   const outputDir = join(EXPLORATION_DIR, explorationWadDir(wadFile));
   await rm(outputDir, { recursive: true, force: true });
+  const expected = EXPECTED[wadFile].counts;
 
   const total = (await readWadHeader(wadPath)).files.length;
-  let progress = new ProgressBar(`${wadFile} extract`, total);
+  let progress = new ProgressBar(stepName(wadFile, "extract"), total, overall);
   await extractWad(wadPath, outputDir, (entryPath) => progress.tick(entryPath));
   progress.finish(`✓ ${wadFile}: ${total} files`);
 
-  progress = new ProgressBar(`${wadFile} paks`, 1);
-  let paks = 0;
-  const unpacked = await extractPaksUnder(outputDir, (pakPath) => {
-    if (paks++ === 0) {
-      progress.setStatus(basename(pakPath));
-    } else {
-      progress.tick(basename(pakPath));
-    }
-  });
-  progress.setTotal(Math.max(unpacked, 1));
+  progress = new ProgressBar(stepName(wadFile, "paks"), expected.paks, overall);
+  const unpacked = await extractPaksUnder(outputDir, (pakPath) => progress.tick(basename(pakPath)));
   progress.finish(`✓ ${wadFile}: ${unpacked} paks unpacked`);
 
-  progress = new ProgressBar(`${wadFile} scripts`, 1);
-  const result = await decompileLinsUnder(outputDir, (directory) => progress.setStatus(relative(outputDir, directory)));
+  progress = new ProgressBar(stepName(wadFile, "scripts"), expected.scripts, overall);
+  const result = await decompileLinsUnder(outputDir, (linPath) => progress.tick(relative(outputDir, linPath)));
   progress.finish(`✓ ${wadFile}: ${result.succeeded.length} scripts decompiled`);
 
   for (const failure of result.failed) {
@@ -75,6 +115,15 @@ async function extractWadTree(wadFile: WadFile): Promise<string> {
     if (result.succeeded.some((file) => basename(file, ".linscript") === basename(name, ".lin"))) {
       console.error(`  ${name} decompiled although it is listed as an expected failure; remove it from the list`);
     }
+  }
+
+  progress = new ProgressBar(stepName(wadFile, "textures"), expected.textures, overall);
+  const converted = await convertTgasUnder(outputDir, (tgaPath) => progress.tick(relative(outputDir, tgaPath)));
+  const skipped =
+    converted.skipped.length > 0 ? ` (${converted.skipped.length} .tga files are not images, skipped)` : "";
+  progress.finish(`✓ ${wadFile}: ${converted.succeeded.length} textures converted to png${skipped}`);
+  for (const failure of converted.failed) {
+    console.error(`  Failed: ${relative(outputDir, failure.file)}: ${failure.error}`);
   }
   return outputDir;
 }
@@ -122,18 +171,38 @@ async function makeReadOnly(directory: string): Promise<number> {
   return count;
 }
 
+/** Print how long each step of the run took, in the shape of the `seconds` tables above. */
+function printTimings(overall: OverallProgress): void {
+  console.log("\nStep timings (seconds):");
+  for (const { name, seconds } of overall.getTimings()) {
+    console.log(`  ${name.padEnd(36)} ${seconds.toFixed(1)}`);
+  }
+}
+
 async function main(): Promise<void> {
+  const showTimings = process.argv.includes("--timings");
   try {
     console.log("Regenerating workbench/exploration...\n");
     await mkdir(EXPLORATION_DIR, { recursive: true });
 
-    let usDir: string | null = null;
-    for (const wadFile of WAD_FILES) {
-      if (!existsSync(baseFilePath(wadFile))) {
-        console.warn(`Warning: ${wadFile} is not in base_files, skipping`);
-        continue;
+    const wadFiles = WAD_FILES.filter((wadFile) => {
+      if (existsSync(baseFilePath(wadFile))) {
+        return true;
       }
-      const dir = await extractWadTree(wadFile);
+      console.warn(`Warning: ${wadFile} is not in base_files, skipping`);
+      return false;
+    });
+    const overall = new OverallProgress([
+      ...wadFiles.flatMap((wadFile) =>
+        WAD_STEPS.map((step) => ({ name: stepName(wadFile, step), seconds: EXPECTED[wadFile].seconds[step] })),
+      ),
+      ...FINAL_STEPS.map((step) => ({ name: step, seconds: EXPECTED_FINAL_SECONDS[step] })),
+    ]);
+    overall.draw();
+
+    let usDir: string | null = null;
+    for (const wadFile of wadFiles) {
+      const dir = await extractWadTree(wadFile, overall);
       if (wadFile === "dr1_data_us.wad") {
         usDir = dir;
       }
@@ -141,11 +210,22 @@ async function main(): Promise<void> {
     if (usDir === null) {
       throw new Error('dr1_data_us.wad is not in base_files; run "pnpm run setup" first');
     }
-    const organised = await organiseScripts(usDir);
-    console.log(`✓ ${organised} scripts organised by chapter and scene`);
 
+    overall.begin("organise");
+    const organised = await organiseScripts(usDir);
+    overall.end();
+    overall.clear();
+    console.log(`✓ ${organised} scripts organised by chapter and scene`);
+    overall.draw();
+
+    overall.begin("read-only");
     const count = await makeReadOnly(EXPLORATION_DIR);
+    overall.end();
+    overall.clear();
     console.log(`\n✓ Complete! ${count} read-only files in workbench/exploration/`);
+    if (showTimings) {
+      printTimings(overall);
+    }
   } catch (error) {
     console.error(`Error: ${errorMessage(error)}`);
     process.exit(1);

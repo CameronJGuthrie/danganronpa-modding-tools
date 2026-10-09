@@ -185,8 +185,8 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
       return new vscode.Location(vscode.Uri.file(modPath), new vscode.Position(0, 0));
     }
 
-    // Search the extracted game files
-    const explorationPath = path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/all/texture", filename);
+    // Search the extracted game files, where `pnpm run reset` has converted every .tga to .tga.png
+    const explorationPath = path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/all/texture", `${filename}.png`);
 
     log(`Checking exploration path: ${explorationPath}`);
     if (fs.existsSync(explorationPath)) {

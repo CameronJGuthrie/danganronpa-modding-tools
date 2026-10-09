@@ -8,6 +8,7 @@ Binary format libraries for Danganronpa game data. Each file exports reader/writ
 | `pak-archiver.ts` | PAK | List, extract, create, and edit the nested `.pak` containers found inside WADs. Detects GMO, TGA, LIN, GXT, SPFT, and LLFS entries. |
 | `spike-chunsoft-decompress.ts` | ShadeLz | Decompress Spike Chunsoft compressed files (magic `FC AA 55 A7`), mostly GXT textures. |
 | `gxt-to-png.ts` | GXT | Convert PS Vita GXT textures to PNG. |
+| `tga-to-png.ts` | TGA | Convert a TGA texture to PNG (`tga` decoder + `sharp`); the setup scripts run it over every extracted `.tga` through a pool of worker threads (`tga-to-png.worker.ts`), replacing `name.tga` with `name.tga.png`. |
 
 ## Formats at a glance
 

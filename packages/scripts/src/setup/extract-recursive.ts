@@ -5,7 +5,7 @@ import { basename, dirname, join } from "node:path";
 import { extractWad } from "../formats/wad-archiver.ts";
 import { requireBaseFile, WAD_FILES, type WadFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
-import { decompileLinsUnder, extractPaksUnder } from "../lib/extract-tree.ts";
+import { convertTgasUnder, decompileLinsUnder, extractPaksUnder } from "../lib/extract-tree.ts";
 import { WORKBENCH_DIR } from "../lib/paths.ts";
 
 const ALL_DIR = join(WORKBENCH_DIR, "all");
@@ -17,8 +17,8 @@ const ALL_DIR = join(WORKBENCH_DIR, "all");
 function showUsage(): void {
   console.log(`Usage: extract-recursive.ts <wad>
 
-Extracts a WAD archive, recursively unpacks every PAK inside it and decompiles
-every .lin file. A backed-up WAD is extracted to workbench/all/<name>/, any
+Extracts a WAD archive, recursively unpacks every PAK inside it, decompiles
+every .lin file and converts every .tga to .tga.png (the originals removed). A backed-up WAD is extracted to workbench/all/<name>/, any
 other .wad next to itself.
 
 Arguments:
@@ -81,11 +81,25 @@ async function main(): Promise<void> {
     console.log();
 
     // Step 3: Find and decompile all .lin files
-    const result = await decompileLinsUnder(outputDir, (directory) => console.log(`  Decompiling: ${directory}`));
+    const result = await decompileLinsUnder(outputDir, (linPath) => console.log(`  Decompiling: ${linPath}`));
     for (const failure of result.failed) {
       console.log(`    Failed: ${basename(failure.file)}: ${failure.error.message}`);
     }
     console.log(`  ${result.succeeded.length} scripts decompiled`);
+
+    console.log();
+    console.log("LIN decompilation complete. Converting TGA textures...");
+    console.log();
+
+    // Step 4: Convert every .tga to a sibling .tga.png
+    const textures = await convertTgasUnder(outputDir, (tgaPath) => console.log(`  Converting: ${tgaPath}`));
+    for (const failure of textures.failed) {
+      console.log(`    Failed: ${basename(failure.file)}: ${failure.error}`);
+    }
+    for (const file of textures.skipped) {
+      console.log(`    Skipped: ${basename(file)} is not a TGA image`);
+    }
+    console.log(`  ${textures.succeeded.length} textures converted to png`);
 
     console.log();
     console.log("Recursive extraction complete!");

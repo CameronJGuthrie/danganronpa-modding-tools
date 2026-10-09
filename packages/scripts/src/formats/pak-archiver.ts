@@ -170,10 +170,16 @@ class FileTypeChecker {
     const colorMapType = data[1];
     if (colorMapType !== 0 && colorMapType !== 1) return false;
 
-    // Image type check (byte 2)
+    // Image type check (byte 2). Type 0 ("no image data") is excluded: the game never ships
+    // one, and it confuses the PAK type file detection
     const imageType = data[2];
-    const validImageTypes = [0, 1, 2, 3, 9, 10];
+    const validImageTypes = [1, 2, 3, 9, 10, 11];
     if (!validImageTypes.includes(imageType)) return false;
+
+    // Pixel depth check (byte 16)
+    const pixelDepth = data[16];
+    const validPixelDepths = [8, 15, 16, 24, 32];
+    if (!validPixelDepths.includes(pixelDepth)) return false;
 
     // Color map spec (bytes 3-7)
     const firstEntryIndex = data.readUInt16LE(3);
@@ -331,7 +337,9 @@ async function rebuildPak(sourcePath: string, replacements: Map<number, Buffer>,
 
   for (const index of replacements.keys()) {
     if (pak.entries[index] === undefined) {
-      throw new Error(`${basename(sourcePath)} has ${pak.entries.length} entries, so there is no entry ${index} to replace`);
+      throw new Error(
+        `${basename(sourcePath)} has ${pak.entries.length} entries, so there is no entry ${index} to replace`,
+      );
     }
   }
 

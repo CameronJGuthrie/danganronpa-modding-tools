@@ -7,7 +7,8 @@
     "chalk": "^6.0.1",
     "lin-compiler": "workspace:*",
     "linscript-definitions": "workspace:*",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "tga": "^1.0.7"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
