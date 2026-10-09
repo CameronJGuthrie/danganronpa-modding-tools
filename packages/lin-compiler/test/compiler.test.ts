@@ -51,6 +51,15 @@ describe("compile and decompile", () => {
     assert.throws(() => readSource("StudentRelationship(Junko, +=, 1)\n"), SourceError);
   });
 
+  test("UnlockSkill names the skill and its flag; StudentReportInfo names the student and operator", () => {
+    assert.equal(roundTrip("UnlockSkill(25, 1)\n"), "UnlockSkill(Observation, True)\n");
+    assert.deepEqual(readSource("UnlockSkill(Observation, True)\n").entries[0], { opcode: 0x0e, args: [25, 1] });
+    assert.equal(roundTrip("StudentReportInfo(7, 0, 3)\n"), "StudentReportInfo(Sayaka, =, 3)\n");
+    assert.deepEqual(readSource("StudentReportInfo(Sayaka, =, 3)\n").entries[0], { opcode: 0x10, args: [7, 0, 3] });
+    assert.throws(() => readSource("UnlockSkill(Bogus, True)\n"), SourceError);
+    assert.throws(() => readSource("StudentReportInfo(Junko, =, 1)\n"), SourceError);
+  });
+
   test("Sprite names its character, transition and position; only characters with sprites are accepted by name", () => {
     const script = readSource(
       "Sprite(Usami, 34, PopIn, Right, 0)\nSprite(17, 1, 1, 2, 0)\nSprite(19, 0, 0, 0, 0)\nSprite(Makoto, 0, 11, 11, 0)\n",

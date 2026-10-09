@@ -1,17 +1,18 @@
-import { isSkill, LinscriptInstructionName, Skill, skills } from "linscript-definitions";
+import { Bool, isSkill, LinscriptInstructionName, Skill, skills } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";
 
 export const unlockSkillInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.UnlockSkill,
-  description: "Unlocks a skill for the player; the value is always 1.",
+  description: "Unlocks a skill for the player; the shipped scripts only ever pass True.",
   parameters: [
     {
-      name: "skillId",
-      values: Skill,
+      name: "skill",
+      names: Skill,
     },
     {
-      name: "value",
-      description: "always 1",
+      name: "unlocked",
+      description: "True in every shipped script",
+      names: Bool,
     },
   ],
   decorations: ([skill, _value]) => {

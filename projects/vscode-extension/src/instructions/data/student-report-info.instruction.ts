@@ -1,11 +1,11 @@
 import {
   arithmaticConfiguraiton,
   arithmeticOperators,
-  Character,
   characterData,
   isArithmetic,
   isCharacter,
   LinscriptInstructionName,
+  Student,
 } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";
 
@@ -14,8 +14,8 @@ export const studentReportInfoInstruction: LinscriptInstruction = {
   description: "Sets, adds to or subtracts from the amount of report-card information unlocked for a student.",
   parameters: [
     {
-      name: "characterId",
-      values: Character,
+      name: "character",
+      names: Student,
     },
     {
       name: "operation",
@@ -23,7 +23,7 @@ export const studentReportInfoInstruction: LinscriptInstruction = {
     },
     {
       name: "value",
-      description: "The value to set, add, or remove from the student report",
+      description: "The number of report-card entries; the shipped scripts only ever assign it with =",
     },
   ] as const,
   decorations([character, op, value]) {
