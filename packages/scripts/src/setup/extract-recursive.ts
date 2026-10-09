@@ -1,96 +1,14 @@
 #!/usr/bin/env node
 
-import { readdir, stat, unlink } from "node:fs/promises";
+import { stat } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
-import { decompileDirectory } from "lin-compiler";
-import { extractPak } from "../formats/pak-archiver.ts";
 import { extractWad } from "../formats/wad-archiver.ts";
 import { requireBaseFile, WAD_FILES, type WadFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
+import { decompileLinsUnder, extractPaksUnder } from "../lib/extract-tree.ts";
 import { WORKBENCH_DIR } from "../lib/paths.ts";
 
 const ALL_DIR = join(WORKBENCH_DIR, "all");
-
-// PAK extraction is now handled by pak-archiver.ts (imported above)
-
-async function findAndExtractPaks(directory: string): Promise<void> {
-  const entries = await readdir(directory, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const fullPath = join(directory, entry.name);
-
-    if (entry.isDirectory()) {
-      // Recursively search subdirectories
-      await findAndExtractPaks(fullPath);
-    } else if (entry.isFile() && entry.name.endsWith(".pak")) {
-      // Extract PAK files using pak-archiver's extractPak function
-      const outputDir = fullPath.replace(/\.pak$/, "");
-      await extractPak(fullPath, outputDir, false, 0);
-      // Remove the .pak file after successful extraction (if it still exists -
-      // extractPak may have renamed it if it wasn't actually a PAK)
-      try {
-        await unlink(fullPath);
-        console.log(`  Removed: ${fullPath}`);
-      } catch {
-        // File was likely renamed by extractPak (e.g., TGA misnamed as .pak)
-      }
-    }
-  }
-}
-
-// ============================================================================
-// LIN Decompilation
-// ============================================================================
-
-async function collectDirsWithLinFiles(directory: string, results = new Set<string>()): Promise<Set<string>> {
-  const entries = await readdir(directory, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const fullPath = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      await collectDirsWithLinFiles(fullPath, results);
-    } else if (entry.isFile() && entry.name.endsWith(".lin")) {
-      results.add(directory);
-    }
-  }
-
-  return results;
-}
-
-async function removeLinFiles(directory: string): Promise<void> {
-  const entries = await readdir(directory, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.isFile() && entry.name.endsWith(".lin")) {
-      await unlink(join(directory, entry.name));
-    }
-  }
-}
-
-async function findAndDecompileLins(directory: string): Promise<void> {
-  const dirsWithLins = await collectDirsWithLinFiles(directory);
-
-  if (dirsWithLins.size === 0) {
-    console.log("  No .lin files found");
-    return;
-  }
-
-  console.log(`  Found ${dirsWithLins.size} directories with .lin files`);
-
-  // Process each directory with lin-compiler's batch mode
-  for (const dir of dirsWithLins) {
-    try {
-      console.log(`  Decompiling: ${dir}`);
-      const result = await decompileDirectory(dir);
-      for (const failure of result.failed) {
-        console.log(`    Failed: ${basename(failure.file)}: ${failure.error.message}`);
-      }
-      // Remove .lin files after successful decompilation
-      await removeLinFiles(dir);
-    } catch (err) {
-      console.log(`  Failed: ${dir}: ${errorMessage(err)}`);
-    }
-  }
-}
 
 // ============================================================================
 // Main Function
@@ -155,14 +73,19 @@ async function main(): Promise<void> {
     console.log();
 
     // Step 2: Find and recursively extract all PAK files
-    await findAndExtractPaks(outputDir);
+    const paks = await extractPaksUnder(outputDir, (pakPath) => console.log(`  Unpacking: ${pakPath}`));
+    console.log(`  ${paks} paks unpacked`);
 
     console.log();
     console.log("PAK extraction complete. Decompiling LIN files...");
     console.log();
 
     // Step 3: Find and decompile all .lin files
-    await findAndDecompileLins(outputDir);
+    const result = await decompileLinsUnder(outputDir, (directory) => console.log(`  Decompiling: ${directory}`));
+    for (const failure of result.failed) {
+      console.log(`    Failed: ${basename(failure.file)}: ${failure.error.message}`);
+    }
+    console.log(`  ${result.succeeded.length} scripts decompiled`);
 
     console.log();
     console.log("Recursive extraction complete!");
