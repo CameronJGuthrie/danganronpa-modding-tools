@@ -43,6 +43,17 @@ async function extractWads(): Promise<void> {
 }
 
 /**
+ * Shipped scripts the decompiler is known not to read. A failure on one of these is expected
+ * and not reported; a failure on any other file, or one of these decompiling after all, is.
+ */
+const EXPECTED_FAILURES: ReadonlySet<string> = new Set([
+  // A leftover of an older build in a different opcode numbering (every id one or two below the
+  // PC table's: LoadScript is 0x18, Goto 0x33, Then 0x3a) with untranslated Japanese text.
+  // It is the Trash Room entry script of the chapter 10 demo, and no script ever loads it.
+  "e10_000_137.lin",
+]);
+
+/**
  * Decompile every `.lin` of the extracted dr1_data_us script directory into
  * `exploration/chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`. Returns the written paths.
  */
@@ -70,8 +81,13 @@ async function decompileScripts(): Promise<string[]> {
     try {
       await decompileFile(join(scriptDir, lin), output);
       written.push(output);
+      if (EXPECTED_FAILURES.has(lin)) {
+        failed.push(`${lin}: decompiled although it is listed as an expected failure; remove it from the list`);
+      }
     } catch (error) {
-      failed.push(`${lin}: ${errorMessage(error)}`);
+      if (!EXPECTED_FAILURES.has(lin)) {
+        failed.push(`${lin}: ${errorMessage(error)}`);
+      }
     }
     progress.tick(lin);
   }
