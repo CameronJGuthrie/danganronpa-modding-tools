@@ -15,20 +15,22 @@ import {
   type ModScript,
   SCRIPT_DIR_SEGMENTS,
 } from "../lib/mod-scripts.ts";
-import { WORKBENCH_DIR } from "../lib/paths.ts";
+import { modBuildDir, modNameFromArgs, requireModDir } from "../lib/mods.ts";
 import { ProgressBar } from "../lib/progress.ts";
 import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
-const MODS_DIR = join(WORKBENCH_DIR, "mod");
+/** `--mod <name>` picks the mod under `workbench/mod/`; `default` otherwise. */
+const MOD = modNameFromArgs(process.argv.slice(2));
 /**
- * Everything the build produces lives under `workbench/build/<wad>/`, so no `.lin` lands in
- * `mod/` and nothing else in the workbench is written: `staging/` holds the flattened
- * `.linscript` copies while they compile, and `overlay/` the files that replace entries of the
- * base WAD when it is packed.
+ * Everything the build produces lives under `workbench/build/<mod>/`, so no `.lin` lands in
+ * `mod/` and nothing else in the workbench is written: `<wad>/staging/` holds the flattened
+ * `.linscript` copies while they compile, `<wad>/overlay/` the files that replace entries of the
+ * base WAD when it is packed, and `<wad>.wad` the packed result, which is also copied into the
+ * game directory (`pnpm run game --mod <name>` copies it again without rebuilding).
  */
-const BUILD_DIR = join(WORKBENCH_DIR, "build");
+const BUILD_DIR = modBuildDir(MOD);
 /** `--verbose` logs every step and file; otherwise each WAD gets a progress bar. */
 const VERBOSE = process.argv.slice(2).includes("--verbose");
 
@@ -172,17 +174,13 @@ async function rebuildModPak(pak: ModPak, baseWad: string, stagingRoot: string, 
   return compiled;
 }
 
-async function buildMods(): Promise<void> {
+async function buildMod(): Promise<void> {
+  const modRoot = await requireModDir(MOD);
+  log(`Building mod ${MOD} from ${modRoot}`);
   log(`Using game directory: ${GAME_DIR}\n`);
 
-  // Check if mod directory exists
-  if (!existsSync(MODS_DIR)) {
-    console.error(`Error: Mods directory not found: ${MODS_DIR}`);
-    process.exit(1);
-  }
-
-  // Get all directories in mod folder (each should be a .wad)
-  const modDirs = await readdir(MODS_DIR);
+  // Get all directories in the mod (each should be a .wad)
+  const modDirs = await readdir(modRoot);
 
   let successCount = 0;
   let errorCount = 0;
@@ -190,17 +188,17 @@ async function buildMods(): Promise<void> {
   let totalPaksRebuilt = 0;
 
   for (const modDir of modDirs) {
-    const modPath = join(MODS_DIR, modDir);
+    const modPath = join(modRoot, modDir);
     const stats = await stat(modPath);
 
-    // Only WAD directories are mods; dot-directories such as a nested .git are not
-    if (!stats.isDirectory() || modDir.startsWith(".")) {
+    // Only directories named after a game WAD are built (dr1_data_us -> dr1_data_us.wad); the
+    // mod's own files and directories (a nested .git, `gift-dialogue/`) are left alone
+    const wadName = `${modDir}.wad`;
+    if (!stats.isDirectory() || !(WAD_FILES as readonly string[]).includes(wadName)) {
+      log(`Skipping ${modDir}: not a game WAD`);
       continue;
     }
-
-    // The directory name should match the .wad filename (e.g., dr1_data_us -> dr1_data_us.wad)
-    const wadName = `${modDir}.wad`;
-    const outputPath = join(GAME_DIR, wadName);
+    const outputPath = join(BUILD_DIR, wadName);
 
     log(`\nBuilding ${wadName}...`);
     if (!VERBOSE) {
@@ -208,8 +206,8 @@ async function buildMods(): Promise<void> {
     }
 
     // The mod replaces entries of the backed-up WAD of the same name
-    const baseWad = (WAD_FILES as readonly string[]).includes(wadName) ? baseFilePath(wadName as WadFile) : null;
-    if (baseWad === null || !existsSync(baseWad)) {
+    const baseWad = baseFilePath(wadName as WadFile);
+    if (!existsSync(baseWad)) {
       logError(`  ✗ ${wadName} is not in workbench/base_files; run "pnpm run setup" first`);
       progress = null;
       errorCount++;
@@ -250,7 +248,7 @@ async function buildMods(): Promise<void> {
         totalPaksRebuilt++;
       }
 
-      // Step 5: Pack the game's WAD from the base WAD with the overlay's files replacing its entries
+      // Step 5: Pack the WAD from the base WAD with the overlay's files replacing its entries
       progress?.setStatus("packing");
       await mkdir(overlayDir, { recursive: true });
       await createWad(outputPath, {
@@ -261,7 +259,9 @@ async function buildMods(): Promise<void> {
         },
       });
 
-      log(`✓ Successfully built ${wadName} to game directory`);
+      // Step 6: Install it into the game directory
+      await copyFile(outputPath, join(GAME_DIR, wadName));
+      log(`✓ Successfully built ${wadName} and copied it to the game directory`);
       progress?.tick("done");
       progress?.finish(`✓ ${wadName}`);
       successCount++;
@@ -274,6 +274,7 @@ async function buildMods(): Promise<void> {
   }
 
   log(`\n=== Build Complete ===`);
+  console.log(`Mod: ${MOD}`);
   console.log(`WADs built: ${successCount}`);
   console.log(`WADs failed: ${errorCount}`);
   console.log(`Linscripts compiled: ${totalLinscriptsCompiled}`);
@@ -284,7 +285,7 @@ async function buildMods(): Promise<void> {
   }
 }
 
-buildMods().catch((err: unknown) => {
+buildMod().catch((err: unknown) => {
   console.error("Error:", errorMessage(err));
   process.exit(1);
 });

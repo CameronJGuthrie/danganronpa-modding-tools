@@ -7,11 +7,11 @@ import { listPakEntries, modPakDir } from "../features/scripts";
 suite("modPakDir", () => {
   const root = path.join(path.sep, "wb");
 
-  test("mirrors the folder's place under Dr1 into the mod with a pak_ prefix", () => {
+  test("mirrors the folder's place under Dr1 into the default mod with a pak_ prefix", () => {
     const folder = path.join(path.sep, "x", "all", "dr1_data_us", "Dr1", "data", "us", "script", "script_pak_e00");
     assert.strictEqual(
       modPakDir(root, folder),
-      path.join(root, "mod", "dr1_data_us", "Dr1", "data", "us", "script", "pak_script_pak_e00"),
+      path.join(root, "mod", "default", "dr1_data_us", "Dr1", "data", "us", "script", "pak_script_pak_e00"),
     );
   });
 

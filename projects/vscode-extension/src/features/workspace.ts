@@ -8,7 +8,7 @@ const WORKBENCH_ROOT_KEY = "workbenchRoot";
 const CHOOSE_WORKBENCH_ROOT_COMMAND = `${EXTENSION_ID}.chooseWorkbenchRoot`;
 
 /**
- * The workbench folder (extracted game data, `base_files/`, `exploration/`, `mod/`), from
+ * The workbench folder (extracted game data, `base_files/`, `exploration/`, `mod/<name>/`), from
  * the `lindecompilerhelper.workbenchRoot` setting. A relative value is resolved against the first
  * workspace folder, so the default `workbench` finds the repository's own workbench with no
  * configuration. Null when the setting is empty or the folder does not exist.

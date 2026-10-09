@@ -8,15 +8,19 @@ import {
 } from "danganronpa-scripts/src/lib/mod-scripts.ts";
 import type { CompilerClient } from "./compiler";
 
-/** The mod this extension edits; the authored scripts live under `<workbench>/mod/<wad>/Dr1/data/us/script`. */
+/**
+ * The mod this extension edits: mods are directories under `<workbench>/mod/`, and the extension
+ * authors into `default`, under `<workbench>/mod/default/<wad>/Dr1/data/us/script`.
+ */
+const MOD_NAME = "default";
 const MOD_WAD = "dr1_data_us";
 
 /** The directory at the top of every WAD's contents, e.g. `<wad>/Dr1/data/us/script`. */
 const WAD_CONTENT_ROOT = "Dr1";
 
-/** The authored script directory, `<workbench>/mod/dr1_data_us/Dr1/data/us/script`. */
+/** The authored script directory, `<workbench>/mod/default/dr1_data_us/Dr1/data/us/script`. */
 export function modScriptDir(workbenchRoot: string): string {
-  return path.join(workbenchRoot, "mod", MOD_WAD, ...SCRIPT_DIR_SEGMENTS);
+  return path.join(workbenchRoot, "mod", MOD_NAME, MOD_WAD, ...SCRIPT_DIR_SEGMENTS);
 }
 
 /**
@@ -64,7 +68,7 @@ export function modPakDir(workbenchRoot: string, pakFolder: string): string {
     throw new Error(`${pakFolder} is not inside a ${WAD_CONTENT_ROOT} directory, so its place in the WAD is unknown`);
   }
   const inside = segments.slice(rootIndex, -1);
-  return path.join(workbenchRoot, "mod", MOD_WAD, ...inside, `${PAK_DIR_PREFIX}${path.basename(pakFolder)}`);
+  return path.join(workbenchRoot, "mod", MOD_NAME, MOD_WAD, ...inside, `${PAK_DIR_PREFIX}${path.basename(pakFolder)}`);
 }
 
 export interface PakEntryFile {

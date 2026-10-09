@@ -21,8 +21,7 @@
     "gui": "pnpm -C projects/gui run start",
     "investigate": "node packages/scripts/src/explore/investigate.ts",
     "test": "pnpm -r --if-present run test ",
-    "knip": "knip",
-    "gift-dialogue": "node packages/scripts/src/mod/gift-dialogue.ts"
+    "knip": "knip"
   },
   "packageManager": "pnpm@12.9.1",
   "devDependencies": {

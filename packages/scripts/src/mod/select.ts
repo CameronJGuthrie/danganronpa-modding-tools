@@ -7,12 +7,14 @@ import { basename, dirname, extname, join, relative } from "node:path";
 import { promisify } from "node:util";
 import { errorMessage } from "../lib/errors.ts";
 import { explorationScriptPath, findModScript, SCRIPT_DIR_SEGMENTS } from "../lib/mod-scripts.ts";
+import { modDir, modNameFromArgs, withoutModArg } from "../lib/mods.ts";
 import { EXPLORATION_DIR, PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 
-const MOD_DIR = join(projectRoot, "workbench", "mod", "dr1_data_us");
-const MOD_SCRIPT_DIR = join(MOD_DIR, ...SCRIPT_DIR_SEGMENTS);
+/** `--mod <name>` picks the mod under `workbench/mod/`; `default` otherwise. It is created on the first select. */
+const MOD = modNameFromArgs(process.argv.slice(2));
+const MOD_SCRIPT_DIR = join(modDir(MOD), "dr1_data_us", ...SCRIPT_DIR_SEGMENTS);
 
 /**
  * Where the writable copy of `flatName` goes: a new flat `<flatName>.linscript` in the mod script
@@ -30,14 +32,15 @@ async function modOutputFile(flatName: string): Promise<string> {
 }
 
 function showUsage(): void {
-  console.log(`Usage: pnpm select <script>
+  console.log(`Usage: pnpm select <script> [--mod <name>]
 
-Copies a game script from workbench/exploration/ into workbench/mod/ as a writable
-.linscript. The script can be named by its flat name (with or without an extension) or by
-its path under workbench/exploration/.
+Copies a game script from workbench/exploration/ into workbench/mod/<name>/ as a writable
+.linscript (the mod "default" unless --mod says otherwise). The script can be named by its
+flat name (with or without an extension) or by its path under workbench/exploration/.
 
 Examples:
   pnpm select e01_004_135
+  pnpm select e01_004_135 --mod silly
   pnpm select e01_004_135.linscript
   pnpm select e01_004_135.lin
   pnpm select chapter_01/scene_004/e01_004_135.linscript
@@ -94,7 +97,7 @@ async function selectScript(inputPath: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
+  const args = withoutModArg(process.argv.slice(2));
 
   if (args.length === 0 || args.includes("-h") || args.includes("--help")) {
     showUsage();

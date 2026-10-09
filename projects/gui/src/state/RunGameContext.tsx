@@ -7,7 +7,7 @@ type RunGameState = {
   /** Output of the last run, until dismissed. */
   log: RunGameResult | null;
   dismissLog: () => void;
-  /** Build every mod, then launch the game. */
+  /** Build the default mod, then launch the game. */
   runGame: () => Promise<void>;
 };
 

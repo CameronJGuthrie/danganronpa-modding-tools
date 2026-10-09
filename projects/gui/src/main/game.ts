@@ -18,8 +18,8 @@ function repositoryRoot(appPath: string): string | null {
 }
 
 /**
- * Compile every mod with the repository's build script (`pnpm build`: linscripts to `.lin`, packed
- * into the game's `.wad`), then ask Steam to launch the game. The build's output is returned so
+ * Compile the mod `default` with the repository's build script (`pnpm build`: linscripts to `.lin`,
+ * packed into the game's `.wad`), then ask Steam to launch the game. The build's output is returned so
  * the UI can show why it failed.
  */
 export async function runGame(appPath: string): Promise<RunGameResult> {

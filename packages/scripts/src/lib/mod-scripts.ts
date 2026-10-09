@@ -1,5 +1,5 @@
 /**
- * Layout of `workbench/mod/<wad>/Dr1/data/us/script` (and of `workbench/exploration`, see
+ * Layout of `workbench/mod/<name>/<wad>/Dr1/data/us/script` (and of `workbench/exploration`, see
  * `explorationScriptPath` and `explorationWadDir`).
  *
  * The game wants one flat directory of `eCC_SSS_NNN.lin` files, but authored `.linscript`
@@ -185,7 +185,7 @@ export interface ModPak {
 }
 
 /**
- * Every `pak_<name>` directory under `wadDir` (a `workbench/mod/<wad>` directory) with its
+ * Every `pak_<name>` directory under `wadDir` (a `workbench/mod/<name>/<wad>` directory) with its
  * entries. Throws when a file's name does not start with an entry index or two files name the
  * same entry, since the build could not tell which to pack. Dot-directories are not searched.
  */

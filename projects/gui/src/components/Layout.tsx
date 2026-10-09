@@ -57,7 +57,7 @@ export function Layout() {
               color="green"
               onClick={() => void runGame()}
               disabled={running}
-              title="Compile every mod into the game's .wad files, then launch the game through Steam"
+              title="Compile the default mod into the game's .wad files, then launch the game through Steam"
             >
               {running ? "Building…" : "▶ Run game"}
             </Button>
