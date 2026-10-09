@@ -24,7 +24,8 @@
         ],
         "aliases": [
           "Lin Script Language"
-        ]
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
