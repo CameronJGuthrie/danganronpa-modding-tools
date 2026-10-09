@@ -12,7 +12,7 @@ import { EXPLORATION_DIR, PROJECT_ROOT as projectRoot } from "../lib/paths.ts";
 
 const execAsync = promisify(exec);
 
-/** `--mod <name>` picks the mod under `workbench/mod/`; `default` otherwise. It is created on the first select. */
+/** `--mod <name>` picks the mod under `workbench/mods/`; `default` otherwise. It is created on the first select. */
 const MOD = modNameFromArgs(process.argv.slice(2));
 const MOD_SCRIPT_DIR = join(modDir(MOD), "dr1_data_us", ...SCRIPT_DIR_SEGMENTS);
 
@@ -34,7 +34,7 @@ async function modOutputFile(flatName: string): Promise<string> {
 function showUsage(): void {
   console.log(`Usage: pnpm select <script> [--mod <name>]
 
-Copies a game script from workbench/exploration/ into workbench/mod/<name>/ as a writable
+Copies a game script from workbench/exploration/ into workbench/mods/<name>/ as a writable
 .linscript (the mod "default" unless --mod says otherwise). The script can be named by its
 flat name (with or without an extension) or by its path under workbench/exploration/.
 

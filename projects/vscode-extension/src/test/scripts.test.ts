@@ -11,7 +11,7 @@ suite("modPakDir", () => {
     const folder = path.join(path.sep, "x", "all", "dr1_data_us", "Dr1", "data", "us", "script", "script_pak_e00");
     assert.strictEqual(
       modPakDir(root, folder),
-      path.join(root, "mod", "default", "dr1_data_us", "Dr1", "data", "us", "script", "pak_script_pak_e00"),
+      path.join(root, "mods", "default", "dr1_data_us", "Dr1", "data", "us", "script", "pak_script_pak_e00"),
     );
   });
 

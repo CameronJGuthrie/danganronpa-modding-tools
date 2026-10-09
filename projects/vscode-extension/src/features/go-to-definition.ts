@@ -177,7 +177,7 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     log(`Root dir: ${rootDir}`);
 
     // Search in the mod directory
-    const modPath = path.join(rootDir, "mod/default/dr1_data/Dr1/data/all/texture", filename);
+    const modPath = path.join(rootDir, "mods/default/dr1_data/Dr1/data/all/texture", filename);
 
     log(`Checking mod path: ${modPath}`);
     if (fs.existsSync(modPath)) {

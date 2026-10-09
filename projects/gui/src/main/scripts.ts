@@ -37,14 +37,14 @@ async function walk(root: string, relative: string, files: string[]): Promise<vo
 /**
  * Where `pnpm select` puts writable `.linscript` copies and `pnpm build` compiles them from; the
  * viewer shows a script's copy from here when it has one. Mods are directories under
- * `workbench/mod/`; the viewer reads the mod `default`.
+ * `workbench/mods/`; the viewer reads the mod `default`.
  * Files may be flat (`e01_005_103.linscript`) or organised as
  * `chapter_01/scene_005_AnyLabel/103_AnyLabel.linscript`; only the leading numbers name the script
  * (see `packages/scripts/src/lib/mod-scripts.ts`).
  */
 export function modScriptDirectory(workbenchRoot: string | null): string | null {
   // The mod folder may not exist yet; it is enough that the workbench does
-  return workbenchRoot === null ? null : path.join(workbenchRoot, "mod/default/dr1_data_us/Dr1/data/us/script");
+  return workbenchRoot === null ? null : path.join(workbenchRoot, "mods/default/dr1_data_us/Dr1/data/us/script");
 }
 
 const FLAT_NAME = /^(e\d{2}_\d{3}_\d{3})(?:[^\d].*)?$/;

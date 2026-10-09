@@ -16,7 +16,7 @@ const PAK_FOLDERS_CONTEXT_KEY = "lindecompilerhelper.pakFolders";
 /**
  * Only the read-only copy of the game data is scanned: the mod's organised scene directories
  * (`chapter_01/scene_005/103.linscript`) are index-named too but are not paks, and selecting
- * from `mod/` makes no sense anyway.
+ * from `mods/` makes no sense anyway.
  */
 const EXPLORATION_DIR = "exploration";
 

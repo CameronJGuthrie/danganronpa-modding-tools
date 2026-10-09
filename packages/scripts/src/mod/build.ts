@@ -21,11 +21,11 @@ import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
 // Constants
 const GAME_DIR = getGameDirectoryOrThrow();
-/** `--mod <name>` picks the mod under `workbench/mod/`; `default` otherwise. */
+/** `--mod <name>` picks the mod under `workbench/mods/`; `default` otherwise. */
 const MOD = modNameFromArgs(process.argv.slice(2));
 /**
  * Everything the build produces lives under `workbench/build/<mod>/`, so no `.lin` lands in
- * `mod/` and nothing else in the workbench is written: `<wad>/staging/` holds the flattened
+ * `mods/` and nothing else in the workbench is written: `<wad>/staging/` holds the flattened
  * `.linscript` copies while they compile, `<wad>/overlay/` the files that replace entries of the
  * base WAD when it is packed, and `<wad>.wad` the packed result, which is also copied into the
  * game directory (`pnpm run game --mod <name>` copies it again without rebuilding).

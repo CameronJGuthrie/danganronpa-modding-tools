@@ -1,23 +1,23 @@
 ---
 name: rewrite
-description: Rewrite the character dialogue in one or more workbench/mod .linscript files to the parody tone in workbench/mod/tone/*.md, and populate the Meta() block with object names inferred from each handler's text. Use when the user asks to rewrite, re-tone, or parody a linscript.
+description: Rewrite the character dialogue in one or more workbench/mods .linscript files to the parody tone in workbench/own/tone/*.md, and populate the Meta() block with object names inferred from each handler's text. Use when the user asks to rewrite, re-tone, or parody a linscript.
 ---
 
 # Rewrite a linscript in the parody tone
 
 Arguments: one or more `.linscript` paths (absolute, or relative to the repo root).
-If a path is not under `workbench/mod/<name>/` (normally `workbench/mod/default/`), tell the user; a mod dir is where rewrites live.
+If a path is not under `workbench/mods/<name>/` (normally `workbench/mods/default/`), tell the user; a mod dir is where rewrites live.
 `pnpm select <name>.linscript` copies a script from `workbench/exploration/` (`chapter_CC/scene_SSS/eCC_SSS_NNN.linscript`) into it.
 
 Mod scripts are organised by chapter and scene with a room label on the filename:
-`workbench/mod/default/dr1_data_us/Dr1/data/us/script/chapter_01/scene_005/103_MakotosRoom.linscript`
+`workbench/mods/default/dr1_data_us/Dr1/data/us/script/chapter_01/scene_005/103_MakotosRoom.linscript`
 is the game's `e01_005_103`. Only the folder numbers and the leading three digits name the
 script; the suffix after the digits is for the reader. A user may hand you either form
 (`e01_005_103`, `103_MakotosRoom.linscript`, or the full path); resolve it by the numbers.
 
 ## 1. Load the tone
 
-Read every file in `workbench/mod/tone/*.md` before writing a line. `README.md` has the
+Read every file in `workbench/own/tone/*.md` before writing a line. `README.md` has the
 hard formatting rules, `plot-differences.md` the deliberate departures from the
 original plot by chapter (a scene that touches a listed beat must match it, and a
 rewrite that changes a fact rather than a voice must add an entry), `tone.md` the
@@ -57,7 +57,7 @@ prompt naming the room the script plays in, in plain English and the same shape:
 `Leave the dining hall?`, `Leave the kitchen?`, `Leave the gym?`, `Leave the room?`
 for Makoto's room, and just `Leave the bathroom?` for any bathroom (no floor or
 gender). Take the room from the file's suffix or
-`workbench/mod/tone/rooms.md`, keep the `<system>` wrapper and trailing `\n`, and use
+`workbench/own/tone/rooms.md`, keep the `<system>` wrapper and trailing `\n`, and use
 the same wording every time that room appears so the prompt matches across scenes
 (`grep -rn "Leave the" <mod script dir>` shows what is already in use). Leave a
 prompt that already names its room alone.
@@ -137,7 +137,7 @@ file and replace the numeric references with the name. Conventions from existing
   number repeats (`MetalPlate_1`, `MetalPlate_2`, `Camera_1`). Unique per file.
 - Do not name `254`/`255` or ids that only appear in `ObjectState` at map load with no
   handler; leave them numeric and list them in the report.
-- Check `workbench/mod/tone/rooms.md` for the map first and reuse the names it lists;
+- Check `workbench/own/tone/rooms.md` for the map first and reuse the names it lists;
   add the room, or any new names, to that file afterwards.
 - If the file has no `Meta()` block, add one after the final `StopScript()` with a blank
   line before it. Keep any existing `OptionName(...)` rows.
@@ -161,7 +161,7 @@ and never leave two files that flatten to the same name, the build refuses to ru
 Choose the suffix from the room, since every script in a map shares it and the folder
 already says which chapter and scene it is:
 
-- Look the map id (the last three digits) up in `workbench/mod/tone/rooms.md`, then in
+- Look the map id (the last three digits) up in `workbench/own/tone/rooms.md`, then in
   `projects/gui/src/data/room.ts`. Reuse the suffix any existing sibling script with the
   same map already carries (`find` the mod script dir for `NNN_*.linscript`) so a room
   reads identically across scenes.

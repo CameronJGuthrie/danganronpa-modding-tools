@@ -1,14 +1,13 @@
 /**
- * Mods live side by side under `workbench/mod/<mod>/`, each holding the WAD directories it
+ * Mods live side by side under `workbench/mods/<mod>/`, each holding the WAD directories it
  * changes (`dr1_data_us/Dr1/data/us/script/...`, see `mod-scripts.ts`). Every mod command takes
- * `--mod <name>` (or `--mod=<name>`) and works on `workbench/mod/default/` when it is absent:
+ * `--mod <name>` (or `--mod=<name>`) and works on `workbench/mods/default/` when it is absent:
  *
  *   pnpm run build --mod silly
  *   pnpm run game --mod silly
  *
- * `workbench/mod/` also holds material shared by the mods (`tone/`, `snippets/`, the
- * gift-dialogue generator and its tables); a directory there is a mod only when it contains a
- * game WAD directory.
+ * A directory there is a mod only when it contains a game WAD directory. The modder's own
+ * material (`workbench/own/`: tone notes, snippets, the gift-dialogue generator) is not a mod.
  */
 
 import { existsSync } from "node:fs";
@@ -18,12 +17,12 @@ import { WAD_FILES } from "./base-files.ts";
 import { WORKBENCH_DIR } from "./paths.ts";
 
 /** The directory holding every mod. */
-export const MODS_DIR = join(WORKBENCH_DIR, "mod");
+export const MODS_DIR = join(WORKBENCH_DIR, "mods");
 export const DEFAULT_MOD = "default";
 /** Everything the build produces lives under `workbench/build/<mod>/`. */
 export const BUILD_DIR = join(WORKBENCH_DIR, "build");
 
-/** The root of `mod`: `workbench/mod/<mod>`. */
+/** The root of `mod`: `workbench/mods/<mod>`. */
 export function modDir(mod: string): string {
   return join(MODS_DIR, mod);
 }
@@ -35,7 +34,7 @@ export function modBuildDir(mod: string): string {
 
 /**
  * The mod named by `--mod <name>` or `--mod=<name>` in `argv`, or `default`. A name must be a
- * plain directory name (no path separators) so it cannot point outside `workbench/mod`.
+ * plain directory name (no path separators) so it cannot point outside `workbench/mods`.
  */
 export function modNameFromArgs(argv: readonly string[]): string {
   let name: string | undefined;
@@ -52,7 +51,7 @@ export function modNameFromArgs(argv: readonly string[]): string {
   }
   name ??= DEFAULT_MOD;
   if (name === "" || name.startsWith(".") || /[\\/]/.test(name)) {
-    throw new Error(`Not a mod name: ${JSON.stringify(name)} (expected a directory name under workbench/mod)`);
+    throw new Error(`Not a mod name: ${JSON.stringify(name)} (expected a directory name under workbench/mods)`);
   }
   return name;
 }
