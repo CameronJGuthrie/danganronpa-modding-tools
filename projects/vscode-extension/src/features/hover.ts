@@ -1,10 +1,12 @@
+import * as path from "node:path";
 import * as vscode from "vscode";
 import type { LinscriptInstruction, ParameterMeta } from "../instructions/linscript-instruction";
 import { logDebug } from "../output";
 import { argumentNames } from "../util/argument-names";
 import { argumentIndexAt, findCallAt, lookupInstruction, resolveTable } from "../util/call-at";
 import { metaEntryForScope } from "../util/script-meta";
-import { findSpriteImagePath, spriteLabel } from "./sprite-image";
+import { INVISIBLE_SPRITE } from "linscript-definitions";
+import { findSpriteImagePath, spriteHeadImagePath, spriteLabel } from "./sprite-image";
 import { type ArgumentNames, getArgumentsFromFunctionLike, stripBranchJump } from "../util/string-util";
 
 /**
@@ -18,6 +20,9 @@ import { type ArgumentNames, getArgumentsFromFunctionLike, stripBranchJump } fro
  * Everything shown comes from `src/instructions`, the same table the inline decorations use.
  */
 export class LinscriptHoverProvider implements vscode.HoverProvider {
+  /** Where cropped sprite heads are cached (the extension's global storage). */
+  constructor(private readonly cacheDir: string) {}
+
   provideHover(
     document: vscode.TextDocument,
     position: vscode.Position,
@@ -65,7 +70,7 @@ export class LinscriptHoverProvider implements vscode.HoverProvider {
     }
 
     if (isSpriteExpression(functionDetails, argIndex)) {
-      appendSpriteImage(markdown, args[1]?.value, arg.value);
+      appendSpriteImages(markdown, args[1]?.value, arg.value, this.cacheDir);
     }
 
     const argRange = argumentRange(position.line, call.nameStart, callText, argIndex);
@@ -74,7 +79,7 @@ export class LinscriptHoverProvider implements vscode.HoverProvider {
 }
 
 export function registerHoverProvider(context: vscode.ExtensionContext) {
-  const provider = new LinscriptHoverProvider();
+  const provider = new LinscriptHoverProvider(path.join(context.globalStorageUri.fsPath, "sprite-heads"));
   context.subscriptions.push(vscode.languages.registerHoverProvider({ language: "linscript" }, provider));
   logDebug("Hover provider registered");
 }
@@ -230,12 +235,31 @@ function isSpriteExpression(functionDetails: LinscriptInstruction, argIndex: num
   return (functionDetails.name === "Sprite" || functionDetails.name === "PlaceSprite") && argIndex === 2;
 }
 
+/** The bust-up textures are 480×512; the hover shows the full sprite no taller than this. */
+const SPRITE_HOVER_HEIGHT = 300;
 /**
- * Append the sprite's image at full size. Only a `.png` renders in a hover, so a raw `.tga` (the
- * textures before `pnpm run reset --convert image`) gets a note instead of a picture.
+ * Beside it, this many rows of the texture from its first visible row (the top of the head), which
+ * takes in the head whatever the sprite's margin. Shown at the same height as the full sprite.
  */
-function appendSpriteImage(md: vscode.MarkdownString, character: number | undefined, expression: number): void {
+const SPRITE_HEAD_ROWS = 350;
+
+/**
+ * Append the sprite's images side by side: the head (the texture from its first visible row,
+ * cropped to a cached file since the hover cannot crop in place) and the full bust-up scaled down. Sizing needs
+ * `<img>` tags and `supportHtml`, as Markdown image syntax cannot size. Only a `.png` renders in
+ * a hover, so a raw `.tga` (the textures before `pnpm run reset --convert image`) gets a note.
+ */
+function appendSpriteImages(
+  md: vscode.MarkdownString,
+  character: number | undefined,
+  expression: number,
+  cacheDir: string,
+): void {
   if (character === undefined || Number.isNaN(character) || Number.isNaN(expression)) {
+    return;
+  }
+  // The transparent sprite has nothing to show
+  if (expression === INVISIBLE_SPRITE) {
     return;
   }
   const imagePath = findSpriteImagePath(character, expression);
@@ -250,7 +274,17 @@ function appendSpriteImage(md: vscode.MarkdownString, character: number | undefi
     );
     return;
   }
-  md.appendMarkdown(`\n\n![${label}](${vscode.Uri.file(imagePath).toString()})`);
+  const headPath = spriteHeadImagePath(imagePath, SPRITE_HEAD_ROWS, cacheDir);
+  const images = [
+    headPath === null ? undefined : image(headPath, `${label} (head)`, SPRITE_HOVER_HEIGHT),
+    image(imagePath, label, SPRITE_HOVER_HEIGHT),
+  ].filter((tag) => tag !== undefined);
+  md.supportHtml = true;
+  md.appendMarkdown(`\n\n${images.join(" ")}`);
+}
+
+function image(filePath: string, alt: string, height: number): string {
+  return `<img src="${vscode.Uri.file(filePath).toString()}" alt="${alt}" height="${height}">`;
 }
 
 /** Collapse template-literal descriptions written over several indented lines into one paragraph. */

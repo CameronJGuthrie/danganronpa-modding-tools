@@ -4,6 +4,7 @@ import { characterData, isCharacterSprite, sprites } from "linscript-definitions
 import { argumentNames } from "../util/argument-names";
 import { lookupInstruction } from "../util/call-at";
 import { getArgumentsFromFunctionLike } from "../util/string-util";
+import { cropPngFromFirstVisibleRow } from "../util/png-crop";
 import { getWorkbenchRoot } from "./workspace";
 
 /**
@@ -66,4 +67,24 @@ export function spriteLabel(character: number, expression: number): string {
   const name = isCharacterSprite(character) ? characterData[character].name : `character ${character}`;
   const expressionName = sprites[character as keyof typeof sprites]?.[expression] ?? `expression ${expression}`;
   return `${name}: ${expressionName}`;
+}
+
+/**
+ * A copy of the sprite's PNG cropped to `height` rows from its first visible row, the head,
+ * written once into `cacheDir` and reused. Null when the source is not a PNG or cannot be cropped.
+ */
+export function spriteHeadImagePath(imagePath: string, height: number, cacheDir: string): string | null {
+  if (!imagePath.endsWith(".png")) {
+    return null;
+  }
+  const target = path.join(cacheDir, `${path.basename(imagePath, ".png")}.head${height}.png`);
+  try {
+    if (!fs.existsSync(target) || fs.statSync(target).mtimeMs < fs.statSync(imagePath).mtimeMs) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+      fs.writeFileSync(target, cropPngFromFirstVisibleRow(fs.readFileSync(imagePath), height));
+    }
+    return target;
+  } catch {
+    return null;
+  }
 }

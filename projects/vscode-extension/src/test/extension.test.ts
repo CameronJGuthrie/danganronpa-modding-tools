@@ -2,6 +2,7 @@ import * as assert from "node:assert";
 import { Character, comparisonOperators, RESET_FLAGS } from "linscript-definitions";
 // Import the instructions record from instructions/index.ts to avoid drift
 import { spriteArgumentsOfLine, spriteLabel, spriteTextureName } from "../features/sprite-image";
+import { cropPngFromFirstVisibleRow, cropPngTop, readPngHeader } from "../util/png-crop";
 import { instructions } from "../instructions";
 import { scopedNamesFromDocument } from "../util/script-meta";
 import {
@@ -215,6 +216,55 @@ suite("Extension Test Suite", () => {
     assert.equal(spriteArgumentsOfLine("Speaker(Makoto)", ""), undefined);
     assert.equal(spriteTextureName(16, 3), "stand_16_03.tga");
     assert.equal(spriteLabel(15, 10), "Monokuma: Curious");
+  });
+
+  test("cropPngTop keeps the top rows of an RGBA PNG and round-trips their pixels", () => {
+    // A 2×3 RGBA image written with every filter type, one per row
+    const width = 2;
+    const rows = [
+      [0, [255, 0, 0, 0, 0, 255, 0, 0]],
+      [1, [1, 2, 3, 4, 5, 6, 7, 8]],
+      [4, [9, 9, 9, 9, 1, 1, 1, 1]],
+    ] as const;
+    const zlib = require("node:zlib") as typeof import("node:zlib");
+    const raw = Buffer.concat(rows.map(([filter, bytes]) => Buffer.from([filter, ...bytes])));
+    const chunk = (type: string, data: Buffer) => {
+      const length = Buffer.alloc(4);
+      length.writeUInt32BE(data.length);
+      const typed = Buffer.concat([Buffer.from(type, "latin1"), data]);
+      const crc = Buffer.alloc(4);
+      crc.writeUInt32BE(zlib.crc32(typed));
+      return Buffer.concat([length, typed, crc]);
+    };
+    const ihdr = Buffer.alloc(13);
+    ihdr.writeUInt32BE(width, 0);
+    ihdr.writeUInt32BE(rows.length, 4);
+    ihdr.set([8, 6, 0, 0, 0], 8);
+    const png = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      chunk("IHDR", ihdr),
+      chunk("IDAT", zlib.deflateSync(raw)),
+      chunk("IEND", Buffer.alloc(0)),
+    ]);
+
+    const cropped = cropPngTop(png, 2);
+    assert.deepStrictEqual(readPngHeader(cropped), { width, height: 2, bitDepth: 8, colourType: 6, interlace: 0 });
+    // Decode the crop's pixels: filter 0 rows, so the bytes are the unfiltered pixels
+    const idatStart = cropped.indexOf("IDAT", 0, "latin1") + 4;
+    const idatLength = cropped.readUInt32BE(idatStart - 8);
+    const pixels = zlib.inflateSync(cropped.subarray(idatStart, idatStart + idatLength));
+    // Row 0 was filter 0 (none): as written. Row 1 was filter 1 (Sub): each pixel adds the one to its left
+    assert.deepStrictEqual([...pixels.subarray(0, 9)], [0, 255, 0, 0, 0, 0, 255, 0, 0]);
+    assert.deepStrictEqual([...pixels.subarray(9, 18)], [0, 1, 2, 3, 4, 6, 8, 10, 12]);
+    // Cropping taller than the image keeps it whole
+    assert.equal(readPngHeader(cropPngTop(png, 10)).height, 3);
+    // Row 0 is fully transparent (alpha 0 in both pixels after unfiltering), so a crop from the
+    // first visible row starts at row 1
+    const head = cropPngFromFirstVisibleRow(png, 1);
+    assert.equal(readPngHeader(head).height, 1);
+    const headStart = head.indexOf("IDAT", 0, "latin1") + 4;
+    const headPixels = zlib.inflateSync(head.subarray(headStart, headStart + head.readUInt32BE(headStart - 8)));
+    assert.deepStrictEqual([...headPixels], [0, 1, 2, 3, 4, 6, 8, 10, 12]);
   });
 
   test("the SetUI mode byte is a menu style after ChooseOption and Hidden/Shown elsewhere", () => {
