@@ -16,11 +16,16 @@ export const flagDataByFlagGroup: Readonly<Record<FlagGroup, { [offset: number]:
   },
   [FlagGroup.MapUnlock]: {
     // Areas on the map screen; every scene setup script rewrites all ten bits. 5-9 are not identified
-    0: { name: "Floor1" },
-    1: { name: "Floor2" },
-    2: { name: "Floor3" },
-    3: { name: "Floor4" },
-    4: { name: "Floor5" },
+    0: { name: "HopesPeak1stFloor" },
+    1: { name: "HopesPeak2ndFloor" },
+    2: { name: "HopesPeak3rdFloor" },
+    3: { name: "HopesPeak4thFloor" },
+    4: { name: "HopesPeak5thFloor" },
+    5: { name: "HopesPeakGym" },
+    6: { name: "HopesPeakPool" },
+    7: { name: "HopesPeakDorms1stFloor" },
+    8: { name: "HopesPeakDorms2ndFloor" },
+    9: { name: "Unused" },
     [RESET_FLAGS]: { name: "Reset" },
   },
   [FlagGroup.MonocoinCollected]: {
