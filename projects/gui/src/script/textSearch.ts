@@ -1,10 +1,15 @@
 /**
- * Helpers for the Script Viewer's text-only search: matching `Text("...")` / `RawText("...")`
+ * Helpers for the Script Viewer's text-only search: matching `Text("...")` / `TextEager("...")` / `RawText("...")`
  * lines by what the player reads rather than by the source bytes.
  */
 
-/** The string literal that opens a `Text(` or `RawText(` statement, with the quotes stripped. */
-const TEXT_STATEMENT = /^\s*(?:Raw)?Text\(\s*"((?:[^"\\]|\\.)*)"/;
+/** The string literal that opens a `Text(`, `TextEager(` or `RawText(` statement, with the quotes stripped. */
+const TEXT_STATEMENT = /^\s*(?:RawText|TextEager|Text)\(\s*"((?:[^"\\]|\\.)*)"/;
+
+/** True for the instructions whose first argument is the text the player reads. */
+export function isTextLine(functionName: string): boolean {
+  return functionName === "Text" || functionName === "TextEager" || functionName === "RawText";
+}
 
 /** Style tags: role wrappers (`<thought>`, `</keyword>`), flat `<style n>` switches and raw `<CLT n>`. */
 const STYLE_TAGS = /<\/?[A-Za-z][A-Za-z0-9]*>|<style \d+>|<CLT[^>]*>/g;

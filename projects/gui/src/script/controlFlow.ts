@@ -64,7 +64,7 @@ export function isBlank(line: ScriptLine): boolean {
 }
 
 import { describeScript } from "../data/room";
-import { readableText } from "./textSearch";
+import { isTextLine, readableText } from "./textSearch";
 
 export type FlowNodeKind = "script" | "block" | "handlerGroup" | "handler" | "menu" | "option" | "meta";
 
@@ -520,7 +520,7 @@ function describeHandler(handler: FlowNode): string | undefined {
 
 function firstTextPreview(node: FlowNode): string | undefined {
   for (const item of node.items) {
-    if (item.kind === "line" && (item.line.functionName === "Text" || item.line.functionName === "RawText")) {
+    if (item.kind === "line" && isTextLine(item.line.functionName)) {
       const preview = previewText(item.line);
       if (preview) {
         return preview;

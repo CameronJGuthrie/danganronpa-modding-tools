@@ -13,7 +13,7 @@ import { formatMode, MODE, type ModePlan, planModeSugar } from "../opcodes/mode.
 import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
 import { formatPlaceSprite, isPlaceSprite, PLACE_SPRITE } from "../opcodes/placeSprite.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
-import { planTextSugar, TEXT_SUGAR, textSourceForm } from "../opcodes/textSugar.ts";
+import { planTextSugar, TEXT_EAGER, TEXT_SUGAR, textSourceForm } from "../opcodes/textSugar.ts";
 import { formatTime, isTime, TIME } from "../opcodes/time.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
 
@@ -34,8 +34,9 @@ const BLOCK_CLOSE = 255;
 export function writeSourceText(script: Script, options: WriteSourceOptions = {}): string {
   const indent = " ".repeat(options.indentSpaces ?? DEFAULT_INDENT_SPACES);
   const { entries } = script;
-  const { sugared, skipped, trailing } = planTextSugar(entries);
   const optionSugared = planOptionSugar(entries);
+  const optionLabels = new Set([...optionSugared].map((index) => index + 1));
+  const { sugared, eager, skipped, trailing } = planTextSugar(entries, optionLabels);
   for (const index of optionSugared) {
     skipped.add(index + 1);
     skipped.add(index + 2);
@@ -150,6 +151,8 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       const head = formatArgs(opcode.args, { ...entry, text }, { scopes });
       const nested = (trailing.get(index) ?? []).map((i) => formatEntry(entries[i]));
       call = formatNested(TEXT_SUGAR, head, nested, depth);
+    } else if (eager.has(index)) {
+      call = `${TEXT_EAGER}(${formatArgs(opcode.args, entry, { scopes })})`;
     } else {
       call = formatEntry(entry);
     }

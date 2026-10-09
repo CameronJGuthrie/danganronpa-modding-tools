@@ -15,6 +15,7 @@ import { unlockSkillInstruction } from "./data/unlock-skill.instruction";
 import { modeInstruction } from "./dialogue/mode.instruction";
 import { rawTextInstruction } from "./dialogue/raw-text.instruction";
 import { speakerInstruction } from "./dialogue/speaker.instruction";
+import { textEagerInstruction } from "./dialogue/text-eager.instruction";
 import { textInstruction } from "./dialogue/text.instruction";
 import { textStyleInstruction } from "./dialogue/text-style.instruction";
 import { waitInstruction } from "./dialogue/wait.instruction";
@@ -136,6 +137,7 @@ export const instructions: Readonly<Record<LinscriptInstructionName, Readonly<Li
   [LinscriptInstructionName.StudentReportInfo]: studentReportInfoInstruction,
   [LinscriptInstructionName.StudentTitleEntry]: studentTitleEntryInstruction,
   [LinscriptInstructionName.Text]: textInstruction,
+  [LinscriptInstructionName.TextEager]: textEagerInstruction,
   [LinscriptInstructionName.TextStyle]: textStyleInstruction,
   [LinscriptInstructionName.Time]: timeInstruction,
   [LinscriptInstructionName.TrialCamera]: trialCameraInstruction,

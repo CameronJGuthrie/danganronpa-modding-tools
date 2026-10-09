@@ -63,7 +63,7 @@ export function registerDiagnostics(context: vscode.ExtensionContext) {
 }
 
 /** Instructions whose arguments include a quoted string, which the call regex cannot delimit. */
-const STRING_INSTRUCTIONS: ReadonlySet<string> = new Set(["Text", "RawText", "Option"]);
+const STRING_INSTRUCTIONS: ReadonlySet<string> = new Set(["Text", "TextEager", "RawText", "Option"]);
 
 /** Every problem in `document`, one diagnostic per malformed or unrecognised argument. */
 export function computeDiagnostics(document: vscode.TextDocument): vscode.Diagnostic[] {

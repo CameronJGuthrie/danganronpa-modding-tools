@@ -120,7 +120,7 @@ function signature(functionDetails: LinscriptInstruction): string {
   if (functionDetails.varargs) {
     return `${functionDetails.name}(...)`;
   }
-  if (functionDetails.name === "Text" || functionDetails.name === "RawText") {
+  if (functionDetails.name === "Text" || functionDetails.name === "TextEager" || functionDetails.name === "RawText") {
     return `${functionDetails.name}("...")`;
   }
   if (functionDetails.name === "Option") {

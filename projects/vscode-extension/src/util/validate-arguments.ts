@@ -32,7 +32,7 @@ const JUMP_ARGUMENT = /^Goto\s*\(.*\)$/s;
  * be a decimal number, a name or an operator symbol (so `-1`, `1.5`, `0x10` and an empty argument
  * are errors), a condition must end with its `Goto(label)` jump, and a fixed-arity instruction must
  * be given between its required and total number of arguments. Instructions that take a quoted
- * string (`Text`, `RawText`, `Option`) are not checked here. `callText` is the whole call,
+ * string (`Text`, `TextEager`, `RawText`, `Option`) are not checked here. `callText` is the whole call,
  * including its closing parenthesis.
  */
 export function validateCallSyntax(instruction: LinscriptInstruction, callText: string): ArgumentProblem[] {

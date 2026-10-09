@@ -170,7 +170,7 @@ export function instructionCompletion(instruction: LinscriptInstruction, hasPare
 
 /** Instructions whose first argument is a quoted string. */
 function takesString(instruction: LinscriptInstruction): boolean {
-  return instruction.name === "Text" || instruction.name === "RawText";
+  return instruction.name === "Text" || instruction.name === "TextEager" || instruction.name === "RawText";
 }
 
 /** The names the argument under the cursor accepts, alphabetically, plus `Goto` for a condition's jump. */

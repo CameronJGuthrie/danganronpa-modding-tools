@@ -61,6 +61,7 @@ export const LinscriptInstructionName = {
   StudentReportInfo: "StudentReportInfo",
   StudentTitleEntry: "StudentTitleEntry",
   Text: "Text",
+  TextEager: "TextEager", // Text without the WaitInput and without the implicit newline: menu prompts, debate statements
   TextStyle: "TextStyle",
   Time: "Time", // Sugar for SetVariable(Time, Assign, TimeOfDay)
   TrialCamera: "TrialCamera",

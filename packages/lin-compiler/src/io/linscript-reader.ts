@@ -13,7 +13,7 @@ import { expandMode, MODE } from "../opcodes/mode.ts";
 import { expandOption, OPTION } from "../opcodes/option.ts";
 import { expandPlaceSprite, PLACE_SPRITE } from "../opcodes/placeSprite.ts";
 import { expandPresent, isPresentSugarName } from "../opcodes/present.ts";
-import { expandText, isTrailingEntry, TEXT_SUGAR } from "../opcodes/textSugar.ts";
+import { expandText, expandTextEager, isTrailingEntry, TEXT_EAGER, TEXT_SUGAR } from "../opcodes/textSugar.ts";
 import { expandTime, TIME } from "../opcodes/time.ts";
 import { expandWait, WAIT } from "../opcodes/wait.ts";
 
@@ -113,6 +113,13 @@ function parseOpcodeLine(name: string, argsText: string, line: number, scopes: S
       trailing.flatMap((call) => parseTrailingCall(call, line, scopes)),
     );
   }
+  if (name === TEXT_EAGER) {
+    const { text, trailing } = splitTextSugarArgs(argsText, line);
+    if (trailing.length > 0) {
+      throw new SourceError(line, `${TEXT_EAGER} takes no instructions after its string; write them on their own lines`);
+    }
+    return expandTextEager(parseTextArgument(text, line));
+  }
   if (name === WAIT) {
     return [expandWait(argsText, line)];
   }
@@ -164,8 +171,8 @@ function parseTrailingCall(call: string, line: number, scopes: ScopeTables): Scr
     throw new SourceError(line, `invalid instruction after ${TEXT_SUGAR} string: ${call}`);
   }
   const [, name, argsText] = match;
-  if (name === TEXT_SUGAR) {
-    throw new SourceError(line, `${TEXT_SUGAR} cannot be nested inside ${TEXT_SUGAR}`);
+  if (name === TEXT_SUGAR || name === TEXT_EAGER) {
+    throw new SourceError(line, `${name} cannot be nested inside ${TEXT_SUGAR}`);
   }
   const entries = parseOpcodeLine(name, argsText, line, scopes);
   for (const entry of entries) {

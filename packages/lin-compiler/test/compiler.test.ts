@@ -124,9 +124,9 @@ describe("compile and decompile", () => {
     assert.equal(writeSourceText(readSource(source)), expected);
     assert.equal(roundTrip(expected), expected);
     assert.equal(readSource(expected).entries.filter((e) => e.opcode === Opcode.WaitFrame).length, 2);
-    // A WaitFrame after a trailing instruction is not the sugar's shape
+    // A WaitFrame after a trailing instruction is not Text's shape, so the text is TextEager and the rest stays plain
     const late = 'RawText("a")\nSetUI(Rumble, Shown)\nWaitFrame()\nWaitInput()\n';
-    assert.equal(writeSourceText(readSource(late)), late);
+    assert.equal(writeSourceText(readSource(late)), 'TextEager("a")\nSetUI(Rumble, Shown)\nWaitFrame()\nWaitInput()\n');
   });
 
   test("Text may spread its trailing instructions over several lines", () => {
@@ -201,7 +201,11 @@ describe("compile and decompile", () => {
   test("a SetOption whose label does not follow directly stays plain", () => {
     const source =
       'SetOption(1)\n    Speaker(Makoto)\n    RawText("Yes\\n")\n    WaitFrame()\nSetOption(2)\n    RawText("No")\n    WaitFrame()\n';
-    assert.equal(writeSourceText(readSource(source)), source);
+    // The labels are then ordinary text without a WaitInput; "No" has no newline, so its WaitFrame is not part of it
+    assert.equal(
+      writeSourceText(readSource(source)),
+      'SetOption(1)\n    Speaker(Makoto)\n    TextEager("Yes\\n")\nSetOption(2)\n    TextEager("No")\n    WaitFrame()\n',
+    );
   });
 
   test("an omitted volume compiles to 100 and a volume of 100 decompiles to nothing", () => {
@@ -368,18 +372,76 @@ describe("Text sugar", () => {
       ),
       'Text("<system>*Ding dong*</system>")\n',
     );
-    // A newline between closing tags is not where the sugar would put it, so the bytes stay raw
+    // A newline between closing tags is not where Text would put it, so the text is written eagerly with its WaitInput plain
     const between =
       'TextStyle(4)\nRawText("<style 4>a<style 0>\\n<style 0>")\nTextStyle(0)\nWaitFrame()\nTextStyle(0)\nWaitInput()\n';
-    assert.equal(roundTrip(between), between);
+    const eager = 'TextEager("<style 4>a<style 0>\\n<style 0>")\nWaitInput()\n';
+    assert.equal(roundTrip(between), eager);
+    assert.equal(roundTrip(eager), eager);
+    assert.deepEqual(writeCompiledBytes(readSource(between)), writeCompiledBytes(readSource(eager)));
   });
 
-  test("a text entry not closed by WaitInput is written as RawText", () => {
+  test("a text entry not closed by WaitInput is written as TextEager", () => {
     const source = 'RawText("hi\\n")\nWaitFrame()\nSpeaker(Taka)\n';
-    assert.equal(roundTrip(source), source);
+    assert.equal(roundTrip(source), 'TextEager("hi\\n")\nSpeaker(Taka)\n');
     // A menu label written the long way collapses to the Option sugar on decompile
     const option = 'SetOption(1)\n    RawText("Yes\\n")\n    WaitFrame()\n    Goto(1)\nSetOption(255)\n';
     assert.equal(roundTrip(option), 'Option(1, "Yes")\n    Goto(1)\nSetOption(255)\n');
+  });
+
+  test("TextEager keeps the bytes exact: no implicit newline, no WaitInput, styles folded in", () => {
+    const prompt =
+      'TextEager("<keyword></keyword><system>Would you like to give Leon a</system> <keyword>present</keyword><system>?</system>")\n';
+    const long =
+      'TextStyle(3)\nTextStyle(0)\nTextStyle(23)\nRawText("<keyword></keyword><system>Would you like to give Leon a</system> <keyword>present</keyword><system>?</system>")\nTextStyle(0)\nTextStyle(3)\nTextStyle(0)\nTextStyle(23)\nTextStyle(0)\n';
+    assert.equal(roundTrip(long), prompt);
+    assert.equal(roundTrip(prompt), prompt);
+    assert.deepEqual(writeCompiledBytes(readSource(prompt)), writeCompiledBytes(readSource(long)));
+    assert.deepEqual(
+      readSource(prompt).entries.map((e) => [e.opcode, ...e.args]),
+      [
+        [Opcode.TextStyle, 3],
+        [Opcode.TextStyle, 0],
+        [Opcode.TextStyle, 23],
+        [Opcode.RawText, 0, 0],
+        [Opcode.TextStyle, 0],
+        [Opcode.TextStyle, 3],
+        [Opcode.TextStyle, 0],
+        [Opcode.TextStyle, 23],
+        [Opcode.TextStyle, 0],
+      ],
+    );
+    // A newline is a WaitFrame, written where it is
+    assert.equal(roundTrip('TextEager("<system>Leave the area?\\n</system>")\n'), 'TextEager("<system>Leave the area?\\n</system>")\n');
+    assert.deepEqual(
+      readSource('TextEager("<system>Leave the area?\\n</system>")\n').entries.map((e) => e.opcode),
+      [Opcode.TextStyle, Opcode.RawText, Opcode.WaitFrame, Opcode.TextStyle],
+    );
+    // Styles that are not the text's own are not folded in
+    const foreign = 'TextStyle(9)\nTextEager("hi")\nTextStyle(0)\nSpeaker(Taka)\n';
+    assert.equal(roundTrip('TextStyle(9)\nRawText("hi")\nTextStyle(0)\nSpeaker(Taka)\n'), foreign);
+    const mismatched = 'TextStyle(9)\nRawText("<system>hi</system>")\nTextStyle(0)\nSpeaker(Taka)\n';
+    assert.equal(roundTrip(mismatched), mismatched);
+    // The form takes no trailing instructions and cannot nest in Text
+    assert.throws(() => readSource('TextEager("hi", Wait(10))\n'), /TextEager takes no instructions/);
+    assert.throws(() => readSource('Text("hi", TextEager("x"))\n'), /cannot be nested/);
+  });
+
+  test("every style tag before the first character is emitted ahead of the text", () => {
+    const source = 'Text("<keyword></keyword><system>Observing</system> works")\n';
+    assert.deepEqual(
+      readSource(source).entries.map((e) => [e.opcode, ...e.args]),
+      [
+        [Opcode.TextStyle, 3],
+        [Opcode.TextStyle, 0],
+        [Opcode.TextStyle, 23],
+        [Opcode.RawText, 0, 0],
+        [Opcode.TextStyle, 0],
+        [Opcode.WaitFrame],
+        [Opcode.WaitInput],
+      ],
+    );
+    assert.equal(roundTrip(source), source);
   });
 
   test("RawText compiles to exactly one entry with no implicit newline", () => {

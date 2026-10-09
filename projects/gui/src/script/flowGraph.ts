@@ -29,6 +29,7 @@ import {
   previewText,
   type ScriptLine,
 } from "./controlFlow";
+import { isTextLine } from "./textSearch";
 
 export type GraphNode =
   | { id: string; kind: "start"; label: string; startLine: number; endLine: number }
@@ -360,7 +361,7 @@ export function conditionText(line: ScriptLine): string {
 
 /** A short single-line form of an instruction for a box: text lines show their words, the rest their source. */
 function abbreviate(line: ScriptLine): string {
-  if (line.functionName === "Text" || line.functionName === "RawText") {
+  if (isTextLine(line.functionName)) {
     const preview = previewText(line, MAX_LINE_CHARS - 2);
     if (preview !== undefined) {
       return `"${preview}"`;
