@@ -37,6 +37,6 @@ export {
   parseMeta,
   scopeTables,
 } from "./opcodes/meta.ts";
-export { formatStyledText, parseStyledText } from "./opcodes/textStyles.ts";
+export { dropEmptyStyles, formatStyledText, parseStyledText } from "./opcodes/textStyles.ts";
 export { TEXT_EAGER, TEXT_SUGAR } from "./opcodes/textSugar.ts";
 export { decodeValue, encodeValue } from "./parameter.ts";

@@ -1,6 +1,7 @@
 import { Opcode } from "../definitions/opcode.definition.ts";
 import type { ScriptEntry } from "../definitions/script.definition.ts";
 import { getOpcode } from "./lookup.ts";
+import { dropEmptyStyles } from "./textStyles.ts";
 
 /**
  * `Text(...)` in source is sugar for the common dialogue shape
@@ -16,6 +17,9 @@ import { getOpcode } from "./lookup.ts";
  *   the first character; every tag from the first character on is emitted after it, in order
  *   with the WaitFrames. This is the game's own shape: every shipped text line that has a style
  *   before it has exactly its leading tags there
+ * - an empty wrapper, `<keyword></keyword>` with the default style in effect, styles nothing and
+ *   is dropped in both directions (`dropEmptyStyles`); the shipped prompts that open with one
+ *   recompile a few bytes shorter
  * - further instructions may follow the string, `Text("...", Wait(10), SetUI(Rumble, Hidden))`;
  *   they run after the text has printed and before the `WaitInput` (see `isTrailingEntry`)
  * - a `WaitInput` closes the group
@@ -82,12 +86,12 @@ export function isTrailingEntry(entry: ScriptEntry): boolean {
  * they are placed after the text's own WaitFrame/TextStyle entries and before the WaitInput.
  */
 export function expandText(source: string, trailing: readonly ScriptEntry[] = []): ScriptEntry[] {
-  return expandRawText(addImplicitNewline(source), trailing);
+  return expandRawText(addImplicitNewline(dropEmptyStyles(source)), trailing);
 }
 
 /** Compile `TextEager(...)`: the exact bytes of the string, with no implicit newline and no WaitInput. */
 export function expandTextEager(source: string): ScriptEntry[] {
-  return expandRawText(source, [], false);
+  return expandRawText(dropEmptyStyles(source), [], false);
 }
 
 /** The entries for the exact bytes `text`, with no implicit newline added. */

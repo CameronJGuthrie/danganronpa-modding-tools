@@ -23,6 +23,50 @@ const SOURCE_TAG = /<(\/?)([A-Za-z][A-Za-z0-9]*)>|<style\s+(\d+)>|<CLT(?:\s+\d+)
 
 const DEFAULT_STYLE = 0;
 
+/** A `<CLT n>` immediately followed by `<CLT>`. */
+const EMPTY_WRAPPER = /<CLT\s+\d+><CLT>/g;
+
+/**
+ * Raw game text without its empty style wrappers: a `<CLT n><CLT>` pair with nothing between
+ * it, where the style in effect before the pair is already the default, styles no character and
+ * leaves the style as it found it, so it is dropped. The shipped scripts carry a few hundred of
+ * them, mostly at the start of prompts (`<CLT 3><CLT><CLT 23>Would you like…`). A pair inside
+ * another style is kept: `<CLT>` resets to the default rather than to the enclosing style, so
+ * `<CLT 4>a<CLT 3><CLT>b` renders `b` in the default style and dropping the pair would not.
+ * `Text` and `TextEager` apply this in both directions; `RawText` keeps the bytes exact.
+ */
+export function dropEmptyStyles(raw: string): string {
+  let text = raw;
+  for (;;) {
+    let changed = false;
+    let style = DEFAULT_STYLE;
+    let last = 0;
+    let out = "";
+    for (const match of text.matchAll(RAW_TAG)) {
+      const empty = match[1] !== undefined && EMPTY_WRAPPER.test(text.slice(match.index));
+      EMPTY_WRAPPER.lastIndex = 0;
+      if (empty && style === DEFAULT_STYLE) {
+        // Drop the opener; its closer is skipped on the next iteration of the outer loop
+        out += text.slice(last, match.index);
+        last = match.index + match[0].length + "<CLT>".length;
+        changed = true;
+        continue;
+      }
+      if (match.index < last) {
+        continue;
+      }
+      out += text.slice(last, match.index + match[0].length);
+      last = match.index + match[0].length;
+      style = match[1] === undefined ? DEFAULT_STYLE : Number(match[1]);
+    }
+    out += text.slice(last);
+    if (!changed) {
+      return out;
+    }
+    text = out;
+  }
+}
+
 /** Render raw game text (with `<CLT>` tags) in the sugared source form. */
 export function formatStyledText(raw: string): string {
   if (!HAS_RAW_TAG.test(raw)) {

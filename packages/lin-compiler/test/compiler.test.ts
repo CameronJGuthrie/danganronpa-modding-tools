@@ -390,18 +390,11 @@ describe("Text sugar", () => {
   });
 
   test("TextEager keeps the bytes exact: no implicit newline, no WaitInput, styles folded in", () => {
-    const prompt =
-      'TextEager("<keyword></keyword><system>Would you like to give Leon a</system> <keyword>present</keyword><system>?</system>")\n';
-    const long =
-      'TextStyle(3)\nTextStyle(0)\nTextStyle(23)\nRawText("<keyword></keyword><system>Would you like to give Leon a</system> <keyword>present</keyword><system>?</system>")\nTextStyle(0)\nTextStyle(3)\nTextStyle(0)\nTextStyle(23)\nTextStyle(0)\n';
-    assert.equal(roundTrip(long), prompt);
+    const prompt = 'TextEager("<system>Would you like to give Leon a</system> <keyword>present</keyword><system>?</system>")\n';
     assert.equal(roundTrip(prompt), prompt);
-    assert.deepEqual(writeCompiledBytes(readSource(prompt)), writeCompiledBytes(readSource(long)));
     assert.deepEqual(
       readSource(prompt).entries.map((e) => [e.opcode, ...e.args]),
       [
-        [Opcode.TextStyle, 3],
-        [Opcode.TextStyle, 0],
         [Opcode.TextStyle, 23],
         [Opcode.RawText, 0, 0],
         [Opcode.TextStyle, 0],
@@ -427,17 +420,36 @@ describe("Text sugar", () => {
     assert.throws(() => readSource('Text("hi", TextEager("x"))\n'), /cannot be nested/);
   });
 
+  test("empty style wrappers are dropped from Text and TextEager in both directions", () => {
+    // The shipped gift prompt opens with <CLT 3><CLT>, which styles nothing
+    const shipped =
+      'TextStyle(3)\nTextStyle(0)\nTextStyle(23)\nRawText("<keyword></keyword><system>Would you like to give Leon a</system> <keyword>present</keyword><system>?</system>")\nTextStyle(0)\nTextStyle(3)\nTextStyle(0)\nTextStyle(23)\nTextStyle(0)\n';
+    const prompt = 'TextEager("<system>Would you like to give Leon a</system> <keyword>present</keyword><system>?</system>")\n';
+    assert.equal(roundTrip(shipped), prompt);
+    assert.equal(roundTrip('Text("<keyword></keyword><system>hi</system>")\n'), 'Text("<system>hi</system>")\n');
+    assert.equal(roundTrip('Text("a <keyword></keyword>b")\n'), 'Text("a b")\n');
+    assert.equal(roundTrip('TextEager("<keyword></keyword><system></system>x")\n'), 'TextEager("x")\n');
+    assert.deepEqual(readSource('Text("<keyword></keyword>hi")\n').entries.map((e) => e.opcode), [Opcode.RawText, Opcode.WaitFrame, Opcode.WaitInput]);
+    // Inside another style the pair resets to the default, so it is not empty
+    const nested = 'Text("<thought>a<keyword></keyword>b</thought>")\n';
+    assert.equal(roundTrip(nested), nested);
+    // A wrapper around whitespace styles a character and is kept; RawText is never touched
+    assert.equal(roundTrip('Text("<keyword> </keyword>b")\n'), 'Text("<keyword> </keyword>b")\n');
+    assert.equal(roundTrip('RawText("<keyword></keyword>b")\n'), 'RawText("<keyword></keyword>b")\n');
+  });
+
   test("every style tag before the first character is emitted ahead of the text", () => {
-    const source = 'Text("<keyword></keyword><system>Observing</system> works")\n';
+    // A tag replaced by another before any character is styled is still emitted, as the game does
+    const source = 'Text("<keyword><system>Observing</system> works</keyword>")\n';
     assert.deepEqual(
       readSource(source).entries.map((e) => [e.opcode, ...e.args]),
       [
         [Opcode.TextStyle, 3],
-        [Opcode.TextStyle, 0],
         [Opcode.TextStyle, 23],
         [Opcode.RawText, 0, 0],
-        [Opcode.TextStyle, 0],
+        [Opcode.TextStyle, 3],
         [Opcode.WaitFrame],
+        [Opcode.TextStyle, 0],
         [Opcode.WaitInput],
       ],
     );

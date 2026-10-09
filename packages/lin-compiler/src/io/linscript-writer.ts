@@ -13,6 +13,7 @@ import { formatMode, MODE, type ModePlan, planModeSugar } from "../opcodes/mode.
 import { formatOption, OPTION, planOptionSugar } from "../opcodes/option.ts";
 import { formatPlaceSprite, isPlaceSprite, PLACE_SPRITE } from "../opcodes/placeSprite.ts";
 import { formatPresent, isPresent } from "../opcodes/present.ts";
+import { dropEmptyStyles } from "../opcodes/textStyles.ts";
 import { planTextSugar, TEXT_EAGER, TEXT_SUGAR, textSourceForm } from "../opcodes/textSugar.ts";
 import { formatTime, isTime, TIME } from "../opcodes/time.ts";
 import { formatWait, isWait, WAIT } from "../opcodes/wait.ts";
@@ -147,12 +148,12 @@ export function writeSourceText(script: Script, options: WriteSourceOptions = {}
       call = `${OPTION}(${formatOption(entries, index, scopes)})`;
     } else if (sugared.has(index) && "text" in entry) {
       // The plan only sugars entries that have a source form
-      const text = textSourceForm(entry.text) ?? entry.text;
+      const text = dropEmptyStyles(textSourceForm(entry.text) ?? entry.text);
       const head = formatArgs(opcode.args, { ...entry, text }, { scopes });
       const nested = (trailing.get(index) ?? []).map((i) => formatEntry(entries[i]));
       call = formatNested(TEXT_SUGAR, head, nested, depth);
-    } else if (eager.has(index)) {
-      call = `${TEXT_EAGER}(${formatArgs(opcode.args, entry, { scopes })})`;
+    } else if (eager.has(index) && "text" in entry) {
+      call = `${TEXT_EAGER}(${formatArgs(opcode.args, { ...entry, text: dropEmptyStyles(entry.text) }, { scopes })})`;
     } else {
       call = formatEntry(entry);
     }
