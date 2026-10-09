@@ -232,7 +232,7 @@ function argumentHover(
 
 /** True for the expression argument of `Sprite` / `PlaceSprite`, whose hover shows the bust-up. */
 function isSpriteExpression(functionDetails: LinscriptInstruction, argIndex: number): boolean {
-  return (functionDetails.name === "Sprite" || functionDetails.name === "PlaceSprite") && argIndex === 2;
+  return (functionDetails.name === "Sprite" || functionDetails.name === "PlaceSprite") && argIndex === 1;
 }
 
 /** The bust-up textures are 480×512; the hover shows the full sprite no taller than this. */

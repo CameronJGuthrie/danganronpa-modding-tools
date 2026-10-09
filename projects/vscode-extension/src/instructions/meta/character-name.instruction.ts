@@ -3,7 +3,7 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 
 /**
  * `CharacterName(slot, Name)` inside `Meta()`: names a placed-character slot so the body can write
- * `OnCharacter(Name)`. Slots are the first argument of the setup `Sprite(...)` lines, not the
+ * `OnCharacter(Name)`. Slots are the last argument of the setup `Sprite(...)` lines, not the
  * `Character` enum, so they are declared per script.
  */
 export const characterNameInstruction: LinscriptInstruction = {

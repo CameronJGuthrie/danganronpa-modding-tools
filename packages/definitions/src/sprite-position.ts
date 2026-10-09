@@ -1,7 +1,7 @@
 import { defineEnum, type EnumValue } from "./enum.ts";
 
 /**
- * Where a `Sprite(...)` bust-up stands on screen (its fifth argument).
+ * Where a `Sprite(...)` bust-up stands on screen (its fourth argument).
  *
  * Shown bust-ups only use 0-4. `Set` placement lines also carry values such as 6, 11, 21 and 31,
  * which follow no screen layout and stay numeric; they look like a map-placement offset rather than

@@ -21,7 +21,7 @@ import { splitArgs } from "../parameter.ts";
  * - `ObjectName(id, Name)` names an object id, so the body reads `OnObject(Monitor)` and
  *   `ObjectState(Monitor, ...)` instead of `OnObject(20)`.
  *
- * - `CharacterName(id, Name)` names a placed-character slot for `OnCharacter`. The id is the first
+ * - `CharacterName(id, Name)` names a placed-character slot for `OnCharacter`. The id is the last
  *   argument of the `PlaceSprite(...)` that placed the character, not the `Character` enum, so the
  *   same student can hold a different slot in every script.
  *

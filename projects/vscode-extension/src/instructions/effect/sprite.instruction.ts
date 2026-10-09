@@ -15,11 +15,8 @@ import type { LinscriptInstruction } from "../linscript-instruction";
 export const spriteInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.Sprite,
   description:
-    "Shows, hides or places a character bust-up in a slot with a transition and screen position. A Set transition on a slot makes it a placed, interactable character; with position 0 that is written as PlaceSprite.",
+    "Shows, hides or places a character bust-up in a slot with a transition and screen position. A Set transition on a slot makes it a placed, interactable character; with position 0 that is written as PlaceSprite. The slot is the last argument.",
   parameters: [
-    {
-      name: "objectId",
-    },
     {
       name: "character",
       description: "The character whose sprite is shown; only the students, Junko, Alter Ego and Usami have sprites",
@@ -58,8 +55,13 @@ export const spriteInstruction: LinscriptInstruction = {
         "Where the bust-up stands. Set placement lines also use values such as 11, 21 and 31, which look like a map offset and stay numeric",
       names: SpritePosition,
     },
+    {
+      name: "slot",
+      description:
+        "The sprite layer the bust-up occupies: 0 for the speaker, 1 for a second character on screen, and higher slots for placed stands and lineups. First in binary, written last",
+    },
   ] as const,
-  decorations([_, character, spriteId, transition, position]) {
+  decorations([character, spriteId, transition, position]) {
     if (!isCharacterSprite(character)) {
       return [{ contentText: `Unknown sprite character ${character}`, color: "gray" }];
     }

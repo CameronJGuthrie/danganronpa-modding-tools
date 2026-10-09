@@ -45,7 +45,7 @@ export function formatArgs(spec: ArgumentSpec, entry: ScriptEntry, options: Form
   const scopes = options.scopes ?? {};
   switch (spec.kind) {
     case "fixed":
-      return formatFixed(spec.layout, entry.args, scopes);
+      return formatFixed(spec.layout, toSourceOrder(spec.layout, spec.binaryOrder, entry.args), scopes);
     case "type":
       return formatFixed([ParameterType.UInt16LE], entry.args, scopes);
     case "text":
@@ -68,7 +68,7 @@ export function parseEntry(opcode: OpcodeInfo, argsText: string, line: number, s
   const { id, name, args: spec } = opcode;
   switch (spec.kind) {
     case "fixed":
-      return { opcode: id, args: parseFixed(name, spec.layout, argsText, line, scopes) };
+      return { opcode: id, args: toBinaryOrder(spec.layout, spec.binaryOrder, parseFixed(name, spec.layout, argsText, line, scopes)) };
     case "text":
       return { opcode: id, args: [0, 0], text: parseTextArgument(argsText, line) };
     case "type": {
@@ -120,6 +120,48 @@ function repeatLayout(head: readonly Parameter[], tail: readonly Parameter[], co
     layout.push(...tail);
   }
   return layout;
+}
+
+/** The byte ranges of each slot of `layout`, as `[start, end)` offsets. */
+function slotRanges(layout: readonly Parameter[]): [number, number][] {
+  let offset = 0;
+  return layout.map((parameter) => {
+    const start = offset;
+    offset += parameterProperties[parameterTypeOf(parameter)].size;
+    return [start, offset];
+  });
+}
+
+/**
+ * Move the bytes of a binary-order `args` into source order. `layout` is in source order and
+ * `binaryOrder[i]` is the binary slot holding source slot `i`; without an order, or with a byte
+ * count the layout does not fit, the bytes are returned as they are.
+ */
+export function toSourceOrder(
+  layout: readonly Parameter[],
+  binaryOrder: readonly number[] | undefined,
+  args: readonly number[],
+): number[] {
+  if (binaryOrder === undefined || args.length !== layoutBytes(layout)) {
+    return [...args];
+  }
+  const binaryLayout = binaryOrder.map((_, binarySlot) => layout[binaryOrder.indexOf(binarySlot)]);
+  const ranges = slotRanges(binaryLayout);
+  return binaryOrder.flatMap((binarySlot) => args.slice(...ranges[binarySlot]));
+}
+
+/** The inverse of `toSourceOrder`: move the bytes of a source-order `args` into binary order. */
+export function toBinaryOrder(
+  layout: readonly Parameter[],
+  binaryOrder: readonly number[] | undefined,
+  args: readonly number[],
+): number[] {
+  if (binaryOrder === undefined) {
+    return args as number[];
+  }
+  const ranges = slotRanges(layout);
+  const slots = binaryOrder.map((binarySlot, sourceSlot) => [binarySlot, args.slice(...ranges[sourceSlot])] as const);
+  return slots.sort((a, b) => a[0] - b[0]).flatMap(([, bytes]) => bytes);
 }
 
 function formatFixed(layout: readonly Parameter[], args: readonly number[], scopes: ScopeTables): string {

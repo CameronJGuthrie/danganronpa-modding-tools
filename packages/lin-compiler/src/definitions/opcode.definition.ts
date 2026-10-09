@@ -34,8 +34,12 @@ export const OPCODE_MARKER = 0x70;
  * list written in `.linscript`. `src/opcodes/arguments.ts` interprets every kind.
  */
 export type ArgumentSpec =
-  /** A fixed layout of parameters. */
-  | { kind: "fixed"; layout: readonly Parameter[] }
+  /**
+   * A fixed layout of parameters, in source order. `binaryOrder[i]` is the binary slot that source
+   * slot `i` is stored in, for opcodes whose source form reorders the bytes (`Sprite` writes the
+   * slot last); absent, source and binary order are the same.
+   */
+  | { kind: "fixed"; layout: readonly Parameter[]; binaryOrder?: readonly number[] }
   /** A `head` layout followed by any number of `tail` layouts, e.g. a chain of comparisons. */
   | { kind: "repeat"; head: readonly Parameter[]; tail: readonly Parameter[] }
   /** At least `min` plain bytes, shown verbatim because their structure is not understood. */
@@ -59,8 +63,8 @@ export interface OpcodeRow {
 
 const { Byte, UInt16BE, UInt16LE } = ParameterType;
 
-function fixed(layout: readonly Parameter[]): ArgumentSpec {
-  return { kind: "fixed", layout };
+function fixed(layout: readonly Parameter[], binaryOrder?: readonly number[]): ArgumentSpec {
+  return binaryOrder === undefined ? { kind: "fixed", layout } : { kind: "fixed", layout, binaryOrder };
 }
 
 /** A parameter whose values are written by name in source, e.g. `Speaker(Makoto)`. */
@@ -115,7 +119,7 @@ const optionId: Parameter = { type: Byte, scope: "Option" };
 const labelId: Parameter = { type: UInt16BE, scope: "Label" };
 /** A 0/1 byte, written as `False` / `True`. */
 const bool = named(Byte, Bool);
-/** A character id with bust-up sprites: the second argument of `Sprite`. */
+/** A character id with bust-up sprites: the first argument of `Sprite`. */
 const spriteCharacter = named(Byte, CharacterSprite);
 /**
  * A sprite expression id, named per character by `spriteNamesByCharacter` (`Invisible` for the
@@ -123,8 +127,12 @@ const spriteCharacter = named(Byte, CharacterSprite);
  * just before it.
  */
 export const spriteExpression: Parameter = { type: Byte, dependsOn: -1, namesBy: spriteNamesByCharacter };
-/** The leading `(slot, character, expression)` of `Sprite`, which `PlaceSprite` shares. */
-export const SPRITE_HEAD: readonly Parameter[] = [Byte, spriteCharacter, spriteExpression];
+/** The source-leading `(character, expression)` of `Sprite`, which `PlaceSprite` shares. */
+export const SPRITE_HEAD: readonly Parameter[] = [spriteCharacter, spriteExpression];
+/** The sprite slot byte: first in binary, written last in source so the character leads the line. */
+export const spriteSlot: Parameter = Byte;
+/** The binary slot of each source argument of `Sprite(character, expression, transition, position, slot)`. */
+export const SPRITE_BINARY_ORDER: readonly number[] = [1, 2, 3, 4, 0];
 /** An arithmetic mode byte, written as `=`, `+=` or `-=`. */
 const arithmetic = named(Byte, arithmeticOperators);
 /** A comparison operator byte, written as `==`, `!=`, `<`, `<=`, `>` or `>=`. */
@@ -177,7 +185,7 @@ export const opcodes = {
   StopScript:            { id: 0x1a, args: bytes(0) },
   RunScript:             { id: 0x1b, args: fixed([Byte, Byte, scriptRoom]) },
   Return:                { id: 0x1c, args: bytes(0) },
-  Sprite:                { id: 0x1e, args: fixed([...SPRITE_HEAD, named(Byte, SpriteTransition), named(Byte, SpritePosition)]) },
+  Sprite:                { id: 0x1e, args: fixed([...SPRITE_HEAD, named(Byte, SpriteTransition), named(Byte, SpritePosition), spriteSlot], SPRITE_BINARY_ORDER) },
   ScreenFlash:           { id: 0x1f, args: bytes(7) },
   SpriteFlash:           { id: 0x20, args: bytes(5) },
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },

@@ -40,10 +40,10 @@ suite("Extension Test Suite", () => {
     assert.doesNotMatch("Movie(1, 2", getMovieRegex());
     assert.doesNotMatch("Movie(1, 2, 3)", getMovieRegex());
 
-    assert.match("Sprite(1, 0, 0, 0, 0)", getSpriteRegex());
-    assert.match("Sprite(1 , 0, 0, 0, 0 )", getSpriteRegex());
-    assert.match("Sprite(1, 0,   0, 0, 0)", getSpriteRegex());
-    assert.match("Sprite( 1, 0, 0,   0,  0)", getSpriteRegex());
+    assert.match("Sprite(0, 0, 0, 0, 1)", getSpriteRegex());
+    assert.match("Sprite(0 , 0, 0, 0, 1 )", getSpriteRegex());
+    assert.match("Sprite(0, 0,   0, 0, 1)", getSpriteRegex());
+    assert.match("Sprite( 0, 0, 0,   0,  1)", getSpriteRegex());
   });
 
   test("isInsideQuotes helper function", () => {
@@ -207,12 +207,12 @@ suite("Extension Test Suite", () => {
   test("sprite expressions resolve by the character's own names", () => {
     const names = instructions.Sprite.parameters.map((p) => p.namesBy ?? p.names);
     assert.deepStrictEqual(
-      getArgumentsFromFunctionLike("Sprite(0, Monokuma, Curious, FadeIn, Center)", names).map((a) => a.value),
-      [0, 15, 10, 1, 2],
+      getArgumentsFromFunctionLike("Sprite(Monokuma, Curious, FadeIn, Center, 0)", names).map((a) => a.value),
+      [15, 10, 1, 2, 0],
     );
-    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Sprite(0, Makoto, Curious, FadeIn, Center)", names)[2].value));
-    assert.deepStrictEqual(spriteArgumentsOfLine("    PlaceSprite(3, Junko, NeutralQueen)", ""), { character: 16, expression: 0 });
-    assert.deepStrictEqual(spriteArgumentsOfLine("Sprite(0, Taka, 98, Set, Center)", ""), { character: 1, expression: 98 });
+    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Sprite(Makoto, Curious, FadeIn, Center, 0)", names)[1].value));
+    assert.deepStrictEqual(spriteArgumentsOfLine("    PlaceSprite(Junko, NeutralQueen, 3)", ""), { character: 16, expression: 0 });
+    assert.deepStrictEqual(spriteArgumentsOfLine("Sprite(Taka, 98, Set, Center, 0)", ""), { character: 1, expression: 98 });
     assert.equal(spriteArgumentsOfLine("Speaker(Makoto)", ""), undefined);
     assert.equal(spriteTextureName(16, 3), "stand_16_03.tga");
     assert.equal(spriteLabel(15, 10), "Monokuma: Curious");
@@ -327,7 +327,7 @@ suite("Extension Test Suite", () => {
     assert.deepStrictEqual(validateCall(instructions.Music, "Music(Stop, 180, 0)", NO_SCOPED_NAMES), []);
     // A slot without a range accepts any number, so unresearched sprite ids are not reported
     assert.deepStrictEqual(
-      validateCall(instructions.Sprite, "Sprite(0, Taka, 6, FadeIn, Center)", NO_SCOPED_NAMES),
+      validateCall(instructions.Sprite, "Sprite(Taka, 6, FadeIn, Center, 0)", NO_SCOPED_NAMES),
       [],
     );
   });

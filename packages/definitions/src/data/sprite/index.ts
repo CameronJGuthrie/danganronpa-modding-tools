@@ -20,7 +20,7 @@ import { tokoSprite } from "./toko-sprite-data.ts";
 
 /**
  * The expression names of every character's bust-up sprites (`stand_CC_EE.tga`), by character id
- * and expression id. They are the source names of the third argument of `Sprite(...)` and
+ * and expression id. They are the source names of the second argument of `Sprite(...)` and
  * `PlaceSprite(...)` (see `spriteNamesByCharacter`), so each must be an identifier and unique
  * within its character; a repeated expression takes a `_2` suffix. Characters without a table
  * keep their expressions numeric.

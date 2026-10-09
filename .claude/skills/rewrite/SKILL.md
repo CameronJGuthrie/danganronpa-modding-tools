@@ -144,8 +144,8 @@ file and replace the numeric references with the name. Conventions from existing
 - Object ids and option ids are separate namespaces; only add `OptionName(n, Name)` when the
   script's own labels make the meaning unambiguous (`"Yes"`/`"No"` → `Yes`/`No`).
 
-Also name the characters the script places for investigation: every setup `Sprite(N, Name, 0, Set, spot)`
-line (fourth argument `Set`) that has an `OnCharacter(N)` handler gets `CharacterName(N, Name)`, and the
+Also name the characters the script places for investigation: every setup `Sprite(Name, 0, Set, spot, N)`
+line (third argument `Set`) that has an `OnCharacter(N)` handler gets `CharacterName(N, Name)`, and the
 handler is written `OnCharacter(Name)`. Use the student's first name as the identifier (`Taka`,
 `Mukuro` for `Speaker(Mukuro)`); leave 254/255 and slots with no `Sprite` numeric.
 

@@ -9,7 +9,7 @@ import {
 import type { LinscriptInstruction } from "../linscript-instruction";
 
 /**
- * Source-only sugar for `Sprite(slot, character, expression, 0, 0)`: sets a slot's sprite without
+ * Source-only sugar for `Sprite(character, expression, Set, 0, slot)`: sets a slot's sprite without
  * showing a bust-up, which is how scripts place courtroom stands and the characters a free-roam
  * scene lets the player talk to.
  */
@@ -17,11 +17,8 @@ export const placeSpriteInstruction: LinscriptInstruction = {
   name: LinscriptInstructionName.PlaceSprite,
   sugar: true,
   description:
-    "Places a character in a slot without showing a bust-up; sugar for Sprite(slot, character, expression, 0, 0). The slot is what Character(id, Name) in Meta() and OnCharacter refer to.",
+    "Places a character in a slot without showing a bust-up; sugar for Sprite(character, expression, Set, 0, slot). The slot is what CharacterName(id, Name) in Meta() and OnCharacter refer to.",
   parameters: [
-    {
-      name: "objectId",
-    },
     {
       name: "character",
       description: "The character placed; only the students, Junko, Alter Ego and Usami have sprites",
@@ -32,8 +29,12 @@ export const placeSpriteInstruction: LinscriptInstruction = {
       description: "The sprite shown if the object is later revealed; Invisible (98) is a transparent sprite",
       namesBy: { argument: -1, tables: spriteNamesByCharacter },
     },
+    {
+      name: "slot",
+      description: "The slot the character is placed in; what CharacterName(id, Name) in Meta() and OnCharacter refer to",
+    },
   ] as const,
-  decorations([_, character, spriteId]) {
+  decorations([character, spriteId]) {
     if (!isCharacterSprite(character)) {
       return [{ contentText: `Unknown sprite character ${character}`, color: "gray" }];
     }

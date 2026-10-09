@@ -37,7 +37,7 @@ export const LinscriptInstructionName = {
   OnObject: "OnObject",
   Option: "Option", // Sugar for SetOption(n) + RawText("label\n") + WaitFrame: a labelled menu choice
   OptionName: "OptionName", // Source-only: `OptionName(id, Name)` inside Meta() names a menu option id for the file
-  PlaceSprite: "PlaceSprite", // Sugar for Sprite(slot, character, expression, 0, 0): places a character in a slot without showing a bust-up
+  PlaceSprite: "PlaceSprite", // Sugar for Sprite(character, expression, Set, 0, slot): places a character in a slot without showing a bust-up
   PostProcessingEffect: "PostProcessingEffect",
   GivePresent: "GivePresent", // Sugar for Present(id, -=, 1): the player hands a gift over
   ReceivePresent: "ReceivePresent", // Sugar for Present(id, +=, 1): the player is awarded an item

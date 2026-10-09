@@ -53,15 +53,15 @@ describe("compile and decompile", () => {
 
   test("Sprite names its character, transition and position; only characters with sprites are accepted by name", () => {
     const script = readSource(
-      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, 17, 1, 1, 2)\nSprite(0, 19, 0, 0, 0)\nSprite(0, Makoto, 0, 11, 11)\n",
+      "Sprite(Usami, 34, PopIn, Right, 0)\nSprite(17, 1, 1, 2, 0)\nSprite(19, 0, 0, 0, 0)\nSprite(Makoto, 0, 11, 11, 0)\n",
     );
     assert.equal(
       writeSourceText(script),
-      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, AlterEgo, Happy, FadeIn, Center)\nPlaceSprite(0, 19, 0)\nSprite(0, Makoto, Neutral, 11, 11)\n",
+      "Sprite(Usami, 34, PopIn, Right, 0)\nSprite(AlterEgo, Happy, FadeIn, Center, 0)\nPlaceSprite(19, 0, 0)\nSprite(Makoto, Neutral, 11, 11, 0)\n",
     );
-    assert.throws(() => readSource("Sprite(0, Headmaster, 0, 0, 1)\n"), SourceError);
-    assert.throws(() => readSource("PlaceSprite(0, Headmaster, 0)\n"), SourceError);
-    assert.throws(() => readSource("Sprite(0, Makoto, 0, Vanish, 0)\n"), SourceError);
+    assert.throws(() => readSource("Sprite(Headmaster, 0, 0, 1, 0)\n"), SourceError);
+    assert.throws(() => readSource("PlaceSprite(Headmaster, 0, 0)\n"), SourceError);
+    assert.throws(() => readSource("Sprite(Makoto, 0, Vanish, 0, 0)\n"), SourceError);
   });
 
   test("Voice names its character and chapter", () => {
@@ -922,29 +922,29 @@ describe("Time sugar", () => {
 });
 
 describe("PlaceSprite sugar", () => {
-  test("PlaceSprite(slot, character, expression) compiles to Sprite with zero transition and position", () => {
-    assert.deepEqual(readSource("PlaceSprite(10, Chihiro, 0)\n").entries[0], { opcode: 0x1e, args: [10, 14, 0, 0, 0] });
-    assert.deepEqual(readSource("PlaceSprite(0, Toko, Invisible)\n").entries[0], {
+  test("PlaceSprite(character, expression, slot) compiles to Sprite with zero transition and position", () => {
+    assert.deepEqual(readSource("PlaceSprite(Chihiro, 0, 10)\n").entries[0], { opcode: 0x1e, args: [10, 14, 0, 0, 0] });
+    assert.deepEqual(readSource("PlaceSprite(Toko, Invisible, 0)\n").entries[0], {
       opcode: 0x1e,
       args: [0, 10, 98, 0, 0],
     });
-    assert.deepEqual(readSource("PlaceSprite(5, 3, 98)\n").entries[0], { opcode: 0x1e, args: [5, 3, 98, 0, 0] });
-    assert.throws(() => readSource("PlaceSprite(1, Kyoko)\n"), /PlaceSprite expects 3 arguments/);
-    assert.throws(() => readSource("PlaceSprite(1, Kyoko, Bogus)\n"), /unknown name 'Bogus'/);
+    assert.deepEqual(readSource("PlaceSprite(3, 98, 5)\n").entries[0], { opcode: 0x1e, args: [5, 3, 98, 0, 0] });
+    assert.throws(() => readSource("PlaceSprite(Kyoko, 1)\n"), /PlaceSprite expects 3 arguments/);
+    assert.throws(() => readSource("PlaceSprite(Kyoko, Bogus, 1)\n"), /unknown name 'Bogus'/);
   });
 
   test("Sprite entries with zero transition and position decompile as PlaceSprite", () => {
-    assert.equal(roundTrip("Sprite(1, Kyoko, 0, 0, 0)\n"), "PlaceSprite(1, Kyoko, Neutral)\n");
-    assert.equal(roundTrip("Sprite(1, Kyoko, 98, Set, Leftmost)\n"), "PlaceSprite(1, Kyoko, Invisible)\n");
-    assert.equal(roundTrip("PlaceSprite(10, Chihiro, 0)\n"), "PlaceSprite(10, Chihiro, Neutral)\n");
+    assert.equal(roundTrip("Sprite(Kyoko, 0, 0, 0, 1)\n"), "PlaceSprite(Kyoko, Neutral, 1)\n");
+    assert.equal(roundTrip("Sprite(Kyoko, 98, Set, Leftmost, 1)\n"), "PlaceSprite(Kyoko, Invisible, 1)\n");
+    assert.equal(roundTrip("PlaceSprite(Chihiro, 0, 10)\n"), "PlaceSprite(Chihiro, Neutral, 10)\n");
     // Unnamed expressions stay numeric; names are per character
-    assert.equal(roundTrip("PlaceSprite(10, Makoto, 40)\n"), "PlaceSprite(10, Makoto, 40)\n");
-    assert.throws(() => readSource("PlaceSprite(10, Makoto, NeutralQueen)\n"), SourceError);
-    assert.equal(roundTrip("PlaceSprite(10, Junko, NeutralQueen)\n"), "PlaceSprite(10, Junko, NeutralQueen)\n");
+    assert.equal(roundTrip("PlaceSprite(Makoto, 40, 10)\n"), "PlaceSprite(Makoto, 40, 10)\n");
+    assert.throws(() => readSource("PlaceSprite(Makoto, NeutralQueen, 10)\n"), SourceError);
+    assert.equal(roundTrip("PlaceSprite(Junko, NeutralQueen, 10)\n"), "PlaceSprite(Junko, NeutralQueen, 10)\n");
     // Any other transition or position byte stays a plain Sprite
-    assert.equal(roundTrip("Sprite(0, Taka, 6, FadeIn, Center)\n"), "Sprite(0, Taka, Speaking, FadeIn, Center)\n");
-    assert.equal(roundTrip("Sprite(2, Celeste, 0, Set, 21)\n"), "Sprite(2, Celeste, Neutral, Set, 21)\n");
-    assert.equal(roundTrip("Sprite(0, Toko, 98, Set, Center)\n"), "Sprite(0, Toko, Invisible, Set, Center)\n");
+    assert.equal(roundTrip("Sprite(Taka, 6, FadeIn, Center, 0)\n"), "Sprite(Taka, Speaking, FadeIn, Center, 0)\n");
+    assert.equal(roundTrip("Sprite(Celeste, 0, Set, 21, 2)\n"), "Sprite(Celeste, Neutral, Set, 21, 2)\n");
+    assert.equal(roundTrip("Sprite(Toko, 98, Set, Center, 0)\n"), "Sprite(Toko, Invisible, Set, Center, 0)\n");
   });
 });
 
@@ -1075,7 +1075,7 @@ describe("Mode sugar", () => {
     };
     assert.equal(
       writeSourceText(script),
-      "SetUI(Textbox, Shown)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nMode(Thinking)\nSetUI(Textbox, Shown)\nSprite(0, Monokuma, Neutral, FadeIn, Center)\n",
+      "SetUI(Textbox, Shown)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nMode(Thinking)\nSetUI(Textbox, Shown)\nSprite(Monokuma, Neutral, FadeIn, Center, 0)\n",
     );
   });
 
@@ -1093,7 +1093,7 @@ describe("Mode sugar", () => {
     };
     assert.equal(
       writeSourceText(script),
-      "SetUI(Thinking, Hidden)\nSprite(0, Monokuma, Neutral, FadeIn, Center)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nSpeaker(Makoto)\nSetUI(Name, Shown)\nSpeaker(Byakuya)\n",
+      "SetUI(Thinking, Hidden)\nSprite(Monokuma, Neutral, FadeIn, Center, 0)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nSpeaker(Makoto)\nSetUI(Name, Shown)\nSpeaker(Byakuya)\n",
     );
   });
 

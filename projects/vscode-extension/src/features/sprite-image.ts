@@ -29,8 +29,8 @@ export function spriteArgumentsOfLine(
   }
   const callText = match[0].trimStart();
   const args = getArgumentsFromFunctionLike(callText, argumentNames(instruction, callText, document));
-  const character = args[1]?.value;
-  const expression = args[2]?.value;
+  const character = args[0]?.value;
+  const expression = args[1]?.value;
   if (character === undefined || expression === undefined || Number.isNaN(character) || Number.isNaN(expression)) {
     return undefined;
   }

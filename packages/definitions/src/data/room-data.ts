@@ -58,8 +58,8 @@ export const rooms: Readonly<{ [roomId: number]: RoomMeta }> = {
   49: { name: "3F room (dead LoadScript target in chapter 3)?", uncertain: true },
   // 54 appears only in e04_015_041 (3F hallway, chapter 4 scene 15, Sakura's body discovery):
   // `MapCharacter(54, Kyoko, True)` / `MapCharacter(54, Aoi, True)` directly after
-  // `LoadMap(Hallway3F, 0, 255)`, while the same script places both with `PlaceSprite(2, Kyoko, 0)`
-  // and `PlaceSprite(3, Aoi, 0)` and the dialogue is "In the rec room...!". So the two are standing
+  // `LoadMap(Hallway3F, 0, 255)`, while the same script places both with `PlaceSprite(Kyoko, 0, 2)`
+  // and `PlaceSprite(Aoi, 0, 3)` and the dialogue is "In the rec room...!". So the two are standing
   // in the 3F hallway but the Monopad roster is given 54, which suggests a position within the
   // hallway (outside the rec room) rather than a separate room.
   54: { name: "3F Hallway position?", uncertain: true },
@@ -172,7 +172,7 @@ export const rooms: Readonly<{ [roomId: number]: RoomMeta }> = {
   // 248 is loaded only by School Mode (chapter 9): `LoadMap(248, 0, 255)` in every option of the
   // rest/talk menu of e09_601_000, each followed by `RunScript(9, 90, 200)` and a student's line,
   // and at the top of e09_602_100, which then places all sixteen students in a row
-  // (`PlaceSprite(0, Taka, 0)`, `Sprite(1, Byakuya, 0, Set, Left)`, ...). No story chapter uses it
+  // (`PlaceSprite(Taka, 0, 0)`, `Sprite(Byakuya, 0, Set, Left, 1)`, ...). No story chapter uses it
   // and no *_248 script exists, so it is a School Mode set where the cast gathers; which one is
   // untested in game.
   248: { name: "School Mode gathering?", uncertain: true },

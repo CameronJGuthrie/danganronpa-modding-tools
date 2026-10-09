@@ -1,7 +1,7 @@
 import { defineEnum, type EnumValue } from "./enum.ts";
 
 /**
- * How a `Sprite(...)` call shows, hides or places a character's bust-up (its fourth argument).
+ * How a `Sprite(...)` call shows, hides or places a character's bust-up (its third argument).
  *
  * Entrances expect an empty slot and exits expect a shown one, so an exit on an empty slot renders
  * nothing. Consecutive `Sprite` lines never animate twice in the game's scripts: when two characters
