@@ -1,7 +1,8 @@
 /**
  * Turning an extracted WAD into something a person can browse: every `.pak` unpacked into a
  * folder of the same name (nested archives included), every `.lin` decompiled to a sibling
- * `.linscript` and every `.tga` converted to `.tga.png`, the originals removed once converted.
+ * `.linscript`, every `.tga` converted to `.tga.png` and every `.ivf` movie re-encoded to
+ * `.ivf.mp4`, the originals removed once converted.
  */
 
 import { readdir, rm, unlink } from "node:fs/promises";
@@ -9,9 +10,11 @@ import { availableParallelism } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { Worker } from "node:worker_threads";
 import { type BatchFailure, decompileDirectory } from "lin-compiler";
+import { convertIvfToMp4, FfmpegMissingError, mp4PathFor, readIvfFrameCount } from "../formats/ivf-to-mp4.ts";
 import { extractPak } from "../formats/pak-archiver.ts";
 import { pngPathFor } from "../formats/tga-to-png.ts";
 import type { TgaJob, TgaJobResult } from "../formats/tga-to-png.worker.ts";
+import { errorMessage } from "./errors.ts";
 
 async function walk(directory: string, visit: (path: string, name: string) => Promise<void>): Promise<void> {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -166,4 +169,64 @@ export async function convertTgasUnder(
   result.succeeded.sort();
   result.skipped.sort();
   return result;
+}
+
+export interface ConvertMoviesResult {
+  /** Written `.ivf.mp4` paths. */
+  succeeded: string[];
+  failed: { file: string; error: string }[];
+  /** True when `ffmpeg` is not installed, in which case nothing was converted. */
+  ffmpegMissing: boolean;
+}
+
+/**
+ * Re-encode every `.ivf` under `directory` to `.ivf.mp4` with ffmpeg, removing each `.ivf` that
+ * converted. The encoder uses every core itself, so the movies are converted one at a time.
+ * `onFrames` is called with the number of frames encoded since the last call, for a bar counting
+ * frames across the whole directory (see `countMovieFrames`). A movie that fails to convert is
+ * reported and kept, not thrown; a missing `ffmpeg` stops the step and is reported in the result.
+ */
+export async function convertIvfsUnder(
+  directory: string,
+  onFrames?: (frames: number, ivfPath: string) => void,
+): Promise<ConvertMoviesResult> {
+  const result: ConvertMoviesResult = { succeeded: [], failed: [], ffmpegMissing: false };
+  for (const ivfPath of await findMovies(directory)) {
+    let reported = 0;
+    try {
+      const mp4Path = mp4PathFor(ivfPath);
+      await convertIvfToMp4(ivfPath, mp4Path, (frames) => {
+        onFrames?.(frames - reported, ivfPath);
+        reported = frames;
+      });
+      await unlink(ivfPath);
+      result.succeeded.push(mp4Path);
+    } catch (error) {
+      if (error instanceof FfmpegMissingError) {
+        result.ffmpegMissing = true;
+        break;
+      }
+      result.failed.push({ file: ivfPath, error: errorMessage(error) });
+    }
+  }
+  return result;
+}
+
+/** The total frame count of every `.ivf` under `directory`, from their headers. */
+export async function countMovieFrames(directory: string): Promise<number> {
+  let frames = 0;
+  for (const ivfPath of await findMovies(directory)) {
+    frames += await readIvfFrameCount(ivfPath);
+  }
+  return frames;
+}
+
+async function findMovies(directory: string): Promise<string[]> {
+  const movies: string[] = [];
+  await walk(directory, async (path, name) => {
+    if (name.endsWith(".ivf")) {
+      movies.push(path);
+    }
+  });
+  return movies.sort();
 }

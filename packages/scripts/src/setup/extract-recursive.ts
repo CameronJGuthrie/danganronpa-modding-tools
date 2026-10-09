@@ -5,7 +5,7 @@ import { basename, dirname, join } from "node:path";
 import { extractWad } from "../formats/wad-archiver.ts";
 import { requireBaseFile, WAD_FILES, type WadFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
-import { convertTgasUnder, decompileLinsUnder, extractPaksUnder } from "../lib/extract-tree.ts";
+import { convertIvfsUnder, convertTgasUnder, decompileLinsUnder, extractPaksUnder } from "../lib/extract-tree.ts";
 import { WORKBENCH_DIR } from "../lib/paths.ts";
 
 const ALL_DIR = join(WORKBENCH_DIR, "all");
@@ -18,7 +18,8 @@ function showUsage(): void {
   console.log(`Usage: extract-recursive.ts <wad>
 
 Extracts a WAD archive, recursively unpacks every PAK inside it, decompiles
-every .lin file and converts every .tga to .tga.png (the originals removed). A backed-up WAD is extracted to workbench/all/<name>/, any
+every .lin file, converts every .tga to .tga.png and re-encodes every .ivf movie
+to .ivf.mp4 with ffmpeg (the originals removed). A backed-up WAD is extracted to workbench/all/<name>/, any
 other .wad next to itself.
 
 Arguments:
@@ -100,6 +101,26 @@ async function main(): Promise<void> {
       console.log(`    Skipped: ${basename(file)} is not a TGA image`);
     }
     console.log(`  ${textures.succeeded.length} textures converted to png`);
+
+    console.log();
+    console.log("TGA conversion complete. Re-encoding IVF movies...");
+    console.log();
+
+    // Step 5: Re-encode every .ivf movie to .ivf.mp4
+    let lastMovie = "";
+    const movies = await convertIvfsUnder(outputDir, (_frames, ivfPath) => {
+      if (ivfPath !== lastMovie) {
+        lastMovie = ivfPath;
+        console.log(`  Encoding: ${ivfPath}`);
+      }
+    });
+    if (movies.ffmpegMissing) {
+      console.log("  ffmpeg is not installed, movies left as .ivf");
+    }
+    for (const failure of movies.failed) {
+      console.log(`    Failed: ${basename(failure.file)}: ${failure.error}`);
+    }
+    console.log(`  ${movies.succeeded.length} movies converted to mp4`);
 
     console.log();
     console.log("Recursive extraction complete!");
