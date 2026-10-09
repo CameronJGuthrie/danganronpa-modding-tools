@@ -1,4 +1,5 @@
 import { Character } from "../character.ts";
+import { sprites } from "./sprite/index.ts";
 
 /**
  * The expression id every character's sprite set reserves for a fully transparent TGA. Placing it
@@ -7,53 +8,31 @@ import { Character } from "../character.ts";
  */
 export const INVISIBLE_SPRITE = 98;
 
-/**
- * Source names for sprite expression ids, per character: the third argument of `Sprite(...)` and
- * `PlaceSprite(...)`. Only `Invisible` (98) is named so far; the other expressions stay numeric
- * until each has a settled name. Add a row to a character's table to name one of its expressions.
- */
-export const spriteNameDataByCharacter: Readonly<Record<number, { [spriteId: number]: { name: string } } | undefined>> =
-  {
-    [Character.Makoto]: {},
-    [Character.Taka]: {},
-    [Character.Byakuya]: {},
-    [Character.Mondo]: {},
-    [Character.Leon]: {},
-    [Character.Hifumi]: {},
-    [Character.Hiro]: {},
-    [Character.Sayaka]: {},
-    [Character.Kyoko]: {},
-    [Character.Aoi]: {},
-    [Character.Toko]: {},
-    [Character.Sakura]: {},
-    [Character.Celeste]: {},
-    [Character.Mukuro]: {},
-    [Character.Chihiro]: {},
-    [Character.Monokuma]: {},
-    [Character.Junko]: {},
-    [Character.AlterEgo]: {},
-    [Character.Usami]: {},
-  };
-
-const SHARED_NAMES: { [spriteId: number]: { name: string } } = {
-  [INVISIBLE_SPRITE]: { name: "Invisible" },
+const SHARED_NAMES: { [spriteId: number]: string } = {
+  [INVISIBLE_SPRITE]: "Invisible",
 };
 
 /**
  * The names a sprite expression can be written by in `.linscript`, per character id: the shared
- * `Invisible` plus that character's own rows. Each table maps names to ids and ids back to names,
- * like an enum object.
+ * `Invisible` plus that character's rows in `sprites` (`data/sprite/<character>-sprite-data.ts`).
+ * Each table maps names to ids and ids back to names, like an enum object. Name an expression by
+ * adding a row to the character's table; ids without a row stay numeric.
  */
 export const spriteNamesByCharacter: Readonly<Record<number, Readonly<Record<string, string | number>>>> =
   Object.freeze(
     Object.fromEntries(
-      Object.entries(spriteNameDataByCharacter).map(([character, rows]) => [Number(character), namesOf(rows ?? {})]),
+      Object.values(Character)
+        .filter((id): id is Character => typeof id === "number")
+        .map((id) => [id, namesOf(sprites[id] ?? {})]),
     ),
   );
 
-function namesOf(rows: { [spriteId: number]: { name: string } }) {
+function namesOf(rows: { [spriteId: number]: string }) {
   const table: Record<string, string | number> = {};
-  for (const [id, { name }] of Object.entries({ ...SHARED_NAMES, ...rows })) {
+  for (const [id, name] of Object.entries({ ...SHARED_NAMES, ...rows })) {
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) || Object.hasOwn(table, name)) {
+      throw new Error(`sprite name ${JSON.stringify(name)} (expression ${id}) must be a unique identifier`);
+    }
     table[name] = Number(id);
     table[id] = name;
   }

@@ -1,6 +1,6 @@
 export const kyokoSprite = {
   0: "Neutral",
-  1: "Neutral-2",
+  1: "Neutral_2",
   2: "Contemplating",
   3: "Blushing",
   4: "Smiling",
@@ -13,10 +13,10 @@ export const kyokoSprite = {
   11: "Solutioning",
   12: "Glaring",
   13: "Forceful",
-  14: "Smiling", // Arms crossed
+  14: "Smiling_2", // Arms crossed
   15: "Pointing",
   16: "Relieved",
-  17: "NoodleHat-Neutral",
+  17: "NoodleHatNeutral",
   18: "BackTurned",
-  19: "NoodleHat-Speaking",
+  19: "NoodleHatSpeaking",
 };

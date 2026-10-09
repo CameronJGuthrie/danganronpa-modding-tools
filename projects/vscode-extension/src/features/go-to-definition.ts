@@ -5,8 +5,9 @@ import { roomNamesByChapter, SUBROUTINE_SCENES } from "linscript-definitions";
 import * as vscode from "vscode";
 import { log } from "../output";
 import { labelNamesFromDocument } from "../util/script-meta";
-import { createStartOfLineCallRegex, createStartOfLineFunctionRegex } from "../util/string-util";
+import { createStartOfLineCallRegex } from "../util/string-util";
 import { modScriptDir } from "./scripts";
+import { findSpriteImagePath, spriteArgumentsOfLine } from "./sprite-image";
 import { getWorkbenchRoot } from "./workspace";
 
 /**
@@ -73,13 +74,12 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
       return this.findScriptFile(chapter, episode, scene);
     }
 
-    // Check if we're on a Sprite line
-    const runSpriteMatch = lineText.match(createStartOfLineFunctionRegex("Sprite", 5));
-    if (runSpriteMatch && (word === "Sprite" || lineText.startsWith("Sprite"))) {
-      const character = parseInt(runSpriteMatch[2], 10);
-      const spriteId = parseInt(runSpriteMatch[3], 10);
-      log(`Sprite detected: ${character}`);
-      return this.findSpriteImageFile(character, spriteId);
+    // A Sprite / PlaceSprite line opens the bust-up texture
+    const sprite = spriteArgumentsOfLine(lineText, document.getText());
+    if (sprite !== undefined) {
+      log(`Sprite detected: ${sprite.character}, ${sprite.expression}`);
+      const imagePath = findSpriteImagePath(sprite.character, sprite.expression);
+      return imagePath === null ? null : new vscode.Location(vscode.Uri.file(imagePath), new vscode.Position(0, 0));
     }
 
     return null;
@@ -153,46 +153,6 @@ export class LinscriptDefinitionProvider implements vscode.DefinitionProvider {
     if (fs.existsSync(explorationPath)) {
       log(`Found in exploration!`);
       return new vscode.Location(vscode.Uri.file(explorationPath), new vscode.Position(0, 0));
-    }
-
-    log(`File not found`);
-    return null;
-  }
-
-  /**
-   * Find the sprite image file based on character and spriteId
-   * TODO: when does the Sprite instruction use the bustup images at dr1_data/Dr1/data/all/texture/cg/*.tga
-   */
-  private findSpriteImageFile(character: number, spriteId: number): vscode.Location | null {
-    const rootDir = getWorkbenchRoot();
-    if (!rootDir) {
-      log("Root directory not found");
-      return null;
-    }
-
-    // Format the filename
-    const filename = `stand_${character.toString().padStart(2, "0")}_${spriteId.toString().padStart(2, "0")}.tga`;
-
-    log(`Looking for: ${filename}`);
-    log(`Root dir: ${rootDir}`);
-
-    // Search in the mod directory
-    const modPath = path.join(rootDir, "mods/default/dr1_data/Dr1/data/all/texture", filename);
-
-    log(`Checking mod path: ${modPath}`);
-    if (fs.existsSync(modPath)) {
-      log(`Found in mod!`);
-      return new vscode.Location(vscode.Uri.file(modPath), new vscode.Position(0, 0));
-    }
-
-    // Search the extracted game files: `pnpm run reset --convert image` replaces each .tga with .tga.png
-    const explorationDir = path.join(rootDir, "exploration/wad_dr1_data/Dr1/data/all/texture");
-    for (const explorationPath of [path.join(explorationDir, `${filename}.png`), path.join(explorationDir, filename)]) {
-      log(`Checking exploration path: ${explorationPath}`);
-      if (fs.existsSync(explorationPath)) {
-        log(`Found in exploration!`);
-        return new vscode.Location(vscode.Uri.file(explorationPath), new vscode.Position(0, 0));
-      }
     }
 
     log(`File not found`);

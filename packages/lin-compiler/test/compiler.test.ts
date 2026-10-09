@@ -57,7 +57,7 @@ describe("compile and decompile", () => {
     );
     assert.equal(
       writeSourceText(script),
-      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, AlterEgo, 1, FadeIn, Center)\nPlaceSprite(0, 19, 0)\nSprite(0, Makoto, 0, 11, 11)\n",
+      "Sprite(0, Usami, 34, PopIn, Right)\nSprite(0, AlterEgo, Happy, FadeIn, Center)\nPlaceSprite(0, 19, 0)\nSprite(0, Makoto, Neutral, 11, 11)\n",
     );
     assert.throws(() => readSource("Sprite(0, Headmaster, 0, 0, 1)\n"), SourceError);
     assert.throws(() => readSource("PlaceSprite(0, Headmaster, 0)\n"), SourceError);
@@ -934,12 +934,16 @@ describe("PlaceSprite sugar", () => {
   });
 
   test("Sprite entries with zero transition and position decompile as PlaceSprite", () => {
-    assert.equal(roundTrip("Sprite(1, Kyoko, 0, 0, 0)\n"), "PlaceSprite(1, Kyoko, 0)\n");
+    assert.equal(roundTrip("Sprite(1, Kyoko, 0, 0, 0)\n"), "PlaceSprite(1, Kyoko, Neutral)\n");
     assert.equal(roundTrip("Sprite(1, Kyoko, 98, Set, Leftmost)\n"), "PlaceSprite(1, Kyoko, Invisible)\n");
-    assert.equal(roundTrip("PlaceSprite(10, Chihiro, 0)\n"), "PlaceSprite(10, Chihiro, 0)\n");
+    assert.equal(roundTrip("PlaceSprite(10, Chihiro, 0)\n"), "PlaceSprite(10, Chihiro, Neutral)\n");
+    // Unnamed expressions stay numeric; names are per character
+    assert.equal(roundTrip("PlaceSprite(10, Makoto, 40)\n"), "PlaceSprite(10, Makoto, 40)\n");
+    assert.throws(() => readSource("PlaceSprite(10, Makoto, NeutralQueen)\n"), SourceError);
+    assert.equal(roundTrip("PlaceSprite(10, Junko, NeutralQueen)\n"), "PlaceSprite(10, Junko, NeutralQueen)\n");
     // Any other transition or position byte stays a plain Sprite
-    assert.equal(roundTrip("Sprite(0, Taka, 6, FadeIn, Center)\n"), "Sprite(0, Taka, 6, FadeIn, Center)\n");
-    assert.equal(roundTrip("Sprite(2, Celeste, 0, Set, 21)\n"), "Sprite(2, Celeste, 0, Set, 21)\n");
+    assert.equal(roundTrip("Sprite(0, Taka, 6, FadeIn, Center)\n"), "Sprite(0, Taka, Speaking, FadeIn, Center)\n");
+    assert.equal(roundTrip("Sprite(2, Celeste, 0, Set, 21)\n"), "Sprite(2, Celeste, Neutral, Set, 21)\n");
     assert.equal(roundTrip("Sprite(0, Toko, 98, Set, Center)\n"), "Sprite(0, Toko, Invisible, Set, Center)\n");
   });
 });
@@ -1071,7 +1075,7 @@ describe("Mode sugar", () => {
     };
     assert.equal(
       writeSourceText(script),
-      "SetUI(Textbox, Shown)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nMode(Thinking)\nSetUI(Textbox, Shown)\nSprite(0, Monokuma, 0, FadeIn, Center)\n",
+      "SetUI(Textbox, Shown)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nMode(Thinking)\nSetUI(Textbox, Shown)\nSprite(0, Monokuma, Neutral, FadeIn, Center)\n",
     );
   });
 
@@ -1089,7 +1093,7 @@ describe("Mode sugar", () => {
     };
     assert.equal(
       writeSourceText(script),
-      "SetUI(Thinking, Hidden)\nSprite(0, Monokuma, 0, FadeIn, Center)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nSpeaker(Makoto)\nSetUI(Name, Shown)\nSpeaker(Byakuya)\n",
+      "SetUI(Thinking, Hidden)\nSprite(0, Monokuma, Neutral, FadeIn, Center)\nSpeaker(Monokuma)\nSetUI(Textbox, Hidden)\nSpeaker(Makoto)\nSetUI(Name, Shown)\nSpeaker(Byakuya)\n",
     );
   });
 

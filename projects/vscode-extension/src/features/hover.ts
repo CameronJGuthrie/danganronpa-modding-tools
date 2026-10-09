@@ -4,6 +4,7 @@ import { logDebug } from "../output";
 import { argumentNames } from "../util/argument-names";
 import { argumentIndexAt, findCallAt, lookupInstruction, resolveTable } from "../util/call-at";
 import { metaEntryForScope } from "../util/script-meta";
+import { findSpriteImagePath, spriteLabel } from "./sprite-image";
 import { type ArgumentNames, getArgumentsFromFunctionLike, stripBranchJump } from "../util/string-util";
 
 /**
@@ -61,6 +62,10 @@ export class LinscriptHoverProvider implements vscode.HoverProvider {
     const markdown = argumentHover(functionDetails, parameter, argIndex, arg.value, table);
     if (!markdown) {
       return undefined;
+    }
+
+    if (isSpriteExpression(functionDetails, argIndex)) {
+      appendSpriteImage(markdown, args[1]?.value, arg.value);
     }
 
     const argRange = argumentRange(position.line, call.nameStart, callText, argIndex);
@@ -218,6 +223,34 @@ function argumentHover(
 
   md.appendMarkdown(lines.join("\n\n"));
   return md;
+}
+
+/** True for the expression argument of `Sprite` / `PlaceSprite`, whose hover shows the bust-up. */
+function isSpriteExpression(functionDetails: LinscriptInstruction, argIndex: number): boolean {
+  return (functionDetails.name === "Sprite" || functionDetails.name === "PlaceSprite") && argIndex === 2;
+}
+
+/**
+ * Append the sprite's image at full size. Only a `.png` renders in a hover, so a raw `.tga` (the
+ * textures before `pnpm run reset --convert image`) gets a note instead of a picture.
+ */
+function appendSpriteImage(md: vscode.MarkdownString, character: number | undefined, expression: number): void {
+  if (character === undefined || Number.isNaN(character) || Number.isNaN(expression)) {
+    return;
+  }
+  const imagePath = findSpriteImagePath(character, expression);
+  const label = spriteLabel(character, expression);
+  if (imagePath === null) {
+    md.appendMarkdown(`\n\n_No texture found for ${label}._`);
+    return;
+  }
+  if (!imagePath.endsWith(".png")) {
+    md.appendMarkdown(
+      `\n\n_${label} is only available as a .tga; run \`pnpm run reset --convert image\` to see it here._`,
+    );
+    return;
+  }
+  md.appendMarkdown(`\n\n![${label}](${vscode.Uri.file(imagePath).toString()})`);
 }
 
 /** Collapse template-literal descriptions written over several indented lines into one paragraph. */

@@ -1,6 +1,7 @@
 import * as assert from "node:assert";
 import { Character, comparisonOperators, RESET_FLAGS } from "linscript-definitions";
 // Import the instructions record from instructions/index.ts to avoid drift
+import { spriteArgumentsOfLine, spriteLabel, spriteTextureName } from "../features/sprite-image";
 import { instructions } from "../instructions";
 import { scopedNamesFromDocument } from "../util/script-meta";
 import {
@@ -200,6 +201,20 @@ suite("Extension Test Suite", () => {
       instructions.If.decorations?.([0, 1, 5, 7, 8, 2, 9] as never, ""),
       "If Time == 5 Or ScriptEntryContext <= 9",
     );
+  });
+
+  test("sprite expressions resolve by the character's own names", () => {
+    const names = instructions.Sprite.parameters.map((p) => p.namesBy ?? p.names);
+    assert.deepStrictEqual(
+      getArgumentsFromFunctionLike("Sprite(0, Monokuma, Curious, FadeIn, Center)", names).map((a) => a.value),
+      [0, 15, 10, 1, 2],
+    );
+    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Sprite(0, Makoto, Curious, FadeIn, Center)", names)[2].value));
+    assert.deepStrictEqual(spriteArgumentsOfLine("    PlaceSprite(3, Junko, NeutralQueen)", ""), { character: 16, expression: 0 });
+    assert.deepStrictEqual(spriteArgumentsOfLine("Sprite(0, Taka, 98, Set, Center)", ""), { character: 1, expression: 98 });
+    assert.equal(spriteArgumentsOfLine("Speaker(Makoto)", ""), undefined);
+    assert.equal(spriteTextureName(16, 3), "stand_16_03.tga");
+    assert.equal(spriteLabel(15, 10), "Monokuma: Curious");
   });
 
   test("the SetUI mode byte is a menu style after ChooseOption and Hidden/Shown elsewhere", () => {

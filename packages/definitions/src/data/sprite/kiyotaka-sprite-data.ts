@@ -7,7 +7,7 @@ export const kiyotakaSprite = {
   5: "CryingShouting",
   6: "Speaking",
   7: "Proclaim",
-  8: "Proclaim Point",
+  8: "ProclaimPoint",
   9: "Despair",
   10: "Scared",
   11: "Horrified",
