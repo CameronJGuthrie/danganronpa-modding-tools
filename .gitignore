@@ -6,7 +6,7 @@ packages/lin-compiler/dist/
 projects/cli/out/
 
 # Workspace directory (working files)
-workbench/*
+workbench/
 
 # Python cache
 __pycache__/
