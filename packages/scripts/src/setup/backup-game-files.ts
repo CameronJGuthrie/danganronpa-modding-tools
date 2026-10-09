@@ -4,7 +4,7 @@
  * backup-game-files.ts
  *
  * Backs up the 4 .wad files from the Steam game directory into
- * workbench/base_files/, one zstd-compressed file per WAD.
+ * workbench/base_files/ as plain copies.
  */
 
 import { stat } from "node:fs/promises";
@@ -34,11 +34,10 @@ async function backupGameFiles(): Promise<void> {
       continue;
     }
 
-    console.log(`Compressing ${wadFile} (${megabytes(size)} MB)...`);
-    const compressedSize = await backupWad(wadPath, wadFile);
-    console.log(`  -> ${megabytes(compressedSize)} MB`);
+    console.log(`Copying ${wadFile} (${megabytes(size)} MB)...`);
+    await backupWad(wadPath, wadFile);
     filesAdded++;
-    totalSize += compressedSize;
+    totalSize += size;
   }
 
   if (filesAdded === 0) {

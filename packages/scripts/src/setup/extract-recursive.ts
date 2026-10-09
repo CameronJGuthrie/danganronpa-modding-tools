@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
-import { basename, dirname, extname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { decompileDirectory } from "lin-compiler";
 import { extractPak } from "../formats/pak-archiver.ts";
+import { requireBaseFile, WAD_FILES, type WadFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
+import { WORKBENCH_DIR } from "../lib/paths.ts";
+
+const ALL_DIR = join(WORKBENCH_DIR, "all");
 
 // ============================================================================
 // WAD Archive Functions
@@ -256,15 +260,37 @@ async function findAndDecompileLins(directory: string): Promise<void> {
 // ============================================================================
 
 function showUsage(): void {
-  console.log(`Usage: extract-recursive.ts <input.wad>
+  console.log(`Usage: extract-recursive.ts <wad>
 
-Extracts a WAD file and recursively unpacks all PAK files found within.
+Extracts a WAD archive, recursively unpacks every PAK inside it and decompiles
+every .lin file. A backed-up WAD is extracted to workbench/all/<name>/, any
+other .wad next to itself.
 
 Arguments:
-  input.wad    Path to the WAD file to extract
+  wad    The name of a backed-up WAD (${WAD_FILES.join(", ")}),
+         read from workbench/base_files/, or a path to a .wad file.
 
 Example:
   node extract-recursive.ts dr1_data.wad`);
+}
+
+function isWadFile(name: string): name is WadFile {
+  return (WAD_FILES as readonly string[]).includes(name);
+}
+
+/** Resolve the argument to a WAD on disk and the directory to extract it into. */
+async function resolveWad(arg: string): Promise<{ wadPath: string; outputDir: string }> {
+  const fileName = basename(arg);
+  const name = basename(fileName, ".wad");
+  try {
+    await stat(arg);
+    return { wadPath: arg, outputDir: join(dirname(arg), name) };
+  } catch {
+    if (isWadFile(fileName)) {
+      return { wadPath: await requireBaseFile(fileName), outputDir: join(ALL_DIR, name) };
+    }
+    throw new Error(`File not found: ${arg}`);
+  }
 }
 
 async function main(): Promise<void> {
@@ -275,20 +301,8 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const wadPath = args[0];
-
   try {
-    // Check if file exists
-    await stat(wadPath);
-  } catch {
-    console.error(`Error: File not found: ${wadPath}`);
-    process.exit(1);
-  }
-
-  try {
-    // Create output directory (same name as WAD, without extension)
-    const wadBasename = basename(wadPath, extname(wadPath));
-    const outputDir = join(dirname(wadPath), wadBasename);
+    const { wadPath, outputDir } = await resolveWad(args[0]);
 
     console.log(`Starting recursive extraction...`);
     console.log(`Input: ${wadPath}`);

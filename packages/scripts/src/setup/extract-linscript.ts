@@ -6,7 +6,7 @@ import { chmod, copyFile, mkdir, readdir, rm } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { decompileDirectory } from "lin-compiler";
-import { restoreWad } from "../lib/base-files.ts";
+import { requireBaseFile } from "../lib/base-files.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { explorationScriptPath } from "../lib/mod-scripts.ts";
 import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
@@ -14,16 +14,6 @@ import { WAD_ARCHIVER_CLI, WORKBENCH_DIR } from "../lib/paths.ts";
 const execAsync = promisify(exec);
 const TEMP_DIR = join(WORKBENCH_DIR, "temp_extract");
 const EXPLORATION_DIR = join(WORKBENCH_DIR, "exploration");
-
-async function restoreWadToTemp(): Promise<string> {
-  console.log("Restoring dr1_data_us.wad from base_files...");
-
-  const tempWadPath = join(TEMP_DIR, "dr1_data_us.wad");
-  await mkdir(TEMP_DIR, { recursive: true });
-  await restoreWad("dr1_data_us.wad", tempWadPath);
-
-  return tempWadPath;
-}
 
 async function extractWadContents(wadPath: string): Promise<string> {
   console.log("Extracting WAD contents...");
@@ -110,22 +100,19 @@ async function main(): Promise<void> {
   try {
     console.log("Starting linscript extraction...\n");
 
-    // Step 1: Restore WAD from the backup
-    const wadPath = await restoreWadToTemp();
+    // Step 1: Extract WAD contents from the backup
+    const extractDir = await extractWadContents(await requireBaseFile("dr1_data_us.wad"));
 
-    // Step 2: Extract WAD contents
-    const extractDir = await extractWadContents(wadPath);
-
-    // Step 3: Decompile .lin files to .linscript
+    // Step 2: Decompile .lin files to .linscript
     const scriptDir = await decompileLinFiles(extractDir);
 
-    // Step 4: Copy .linscript files to exploration, organised by chapter and scene
+    // Step 3: Copy .linscript files to exploration, organised by chapter and scene
     const linscriptFiles = await copyLinscriptFiles(scriptDir);
 
-    // Step 5: Make files read-only
+    // Step 4: Make files read-only
     await makeFilesReadonly(linscriptFiles);
 
-    // Step 6: Remove temporary directory
+    // Step 5: Remove temporary directory
     await cleanup();
 
     console.log("\n✓ Complete! Linscript files are in exploration/");

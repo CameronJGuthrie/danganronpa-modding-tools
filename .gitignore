@@ -8,9 +8,6 @@ projects/cli/out/
 # Workspace directory (working files)
 workbench/*
 
-# Really messy debug scripts
-packages/scripts/src/generator.ts
-
 # Python cache
 __pycache__/
 *.pyc

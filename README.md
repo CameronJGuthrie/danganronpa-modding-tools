@@ -106,7 +106,7 @@ on its own:
 pnpm run compile
 ```
 
-It is a library with no command-line tool of its own: `pnpm select`, `pnpm verify`, `pnpm build` and
+It is a library with no command-line tool of its own: `pnpm select`, `pnpm build` and
 `pnpm reset` call it, and the GUI and VS Code extension are meant to as well.
 
 See [packages/lin-compiler/README.md](packages/lin-compiler/README.md) for the library API and for how to add
@@ -118,7 +118,7 @@ new opcodes.
 TypeScript, run directly by Node's type stripping - there is no build step:
 
 ```bash
-node packages/scripts/src/setup/validate-paks.ts    # same as: pnpm validate-paks
+node packages/scripts/src/setup/unpack-base-files.ts    # same as: pnpm unpack
 ```
 
 Typechecking is separate from running, and emits nothing:
