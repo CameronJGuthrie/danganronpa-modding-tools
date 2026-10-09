@@ -64,12 +64,14 @@ export type ScopeTables = Partial<Readonly<Record<ParameterScope, NamedValues>>>
  * are named by the script's `SceneFlagName(id, Name)` entries, which are merged over (and may override)
  * the fixed `namesBy` table for that value. `unless` switches the names off entirely when another
  * slot holds one of the listed values: the room of `RunScript` is a plain index when the scene is a
- * subroutine library.
+ * subroutine library. `otherwise` is the table for controlling values `namesBy` has no entry for:
+ * the mode byte of `SetUI` is `Hidden`/`Shown` for every interface but `ChooseOption`.
  */
 export type DependentParameter = {
   readonly type: ParameterType;
   readonly dependsOn: number;
   readonly namesBy: Readonly<Record<number, NamedValues>>;
+  readonly otherwise?: NamedValues;
   readonly scopeBy?: Readonly<Record<number, ParameterScope>>;
   readonly unless?: { readonly dependsOn: number; readonly values: readonly number[] };
 };
@@ -110,7 +112,7 @@ export function namesFor(
       return undefined;
     }
   }
-  const fixed = parameter.namesBy[controlling];
+  const fixed = parameter.namesBy[controlling] ?? parameter.otherwise;
   const scope = parameter.scopeBy?.[controlling];
   const scoped = scope === undefined ? undefined : scopes[scope];
   if (scoped === undefined) {

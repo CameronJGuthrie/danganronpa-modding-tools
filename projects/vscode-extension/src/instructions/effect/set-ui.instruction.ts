@@ -1,7 +1,9 @@
 import {
+  ChooseOptionMenu,
   isUserInterface,
   LinscriptInstructionName,
   UiVisibility,
+  uiModeNamesByUserInterface,
   UserInterface,
   userInterfaceConfiguration,
 } from "linscript-definitions";
@@ -19,15 +21,18 @@ export const setUiInstruction: LinscriptInstruction = {
     },
     {
       name: "state",
-      names: UiVisibility,
-      values: {
-        [UiVisibility.Hidden]: "Hidden",
-        [UiVisibility.Shown]: "Shown",
-      },
-      description: "Hidden or Shown; some interfaces accept larger numeric modes",
+      namesBy: { argument: -1, tables: uiModeNamesByUserInterface, otherwise: UiVisibility },
+      description:
+        "Hidden or Shown; some interfaces accept larger numeric modes. For ChooseOption the byte is the menu style: TopicList, TwoChoice, YesNo or Wide",
     },
   ] as const,
   decorations([interfaceId, state]) {
+    if (interfaceId === UserInterface.ChooseOption) {
+      const style = (ChooseOptionMenu as Record<number, string | number | undefined>)[state];
+      const action =
+        state === ChooseOptionMenu.Hidden ? "Close" : typeof style === "string" ? `Open ${style}` : `Open mode ${state}`;
+      return [{ contentText: `${action} menu: ${userInterfaceConfiguration[interfaceId]}` }];
+    }
     const visibility = state === UiVisibility.Hidden ? "Hide" : state === UiVisibility.Shown ? "Show" : `Mode ${state}`;
     if (!isUserInterface(interfaceId)) {
       return [{ contentText: `${visibility} UI: ${interfaceId}` }];

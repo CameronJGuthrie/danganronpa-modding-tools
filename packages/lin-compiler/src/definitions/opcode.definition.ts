@@ -19,6 +19,7 @@ import {
   SUBROUTINE_SCENES,
   spriteNamesByCharacter,
   UiVisibility,
+  uiModeNamesByUserInterface,
   UserInterface,
   Variable,
   VoiceCharacter,
@@ -93,6 +94,16 @@ const flagOffset: Parameter = {
   dependsOn: -1,
   namesBy: flagNamesByFlagGroup,
   scopeBy: { [FlagGroup.SceneFlags]: "SceneFlag" },
+};
+/**
+ * The mode byte of `SetUI`: `Hidden` / `Shown` for most interfaces, but a `ChooseOptionMenu` style
+ * (`TwoChoice`, `YesNo`, ...) when the interface just before it is `ChooseOption`.
+ */
+const uiMode: Parameter = {
+  type: Byte,
+  dependsOn: -1,
+  namesBy: uiModeNamesByUserInterface,
+  otherwise: UiVisibility,
 };
 /** An object id byte, written by the name the script's `Meta()` block gives it, if any. */
 const objectId: Parameter = { type: Byte, scope: "Object" };
@@ -172,7 +183,7 @@ export const opcodes = {
   Speaker:               { id: 0x21, args: fixed([named(Byte, Character)]) },
   ScreenFade:            { id: 0x22, args: bytes(3), hidden: true }, // FadeIn / FadeOut / FadeOutThenWait sugar
   ObjectState:           { id: 0x23, args: fixed([objectId, named(UInt16LE, ObjectVisibility), named(UInt16LE, ObjectInteraction)]) },
-  SetUI:                 { id: 0x25, args: fixed([named(Byte, UserInterface), named(Byte, UiVisibility)]) },
+  SetUI:                 { id: 0x25, args: fixed([named(Byte, UserInterface), uiMode]) },
   SetFlag:               { id: 0x26, args: fixed([flagGroup, flagOffset, bool]) },
   OnCharacter:           { id: 0x27, args: fixed([characterId]), block: true },
   OnObject:              { id: 0x29, args: fixed([objectId]), block: true },

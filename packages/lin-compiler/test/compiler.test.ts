@@ -615,8 +615,8 @@ describe("named arguments", () => {
 
   test("SetUI names both arguments and leaves unknown ids and modes numeric", () => {
     assert.equal(
-      roundTrip("SetUI(1, 0)\nSetUI(1, 1)\nSetUI(18, 3)\nSetUI(60, 1)\n"),
-      "SetUI(Textbox, Hidden)\nSetUI(Textbox, Shown)\nSetUI(ChooseOption, 3)\nSetUI(60, Shown)\n",
+      roundTrip("SetUI(1, 0)\nSetUI(1, 1)\nSetUI(18, 3)\nSetUI(18, 0)\nSetUI(18, 7)\nSetUI(60, 1)\n"),
+      "SetUI(Textbox, Hidden)\nSetUI(Textbox, Shown)\nSetUI(ChooseOption, YesNo)\nSetUI(ChooseOption, Hidden)\nSetUI(ChooseOption, 7)\nSetUI(60, Shown)\n",
     );
     assert.deepEqual(readSource("SetUI(Textbox, Shown)\n").entries[0], { opcode: 0x25, args: [1, 1] });
     assert.deepEqual(readSource("SetUI(1, 1)\n").entries[0], { opcode: 0x25, args: [1, 1] });

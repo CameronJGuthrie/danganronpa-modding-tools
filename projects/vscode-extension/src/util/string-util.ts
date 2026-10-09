@@ -34,6 +34,8 @@ export type DependentNames = {
   argument: number;
   tables: Readonly<Record<number, ArgumentNames>>;
   scopes?: Readonly<Record<number, ParameterScopeName>>;
+  /** The table for key values `tables` has no entry for (the `SetUI` mode byte of every interface but `ChooseOption`). */
+  otherwise?: ArgumentNames;
 };
 
 /** The kinds of names a `.linscript` file declares in its `Meta()` block. */
@@ -187,7 +189,12 @@ export function argumentTable(
   resolved: readonly { value: number }[],
 ): ArgumentNames | undefined {
   const source = names[index];
-  return isDependent(source) ? source.tables[resolved[index + source.argument]?.value] : source;
+  return isDependent(source) ? dependentTable(source, resolved[index + source.argument]?.value) : source;
+}
+
+/** The table a dependent source selects for `keyValue`, falling back to its `otherwise` table. */
+export function dependentTable(source: DependentNames, keyValue: number | undefined): ArgumentNames | undefined {
+  return keyValue === undefined ? undefined : (source.tables[keyValue] ?? source.otherwise);
 }
 
 /** The value `name` stands for in `names`, if it is one of the table's names. */

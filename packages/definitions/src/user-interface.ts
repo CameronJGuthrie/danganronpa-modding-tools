@@ -35,11 +35,40 @@ export const UserInterface = defineEnum({
 export type UserInterface = EnumValue<typeof UserInterface>;
 
 /**
- * The second argument of `SetUI`. 0 and 1 are hide/show; a few interfaces accept larger mode
- * values, which have no name and stay numeric in source.
+ * The second argument of `SetUI` for most interfaces. 0 and 1 are hide/show; a few interfaces
+ * accept larger mode values, which have no name and stay numeric in source. `ChooseOption` is the
+ * exception: its byte picks a menu style (`ChooseOptionMenu`).
  */
 export const UiVisibility = defineEnum({
   Hidden: 0,
   Shown: 1,
 });
 export type UiVisibility = EnumValue<typeof UiVisibility>;
+
+/**
+ * The second argument of `SetUI(ChooseOption, ...)`: which kind of choice box to open. Every
+ * shipped menu is written as `SetUI(ChooseOption, Hidden)` followed by `SetUI(ChooseOption, n)`
+ * and the `Goto` over its `Option(...)` table, and the shape of the table that follows depends
+ * on `n`. The names describe where the game uses each style, inferred from the 2896 shipped
+ * uses and not tested in game: 1 opens the free-time talk-topic lists (three options), 2 the
+ * ordinary two-choice list with custom labels ("Yes, definitely" / "Not really, no", "The killer"
+ * / "The victim"), 3 only ever a literal "Yes" / "No" pair, and 4 the School Mode prompts
+ * ("Absolutely!" / "Not at all!") and the debug trial-skip menus. Whether 1, 2 and 4 differ in
+ * layout or only in size is unknown.
+ */
+export const ChooseOptionMenu = defineEnum({
+  Hidden: 0,
+  TopicList: 1,
+  TwoChoice: 2,
+  YesNo: 3,
+  Wide: 4,
+});
+export type ChooseOptionMenu = EnumValue<typeof ChooseOptionMenu>;
+
+/**
+ * The name table for the second argument of `SetUI`, per interface: `ChooseOptionMenu` for
+ * `ChooseOption`, `UiVisibility` for everything else (see `uiModeNames`).
+ */
+export const uiModeNamesByUserInterface: Readonly<Record<number, Readonly<Record<string, string | number>>>> = {
+  [UserInterface.ChooseOption]: ChooseOptionMenu,
+};

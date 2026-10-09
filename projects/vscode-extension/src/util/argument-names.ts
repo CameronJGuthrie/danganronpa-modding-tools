@@ -35,5 +35,5 @@ function bindScopes(source: ArgumentNameSource, scoped: ScopedNames): ArgumentNa
   for (const [key, scope] of Object.entries(source.scopes)) {
     tables[Number(key)] = { ...tables[Number(key)], ...scoped[scope] };
   }
-  return { argument: source.argument, tables };
+  return { ...source, tables };
 }

@@ -1,6 +1,6 @@
 import { instructions } from "../instructions";
 import type { LinscriptInstruction } from "../instructions/linscript-instruction";
-import { type ArgumentNameSource, type ArgumentNames, isDependent, isInsideQuotes } from "./string-util";
+import { type ArgumentNameSource, type ArgumentNames, dependentTable, isDependent, isInsideQuotes } from "./string-util";
 
 /** An instruction call found on a line: its name, where the name starts and where the call ends. */
 export type CallAt = { name: string; nameStart: number; end: number };
@@ -97,6 +97,5 @@ export function resolveTable(
   if (!isDependent(source)) {
     return source;
   }
-  const keyValue = args[argIndex + source.argument]?.value;
-  return keyValue === undefined ? undefined : source.tables[keyValue];
+  return dependentTable(source, args[argIndex + source.argument]?.value);
 }

@@ -202,6 +202,17 @@ suite("Extension Test Suite", () => {
     );
   });
 
+  test("the SetUI mode byte is a menu style after ChooseOption and Hidden/Shown elsewhere", () => {
+    const names = instructions.SetUI.parameters.map((p) => p.namesBy ?? p.names);
+    assert.deepStrictEqual(
+      getArgumentsFromFunctionLike("SetUI(ChooseOption, YesNo)", names).map((a) => a.value),
+      [18, 3],
+    );
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetUI(Textbox, Shown)", names).map((a) => a.value), [1, 1]);
+    assert.deepStrictEqual(getArgumentsFromFunctionLike("SetUI(60, Hidden)", names).map((a) => a.value), [60, 0]);
+    assert.ok(Number.isNaN(getArgumentsFromFunctionLike("SetUI(Textbox, YesNo)", names)[1].value));
+  });
+
   test("dependent name tables resolve a character offset after a character flag group", () => {
     const setFlagNames = instructions.SetFlag.parameters.map((p) => p.namesBy ?? p.names);
     assert.deepStrictEqual(
