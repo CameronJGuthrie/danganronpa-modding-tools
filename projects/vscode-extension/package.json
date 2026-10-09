@@ -77,7 +77,7 @@
           "group": "navigation"
         },
         {
-          "when": "explorerResourceIsFolder && resourceFilename =~ /pak/",
+          "when": "explorerResourceIsFolder && resourcePath in lindecompilerhelper.pakFolders",
           "command": "lindecompilerhelper.selectPak",
           "group": "navigation"
         }

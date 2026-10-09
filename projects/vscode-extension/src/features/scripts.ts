@@ -73,18 +73,22 @@ export interface PakEntryFile {
   file: string;
 }
 
-/** The entries of an extracted pak folder in index order: files named by their index, `.lin` or `.linscript`. */
+/**
+ * The entries of an extracted pak folder in index order: every file named by its index, whatever
+ * its type (`.lin` scripts, `.txt` text tables, textures...). When an index has both a `.lin` and
+ * a `.linscript`, the `.linscript` is listed. Nested pak directories are skipped.
+ */
 export async function listPakEntries(pakFolder: string): Promise<PakEntryFile[]> {
   const byIndex = new Map<number, string>();
-  for (const name of (await readdir(pakFolder)).sort()) {
-    const index = pakEntryIndex(name);
-    const ext = path.extname(name);
-    if (index === null || (ext !== ".lin" && ext !== ".linscript")) {
+  const entries = (await readdir(pakFolder, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name));
+  for (const entry of entries) {
+    const index = pakEntryIndex(entry.name);
+    if (index === null || entry.isDirectory()) {
       continue;
     }
     const current = byIndex.get(index);
-    if (current === undefined || ext === ".linscript") {
-      byIndex.set(index, path.join(pakFolder, name));
+    if (current === undefined || path.extname(entry.name) === ".linscript") {
+      byIndex.set(index, path.join(pakFolder, entry.name));
     }
   }
   return [...byIndex.entries()].sort(([a], [b]) => a - b).map(([index, file]) => ({ index, file }));
@@ -103,9 +107,10 @@ async function findModPakEntry(modPakFolder: string, index: number): Promise<str
 }
 
 /**
- * Make a writable `.linscript` for one entry of an extracted pak folder in the mod's `pak_`
- * directory (see `modPakDir`) and return its path, decompiling a `.lin` or copying a
- * `.linscript`. An existing authored file for the same index is returned untouched.
+ * Make a writable copy of one entry of an extracted pak folder in the mod's `pak_` directory (see
+ * `modPakDir`) and return its path: a `.lin` is decompiled to a `.linscript`, a `.linscript` or
+ * any other file is copied under its own name, since the build packs non-script entries as they
+ * are. An existing authored file for the same index is returned untouched.
  */
 export async function selectPakEntry(compiler: CompilerClient, workbenchRoot: string, file: string): Promise<string> {
   const index = pakEntryIndex(path.basename(file));
@@ -118,14 +123,15 @@ export async function selectPakEntry(compiler: CompilerClient, workbenchRoot: st
     return existing;
   }
 
-  const output = path.join(targetDir, `${path.basename(file, path.extname(file))}.linscript`);
   await mkdir(targetDir, { recursive: true });
   if (path.extname(file) === ".lin") {
+    const output = path.join(targetDir, `${path.basename(file, ".lin")}.linscript`);
     await compiler.decompileFile(file, output);
-  } else {
-    await copyFile(file, output);
-    await chmod(output, 0o644); // exploration files are read-only
+    return output;
   }
+  const output = path.join(targetDir, path.basename(file));
+  await copyFile(file, output);
+  await chmod(output, 0o644); // exploration files are read-only
   return output;
 }
 

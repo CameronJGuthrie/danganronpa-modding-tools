@@ -13,6 +13,7 @@ import { registerDecoration } from "./features/decoration";
 import { registerDiagnostics } from "./features/diagnostics";
 import { registerDefinitionProvider } from "./features/go-to-definition";
 import { registerHoverProvider } from "./features/hover";
+import { registerPakFolders } from "./features/pak-folders";
 import { listPakEntries, modPakDir, selectPakEntry, selectScript, verifyScript } from "./features/scripts";
 import { registerWorkbenchRoot, requireWorkbenchRoot } from "./features/workspace";
 import { initializeOutputChannel, log, logError } from "./output";
@@ -25,6 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
   log(`Danganronpa Modding extension activated at ${timestamp}`);
 
   registerWorkbenchRoot(context);
+  registerPakFolders(context);
   registerDecoration();
   registerDiagnostics(context);
   registerDefinitionProvider(context);
@@ -112,7 +114,7 @@ async function selectPak(context: vscode.ExtensionContext, uri: vscode.Uri): Pro
     const targetDir = modPakDir(rootDir, folder);
     const entries = await listPakEntries(folder);
     if (entries.length === 0) {
-      vscode.window.showErrorMessage(`${title}: ${path.basename(folder)} has no .lin or .linscript entries`);
+      vscode.window.showErrorMessage(`${title}: ${path.basename(folder)} has no index-named entries`);
       return;
     }
     const picked = await vscode.window.showQuickPick(

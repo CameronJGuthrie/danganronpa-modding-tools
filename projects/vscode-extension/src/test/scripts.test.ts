@@ -1,5 +1,5 @@
 import * as assert from "node:assert";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { listPakEntries, modPakDir } from "../features/scripts";
@@ -31,16 +31,18 @@ suite("listPakEntries", () => {
     await rm(dir, { recursive: true, force: true });
   });
 
-  test("lists index-named .lin and .linscript files in index order, preferring the .linscript", async () => {
+  test("lists every index-named file in index order, preferring a .linscript over its .lin", async () => {
     for (const name of ["0010.lin", "0002.lin", "0002.linscript", "0003_Label.lin", "notes.txt", "0004.tga"]) {
       await writeFile(path.join(dir, name), "");
     }
+    await mkdir(path.join(dir, "0005"));
     const entries = await listPakEntries(dir);
     assert.deepStrictEqual(
       entries.map((entry) => [entry.index, path.basename(entry.file)]),
       [
         [2, "0002.linscript"],
         [3, "0003_Label.lin"],
+        [4, "0004.tga"],
         [10, "0010.lin"],
       ],
     );
