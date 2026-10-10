@@ -10,6 +10,7 @@
  * `pnpm run build --mod <name>`, which installs them too) and are copied into the game
  * directory before Steam is started, so switching mods is a copy rather than a rebuild. A mod
  * that has never been built is an error rather than a launch of whatever was installed last.
+ * A running game is stopped first, since it holds the WADs and Steam will not start a second copy.
  */
 
 import { spawn } from "node:child_process";
@@ -17,6 +18,7 @@ import { existsSync } from "node:fs";
 import { copyFile, readdir } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { errorMessage } from "../lib/errors.ts";
+import { stopGame } from "../lib/game-process.ts";
 import { modBuildDir, modNameFromArgs } from "../lib/mods.ts";
 import { getGameDirectoryOrThrow } from "../lib/steam-paths.ts";
 
@@ -38,6 +40,10 @@ async function installMod(mod: string): Promise<string[]> {
 
 async function main(): Promise<void> {
   const mod = modNameFromArgs(process.argv.slice(2));
+  const stopped = await stopGame();
+  if (stopped.length > 0) {
+    console.log("Stopped the running game.");
+  }
   const wads = await installMod(mod);
   console.log(`Installed mod ${mod}: ${wads.join(", ")}`);
 

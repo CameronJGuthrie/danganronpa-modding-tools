@@ -7,7 +7,7 @@ import {
   musics,
   sounds,
   transitionSounds,
-  voiceLinesByCharacterByChapter,
+  voiceLine,
 } from "linscript-definitions";
 import type { ScriptLine } from "./controlFlow";
 
@@ -47,12 +47,13 @@ export function lineComment(line: ScriptLine): string | undefined {
       if (character === undefined || !isCharacter(character)) {
         return undefined;
       }
-      const name = Character[character];
-      const voice =
+      const line =
         chapter !== undefined && isChapter(chapter) && voiceId !== undefined
-          ? voiceLinesByCharacterByChapter[character]?.[chapter]?.[voiceId]
+          ? voiceLine(character, chapter, voiceId)
           : undefined;
-      return voice === undefined ? `${name}: voice ${voiceId}` : `${name}: "${voice}"`;
+      return line === undefined
+        ? `${Character[character]}: voice ${voiceId}`
+        : `${Character[line.speaker]}: "${line.text}"`;
     }
     default:
       return undefined;

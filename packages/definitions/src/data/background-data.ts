@@ -1,4 +1,5 @@
 export const backgrounds: Readonly<{ [key: number]: string }> = {
+  4: "Free Time Banner",
   [512 + 44]: "Recieve School Crest", // Not sure
   [512 + 113]: "Welcome to Despair",
   [512 + 121]: "TV",

@@ -59,6 +59,13 @@ export const spriteInstruction: LinscriptInstruction = {
       name: "slot",
       description:
         "The sprite layer the bust-up occupies: 0 for the speaker, 1 for a second character on screen, and higher slots for placed stands and lineups. First in binary, written last",
+      // The game has two dialogue bust-up layers. A shown bust-up at a dialogue position (Left to
+      // Rightmost) with a slot above 1 reads past them: a FadeIn into slot 2 has started a movie in
+      // testing. Set placements and Leftmost lineups (the chapter 2 and 3 crime-scene rosters, and
+      // the mass FadeOut/SlowFadeIn exits) use higher slots legitimately, so only five shipped lines
+      // warn: the Left lineups in e02_027_029 and e03_044_030.
+      range: ([, , transition, position]) =>
+        transition !== SpriteTransition.Set && isDialoguePosition(position) ? { min: 0, max: 1 } : undefined,
     },
   ] as const,
   decorations([character, spriteId, transition, position]) {
@@ -75,6 +82,11 @@ export const spriteInstruction: LinscriptInstruction = {
     return [{ contentText: `${name}: «${expression}»${transitionName}${positionName}`, color }];
   },
 };
+
+/** A screen position a dialogue bust-up stands at; Leftmost is also where lineups and exits are written. */
+function isDialoguePosition(position: number): boolean {
+  return position >= SpritePosition.Left && position <= SpritePosition.Rightmost;
+}
 
 const transitions: Readonly<Record<SpriteTransition, string>> = {
   [SpriteTransition.Set]: "set",

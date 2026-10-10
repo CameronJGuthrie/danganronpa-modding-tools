@@ -60,8 +60,26 @@ export const voiceLinesByCharacterByChapter: CharacterVoiceLinesByChapter = {
 export type VoiceMeta = {
   index: number;
 };
+/**
+ * One transcribed line: plain text when the bank's owner says it, or text with the `speaker` when
+ * the game borrows the bank for someone without one of their own (the Headmaster and Makoto's
+ * family are played from Hifumi's and Toko's Chapter_99 banks).
+ */
+export type VoiceLine = string | { text: string; speaker: Character };
 /** Voice lines by chapter; chapters with no transcribed lines yet may be left out. */
 export type ChapterVoiceLines = Partial<
-  Record<Chapter, { [voiceLineId: number]: string; metadata: VoiceMeta } | undefined>
+  Record<Chapter, { [voiceLineId: number]: VoiceLine; metadata: VoiceMeta } | undefined>
 >;
 export type CharacterVoiceLinesByChapter = Record<Character, ChapterVoiceLines | undefined>;
+
+/** A transcribed line with its speaker resolved: the bank's owner unless the entry names another. */
+export type ResolvedVoiceLine = { text: string; speaker: Character };
+
+/** The transcript of `Voice(character, chapter, voiceId)`, or undefined when it is not transcribed. */
+export function voiceLine(character: Character, chapter: Chapter, voiceId: number): ResolvedVoiceLine | undefined {
+  const line = voiceLinesByCharacterByChapter[character]?.[chapter]?.[voiceId];
+  if (line === undefined) {
+    return undefined;
+  }
+  return typeof line === "string" ? { text: line, speaker: character } : line;
+}

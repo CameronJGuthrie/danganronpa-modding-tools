@@ -7,6 +7,8 @@ import { MAX_STUDENT_ID } from "./student.ts";
  * but are not character ids (20 would be MakotoMom, and 29 has no character at all), so they keep
  * placeholder names until their contents are known. 20 is placed in the bathhouse in chapters 3
  * and 4 and is probably Alter Ego; 29 and 30 appear in chapter 6 and in School Mode.
+ *
+ * Makoto cannot be placed in a room (presumably because he has no portrait)
  */
 const unknownMapCharacterIds = [20, 29, 30] as const;
 

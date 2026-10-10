@@ -5,7 +5,7 @@ import {
   isVoiceCharacter,
   LinscriptInstructionName,
   VoiceCharacter,
-  voiceLinesByCharacterByChapter,
+  voiceLine,
 } from "linscript-definitions";
 import type { LinscriptInstruction } from "../linscript-instruction";
 
@@ -43,17 +43,14 @@ export const voiceInstruction: LinscriptInstruction = {
       return "Unknown Chapter";
     }
 
-    const { name, color } = characterData[character];
-    const voice = voiceLinesByCharacterByChapter?.[character]?.[chapter]?.[voiceId];
-
-    let text = `${name}: `;
-
-    if (voice) {
-      text += `"${voice}"`;
-    } else {
-      text += `voiceId=${voiceId}`;
+    const line = voiceLine(character, chapter, voiceId);
+    if (line === undefined) {
+      const { name, color } = characterData[character];
+      return [{ contentText: `${name}: voiceId=${voiceId}`, color }];
     }
 
-    return [{ contentText: text, color }];
+    // A borrowed line (the Headmaster from Hifumi's bank) is shown under its speaker's name
+    const { name, color } = characterData[line.speaker];
+    return [{ contentText: `${name}: "${line.text}"`, color }];
   },
 };

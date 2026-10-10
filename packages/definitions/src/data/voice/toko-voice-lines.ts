@@ -1,4 +1,5 @@
 import { Chapter } from "../../chapter.ts";
+import { Character } from "../../character.ts";
 import type { ChapterVoiceLines } from "./index.ts";
 
 export const tokoVoiceLines: ChapterVoiceLines = {
@@ -308,8 +309,8 @@ export const tokoVoiceLines: ChapterVoiceLines = {
     73: "I don't know anything!",
     74: "That's enough!",
     75: "Gah!",
-    76: "You getting picked to attend Hope's Peak Academy is like a dream come true. Make sure you do your best.",
-    77: "Are you really watching this, Makoto? Good luck, okay?",
+    76: { text: "You getting picked to attend Hope's Peak Academy is like a dream come true. Make sure you do your best.", speaker: Character.MakotoMom },
+    77: { text: "Are you really watching this, Makoto? Good luck, okay?", speaker: Character.MakotoSister },
     78: "*Sigh*",
     79: "It's so... wonderful.",
     80: "I don't know why, but I have a burning desire to start writing.",

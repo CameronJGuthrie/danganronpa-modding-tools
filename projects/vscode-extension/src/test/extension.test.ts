@@ -213,6 +213,7 @@ suite("Extension Test Suite", () => {
     assert.ok(Number.isNaN(getArgumentsFromFunctionLike("Sprite(Makoto, Curious, FadeIn, Center, 0)", names)[1].value));
     assert.deepStrictEqual(spriteArgumentsOfLine("    PlaceSprite(Junko, NeutralQueen, 3)", ""), { character: 16, expression: 0 });
     assert.deepStrictEqual(spriteArgumentsOfLine("Sprite(Taka, 98, Set, Center, 0)", ""), { character: 1, expression: 98 });
+    assert.deepStrictEqual(spriteArgumentsOfLine("Sprite(Aoi, Puzzled, FadeIn, Right, 0)", ""), { character: 9, expression: 10 });
     assert.equal(spriteArgumentsOfLine("Speaker(Makoto)", ""), undefined);
     assert.equal(spriteTextureName(16, 3), "stand_16_03.tga");
     assert.equal(spriteLabel(15, 10), "Monokuma: Curious");
@@ -330,6 +331,23 @@ suite("Extension Test Suite", () => {
       validateCall(instructions.Sprite, "Sprite(Taka, 6, FadeIn, Center, 0)", NO_SCOPED_NAMES),
       [],
     );
+    assert.deepStrictEqual(
+      validateCall(instructions.Sprite, "Sprite(Taka, 6, FadeIn, Center, 1)", NO_SCOPED_NAMES),
+      [],
+    );
+    // Placements and Leftmost lineups use higher slots, so the layer range does not apply to them
+    assert.deepStrictEqual(validateCall(instructions.Sprite, "Sprite(Taka, 6, Set, 11, 5)", NO_SCOPED_NAMES), []);
+    assert.deepStrictEqual(
+      validateCall(instructions.Sprite, "Sprite(Taka, 6, FadeOut, Leftmost, 7)", NO_SCOPED_NAMES),
+      [],
+    );
+  });
+
+  test("validateCall reports a shown bust-up in a slot above the two dialogue layers", () => {
+    const problems = validateCall(instructions.Sprite, "Sprite(Mukuro, 3, FadeIn, Rightmost, 2)", NO_SCOPED_NAMES);
+    assert.strictEqual(problems.length, 1);
+    assert.strictEqual(problems[0].stringIndex, "Sprite(Mukuro, 3, FadeIn, Rightmost, ".length);
+    assert.match(problems[0].message, /slot 2 is outside the valid range 0 to 1/);
   });
 
   test("validateCall reports an unknown name", () => {

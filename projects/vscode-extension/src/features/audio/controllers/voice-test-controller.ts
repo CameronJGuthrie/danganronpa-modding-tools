@@ -4,6 +4,7 @@ import {
   characterData,
   isChapter,
   isCharacter,
+  voiceLine,
   voiceLinesByCharacterByChapter,
 } from "linscript-definitions";
 import type * as vscode from "vscode";
@@ -79,8 +80,10 @@ export function registerVoiceTestController(context: vscode.ExtensionContext) {
     formatTestLabel: (info: VoiceLineInfo): string => {
       if (isCharacter(info.characterId)) {
         if (isChapter(info.chapter)) {
-          const voiceText = voiceLinesByCharacterByChapter[info.characterId]?.[info.chapter]?.[info.voiceId];
-          return `${characterData[info.characterId].name}: ${voiceText ?? `(${info.voiceId})`}`;
+          const line = voiceLine(info.characterId, info.chapter, info.voiceId);
+          return line === undefined
+            ? `${characterData[info.characterId].name}: (${info.voiceId})`
+            : `${characterData[line.speaker].name}: ${line.text}`;
         } else {
           return `${characterData[info.characterId].name}: (${info.voiceId})`;
         }
@@ -124,15 +127,5 @@ function getVoiceLineText(characterId: number, chapter: number, voiceId: number)
     return null;
   }
 
-  const voiceData = voiceLinesByCharacterByChapter[characterId];
-  if (!voiceData) {
-    return null;
-  }
-
-  const chapterData = voiceData[chapter];
-  if (!chapterData) {
-    return null;
-  }
-
-  return chapterData[voiceId] || null;
+  return voiceLine(characterId, chapter, voiceId)?.text || null;
 }

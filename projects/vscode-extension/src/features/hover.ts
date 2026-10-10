@@ -70,7 +70,7 @@ export class LinscriptHoverProvider implements vscode.HoverProvider {
     }
 
     if (isSpriteExpression(functionDetails, argIndex)) {
-      appendSpriteImages(markdown, args[1]?.value, arg.value, this.cacheDir);
+      appendSpriteImages(markdown, args[0]?.value, arg.value, this.cacheDir);
     }
 
     const argRange = argumentRange(position.line, call.nameStart, callText, argIndex);

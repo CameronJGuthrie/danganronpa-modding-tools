@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "biome check",
     "lint:fix": "biome check --write --unsafe",
-    "start": "pnpm run build && pnpm run game",
+    "start": "pnpm run stop && pnpm run build && pnpm run game",
     "ext": "pnpm --filter lindecompilerhelper install-extension",
     "reset": "node packages/scripts/src/setup/extract-linscript.ts",
     "extract-recursive": "node packages/scripts/src/setup/extract-recursive.ts",
@@ -18,6 +18,7 @@
     "select": "node packages/scripts/src/mod/select.ts",
     "build": "node packages/scripts/src/mod/build.ts",
     "game": "node packages/scripts/src/game/launch-game.ts",
+    "stop": "node packages/scripts/src/game/stop-game.ts",
     "gui": "pnpm -C projects/gui run start",
     "investigate": "node packages/scripts/src/explore/investigate.ts",
     "test": "pnpm -r --if-present run test ",
